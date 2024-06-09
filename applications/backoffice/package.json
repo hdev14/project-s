@@ -1,0 +1,25 @@
+{
+  "name": "backoffice",
+  "version": "1.0.0",
+  "description": "Application with all the features to manage subscriptions",
+  "main": "./build/index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "npx jest"
+  },
+  "keywords": [
+    "backoffice",
+    "typescript",
+    "react"
+  ],
+  "author": "hdev14",
+  "license": "ISC",
+  "dependencies": {
+    "next": "^14.2.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

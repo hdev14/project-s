@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "commonjs",
+    "baseUrl": ".",
+    "outDir": "./build",
+    "allowJs": true,
+    "paths": {
+      "@share/*": [
+        "src/modules/_shared/*"
+      ],
+      "@auth/*": [
+        "src/modules/auth/*"
+      ],
+      "@catalog/*": [
+        "src/modules/catalog/*"
+      ],
+      "@subscriber/*": [
+        "src/modules/subscriber/*"
+      ],
+      "@subscription/*": [
+        "src/modules/subscription/*"
+      ]
+    },
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

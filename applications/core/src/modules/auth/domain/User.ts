@@ -19,19 +19,23 @@ export default class User extends Aggregate<UserObject> implements AggregateRoot
     super(obj.id);
     this.#email = obj.email;
     this.#password = obj.password;
-
     for (let idx = 0; idx < obj.policies.length; idx++) {
-      const policy = obj.policies[idx];
-      this.#policies.push(new Policy(policy))
+      this.#policies.push(new Policy(obj.policies[idx]))
     }
   }
 
   toObject(): Required<UserObject> {
+    const policies = [];
+
+    for (let idx = 0; idx < this.#policies.length; idx++) {
+      policies.push(this.#policies[idx].toObject())
+    }
+
     return {
       id: this.id,
       email: this.#email,
       password: this.#password,
-      policies: this.#policies.map((policy) => policy.toObject())
+      policies
     }
   }
 }

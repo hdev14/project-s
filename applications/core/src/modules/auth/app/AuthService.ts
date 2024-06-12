@@ -1,5 +1,6 @@
 import { UserObject } from "@auth/domain/User";
 import Either from "@share/Either";
+import PaginationOptions from "@share/PaginationOptions";
 import AuthTokenManager, { TokenResult } from "./AuthTokenManager";
 import Encryptor from "./Encryptor";
 import PolicyRepository from "./PolicyRepository";
@@ -21,6 +22,10 @@ export type UpdateUserParams = Partial<UserParams> & { user_id: string };
 export type UpdatePoliciesParams = {
   user_id: string,
   policy_slugs: Array<string>;
+};
+
+export type GetUsersParams = {
+  pagination: PaginationOptions;
 };
 
 export default class AuthService {
@@ -54,6 +59,10 @@ export default class AuthService {
   }
 
   async updatePolicies(params: UpdatePoliciesParams): Promise<Either<void>> {
+    return Either.left(new Error());
+  }
+
+  async getUsers(params: GetUsersParams): Promise<Array<UserObject>> {
     return Either.left(new Error());
   }
 }

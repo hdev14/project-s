@@ -20,6 +20,9 @@
       ],
       "@subscription/*": [
         "src/modules/subscription/*"
+      ],
+      "@payment/*": [
+        "src/modules/payment/*"
       ]
     },
     "esModuleInterop": true,

@@ -1,4 +1,4 @@
-import Aggregate from "@share/Aggregate";
+import Aggregate, { RequiredId } from "@share/Aggregate";
 
 export type SubscriptionObject = {
   id?: string;
@@ -19,7 +19,7 @@ export default class Subscription extends Aggregate<SubscriptionObject> {
     this.#recurrence_type = obj.recurrence_type;
   }
 
-  toObject(): Required<SubscriptionObject> {
+  toObject(): RequiredId<SubscriptionObject> {
     return {
       id: this.id,
       amount: this.#amount,

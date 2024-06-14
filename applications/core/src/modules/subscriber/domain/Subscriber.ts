@@ -1,5 +1,4 @@
-import Aggregate from "@share/Aggregate";
-import AggregateRoot from "@share/AggregateRoot";
+import Aggregate, { AggregateRoot, RequiredId } from "@share/Aggregate";
 import Address, { AddressValue } from "./Address";
 import PaymentMethod, { PaymentMethodValue } from "./PaymentMethod";
 import Subscription, { SubscriptionObject } from "./Subscription";
@@ -28,13 +27,13 @@ export default class Subscriber extends Aggregate<SubscriberObject> implements A
       obj.address.number,
       obj.address.complement
     );
-    this.#payment_method = new PaymentMethod(obj.payment_method.payment_type, obj.payment_method.credit_card_external_id);
+    this.#payment_method = new PaymentMethod(obj.payment_method.payment_type, obj.payment_method.credit_card_id);
     for (let idx = 0; idx < obj.subscriptions.length; idx++) {
       this.#subscriptions.push(new Subscription(obj.subscriptions[idx]));
     }
   }
 
-  toObject(): Required<SubscriberObject> {
+  toObject(): RequiredId<SubscriberObject> {
     const subscriptions = [];
 
     for (let idx = 0; idx < this.#subscriptions.length; idx++) {

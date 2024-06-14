@@ -1,4 +1,4 @@
-import Aggregate from "@share/Aggregate";
+import Aggregate, { RequiredId } from "@share/Aggregate";
 
 export type PaymentLogObject = {
   id?: string;
@@ -16,7 +16,7 @@ export default class PaymentLog extends Aggregate<PaymentLogObject> {
     this.#payload = obj.payload;
   }
 
-  toObject(): Required<PaymentLogObject> {
+  toObject(): RequiredId<PaymentLogObject> {
     return {
       id: this.id,
       external_id: this.#external_id,

@@ -1,5 +1,4 @@
-import Aggregate from "@share/Aggregate";
-import AggregateRoot from "@share/AggregateRoot";
+import Aggregate, { AggregateRoot, RequiredId } from "@share/Aggregate";
 import SubscriptionPlan, { SubscriptionPlanObject } from "./SubscriptionPlan";
 
 export enum SubscriptionStatus {
@@ -31,7 +30,7 @@ export default class Subscription extends Aggregate<SubscriptionObject> implemen
     this.#status = obj.status;
   }
 
-  toObject(): Required<SubscriptionObject> {
+  toObject(): RequiredId<SubscriptionObject> {
     return {
       id: this.id,
       subscriber_id: this.#subscriber_id,

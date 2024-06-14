@@ -1,4 +1,4 @@
-import Aggregate from "@share/Aggregate";
+import Aggregate, { RequiredId } from "@share/Aggregate";
 
 export type PolicyObject = {
   id?: string
@@ -16,7 +16,7 @@ export default class Policy extends Aggregate<PolicyObject> {
     this.#description = obj.description;
   }
 
-  toObject(): Required<PolicyObject> {
+  toObject(): RequiredId<PolicyObject> {
     return {
       id: this.id,
       slug: this.#slug,

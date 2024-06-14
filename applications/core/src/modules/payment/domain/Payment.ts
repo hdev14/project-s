@@ -1,5 +1,5 @@
-import Aggregate from "@share/Aggregate";
-import AggregateRoot from "@share/AggregateRoot";
+import Aggregate, { AggregateRoot, RequiredId } from "@share/Aggregate";
+import Customer, { CustomerObject } from "./Customer";
 import PaymentLog, { PaymentLogObject } from "./PaymentLog";
 
 export enum PaymentStatus {
@@ -15,6 +15,7 @@ export type PaymentObject = {
   tax: number;
   status: PaymentStatus;
   subscription_id: string;
+  customer: CustomerObject;
   logs: Array<PaymentLogObject>;
 }
 
@@ -23,6 +24,7 @@ export default class Payment extends Aggregate<PaymentObject> implements Aggrega
   #tax: number;
   #status: PaymentStatus;
   #subcription_id: string;
+  #customer: Customer;
   #logs: Array<PaymentLog> = [];
 
   constructor(obj: PaymentObject) {
@@ -31,12 +33,13 @@ export default class Payment extends Aggregate<PaymentObject> implements Aggrega
     this.#tax = obj.tax;
     this.#status = obj.status;
     this.#subcription_id = obj.subscription_id;
+    this.#customer = new Customer(obj.customer);
     for (let idx = 0; idx < obj.logs.length; idx++) {
       this.#logs.push(new PaymentLog(obj.logs[idx]));
     }
   }
 
-  toObject(): Required<PaymentObject> {
+  toObject(): RequiredId<PaymentObject> {
     const logs = [];
 
     for (let idx = 0; idx < this.#logs.length; idx++) {
@@ -49,6 +52,7 @@ export default class Payment extends Aggregate<PaymentObject> implements Aggrega
       tax: this.#tax,
       status: this.#status,
       subscription_id: this.#subcription_id,
+      customer: this.#customer.toObject(),
       logs,
     }
   }

@@ -1,4 +1,4 @@
-import Aggregate from "@share/Aggregate";
+import Aggregate, { RequiredId } from "@share/Aggregate";
 
 export type ItemObject = {
   id?: string;
@@ -19,7 +19,7 @@ export default class Item extends Aggregate<ItemObject> {
     this.#is_service = obj.is_service;
   }
 
-  toObject(): Required<ItemObject> {
+  toObject(): RequiredId<ItemObject> {
     return {
       id: this.id,
       name: this.#name,

@@ -1,4 +1,4 @@
-import Aggregate from "@share/Aggregate";
+import Aggregate, { RequiredId } from "@share/Aggregate";
 import Item, { ItemObject } from "./Item";
 
 export enum RecurrenceTypes {
@@ -30,7 +30,7 @@ export default class SubscriptionPlan extends Aggregate<SubscriptionPlanObject> 
     }
   }
 
-  toObject(): Required<SubscriptionPlanObject> {
+  toObject(): RequiredId<SubscriptionPlanObject> {
     const items = [];
     for (let idx = 0; idx < this.#items.length; idx++) {
       items.push(this.#items[idx].toObject());

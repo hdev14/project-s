@@ -1,5 +1,4 @@
-import Aggregate from "@share/Aggregate";
-import AggregateRoot from "@share/AggregateRoot";
+import Aggregate, { AggregateRoot, RequiredId } from "@share/Aggregate";
 import Policy, { PolicyObject } from "./Policy";
 
 
@@ -24,7 +23,7 @@ export default class User extends Aggregate<UserObject> implements AggregateRoot
     }
   }
 
-  toObject(): Required<UserObject> {
+  toObject(): RequiredId<UserObject> {
     const policies = [];
 
     for (let idx = 0; idx < this.#policies.length; idx++) {

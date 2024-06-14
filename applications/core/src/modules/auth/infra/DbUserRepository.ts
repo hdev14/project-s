@@ -1,7 +1,11 @@
 import UserRepository from "@auth/app/UserRepository";
 import User from "@auth/domain/User";
+import PaginationOptions from "@share/utils/PaginationOptions";
 
 export default class DbUserRepository implements UserRepository {
+  getUsers(pagination: PaginationOptions): Promise<User[]> {
+    throw new Error("Method not implemented.");
+  }
   getUserById(id: string): User {
     throw new Error("Method not implemented.");
   }

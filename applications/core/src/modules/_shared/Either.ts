@@ -1,11 +1,11 @@
-export default class Either<T = any> extends Array {
+export default class Either<T = unknown> extends Array {
   private constructor(params: { data?: T, error?: Error }) {
     super(2);
     this[0] = params.data;
     this[1] = params.error;
   }
 
-  static right<T>(data: any) {
+  static right<T>(data: T) {
     return Object.seal(new Either<T>({ data }));
   }
 

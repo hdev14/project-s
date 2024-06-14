@@ -1,4 +1,4 @@
-import PaginationOptions from "@share/PaginationOptions";
+import PaginationOptions from "@share/utils/PaginationOptions";
 import Subscriber from "@subscriber/domain/Subscriber";
 
 export default interface SubscriberRepository {

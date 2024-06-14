@@ -1,4 +1,4 @@
-import PaginationOptions from "@share/PaginationOptions";
+import PaginationOptions from "@share/utils/PaginationOptions";
 import Subscription from "@subscription/domain/Subscription";
 import SubscriptionPlan from "@subscription/domain/SubscriptionPlan";
 

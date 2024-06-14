@@ -1,4 +1,4 @@
-import Aggregate, { AggregateRoot, RequiredId } from "@share/Aggregate";
+import Aggregate, { AggregateRoot, RequiredId } from "@share/ddd/Aggregate";
 import Policy, { PolicyObject } from "./Policy";
 
 

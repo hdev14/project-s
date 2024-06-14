@@ -1,4 +1,4 @@
-import Either from "@share/Either";
+import Either from "@share/utils/Either";
 import { SubscriptionObject } from "@subscriber/domain/Subscription";
 import { SubscriptionPlanObject } from "@subscription/domain/SubscriptionPlan";
 

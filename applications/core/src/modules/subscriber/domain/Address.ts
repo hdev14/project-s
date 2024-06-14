@@ -1,4 +1,4 @@
-import ValueObject from "@share/ValueObject";
+import ValueObject from "@share/ddd/ValueObject";
 
 export type AddressValue = {
   state: string;
@@ -17,7 +17,7 @@ export default class Address implements ValueObject<AddressValue> {
     readonly complement?: string,
   ) { }
 
-  value(): AddressValue {
+  get value(): AddressValue {
     return this;
   }
 }

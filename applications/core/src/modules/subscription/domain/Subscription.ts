@@ -1,4 +1,4 @@
-import Aggregate, { AggregateRoot, RequiredId } from "@share/Aggregate";
+import Aggregate, { AggregateRoot, RequiredId } from "@share/ddd/Aggregate";
 import SubscriptionPlan, { SubscriptionPlanObject } from "./SubscriptionPlan";
 
 export enum SubscriptionStatus {

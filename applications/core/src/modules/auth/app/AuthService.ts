@@ -1,6 +1,6 @@
 import { UserObject } from "@auth/domain/User";
-import Either from "@share/Either";
 import PaginationOptions from "@share/PaginationOptions";
+import Either from "@share/utils/Either";
 import AuthTokenManager, { TokenResult } from "./AuthTokenManager";
 import Encryptor from "./Encryptor";
 import PolicyRepository from "./PolicyRepository";

@@ -1,4 +1,4 @@
-import Aggregate, { RequiredId } from "@share/Aggregate";
+import Aggregate, { RequiredId } from "@share/ddd/Aggregate";
 
 export type PolicyObject = {
   id?: string

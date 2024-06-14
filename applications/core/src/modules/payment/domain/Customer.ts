@@ -1,4 +1,4 @@
-import Aggregate, { RequiredId } from "@share/Aggregate";
+import Aggregate, { RequiredId } from "@share/ddd/Aggregate";
 
 export type CustomerObject = {
   id?: string;

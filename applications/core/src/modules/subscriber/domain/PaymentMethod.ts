@@ -1,4 +1,4 @@
-import ValueObject from "@share/ValueObject";
+import ValueObject from "@share/ddd/ValueObject";
 
 export enum PaymentTypes {
   CREDIT_CARD = 'credit_card',
@@ -17,7 +17,7 @@ export default class PaymentMethod implements ValueObject<PaymentMethodValue> {
     readonly credit_card_external_id?: string
   ) { }
 
-  value(): PaymentMethodValue {
+  get value(): PaymentMethodValue {
     return this;
   }
 }

@@ -1,4 +1,4 @@
-import Either from "@share/Either";
+import Either from "@share/utils/Either";
 import { SubscriberObject } from "@subscriber/domain/Subscriber";
 
 export default class SubscriberService {

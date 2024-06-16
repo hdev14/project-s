@@ -1,4 +1,4 @@
-import Aggregate, { RequiredId } from "@share/ddd/Aggregate";
+import Aggregate, { AggregateRoot, RequiredId } from "@share/ddd/Aggregate";
 
 export type PolicyObject = {
   id?: string
@@ -6,7 +6,7 @@ export type PolicyObject = {
   description: string | undefined;
 }
 
-export default class Policy extends Aggregate<PolicyObject> {
+export default class Policy extends Aggregate<PolicyObject> implements AggregateRoot {
   #slug: string;
   #description?: string;
 

@@ -23,7 +23,7 @@ export default class Subscriber extends Aggregate<SubscriberObject> implements A
     this.#address = new Address(
       obj.address.state,
       obj.address.street,
-      obj.address.neighborhood,
+      obj.address.district,
       obj.address.number,
       obj.address.complement
     );

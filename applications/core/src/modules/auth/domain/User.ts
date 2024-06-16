@@ -1,40 +1,35 @@
 import Aggregate, { AggregateRoot, RequiredId } from "@share/ddd/Aggregate";
-import Policy, { PolicyObject } from "./Policy";
 
 
 export type UserObject = {
   id?: string;
   email: string;
   password: string;
-  policies: Array<PolicyObject>;
+  policies: Array<string>; // slugs
+  access_plan_id?: string;
 }
 
 export default class User extends Aggregate<UserObject> implements AggregateRoot {
   #email: string;
   #password: string;
-  #policies: Array<Policy> = [];
+  #policies: Array<string>;
+  #access_plan_id?: string;
 
   constructor(obj: UserObject) {
     super(obj.id);
     this.#email = obj.email;
     this.#password = obj.password;
-    for (let idx = 0; idx < obj.policies.length; idx++) {
-      this.#policies.push(new Policy(obj.policies[idx]))
-    }
+    this.#policies = obj.policies;
+    this.#access_plan_id = obj.access_plan_id;
   }
 
   toObject(): RequiredId<UserObject> {
-    const policies = [];
-
-    for (let idx = 0; idx < this.#policies.length; idx++) {
-      policies.push(this.#policies[idx].toObject())
-    }
-
     return {
       id: this.id,
       email: this.#email,
       password: this.#password,
-      policies
+      policies: this.#policies,
+      access_plan_id: this.#access_plan_id,
     }
   }
 }

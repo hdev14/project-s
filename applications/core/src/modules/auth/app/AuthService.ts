@@ -65,4 +65,8 @@ export default class AuthService {
   async getUsers(params: GetUsersParams): Promise<Array<UserObject>> {
     return Either.left(new Error());
   }
+
+  async changeAccessPlan(params: {}): Promise<Either<void>> {
+    return Either.left(new Error());
+  }
 }

@@ -1,5 +1,5 @@
 import User from "@auth/domain/User";
-import PaginationOptions from "@share/utils/PaginationOptions";
+import PaginationOptions from "@shared/utils/PaginationOptions";
 
 export default interface UserRepository {
   getUserById(id: string): User;

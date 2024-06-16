@@ -1,4 +1,4 @@
-import ValueObject from "@share/ddd/ValueObject";
+import ValueObject from "@shared/ddd/ValueObject";
 
 export type AttributeValue = {
   att_name: string;

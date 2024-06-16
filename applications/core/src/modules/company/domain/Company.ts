@@ -1,5 +1,5 @@
-import Aggregate, { AggregateRoot, RequiredId } from "@share/ddd/Aggregate";
-import Address, { AddressValue } from "./Address";
+import Aggregate, { AggregateRoot, RequiredId } from "@shared/ddd/Aggregate";
+import Address, { AddressValue } from "../../_shared/Address";
 import Bank, { BankValue } from "./Bank";
 import Brand, { BrandValue } from "./Brand";
 import Employee, { EmployeeObject } from "./Employee";

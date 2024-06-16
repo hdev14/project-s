@@ -1,4 +1,4 @@
-import Aggregate, { RequiredId } from "@share/ddd/Aggregate";
+import Aggregate, { RequiredId } from "@shared/ddd/Aggregate";
 
 export enum TaxTypes {
   PERCENTAGE = 'percentage',

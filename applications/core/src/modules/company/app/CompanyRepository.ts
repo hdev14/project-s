@@ -1,4 +1,4 @@
-import PaginationOptions from "@share/utils/PaginationOptions";
+import PaginationOptions from "@shared/utils/PaginationOptions";
 import Company from "../domain/Company";
 
 export default interface CompanyRepository {

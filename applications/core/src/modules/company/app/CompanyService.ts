@@ -1,4 +1,4 @@
-import Either from "@share/utils/Either";
+import Either from "@shared/utils/Either";
 import { CompanyObject } from "../domain/Company";
 
 export default class CompanyService {

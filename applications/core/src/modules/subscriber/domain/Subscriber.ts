@@ -1,5 +1,5 @@
-import Aggregate, { AggregateRoot, RequiredId } from "@share/ddd/Aggregate";
-import Address, { AddressValue } from "./Address";
+import Address, { AddressValue } from "@shared/Address";
+import Aggregate, { AggregateRoot, RequiredId } from "@shared/ddd/Aggregate";
 import PaymentMethod, { PaymentMethodValue } from "./PaymentMethod";
 import Subscription, { SubscriptionObject } from "./Subscription";
 

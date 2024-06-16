@@ -1,18 +1,18 @@
-import ValueObject from "@share/ddd/ValueObject";
+import ValueObject from "@shared/ddd/ValueObject";
 
 export type AddressValue = {
-  state: string;
   street: string;
   district: string;
-  complement?: string;
+  state: string;
   number: string;
-}
+  complement?: string;
+};
 
 export default class Address implements ValueObject<AddressValue> {
   constructor(
-    readonly state: string,
     readonly street: string,
     readonly district: string,
+    readonly state: string,
     readonly number: string,
     readonly complement?: string,
   ) { }

@@ -1,6 +1,6 @@
 import CatalogRepository from "@catalog/app/CatalogRepository";
 import CatalogItem from "@catalog/domain/CatalogItem";
-import PaginationOptions from "@share/utils/PaginationOptions";
+import PaginationOptions from "@shared/utils/PaginationOptions";
 
 export default class DbCatalogRepository implements CatalogRepository {
   getCatalogItems(pagination: PaginationOptions): Promise<CatalogItem[]> {

@@ -1,5 +1,5 @@
 import { CatalogItemObject } from "@catalog/domain/CatalogItem";
-import Either from "@share/utils/Either";
+import Either from "@shared/utils/Either";
 
 export default class CatalogService {
   async getCatalogItems(params: {}): Promise<Either<Array<CatalogItemObject>>> {

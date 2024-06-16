@@ -6,7 +6,7 @@
     "outDir": "./build",
     "allowJs": true,
     "paths": {
-      "@share/*": [
+      "@shared/*": [
         "src/modules/_shared/*"
       ],
       "@auth/*": [

@@ -2,7 +2,7 @@ import Policy from "@auth/domain/Policy";
 
 export default interface PolicyRepository {
   getPolicies(): Promise<Array<Policy>>;
-  getPolicyBySlug(slug: string): Promise<void>;
+  getPolicyBySlug(slug: string): Promise<Policy | null>;
   createPolicy(policy: Policy): Promise<void>;
   deletePolicy(id: string): Promise<void>;
 }

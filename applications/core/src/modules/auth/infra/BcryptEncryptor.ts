@@ -1,10 +1,14 @@
 import Encryptor from "@auth/app/Encryptor";
+import bcrypt from 'bcrypt';
 
 export default class BcryptEncryptor implements Encryptor {
+  private readonly SALT = 10;
+
   createHash(value: string): string {
-    throw new Error("Method not implemented.");
+    return bcrypt.hashSync(value, this.SALT);
   }
+
   compareHash(value: string, hash: string): boolean {
-    throw new Error("Method not implemented.");
+    return bcrypt.compareSync(value, hash);
   }
 }

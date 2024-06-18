@@ -1,17 +1,56 @@
 import PolicyRepository from "@auth/app/PolicyRepository";
 import Policy from "@auth/domain/Policy";
+import Database from "@shared/Database";
+import { Pool } from "pg";
 
 export default class DbPolicyRepository implements PolicyRepository {
-  getPolicies(): Promise<Policy[]> {
-    throw new Error("Method not implemented.");
+  #db: Pool;
+
+  constructor() {
+    this.#db = Database.connect();
   }
-  getPolicyBySlug(slug: string): Promise<void> {
-    throw new Error("Method not implemented.");
+
+  async getPolicies(): Promise<Policy[]> {
+    const result = await this.#db.query('SELECT * FROM policies');
+
+    const policies = [];
+
+    for (let idx = 0; idx < result.rows.length; idx++) {
+      const data = result.rows[idx];
+      policies.push(new Policy({
+        id: data.id,
+        slug: data.slug,
+        description: data.description,
+      }));
+    }
+
+    return policies;
   }
-  createPolicy(policy: Policy): Promise<void> {
-    throw new Error("Method not implemented.");
+
+  async getPolicyBySlug(slug: string): Promise<Policy | null> {
+    const result = await this.#db.query('SELECT * FROM policies WHERE slug=$1', [slug]);
+
+    const data = result.rows[0];
+
+    if (!data) {
+      return null;
+    }
+
+    return new Policy({
+      id: data.id,
+      slug: data.slug,
+      description: data.description,
+    });
   }
-  deletePolicy(id: string): Promise<void> {
-    throw new Error("Method not implemented.");
+
+  async createPolicy(policy: Policy): Promise<void> {
+    const query = 'INSERT INTO policies(id, slug, description) VALUES($1, $2, $3)';
+    const data = policy.toObject();
+    const values = [data.id, data.slug, data.description];
+    await this.#db.query(query, values);
+  }
+
+  async deletePolicy(id: string): Promise<void> {
+    await this.#db.query('DELETE FROM policies WHERE id=$1', [id]);
   }
 }

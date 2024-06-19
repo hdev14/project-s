@@ -1,5 +1,5 @@
 import CatalogItem from "@catalog/domain/CatalogItem";
-import PaginationOptions from "@shared/utils/PaginationOptions";
+import { PaginationOptions } from "@shared/utils/Pagination";
 
 export default interface CatalogRepository {
   getCatalogItems(pagination: PaginationOptions): Promise<Array<CatalogItem>>;

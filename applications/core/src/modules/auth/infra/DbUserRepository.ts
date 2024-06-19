@@ -81,10 +81,15 @@ export default class DbUserRepository implements UserRepository {
   async createUser(user: User): Promise<void> {
     const user_obj = user.toObject();
 
-    await this.#db.query(
-      'INSERT INTO users (id, email, password, access_plan_id) VALUES ($1, $2, $3, $4)',
-      [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id]
-    );
+    const query = user_obj.access_plan_id !== undefined
+      ? 'INSERT INTO users (id, email, password, access_plan_id) VALUES ($1, $2, $3, $4)'
+      : 'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)';
+
+    const values = user_obj.access_plan_id !== undefined
+      ? [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id]
+      : [user_obj.id, user_obj.email, user_obj.password];
+
+    await this.#db.query(query, values);
 
     const has_policies = user_obj.policies.length > 0;
 

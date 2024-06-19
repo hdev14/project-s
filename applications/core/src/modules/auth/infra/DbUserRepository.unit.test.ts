@@ -301,4 +301,26 @@ describe('DbUserRepository unit tests', () => {
       [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id],
     );
   });
+
+  it("should ignore the access_plan_id when it is passed as undefined", async () => {
+    query_mock
+      .mockResolvedValueOnce({});
+
+    const user_obj = {
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(),
+      policies: [],
+    };
+
+    const user = new User(user_obj);
+
+    await repository.createUser(user);
+
+    expect(query_mock).toHaveBeenCalledTimes(1);
+    expect(query_mock).toHaveBeenCalledWith(
+      'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
+      [user_obj.id, user_obj.email, user_obj.password],
+    );
+  });
 });

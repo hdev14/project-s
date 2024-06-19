@@ -94,50 +94,71 @@ export default class DbUserRepository implements UserRepository {
     const has_policies = user_obj.policies.length > 0;
 
     if (has_policies) {
-      let in_condition = '';
-
-      for (let idx = 1; idx <= user_obj.policies.length; idx++) {
-        if (idx === 1) {
-          in_condition += `($${idx}`;
-          continue;
-        }
-
-        if (idx === user_obj.policies.length) {
-          in_condition += `, $${idx})`;
-          continue;
-        }
-
-        in_condition += `, $${idx}`;
-      }
-
-      const policy_result = await this.#db.query(
-        `SELECT id FROM policies WHERE slug IN ${in_condition}`,
-        user_obj.policies
-      );
-
-      let user_policy_values = '';
-
-      const policy_ids = [];
-
-      for (let idx = 1; idx <= policy_result.rows.length; idx++) {
-        policy_ids.push(policy_result.rows[idx - 1].id);
-
-        if (idx !== policy_result.rows.length) {
-          user_policy_values += `($1, $${idx + 1}), `;
-          continue;
-        }
-
-        user_policy_values += `($1, $${idx + 1})`;
-      }
-
-      await this.#db.query(
-        `INSERT INTO user_policies (user_id, policy_id) VALUES ${user_policy_values}`,
-        [user_obj.id].concat(policy_ids)
-      );
+      await this.insertUserPolicies(user_obj.id, user_obj.policies);
     }
   }
 
-  updateUser(user: User): Promise<void> {
-    throw new Error("Method not implemented.");
+  async updateUser(user: User): Promise<void> {
+    const user_obj = user.toObject();
+
+    const query = user_obj.access_plan_id !== undefined
+      ? 'UPDATE users SET email=$2, password=$3, access_plan_id=$4 WHERE id = $1'
+      : 'UPDATE users SET email=$2, password=$3 WHERE id = $1';
+
+    const values = user_obj.access_plan_id !== undefined
+      ? [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id]
+      : [user_obj.id, user_obj.email, user_obj.password];
+
+    await this.#db.query(query, values);
+
+    const has_policies = user_obj.policies.length > 0;
+
+    if (has_policies) {
+      await this.#db.query('DELETE FROM user_policies WHERE user_id = $1', [user_obj.id]);
+      await this.insertUserPolicies(user_obj.id, user_obj.policies);
+    }
+  }
+
+  private async insertUserPolicies(user_id: string, policies: Array<string>) {
+    let in_condition = '';
+
+    for (let idx = 1; idx <= policies.length; idx++) {
+      if (idx === 1) {
+        in_condition += `($${idx}`;
+        continue;
+      }
+
+      if (idx === policies.length) {
+        in_condition += `, $${idx})`;
+        continue;
+      }
+
+      in_condition += `, $${idx}`;
+    }
+
+    const policy_result = await this.#db.query(
+      `SELECT id FROM policies WHERE slug IN ${in_condition}`,
+      policies
+    );
+
+    let user_policy_values = '';
+
+    const policy_ids = [];
+
+    for (let idx = 1; idx <= policy_result.rows.length; idx++) {
+      policy_ids.push(policy_result.rows[idx - 1].id);
+
+      if (idx !== policy_result.rows.length) {
+        user_policy_values += `($1, $${idx + 1}), `;
+        continue;
+      }
+
+      user_policy_values += `($1, $${idx + 1})`;
+    }
+
+    await this.#db.query(
+      `INSERT INTO user_policies (user_id, policy_id) VALUES ${user_policy_values}`,
+      [user_id].concat(policy_ids)
+    );
   }
 }

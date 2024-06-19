@@ -4,7 +4,7 @@ export type TokenResult = {
 }
 
 export default interface AuthTokenManager {
-  generateToken(payload: Record<string, any>): TokenResult;
-  verifyToken<T = Record<string, any>>(token: string): T;
+  generateToken(payload: Record<string, unknown>): TokenResult;
+  verifyToken<T = Record<string, unknown>>(token: string): T | null;
   refreshToken(token: string): TokenResult;
 }

@@ -18,6 +18,7 @@
     "@eslint/js": "^9.4.0",
     "@faker-js/faker": "^8.4.1",
     "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.14.2",
     "@types/pg": "^8.11.6",
     "eslint": "^9.4.0",
@@ -31,6 +32,7 @@
   "dependencies": {
     "@types/jest": "^29.5.12",
     "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
     "pg": "^8.12.0"
   }
 }

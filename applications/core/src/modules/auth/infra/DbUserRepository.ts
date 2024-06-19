@@ -6,7 +6,7 @@ import { Pool } from "pg";
 
 export default class DbUserRepository implements UserRepository {
   #db: Pool;
-  #default_query = 'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users AS u JOIN user_policies AS up ON u.id = up.user_id JOIN policies AS p ON up.policy_id = p.id';
+  #default_select_users_query = 'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users AS u JOIN user_policies AS up ON u.id = up.user_id JOIN policies AS p ON up.policy_id = p.id';
 
   constructor() {
     this.#db = Database.connect();
@@ -19,11 +19,11 @@ export default class DbUserRepository implements UserRepository {
       const offset = Pagination.calculateOffset(pagination);
 
       result = await this.#db.query(
-        this.#default_query + ' LIMIT $1 OFFSET $2',
+        this.#default_select_users_query + ' LIMIT $1 OFFSET $2',
         [pagination.limit, offset]
       );
     } else {
-      result = await this.#db.query(this.#default_query);
+      result = await this.#db.query(this.#default_select_users_query);
     }
 
     const user_objects = new Map<string, UserObject>();
@@ -57,7 +57,29 @@ export default class DbUserRepository implements UserRepository {
   }
 
   async getUserById(id: string): Promise<User | null> {
-    const result = await this.#db.query(this.#default_query + ' WHERE id = $1', [id]);
+    const result = await this.#db.query(this.#default_select_users_query + ' WHERE id = $1', [id]);
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    const policies = [];
+
+    for (let idx = 0; idx < result.rows.length; idx++) {
+      policies.push(result.rows[idx].slug);
+    }
+
+    return new User({
+      id: result.rows[0].id,
+      email: result.rows[0].email,
+      password: result.rows[0].password,
+      access_plan_id: result.rows[0].access_plan_id,
+      policies,
+    });
+  }
+
+  async getUserByEmail(email: string): Promise<User | null> {
+    const result = await this.#db.query(this.#default_select_users_query + ' WHERE email = $1', [email]);
 
     if (result.rows.length === 0) {
       return null;

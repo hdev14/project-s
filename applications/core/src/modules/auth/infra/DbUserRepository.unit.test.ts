@@ -237,6 +237,59 @@ describe('DbUserRepository unit tests', () => {
     });
   });
 
+  describe('DbUserRepository.getUserByEmail', () => {
+    it('returns an user by email', async () => {
+      const data = {
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(),
+        access_plan_id: faker.string.uuid(),
+      };
+      query_mock.mockResolvedValueOnce({
+        rows: [
+          {
+            id: data.id,
+            email: data.email,
+            password: data.password,
+            access_plan_id: data.access_plan_id,
+            slug: faker.word.verb(),
+          },
+          {
+            id: data.id,
+            email: data.email,
+            password: data.password,
+            access_plan_id: data.access_plan_id,
+            slug: faker.word.verb(),
+          },
+        ]
+      });
+
+      const user = await repository.getUserByEmail(data.email);
+
+      expect(user).toBeInstanceOf(User);
+      expect(user?.toObject().policies).toHaveLength(2);
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users AS u JOIN user_policies AS up ON u.id = up.user_id JOIN policies AS p ON up.policy_id = p.id WHERE email = $1',
+        [data.email]
+      );
+    });
+
+    it("returns NULL if user doesn't exist", async () => {
+      query_mock.mockResolvedValueOnce({
+        rows: []
+      });
+
+      const user_email = faker.internet.email();
+      const user = await repository.getUserByEmail(user_email);
+
+      expect(user).toBeNull()
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users AS u JOIN user_policies AS up ON u.id = up.user_id JOIN policies AS p ON up.policy_id = p.id WHERE email = $1',
+        [user_email]
+      );
+    });
+  });
+
   describe('DbUserRepository.createUser', () => {
     it('creates an user', async () => {
       const policies = [faker.word.verb(), faker.word.verb()];

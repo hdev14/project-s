@@ -78,43 +78,38 @@ export default class DbUserRepository implements UserRepository {
     });
   }
 
-  // TODO: refactor
   async createUser(user: User): Promise<void> {
     const user_obj = user.toObject();
-
-    const has_policies = user_obj.policies.length > 0;
-
-    let policy_result;
-
-    if (has_policies) {
-      let policy_in = '';
-
-      for (let idx = 1; idx <= user_obj.policies.length; idx++) {
-        if (idx === 1) {
-          policy_in += `($${idx}`;
-          continue;
-        }
-
-        if (idx === user_obj.policies.length) {
-          policy_in += `, $${idx})`;
-          continue;
-        }
-
-        policy_in += `, $${idx}`;
-      }
-
-      policy_result = await this.#db.query(
-        `SELECT id FROM policies WHERE slug IN ${policy_in}`,
-        user_obj.policies
-      );
-    }
 
     await this.#db.query(
       'INSERT INTO users (id, email, password, access_plan_id) VALUES ($1, $2, $3, $4)',
       [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id]
     );
 
-    if (has_policies && policy_result !== undefined) {
+    const has_policies = user_obj.policies.length > 0;
+
+    if (has_policies) {
+      let in_condition = '';
+
+      for (let idx = 1; idx <= user_obj.policies.length; idx++) {
+        if (idx === 1) {
+          in_condition += `($${idx}`;
+          continue;
+        }
+
+        if (idx === user_obj.policies.length) {
+          in_condition += `, $${idx})`;
+          continue;
+        }
+
+        in_condition += `, $${idx}`;
+      }
+
+      const policy_result = await this.#db.query(
+        `SELECT id FROM policies WHERE slug IN ${in_condition}`,
+        user_obj.policies
+      );
+
       let user_policy_values = '';
 
       const policy_ids = [];

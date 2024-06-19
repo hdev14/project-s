@@ -245,8 +245,8 @@ describe('DbUserRepository unit tests', () => {
     ];
 
     query_mock
-      .mockResolvedValueOnce({ rows })
-      .mockResolvedValueOnce({});
+      .mockResolvedValueOnce({})
+      .mockResolvedValueOnce({ rows });
 
 
     const user_obj = {
@@ -264,13 +264,13 @@ describe('DbUserRepository unit tests', () => {
     expect(query_mock).toHaveBeenCalledTimes(3);
     expect(query_mock).toHaveBeenNthCalledWith(
       1,
-      `SELECT id FROM policies WHERE slug IN ($1, $2)`,
-      policies,
+      'INSERT INTO users (id, email, password, access_plan_id) VALUES ($1, $2, $3, $4)',
+      [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id],
     );
     expect(query_mock).toHaveBeenNthCalledWith(
       2,
-      'INSERT INTO users (id, email, password, access_plan_id) VALUES ($1, $2, $3, $4)',
-      [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id],
+      `SELECT id FROM policies WHERE slug IN ($1, $2)`,
+      policies,
     );
     expect(query_mock).toHaveBeenNthCalledWith(
       3,

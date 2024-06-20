@@ -10,6 +10,24 @@ export default class DbAccessPlanRepository implements AccessPlanRepository {
     this.#db = Database.connect();
   }
 
+  async getAccessPlanById(id: string): Promise<AccessPlan | null> {
+    const result = await this.#db.query('SELECT * FROM access_plans WHERE id = $1', [id]);
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    const data = result.rows[0];
+
+    return new AccessPlan({
+      id: data.id,
+      active: data.active,
+      amount: data.amount,
+      type: data.type,
+      description: data.description,
+    });
+  }
+
   async getAccessPlans(): Promise<AccessPlan[]> {
     const result = await this.#db.query('SELECT * FROM access_plans');
 

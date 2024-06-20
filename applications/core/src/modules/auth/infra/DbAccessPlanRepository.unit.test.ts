@@ -18,7 +18,7 @@ describe('DbAccessPlanRepository unit tests', () => {
     query_mock.mockClear();
   });
 
-  describe('DbAccessPlanRepository.getAccessPlan', () => {
+  describe('DbAccessPlanRepository.getAccessPlans', () => {
     it('returns a list of access plans', async () => {
       query_mock.mockResolvedValueOnce({
         rows: [
@@ -52,6 +52,46 @@ describe('DbAccessPlanRepository unit tests', () => {
       expect(access_plans).toHaveLength(3);
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT * FROM access_plans'
+      );
+    });
+  });
+
+  describe('DbAccessPlanRepository.getAccessPlanById', () => {
+    it('returns an access plan', async () => {
+      query_mock.mockResolvedValueOnce({
+        rows: [
+          {
+            id: faker.string.uuid(),
+            active: true,
+            amount: faker.number.float(),
+            type: AccessPlanTypes.MONTHLY,
+            description: faker.lorem.lines(),
+          },
+        ]
+      });
+
+      const access_plan_id = faker.string.uuid();
+      const access_plan = await repository.getAccessPlanById(access_plan_id);
+
+      expect(access_plan).toBeInstanceOf(AccessPlan);
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT * FROM access_plans WHERE id = $1',
+        [access_plan_id]
+      );
+    });
+
+    it("returns NULL if access plan doesn't exist", async () => {
+      query_mock.mockResolvedValueOnce({
+        rows: []
+      });
+
+      const access_plan_id = faker.string.uuid();
+      const access_plan = await repository.getAccessPlanById(access_plan_id);
+
+      expect(access_plan).toBeNull();
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT * FROM access_plans WHERE id = $1',
+        [access_plan_id]
       );
     });
   });

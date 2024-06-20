@@ -98,7 +98,23 @@ export default class AuthService {
   }
 
   async updateUser(params: UpdateUserParams): Promise<Either<void>> {
-    return Either.left(new Error());
+    const user = await this.#user_repository.getUserById(params.user_id);
+
+    if (!user) {
+      return Either.left(new NotFoundError('Usuário não encontrado'));
+    }
+
+    if (params.email) {
+      user.email = params.email;
+    }
+
+    if (params.password) {
+      user.password = this.#encryptor.createHash(params.password);
+    }
+
+    await this.#user_repository.updateUser(user);
+
+    return Either.right();
   }
 
   async updatePolicies(params: UpdatePoliciesParams): Promise<Either<void>> {

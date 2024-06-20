@@ -113,5 +113,89 @@ describe('AuthService unit tests', () => {
       expect(error).toBeInstanceOf(NotFoundError);
       expect(error!.message).toEqual('Plano de acesso não encontrado');
     });
-  })
+  });
+
+  describe('AuthService.updateUser', () => {
+    it("returns a not found error if user doesn't exist", async () => {
+      user_repository_mock.getUserById.mockResolvedValueOnce(null);
+
+      const [data, error] = await auth_service.updateUser({
+        user_id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(),
+      });
+
+      expect(data).toBeUndefined();
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error!.message).toEqual('Usuário não encontrado');
+    });
+
+    it("updates an user", async () => {
+      const user = new User({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(),
+        policies: []
+      });
+
+      user_repository_mock.getUserById.mockResolvedValueOnce(user);
+      encryptor_mock.createHash.mockReturnValueOnce('test');
+
+      const [, error] = await auth_service.updateUser({
+        user_id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(),
+      });
+
+      expect(error).toBeUndefined();
+      expect(user_repository_mock.updateUser).toHaveBeenCalledTimes(1);
+    });
+
+    it("updates only email", async () => {
+      const user = new User({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(),
+        policies: []
+      });
+
+      user_repository_mock.getUserById.mockResolvedValueOnce(user);
+
+      const email = faker.internet.email();
+      const [, error] = await auth_service.updateUser({
+        user_id: faker.string.uuid(),
+        email,
+      });
+
+      expect(error).toBeUndefined();
+      expect(user_repository_mock.updateUser).toHaveBeenCalledTimes(1);
+      const param = user_repository_mock.updateUser.mock.calls[0][0].toObject();
+      expect(param.email).toEqual(email);
+      expect(param.password).not.toEqual('test');
+      expect(encryptor_mock.createHash).not.toHaveBeenCalled();
+    });
+
+    it("updates only password", async () => {
+      const user = new User({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(),
+        policies: []
+      });
+
+      user_repository_mock.getUserById.mockResolvedValueOnce(user);
+      encryptor_mock.createHash.mockReturnValueOnce('test');
+
+      const [, error] = await auth_service.updateUser({
+        user_id: faker.string.uuid(),
+        password: faker.string.alphanumeric(),
+      });
+
+      expect(error).toBeUndefined();
+      expect(user_repository_mock.updateUser).toHaveBeenCalledTimes(1);
+      const param = user_repository_mock.updateUser.mock.calls[0][0].toObject();
+      expect(param.password).toEqual('test');
+      expect(encryptor_mock.createHash).toHaveBeenCalled();
+    });
+  });
 });

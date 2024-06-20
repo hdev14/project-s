@@ -8,7 +8,7 @@ export default class Either<T = unknown> extends Array {
     this[1] = params.error;
   }
 
-  static right<T>(data: T) {
+  static right<T>(data?: T) {
     return Object.seal(new Either<T>({ data }));
   }
 

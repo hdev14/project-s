@@ -29,10 +29,16 @@ export type UpdateUserParams = Partial<UserParams> & { user_id: string };
 export type UpdatePoliciesParams = {
   user_id: string,
   policy_slugs: Array<string>;
+  mode: 'attach' | 'dettach';
 };
 
 export type GetUsersParams = {
   pagination?: PaginationOptions;
+};
+
+type ChangeAccessPlanParams = {
+  user_id: string;
+  access_plan_id: string;
 };
 
 export default class AuthService {
@@ -118,14 +124,59 @@ export default class AuthService {
   }
 
   async updatePolicies(params: UpdatePoliciesParams): Promise<Either<void>> {
-    return Either.left(new Error());
+    const user = await this.#user_repository.getUserById(params.user_id);
+
+    if (!user) {
+      return Either.left(new NotFoundError('Usuário não encontrado'));
+    }
+
+    const policies = await this.#policy_repository.getPolicies({
+      slugs: params.policy_slugs,
+    });
+
+    if (params.mode === 'attach') {
+      for (let idx = 0; idx < policies.length; idx++) {
+        user.attachPolicy(policies[idx]);
+      }
+    }
+
+    if (params.mode === 'dettach') {
+      for (let idx = 0; idx < policies.length; idx++) {
+        user.dettachPolicy(policies[idx]);
+      }
+    }
+
+    await this.#user_repository.updateUser(user);
+
+    return Either.right();
   }
 
-  async getUsers(params: GetUsersParams): Promise<Array<UserObject>> {
-    return Either.left(new Error());
+  async getUsers(params: GetUsersParams): Promise<Either<Array<UserObject>>> {
+    const users = await this.#user_repository.getUsers(params.pagination);
+    const objs = [];
+    for (let idx = 0; idx < users.length; idx++) {
+      objs.push(users[idx].toObject());
+    }
+    return Either.right(objs);
   }
 
-  async changeAccessPlan(params: {}): Promise<Either<void>> {
-    return Either.left(new Error());
+  async changeAccessPlan(params: ChangeAccessPlanParams): Promise<Either<void>> {
+    const access_plan = await this.#access_plan_repository.getAccessPlanById(params.access_plan_id);
+
+    if (!access_plan) {
+      return Either.left(new NotFoundError('Plano de acesso não encontrado'));
+    }
+
+    const user = await this.#user_repository.getUserById(params.user_id);
+
+    if (!user) {
+      return Either.left(new NotFoundError('Usuário não encontrado'));
+    }
+
+    user.changeAccessPlan(access_plan);
+
+    await this.#user_repository.updateUser(user);
+
+    return Either.right();
   }
 }

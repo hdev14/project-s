@@ -3,7 +3,7 @@ import Aggregate, { AggregateRoot, RequiredId } from "@shared/ddd/Aggregate";
 export type PolicyObject = {
   id?: string
   slug: string;
-  description: string | undefined;
+  description?: string;
 }
 
 export default class Policy extends Aggregate<PolicyObject> implements AggregateRoot {

@@ -1,6 +1,7 @@
-import PolicyRepository from "@auth/app/PolicyRepository";
+import PolicyRepository, { PolicyFilter } from "@auth/app/PolicyRepository";
 import Policy from "@auth/domain/Policy";
 import Database from "@shared/Database";
+import DbOperator from "@shared/utils/DbOperator";
 import { Pool } from "pg";
 
 export default class DbPolicyRepository implements PolicyRepository {
@@ -10,8 +11,17 @@ export default class DbPolicyRepository implements PolicyRepository {
     this.#db = Database.connect();
   }
 
-  async getPolicies(): Promise<Policy[]> {
-    const result = await this.#db.query('SELECT * FROM policies');
+  async getPolicies(filter?: PolicyFilter): Promise<Policy[]> {
+    let query = 'SELECT * FROM policies';
+    let values: unknown[] = [];
+
+    if (filter && filter.slugs) {
+      values = filter.slugs;
+      const in_operator = DbOperator.IN(filter.slugs);
+      query += ` WHERE slug IN ${in_operator}`;
+    }
+
+    const result = await this.#db.query(query, values);
 
     const policies = [];
 

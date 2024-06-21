@@ -1,6 +1,7 @@
 import UserRepository from "@auth/app/UserRepository";
 import User, { UserObject } from "@auth/domain/User";
 import Database from "@shared/Database";
+import DbOperator from "@shared/utils/DbOperator";
 import Pagination, { PaginationOptions } from "@shared/utils/Pagination";
 import { Pool } from "pg";
 
@@ -142,24 +143,10 @@ export default class DbUserRepository implements UserRepository {
   }
 
   private async insertUserPolicies(user_id: string, policies: Array<string>) {
-    let in_condition = '';
-
-    for (let idx = 1; idx <= policies.length; idx++) {
-      if (idx === 1) {
-        in_condition += `($${idx}`;
-        continue;
-      }
-
-      if (idx === policies.length) {
-        in_condition += `, $${idx})`;
-        continue;
-      }
-
-      in_condition += `, $${idx}`;
-    }
+    const in_operator = DbOperator.IN(policies);
 
     const policy_result = await this.#db.query(
-      `SELECT id FROM policies WHERE slug IN ${in_condition}`,
+      `SELECT id FROM policies WHERE slug IN ${in_operator}`,
       policies
     );
 

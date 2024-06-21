@@ -45,7 +45,42 @@ describe('DbPolicyRepository unit tests', () => {
       expect(policies[0]).toBeInstanceOf(Policy);
       expect(policies).toHaveLength(3);
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT * FROM policies'
+        'SELECT * FROM policies',
+        []
+      );
+    });
+
+    it('returns a list of policies filtered by slugs', async () => {
+      query_mock.mockResolvedValueOnce({
+        rows: [
+          {
+            id: faker.string.uuid(),
+            description: faker.lorem.lines(),
+            slug: faker.word.verb(),
+          },
+          {
+            id: faker.string.uuid(),
+            description: faker.lorem.lines(),
+            slug: faker.word.verb(),
+          },
+          {
+            id: faker.string.uuid(),
+            description: faker.lorem.lines(),
+            slug: faker.word.verb(),
+          },
+        ]
+      });
+
+      const slugs = [faker.word.verb(), faker.word.verb(), faker.word.verb()];
+      const policies = await repository.getPolicies({
+        slugs,
+      });
+
+      expect(policies[0]).toBeInstanceOf(Policy);
+      expect(policies).toHaveLength(3);
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT * FROM policies WHERE slug IN ($1, $2, $3)',
+        slugs,
       );
     });
   });

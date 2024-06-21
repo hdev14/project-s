@@ -1,7 +1,7 @@
 import User, { UserObject } from "@auth/domain/User";
-import types from "@auth/infra/types";
 import CredentialError from "@shared/errors/CredentialError";
 import NotFoundError from "@shared/errors/NotFoundError";
+import types from "@shared/types";
 import Either from "@shared/utils/Either";
 import { PaginationOptions } from "@shared/utils/Pagination";
 import { randomUUID } from "crypto";

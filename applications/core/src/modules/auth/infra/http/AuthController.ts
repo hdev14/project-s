@@ -1,7 +1,7 @@
 import AuthService from "@auth/app/AuthService";
 import { inject } from "inversify";
 import { BaseHttpController, controller, httpGet, httpPatch, httpPost, httpPut, requestParam } from "inversify-express-utils";
-import types from "../types";
+import types from "../../../_shared/types";
 
 @controller('/api/auth')
 export default class AuthController extends BaseHttpController {

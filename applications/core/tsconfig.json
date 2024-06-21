@@ -6,7 +6,8 @@
     "outDir": "./build",
     "allowJs": true,
     "types": [
-      "reflect-metadata"
+      "reflect-metadata",
+      "jest"
     ],
     "lib": [
       "ES6"

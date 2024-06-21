@@ -2,8 +2,11 @@ import PolicyRepository, { PolicyFilter } from "@auth/app/PolicyRepository";
 import Policy from "@auth/domain/Policy";
 import Database from "@shared/Database";
 import DbOperator from "@shared/utils/DbOperator";
+import { injectable } from "inversify";
 import { Pool } from "pg";
+import 'reflect-metadata';
 
+@injectable()
 export default class DbPolicyRepository implements PolicyRepository {
   #db: Pool;
 

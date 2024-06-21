@@ -5,6 +5,15 @@
     "baseUrl": ".",
     "outDir": "./build",
     "allowJs": true,
+    "types": [
+      "reflect-metadata"
+    ],
+    "lib": [
+      "ES6"
+    ],
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "paths": {
       "@shared/*": [
         "src/modules/_shared/*"

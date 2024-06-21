@@ -1,8 +1,11 @@
 import AccessPlanRepository from "@auth/app/AccessPlanRepository";
 import AccessPlan from "@auth/domain/AccessPlan";
 import Database from "@shared/Database";
+import { injectable } from "inversify";
 import { Pool } from "pg";
+import 'reflect-metadata';
 
+@injectable()
 export default class DbAccessPlanRepository implements AccessPlanRepository {
   #db: Pool;
 

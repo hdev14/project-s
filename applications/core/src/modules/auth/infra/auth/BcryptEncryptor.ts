@@ -1,6 +1,9 @@
 import Encryptor from "@auth/app/Encryptor";
 import bcrypt from 'bcrypt';
+import { injectable } from "inversify";
+import 'reflect-metadata';
 
+@injectable()
 export default class BcryptEncryptor implements Encryptor {
   private readonly SALT = 10;
 

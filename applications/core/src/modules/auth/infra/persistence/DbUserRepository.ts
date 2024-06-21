@@ -3,8 +3,11 @@ import User, { UserObject } from "@auth/domain/User";
 import Database from "@shared/Database";
 import DbOperator from "@shared/utils/DbOperator";
 import Pagination, { PaginationOptions } from "@shared/utils/Pagination";
+import { injectable } from "inversify";
 import { Pool } from "pg";
+import 'reflect-metadata';
 
+@injectable()
 export default class DbUserRepository implements UserRepository {
   #db: Pool;
   #default_select_users_query = 'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users AS u JOIN user_policies AS up ON u.id = up.user_id JOIN policies AS p ON up.policy_id = p.id';

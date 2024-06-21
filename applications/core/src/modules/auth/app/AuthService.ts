@@ -1,9 +1,12 @@
 import User, { UserObject } from "@auth/domain/User";
+import types from "@auth/infra/types";
 import CredentialError from "@shared/errors/CredentialError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import Either from "@shared/utils/Either";
 import { PaginationOptions } from "@shared/utils/Pagination";
 import { randomUUID } from "crypto";
+import { inject, injectable } from "inversify";
+import 'reflect-metadata';
 import AccessPlanRepository from "./AccessPlanRepository";
 import AuthTokenManager, { TokenResult } from "./AuthTokenManager";
 import Encryptor from "./Encryptor";
@@ -41,6 +44,7 @@ type ChangeAccessPlanParams = {
   access_plan_id: string;
 };
 
+@injectable()
 export default class AuthService {
   #encryptor: Encryptor;
   #auth_token_manager: AuthTokenManager;
@@ -49,11 +53,11 @@ export default class AuthService {
   #access_plan_repository: AccessPlanRepository;
 
   constructor(
-    encryptor: Encryptor,
-    auth_token_manager: AuthTokenManager,
-    user_repository: UserRepository,
-    policy_repository: PolicyRepository,
-    access_plan_repository: AccessPlanRepository,
+    @inject(types.Encryptor) encryptor: Encryptor,
+    @inject(types.AuthTokenManager) auth_token_manager: AuthTokenManager,
+    @inject(types.UserRepository) user_repository: UserRepository,
+    @inject(types.PolicyRepository) policy_repository: PolicyRepository,
+    @inject(types.AccessPlanRepository) access_plan_repository: AccessPlanRepository,
   ) {
     this.#encryptor = encryptor;
     this.#auth_token_manager = auth_token_manager;

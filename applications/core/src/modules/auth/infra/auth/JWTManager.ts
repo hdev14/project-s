@@ -1,6 +1,9 @@
 import AuthTokenManager, { TokenResult } from "@auth/app/AuthTokenManager";
+import { injectable } from "inversify";
 import jwt from 'jsonwebtoken';
+import 'reflect-metadata';
 
+@injectable()
 export default class JWTManager implements AuthTokenManager {
   static TOKEN_HOURS = 1;
 

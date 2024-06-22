@@ -35,7 +35,7 @@ describe("Architecture Boundaries", () => {
     await expect(rule).toPassAsync()
   });
 
-  it('should not have cyclic dependency between modules', () => {
+  it('should not have cyclic dependency between modules', async () => {
     const auth_rule = filesOfProject()
       .inFolder('auth')
       .should()
@@ -66,11 +66,11 @@ describe("Architecture Boundaries", () => {
       .should()
       .beFreeOfCycles();
 
-    expect(auth_rule).toPassAsync();
-    expect(catalog_rule).toPassAsync();
-    expect(company_rule).toPassAsync();
-    expect(payment_rule).toPassAsync();
-    expect(subscriber_rule).toPassAsync();
-    expect(subscription_rule).toPassAsync();
+    await expect(auth_rule).toPassAsync();
+    await expect(catalog_rule).toPassAsync();
+    await expect(company_rule).toPassAsync();
+    await expect(payment_rule).toPassAsync();
+    await expect(subscriber_rule).toPassAsync();
+    await expect(subscription_rule).toPassAsync();
   });
 });

@@ -8,7 +8,7 @@ module.exports = {
       "/node_modules/",
     ],
     clearMocks: true,
-    setupFilesAfterEnv: [],
+    setupFilesAfterEnv: ["<rootDir>/src/__tests__/setup_e2e.ts"],
     testMatch: [
       "**/*.e2e.test.ts"
     ]

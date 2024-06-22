@@ -6,6 +6,7 @@ module.exports = {
     displayName: "Unit Tests",
     coveragePathIgnorePatterns: [
       "/node_modules/",
+      "/src/migrations"
     ],
     clearMocks: true,
     setupFilesAfterEnv: [],

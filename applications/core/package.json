@@ -5,7 +5,7 @@
   "main": "./build/index.js",
   "scripts": {
     "test:unit": "npx jest unit --passWithNoTests --watch --silent=false --config=jest.unit.config.js",
-    "test:e2e": "npx jest e2e --passWithNoTests --watch --silent=false --config=jest.e2e.config.js",
+    "test:int": "npx jest int --passWithNoTests --watch --silent=false --config=jest.int.config.js",
     "test:arch": "npx jest arch --passWithNoTests --silent=false",
     "db:migrate": "node-pg-migrate --migration-file-language ts --migrations-dir ./src/migrations --envPath .env --tsconfig ./tsconfig.json --template-file-name ./migration-template.ts"
   },

@@ -3,14 +3,15 @@ const rootConfig = require("./jest.config.js");
 module.exports = {
   ...rootConfig,
   ...{
-    displayName: "E2E Tests",
+    displayName: "Integration Tests",
     coveragePathIgnorePatterns: [
       "/node_modules/",
+      "/src/migrations"
     ],
     clearMocks: true,
-    setupFilesAfterEnv: ["<rootDir>/src/__tests__/setup_e2e.ts"],
+    setupFilesAfterEnv: ["<rootDir>/src/__tests__/setup.ts"],
     testMatch: [
-      "**/*.e2e.test.ts"
+      "**/*.int.test.ts"
     ]
   }
 }

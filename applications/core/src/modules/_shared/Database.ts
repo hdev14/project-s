@@ -16,4 +16,11 @@ export default class Database {
 
     return Database.#instance!;
   }
+
+  static async disconnect() {
+    if (Database.#instance) {
+      Database.#instance.end();
+      Database.#instance = null;
+    }
+  }
 }

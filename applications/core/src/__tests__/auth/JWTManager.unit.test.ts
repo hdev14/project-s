@@ -1,6 +1,6 @@
+import JWTManager from "@auth/infra/auth/JWTManager";
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import jwt from 'jsonwebtoken';
-import JWTManager from "./JWTManager";
 
 jest.mock('jsonwebtoken');
 

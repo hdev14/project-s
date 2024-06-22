@@ -1,0 +1,10 @@
+services:
+  database:
+    container_name: database
+    hostname: database
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=local
+      - POSTGRES_PASSWORD=local

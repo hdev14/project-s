@@ -4,3 +4,4 @@ jest.config.js
 jest.unit.config.js
 jest.int.config.js
 jest.e2e.config.js
+migration-template.ts

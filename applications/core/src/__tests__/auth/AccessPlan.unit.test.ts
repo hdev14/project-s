@@ -1,5 +1,5 @@
+import AccessPlan, { AccessPlanTypes } from "@auth/domain/AccessPlan";
 import { faker } from '@faker-js/faker/locale/pt_BR';
-import AccessPlan, { AccessPlanTypes } from "./AccessPlan";
 
 describe('AccessPlan unit tests', () => {
   it('should deactivate the access plan', () => {

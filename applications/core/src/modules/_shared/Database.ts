@@ -1,22 +1,19 @@
 import { Pool } from 'pg';
 
 export default class Database {
-  static #instance: Pool;
+  static #instance: Pool | null = null;
 
   private constructor() {
     Database.#instance = new Pool({
-      database: process.env.DATABASE,
-      password: process.env.DATABASE_PASSWORD,
-      user: process.env.DATABASE_USER,
-      host: process.env.DATABASE_HOST,
+      connectionString: process.env.DATABASE_URL
     });
   }
 
   static connect() {
-    if (Database.#instance === undefined) {
+    if (Database.#instance === null) {
       new Database();
     }
 
-    return Database.#instance;
+    return Database.#instance!;
   }
 }

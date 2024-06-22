@@ -1,8 +1,8 @@
 import User from "@auth/domain/User";
+import DbUserRepository from "@auth/infra/persistence/DbUserRepository";
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import Database from "@shared/Database";
 import { PaginationOptions } from "@shared/utils/Pagination";
-import DbUserRepository from "./DbUserRepository";
 
 const connect_spy = jest.spyOn(Database, 'connect');
 const query_mock = jest.fn();

@@ -1,3 +1,9 @@
+import AccessPlanRepository from '@auth/app/AccessPlanRepository';
+import AuthService from "@auth/app/AuthService";
+import AuthTokenManager from "@auth/app/AuthTokenManager";
+import Encryptor from "@auth/app/Encryptor";
+import PolicyRepository from "@auth/app/PolicyRepository";
+import UserRepository from "@auth/app/UserRepository";
 import AccessPlan, { AccessPlanTypes } from '@auth/domain/AccessPlan';
 import Policy from '@auth/domain/Policy';
 import User from '@auth/domain/User';
@@ -5,12 +11,6 @@ import { faker } from '@faker-js/faker/locale/pt_BR';
 import CredentialError from '@shared/errors/CredentialError';
 import NotFoundError from '@shared/errors/NotFoundError';
 import { mock } from 'jest-mock-extended';
-import AccessPlanRepository from './AccessPlanRepository';
-import AuthService from "./AuthService";
-import AuthTokenManager from "./AuthTokenManager";
-import Encryptor from "./Encryptor";
-import PolicyRepository from "./PolicyRepository";
-import UserRepository from "./UserRepository";
 
 describe('AuthService unit tests', () => {
   const user_repository_mock = mock<UserRepository>();

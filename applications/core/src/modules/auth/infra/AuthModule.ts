@@ -4,6 +4,7 @@ import AuthTokenManager from "@auth/app/AuthTokenManager";
 import Encryptor from "@auth/app/Encryptor";
 import PolicyRepository from "@auth/app/PolicyRepository";
 import UserRepository from "@auth/app/UserRepository";
+import Module from "@shared/Module";
 import types from "@shared/types";
 import { ContainerModule } from "inversify";
 import BcryptEncryptor from "./auth/BcryptEncryptor";
@@ -13,8 +14,8 @@ import DbAccessPlanRepository from "./persistence/DbAccessPlanRepository";
 import DbPolicyRepository from "./persistence/DbPolicyRepository";
 import DbUserRepository from "./persistence/DbUserRepository";
 
-export default class AuthModule {
-  static init(): ContainerModule {
+export default class AuthModule implements Module {
+  init(): ContainerModule {
     const module = new ContainerModule((bind) => {
       bind<AccessPlanRepository>(types.AccessPlanRepository).to(DbAccessPlanRepository).inSingletonScope();
       bind<PolicyRepository>(types.PolicyRepository).to(DbPolicyRepository).inSingletonScope();

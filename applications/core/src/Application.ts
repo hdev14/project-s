@@ -1,14 +1,18 @@
-import AuthModule from '@auth/infra/AuthModule';
+import Module from '@shared/Module';
 import express from 'express';
 import { Container } from 'inversify';
 import { InversifyExpressServer } from 'inversify-express-utils';
 
-export default class Server {
-  #application: express.Application;
+export type ApplicationOptions = {
+  modules: Array<Module>;
+};
+
+export default class Application {
+  #server: express.Application;
   #container: Container;
 
-  constructor() {
-    this.#container = this.setupModules();
+  constructor({ modules }: ApplicationOptions) {
+    this.#container = this.setupModules(modules);
     const server = new InversifyExpressServer(this.#container);
 
     server.setConfig((app) => {
@@ -16,23 +20,21 @@ export default class Server {
       app.use(express.urlencoded({ extended: true }));
     });
 
-    this.#application = server.build();
+    this.#server = server.build();
   }
 
-  get application() {
-    return this.#application;
+  get server() {
+    return this.#server;
   }
 
   get container() {
     return this.#container;
   }
 
-  private setupModules() {
+  private setupModules(modules: Array<Module>) {
     const container = new Container();
-    const modules = [AuthModule];
     for (let idx = 0; idx < modules.length; idx++) {
-      const module = modules[idx].init();
-      container.load(module);
+      container.load(modules[idx].init());
     }
     return container;
   }

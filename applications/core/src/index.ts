@@ -5,11 +5,12 @@ import Application from "./Application";
 (async function main() {
   try {
     Database.connect();
-    const server = new Application({ modules: [new AuthModule()] });
-    server.server.listen(process.env.SERVER_PORT, () => {
+    const application = new Application({ modules: [new AuthModule()] });
+    application.server.listen(process.env.SERVER_PORT, () => {
       console.log('Server is running!');
     });
   } catch (error) {
+    console.error(error);
     await Database.disconnect();
   }
 })();

@@ -31,64 +31,74 @@ describe('Auth integration tests', () => {
     await deleteAuthData();
   });
 
-  it('creates a new user', async () => {
-    const response = await request
-      .post('/api/auth/users')
-      .set('Content-Type', 'application/json')
-      .send({
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(10),
-      });
+  describe('POST: /api/auth/users', () => {
+    it('creates a new user', async () => {
+      const response = await request
+        .post('/api/auth/users')
+        .set('Content-Type', 'application/json')
+        .send({
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+        });
 
-    expect(response.status).toEqual(201);
-    expect(response.body).toHaveProperty('id');
-    expect(response.body).toHaveProperty('email');
-    expect(response.body).toHaveProperty('password');
-    expect(response.body).not.toHaveProperty('access_plan_id');
+      expect(response.status).toEqual(201);
+      expect(response.body).toHaveProperty('id');
+      expect(response.body).toHaveProperty('email');
+      expect(response.body).toHaveProperty('password');
+      expect(response.body).not.toHaveProperty('access_plan_id');
+    });
+
+    it("returns status code 404 if access plan doesn't exist", async () => {
+      const response = await request
+        .post('/api/auth/users')
+        .set('Content-Type', 'application/json')
+        .send({
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+          access_plan_id: faker.string.uuid() // wrong,
+        });
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Plano de acesso não encontrado');
+    });
+
+    it("creates an user with access plan", async () => {
+      const response = await request
+        .post('/api/auth/users')
+        .set('Content-Type', 'application/json')
+        .send({
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+          access_plan_id: active_access_plan_id,
+        });
+
+      expect(response.status).toEqual(201);
+      expect(response.body).toHaveProperty('id');
+      expect(response.body).toHaveProperty('email');
+      expect(response.body).toHaveProperty('password');
+      expect(response.body).toHaveProperty('access_plan_id');
+    });
+
+    it("returns status code 422 if access plan is not active", async () => {
+      const response = await request
+        .post('/api/auth/users')
+        .set('Content-Type', 'application/json')
+        .send({
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+          access_plan_id: not_active_access_plan_id,
+        });
+
+      expect(response.status).toEqual(422);
+      expect(response.body.message).toEqual('Plano de acesso desativado');
+    });
   });
 
-  it("returns status code 404 if access plan doesn't exist", async () => {
-    const response = await request
-      .post('/api/auth/users')
-      .set('Content-Type', 'application/json')
-      .send({
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(10),
-        access_plan_id: faker.string.uuid() // wrong,
-      });
+  it.todo('PUT: /api/auth/users');
 
-    expect(response.status).toEqual(404);
-    expect(response.body.message).toEqual('Plano de acesso não encontrado');
-  });
+  it.todo('POST: /api/auth/login');
 
-  it("creates an user with access plan", async () => {
-    const response = await request
-      .post('/api/auth/users')
-      .set('Content-Type', 'application/json')
-      .send({
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(10),
-        access_plan_id: active_access_plan_id,
-      });
+  it.todo('GET: /api/auth/users');
 
-    expect(response.status).toEqual(201);
-    expect(response.body).toHaveProperty('id');
-    expect(response.body).toHaveProperty('email');
-    expect(response.body).toHaveProperty('password');
-    expect(response.body).toHaveProperty('access_plan_id');
-  });
-
-  it("returns status code 422 if access plan is not active", async () => {
-    const response = await request
-      .post('/api/auth/users')
-      .set('Content-Type', 'application/json')
-      .send({
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(10),
-        access_plan_id: not_active_access_plan_id,
-      });
-
-    expect(response.status).toEqual(422);
-    expect(response.body.message).toEqual('Plano de acesso desativado');
-  });
+  it.todo('PATCH: /api/auth/users/:id/policies');
 });

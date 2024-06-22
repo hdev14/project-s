@@ -35,6 +35,10 @@ export default class AccessPlan extends Aggregate<AccessPlanObject> implements A
     this.#active = false;
   }
 
+  isActive() {
+    return this.#active
+  }
+
   toObject(): RequiredId<AccessPlanObject> {
     return {
       id: this.id,

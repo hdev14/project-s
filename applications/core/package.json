@@ -5,7 +5,7 @@
   "main": "./build/index.js",
   "scripts": {
     "test:unit": "npx jest unit --passWithNoTests --watch --silent=false --config=jest.unit.config.js",
-    "test:int": "npx jest int --passWithNoTests --watch --silent=false --config=jest.int.config.js",
+    "test:int": "npx dotenv -e .env.test -- npx jest int --detectOpenHandles --passWithNoTests --watch --silent=false --config=jest.int.config.js",
     "test:arch": "npx jest arch --passWithNoTests --silent=false",
     "db:migrate": "node-pg-migrate --migration-file-language ts --migrations-dir ./src/migrations --envPath .env --tsconfig ./tsconfig.json --template-file-name ./migration-template.ts"
   },
@@ -28,6 +28,7 @@
     "@types/pg": "^8.11.6",
     "@types/supertest": "^6.0.2",
     "dotenv": "^16.4.5",
+    "dotenv-cli": "^7.4.2",
     "eslint": "^9.4.0",
     "globals": "^15.4.0",
     "jest": "^29.7.0",

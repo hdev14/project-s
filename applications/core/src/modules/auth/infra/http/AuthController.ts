@@ -1,7 +1,19 @@
 import AuthService from "@auth/app/AuthService";
+import HttpStatusCodes from "@shared/HttpStatusCodes";
+import NotFoundError from "@shared/errors/NotFoundError";
 import types from "@shared/types";
+import { Request } from 'express';
 import { inject } from "inversify";
-import { BaseHttpController, controller, httpGet, httpPatch, httpPost, httpPut, requestParam } from "inversify-express-utils";
+import {
+  BaseHttpController,
+  controller,
+  httpGet,
+  httpPatch,
+  httpPost,
+  httpPut,
+  request,
+  requestParam
+} from "inversify-express-utils";
 
 @controller('/api/auth')
 export default class AuthController extends BaseHttpController {
@@ -20,8 +32,24 @@ export default class AuthController extends BaseHttpController {
   }
 
   @httpPost('/users')
-  async registerUser() {
-    return this.ok();
+  async registerUser(@request() req: Request) {
+    const { email, password, access_plan_id } = req.body;
+
+    const [data, error] = await this.auth_service.registerUser({
+      email,
+      password,
+      access_plan_id
+    });
+
+    if (error) {
+      if (error instanceof NotFoundError) {
+        return this.json({ message: error.message }, HttpStatusCodes.NOT_FOUND);
+      }
+      return this.json({ message: error.message }, HttpStatusCodes.UNPROCESSABLE_CONTENT);
+    }
+
+
+    return this.json(data, HttpStatusCodes.CREATED);
   }
 
   @httpPut('/users/:id')

@@ -92,6 +92,9 @@ export default class AuthService {
       if (!access_plan) {
         return Either.left(new NotFoundError('Plano de acesso não encontrado'));
       }
+      if (!access_plan.isActive()) {
+        return Either.left(new Error('Plano de acesso desativado'));
+      }
     }
 
     const user = new User({

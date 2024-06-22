@@ -5,9 +5,7 @@ import { BaseHttpController, controller, httpGet, httpPatch, httpPost, httpPut, 
 
 @controller('/api/auth')
 export default class AuthController extends BaseHttpController {
-  constructor(
-    @inject(types.AuthService) readonly auth_service: AuthService
-  ) {
+  constructor(@inject(types.AuthService) readonly auth_service: AuthService) {
     super();
   }
 

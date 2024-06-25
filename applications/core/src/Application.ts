@@ -1,4 +1,5 @@
 import Module from '@shared/Module';
+import { errorHandler } from '@shared/middlewares';
 import express from 'express';
 import { Container } from 'inversify';
 import { InversifyExpressServer } from 'inversify-express-utils';
@@ -18,6 +19,10 @@ export default class Application {
     server.setConfig((app) => {
       app.use(express.json());
       app.use(express.urlencoded({ extended: true }));
+    });
+
+    server.setErrorConfig((app) => {
+      app.use(errorHandler);
     });
 
     this.#server = server.build();

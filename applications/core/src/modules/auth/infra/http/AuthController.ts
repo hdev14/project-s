@@ -1,6 +1,7 @@
 import AuthService from "@auth/app/AuthService";
 import HttpStatusCodes from "@shared/HttpStatusCodes";
 import NotFoundError from "@shared/errors/NotFoundError";
+import { requestValidator } from "@shared/middlewares";
 import types from "@shared/types";
 import { Request } from 'express';
 import { inject } from "inversify";
@@ -14,6 +15,7 @@ import {
   request,
   requestParam
 } from "inversify-express-utils";
+import { create_user_validation_schema, update_user_validation_schema } from "./validations";
 
 @controller('/api/auth')
 export default class AuthController extends BaseHttpController {
@@ -31,7 +33,7 @@ export default class AuthController extends BaseHttpController {
     return this.ok();
   }
 
-  @httpPost('/users')
+  @httpPost('/users', requestValidator(create_user_validation_schema))
   async registerUser(@request() req: Request) {
     const { email, password, access_plan_id } = req.body;
 
@@ -52,9 +54,20 @@ export default class AuthController extends BaseHttpController {
     return this.json(data, HttpStatusCodes.CREATED);
   }
 
-  @httpPut('/users/:id')
-  async updateUser(@requestParam('id') id: string) {
-    console.log(id);
+  @httpPut('/users/:id', requestValidator(update_user_validation_schema))
+  async updateUser(@request() req: Request) {
+    const { email, password } = req.body;
+
+    const [, error] = await this.auth_service.updateUser({
+      user_id: req.params.id,
+      email,
+      password,
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: error.message }, HttpStatusCodes.NOT_FOUND);
+    }
+
     return this.ok();
   }
 

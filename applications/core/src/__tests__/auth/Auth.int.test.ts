@@ -15,8 +15,13 @@ describe('Auth integration tests', () => {
   const request = supertest(new Application({ modules: [new AuthModule()] }).server);
   const active_access_plan_id = faker.string.uuid();
   const not_active_access_plan_id = faker.string.uuid();
+  const user_id = faker.string.uuid();
 
   beforeAll(async () => {
+    await globalThis.db.query(
+      'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
+      [user_id, faker.internet.email(), faker.string.alphanumeric(10)]
+    );
     await globalThis.db.query(
       'INSERT INTO access_plans(id, active, amount, type, description) VALUES($1, $2, $3, $4, $5)',
       [active_access_plan_id, true, faker.number.float(), AccessPlanTypes.ANNUALLY, faker.lorem.lines(1)]
@@ -27,9 +32,9 @@ describe('Auth integration tests', () => {
     );
   });
 
-  afterAll(async () => {
-    await deleteAuthData();
-  });
+  // afterAll(async () => {
+  //   await deleteAuthData();
+  // });
 
   describe('POST: /api/auth/users', () => {
     it('creates a new user', async () => {
@@ -92,9 +97,94 @@ describe('Auth integration tests', () => {
       expect(response.status).toEqual(422);
       expect(response.body.message).toEqual('Plano de acesso desativado');
     });
+
+    it("returns status code 400 if data is not valid", async () => {
+      let response = await request
+        .post('/api/auth/users')
+        .set('Content-Type', 'application/json')
+        .send({
+          email: faker.string.sample(), // invalid email
+          password: faker.string.alphanumeric(10),
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(1);
+      expect(response.body.errors[0].field).toEqual('email');
+      expect(response.body.errors[0].message).toEqual('O campo precisa ser um endereço de e-mail válido');
+
+      response = await request
+        .post('/api/auth/users')
+        .set('Content-Type', 'application/json')
+        .send({
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(7), // invalid password
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(1);
+      expect(response.body.errors[0].field).toEqual('password');
+      expect(response.body.errors[0].message).toEqual('O campo precisa ter no minimo 8 caracteres');
+    });
   });
 
-  it.todo('PUT: /api/auth/users');
+  describe('PUT: /api/auth/users/:id', () => {
+    it('updates an user', async () => {
+      const data = {
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      };
+
+      const response = await request
+        .put(`/api/auth/users/${user_id}`)
+        .set('Content-Type', 'application/json')
+        .send();
+
+      expect(response.status).toEqual(204);
+
+      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [user_id]);
+
+      expect(result.rows[0].email).toEqual(data.email);
+    });
+
+    it("returns status code 404 if user doesn't exist", async () => {
+      const response = await request
+        .put(`/api/auth/users/${faker.string.uuid()}`)
+        .set('Content-Type', 'application/json')
+        .send({
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+        });
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Usuário não encontrado');
+    });
+
+    it("returns status code 400 if data is invalid", async () => {
+      let response = await request
+        .put(`/api/auth/users/${user_id}`)
+        .set('Content-Type', 'application/json')
+        .send({
+          email: faker.string.sample(), // invalid email
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(1);
+      expect(response.body.errors[0].field).toEqual('email');
+      expect(response.body.errors[0].message).toEqual('O campo precisa ser um endereço de e-mail válido');
+
+      response = await request
+        .put(`/api/auth/users/${user_id}`)
+        .set('Content-Type', 'application/json')
+        .send({
+          password: faker.string.alphanumeric(7), // invalid password
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(1);
+      expect(response.body.errors[0].field).toEqual('password');
+      expect(response.body.errors[0].message).toEqual('O campo precisa ter no minimo 8 caracteres');
+    });
+  });
 
   it.todo('POST: /api/auth/login');
 

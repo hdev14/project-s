@@ -10,7 +10,7 @@ import 'reflect-metadata';
 @injectable()
 export default class DbUserRepository implements UserRepository {
   #db: Pool;
-  #default_select_users_query = 'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users AS u JOIN user_policies AS up ON u.id = up.user_id JOIN policies AS p ON up.policy_id = p.id';
+  #default_select_users_query = 'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users "u" LEFT JOIN user_policies "up" ON u.id = up.user_id LEFT JOIN policies "p" ON up.policy_id = p.id';
 
   constructor() {
     this.#db = Database.connect();
@@ -61,7 +61,7 @@ export default class DbUserRepository implements UserRepository {
   }
 
   async getUserById(id: string): Promise<User | null> {
-    const result = await this.#db.query(this.#default_select_users_query + ' WHERE id = $1', [id]);
+    const result = await this.#db.query(this.#default_select_users_query + ' WHERE u.id = $1', [id]);
 
     if (result.rows.length === 0) {
       return null;
@@ -124,6 +124,7 @@ export default class DbUserRepository implements UserRepository {
     }
   }
 
+  // TODO: there is a bug here, found it later
   async updateUser(user: User): Promise<void> {
     const user_obj = user.toObject();
 

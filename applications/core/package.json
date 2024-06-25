@@ -4,6 +4,7 @@
   "description": "Main backend application with all logic to manage subscription operations",
   "main": "./build/index.js",
   "scripts": {
+    "start:dev": "npx dotenv -e .env -- npx ts-node -r tsconfig-paths/register  ./src/index.ts",
     "test:unit": "npx jest unit --passWithNoTests --watch --silent=false --config=jest.unit.config.js",
     "test:int": "npx dotenv -e .env.test -- npx jest int --detectOpenHandles --passWithNoTests --watch --silent=false --config=jest.int.config.js",
     "test:arch": "npx jest arch --passWithNoTests --silent=false",
@@ -30,6 +31,7 @@
     "dotenv": "^16.4.5",
     "dotenv-cli": "^7.4.2",
     "eslint": "^9.4.0",
+    "express-validator": "^7.1.0",
     "globals": "^15.4.0",
     "jest": "^29.7.0",
     "jest-mock-extended": "^3.0.7",

@@ -32,9 +32,9 @@ describe('Auth integration tests', () => {
     );
   });
 
-  // afterAll(async () => {
-  //   await deleteAuthData();
-  // });
+  afterAll(async () => {
+    await deleteAuthData();
+  });
 
   describe('POST: /api/auth/users', () => {
     it('creates a new user', async () => {
@@ -137,7 +137,7 @@ describe('Auth integration tests', () => {
       const response = await request
         .put(`/api/auth/users/${user_id}`)
         .set('Content-Type', 'application/json')
-        .send();
+        .send(data);
 
       expect(response.status).toEqual(204);
 

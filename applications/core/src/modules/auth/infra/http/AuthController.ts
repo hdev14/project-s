@@ -68,7 +68,7 @@ export default class AuthController extends BaseHttpController {
       return this.json({ message: error.message }, HttpStatusCodes.NOT_FOUND);
     }
 
-    return this.ok();
+    return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
   @httpPatch('/users/:id/policies')

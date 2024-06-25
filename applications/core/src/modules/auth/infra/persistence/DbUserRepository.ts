@@ -70,7 +70,10 @@ export default class DbUserRepository implements UserRepository {
     const policies = [];
 
     for (let idx = 0; idx < result.rows.length; idx++) {
-      policies.push(result.rows[idx].slug);
+      const row = result.rows[idx];
+      if (row.slug) {
+        policies.push(result.rows[idx].slug);
+      }
     }
 
     return new User({
@@ -124,7 +127,6 @@ export default class DbUserRepository implements UserRepository {
     }
   }
 
-  // TODO: there is a bug here, found it later
   async updateUser(user: User): Promise<void> {
     const user_obj = user.toObject();
 

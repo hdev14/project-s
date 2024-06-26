@@ -17,10 +17,18 @@ describe('Auth integration tests', () => {
   const not_active_access_plan_id = faker.string.uuid();
   const user_id = faker.string.uuid();
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     await globalThis.db.query(
       'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
       [user_id, faker.internet.email(), faker.string.alphanumeric(10)]
+    );
+    await globalThis.db.query(
+      'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
+      [faker.string.uuid(), faker.internet.email(), faker.string.alphanumeric(10)]
+    );
+    await globalThis.db.query(
+      'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
+      [faker.string.uuid(), faker.internet.email(), faker.string.alphanumeric(10)]
     );
     await globalThis.db.query(
       'INSERT INTO access_plans(id, active, amount, type, description) VALUES($1, $2, $3, $4, $5)',
@@ -32,7 +40,7 @@ describe('Auth integration tests', () => {
     );
   });
 
-  afterAll(async () => {
+  afterEach(async () => {
     await deleteAuthData();
   });
 
@@ -188,7 +196,53 @@ describe('Auth integration tests', () => {
 
   it.todo('POST: /api/auth/login');
 
-  it.todo('GET: /api/auth/users');
+  describe('GET: /api/auth/users/', () => {
+    it("should return all users", async () => {
+      const response = await request
+        .get('/api/auth/users')
+        .set('Content-Type', 'application/json')
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body.results).toHaveLength(3);
+      expect(response.body).not.toHaveProperty('pagination');
+    });
+
+    it("should return users with pagination", async () => {
+      let response = await request
+        .get('/api/auth/users')
+        .query({ page: 1, limit: 1 })
+        .set('Content-Type', 'application/json')
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body.results).toHaveLength(1);
+      expect(response.body.page_result.next_page).toEqual(2);
+      expect(response.body.page_result.total_of_pages).toEqual(3);
+
+      response = await request
+        .get('/api/auth/users')
+        .query({ page: 1, limit: 2 })
+        .set('Content-Type', 'application/json')
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body.results).toHaveLength(2);
+      expect(response.body.page_result.next_page).toEqual(2);
+      expect(response.body.page_result.total_of_pages).toEqual(2);
+
+      response = await request
+        .get('/api/auth/users')
+        .query({ page: 2, limit: 2 })
+        .set('Content-Type', 'application/json')
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body.results).toHaveLength(1);
+      expect(response.body.page_result.next_page).toEqual(-1);
+      expect(response.body.page_result.total_of_pages).toEqual(2);
+    });
+  });
 
   it.todo('PATCH: /api/auth/users/:id/policies');
 });

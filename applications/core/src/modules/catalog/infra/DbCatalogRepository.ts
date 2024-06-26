@@ -1,9 +1,9 @@
 import CatalogRepository from "@catalog/app/CatalogRepository";
 import CatalogItem from "@catalog/domain/CatalogItem";
-import { PaginationOptions } from "@shared/utils/Pagination";
+import { PageOptions } from "@shared/utils/Pagination";
 
 export default class DbCatalogRepository implements CatalogRepository {
-  getCatalogItems(pagination: PaginationOptions): Promise<CatalogItem[]> {
+  getCatalogItems(pagination: PageOptions): Promise<CatalogItem[]> {
     throw new Error("Method not implemented.");
   }
   createCatalogItem(catalog_item: CatalogItem): Promise<void> {

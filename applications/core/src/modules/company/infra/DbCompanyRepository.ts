@@ -1,4 +1,4 @@
-import { PaginationOptions } from "@shared/utils/Pagination";
+import { PageOptions } from "@shared/utils/Pagination";
 import CompanyRepository from "../app/CompanyRepository";
 import Company from "../domain/Company";
 
@@ -12,7 +12,7 @@ export default class DbCompanyRepository implements CompanyRepository {
   getCompanyById(id: string): Promise<Company> {
     throw new Error("Method not implemented.");
   }
-  getCompanies(pagination: PaginationOptions): Promise<Company[]> {
+  getCompanies(pagination: PageOptions): Promise<Company[]> {
     throw new Error("Method not implemented.");
   }
 }

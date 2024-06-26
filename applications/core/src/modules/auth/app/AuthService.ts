@@ -3,7 +3,7 @@ import CredentialError from "@shared/errors/CredentialError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import types from "@shared/types";
 import Either from "@shared/utils/Either";
-import { PageOptions } from "@shared/utils/Pagination";
+import { PageOptions, PageResult } from "@shared/utils/Pagination";
 import { randomUUID } from "crypto";
 import { inject, injectable } from "inversify";
 import 'reflect-metadata';
@@ -38,6 +38,11 @@ export type UpdatePoliciesParams = {
 export type GetUsersParams = {
   pagination?: PageOptions;
 };
+
+export type GetUsersResult = {
+  results: Array<UserObject>;
+  page_result?: PageResult;
+}
 
 type ChangeAccessPlanParams = {
   user_id: string;
@@ -158,13 +163,13 @@ export default class AuthService {
     return Either.right();
   }
 
-  async getUsers(params: GetUsersParams): Promise<Either<Array<UserObject>>> {
-    const users = await this.#user_repository.getUsers(params.pagination);
+  async getUsers(params: GetUsersParams): Promise<Either<GetUsersResult>> {
+    const { results, page_result } = await this.#user_repository.getUsers(params.pagination);
     const objs = [];
-    for (let idx = 0; idx < users.length; idx++) {
-      objs.push(users[idx].toObject());
+    for (let idx = 0; idx < results.length; idx++) {
+      objs.push(results[idx].toObject());
     }
-    return Either.right(objs);
+    return Either.right({ results: objs, page_result });
   }
 
   async changeAccessPlan(params: ChangeAccessPlanParams): Promise<Either<void>> {

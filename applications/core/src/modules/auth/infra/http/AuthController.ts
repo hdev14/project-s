@@ -29,8 +29,18 @@ export default class AuthController extends BaseHttpController {
   }
 
   @httpGet('/users')
-  async getUsers() {
-    return this.ok();
+  async getUsers(@request() req: Request) {
+    const { page, limit } = req.query;
+    const params = (page && limit) ? ({
+      pagination: {
+        limit: parseInt(limit.toString(), 10),
+        page: parseInt(page.toString(), 10)
+      }
+    }) : ({});
+
+    const [data] = await this.auth_service.getUsers(params);
+
+    return this.json(data, HttpStatusCodes.OK);
   }
 
   @httpPost('/users', requestValidator(create_user_validation_schema))

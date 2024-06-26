@@ -31,17 +31,21 @@ export default class DbUserRepository implements UserRepository {
 
       if (user_objects.has(row.id)) {
         const existent_user = user_objects.get(row.id);
-        existent_user!.policies.push(row.slug);
+        if (row.slug) {
+          existent_user!.policies.push(row.slug);
+        }
         user_objects.set(row.id, existent_user!);
         continue;
       }
+
+      const policies = row.slug ? [row.slug] : [];
 
       user_objects.set(row.id, {
         id: row.id,
         email: row.email,
         password: row.password,
         access_plan_id: row.access_plan_id,
-        policies: [row.slug]
+        policies
       });
     }
 
@@ -51,7 +55,7 @@ export default class DbUserRepository implements UserRepository {
       results.push(new User(user_obj));
     }
 
-    return { results, pagination: page_result };
+    return { results, page_result };
   }
 
   private async selectUsers(pagination?: PageOptions) {

@@ -2,7 +2,7 @@ import User from "@auth/domain/User";
 import DbUserRepository from "@auth/infra/persistence/DbUserRepository";
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import Database from "@shared/Database";
-import { PaginationOptions } from "@shared/utils/Pagination";
+import { PageOptions } from "@shared/utils/Pagination";
 
 const connect_spy = jest.spyOn(Database, 'connect');
 const query_mock = jest.fn();
@@ -16,7 +16,7 @@ describe('DbUserRepository unit tests', () => {
   });
 
   afterEach(() => {
-    query_mock.mockClear();
+    query_mock.mockReset();
   });
 
   describe('DbUserRepository.getUsers', () => {
@@ -61,16 +61,17 @@ describe('DbUserRepository unit tests', () => {
         ]
       });
 
-      const users = await repository.getUsers();
+      const { results, page_result } = await repository.getUsers();
 
-      expect(users[0]).toBeInstanceOf(User);
-      expect(users).toHaveLength(2);
+      expect(results[0]).toBeInstanceOf(User);
+      expect(results).toHaveLength(2);
+      expect(page_result).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id'
       );
     });
 
-    it('returns a list of users when the limit of pagination is 10 and the page is 1', async () => {
+    it('returns a list of users when the limit of pagination is 1 and the page is 1', async () => {
       const data = [
         {
           id: faker.string.uuid(),
@@ -85,48 +86,51 @@ describe('DbUserRepository unit tests', () => {
           access_plan_id: faker.string.uuid(),
         }
       ];
-      query_mock.mockResolvedValueOnce({
-        rows: [
-          {
-            id: data[0].id,
-            email: data[0].email,
-            password: data[0].password,
-            access_plan_id: data[0].access_plan_id,
-            slug: faker.word.verb(),
-          },
-          {
-            id: data[0].id,
-            email: data[0].email,
-            password: data[0].password,
-            access_plan_id: data[0].access_plan_id,
-            slug: faker.word.verb(),
-          },
-          {
-            id: data[1].id,
-            email: data[1].email,
-            password: data[1].password,
-            access_plan_id: data[1].access_plan_id,
-            slug: faker.word.verb(),
-          },
-        ]
-      });
 
-      const pagination: PaginationOptions = {
-        limit: 10,
+      query_mock
+        .mockResolvedValueOnce({ rows: [{ total: 2 }] })
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              id: data[0].id,
+              email: data[0].email,
+              password: data[0].password,
+              access_plan_id: data[0].access_plan_id,
+              slug: faker.word.verb(),
+            },
+            {
+              id: data[0].id,
+              email: data[0].email,
+              password: data[0].password,
+              access_plan_id: data[0].access_plan_id,
+              slug: faker.word.verb(),
+            },
+          ]
+        });
+
+      const pagination_options: PageOptions = {
+        limit: 1,
         page: 1,
       };
 
-      const users = await repository.getUsers(pagination);
+      const { results, page_result } = await repository.getUsers(pagination_options);
 
-      expect(users[0]).toBeInstanceOf(User);
-      expect(users).toHaveLength(2);
-      expect(query_mock).toHaveBeenCalledWith(
+      expect(results[0]).toBeInstanceOf(User);
+      expect(results).toHaveLength(1);
+      expect(page_result!.next_page).toEqual(2);
+      expect(page_result!.total_of_pages).toEqual(2);
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        'SELECT DISTINCT count(u.id) as total FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id',
+      );
+      expect(query_mock).toHaveBeenNthCalledWith(
+        2,
         'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
-        [pagination.limit, 0],
+        [pagination_options.limit, 0],
       );
     });
 
-    it('returns a list of users when the limit of pagination is 10 and the page is 2', async () => {
+    it('returns a list of users when the limit of pagination is 1 and the page is 2', async () => {
       const data = [
         {
           id: faker.string.uuid(),
@@ -141,44 +145,47 @@ describe('DbUserRepository unit tests', () => {
           access_plan_id: faker.string.uuid(),
         }
       ];
-      query_mock.mockResolvedValueOnce({
-        rows: [
-          {
-            id: data[0].id,
-            email: data[0].email,
-            password: data[0].password,
-            access_plan_id: data[0].access_plan_id,
-            slug: faker.word.verb(),
-          },
-          {
-            id: data[0].id,
-            email: data[0].email,
-            password: data[0].password,
-            access_plan_id: data[0].access_plan_id,
-            slug: faker.word.verb(),
-          },
-          {
-            id: data[1].id,
-            email: data[1].email,
-            password: data[1].password,
-            access_plan_id: data[1].access_plan_id,
-            slug: faker.word.verb(),
-          },
-        ]
-      });
 
-      const pagination: PaginationOptions = {
-        limit: 10,
+      query_mock
+        .mockResolvedValueOnce({ rows: [{ total: 2 }] })
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              id: data[0].id,
+              email: data[0].email,
+              password: data[0].password,
+              access_plan_id: data[0].access_plan_id,
+              slug: faker.word.verb(),
+            },
+            {
+              id: data[0].id,
+              email: data[0].email,
+              password: data[0].password,
+              access_plan_id: data[0].access_plan_id,
+              slug: faker.word.verb(),
+            },
+          ]
+        });
+
+      const pagination_options: PageOptions = {
+        limit: 1,
         page: 2,
       };
 
-      const users = await repository.getUsers(pagination);
+      const { results, page_result } = await repository.getUsers(pagination_options);
 
-      expect(users[0]).toBeInstanceOf(User);
-      expect(users).toHaveLength(2);
-      expect(query_mock).toHaveBeenCalledWith(
+      expect(results[0]).toBeInstanceOf(User);
+      expect(results).toHaveLength(1);
+      expect(page_result!.next_page).toEqual(-1);
+      expect(page_result!.total_of_pages).toEqual(2);
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        'SELECT DISTINCT count(u.id) as total FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id',
+      );
+      expect(query_mock).toHaveBeenNthCalledWith(
+        2,
         'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
-        [pagination.limit, 10],
+        [pagination_options.limit, 1],
       );
     });
   });

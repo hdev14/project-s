@@ -5,7 +5,6 @@ import HttpStatusCodes from './HttpStatusCodes';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function errorHandler(error: Error, _request: Request, response: Response, _next: NextFunction) {
   console.error(error);
-  console.error(error.stack);
   return response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
     message: 'Internal Server Error'
   });

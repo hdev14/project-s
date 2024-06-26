@@ -2,7 +2,7 @@ import UserRepository from "@auth/app/UserRepository";
 import User, { UserObject } from "@auth/domain/User";
 import Database from "@shared/Database";
 import DbOperator from "@shared/utils/DbOperator";
-import Pagination, { PaginationOptions } from "@shared/utils/Pagination";
+import Pagination, { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
 import { injectable } from "inversify";
 import { Pool } from "pg";
 import 'reflect-metadata';
@@ -10,25 +10,19 @@ import 'reflect-metadata';
 @injectable()
 export default class DbUserRepository implements UserRepository {
   #db: Pool;
-  #default_select_users_query = 'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id';
+  #select_users_query = 'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id';
+  #count_select_users_query = 'SELECT DISTINCT count(u.id) as total FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id';
 
   constructor() {
     this.#db = Database.connect();
   }
 
-  async getUsers(pagination?: PaginationOptions): Promise<User[]> {
-    let result;
+  async getUsers(page_options?: PageOptions): Promise<PaginatedResult<User>> {
+    const { result, total } = await this.selectUsers(page_options);
 
-    if (pagination) {
-      const offset = Pagination.calculateOffset(pagination);
-
-      result = await this.#db.query(
-        this.#default_select_users_query + ' LIMIT $1 OFFSET $2',
-        [pagination.limit, offset]
-      );
-    } else {
-      result = await this.#db.query(this.#default_select_users_query);
-    }
+    const page_result = (total !== undefined && total > 0)
+      ? Pagination.calculatePageResult(total, page_options!)
+      : undefined;
 
     const user_objects = new Map<string, UserObject>();
 
@@ -51,17 +45,33 @@ export default class DbUserRepository implements UserRepository {
       });
     }
 
-    const users = [];
+    const results = [];
 
     for (const user_obj of user_objects.values()) {
-      users.push(new User(user_obj));
+      results.push(new User(user_obj));
     }
 
-    return users;
+    return { results, pagination: page_result };
+  }
+
+  private async selectUsers(pagination?: PageOptions) {
+    if (pagination) {
+      const offset = Pagination.calculateOffset(pagination);
+      const total_result = await this.#db.query(this.#count_select_users_query);
+
+      const result = await this.#db.query(
+        this.#select_users_query + ' LIMIT $1 OFFSET $2',
+        [pagination.limit, offset]
+      );
+
+      return { result, total: total_result.rows[0].total };
+    }
+
+    return { result: await this.#db.query(this.#select_users_query) };
   }
 
   async getUserById(id: string): Promise<User | null> {
-    const result = await this.#db.query(this.#default_select_users_query + ' WHERE u.id = $1', [id]);
+    const result = await this.#db.query(this.#select_users_query + ' WHERE u.id = $1', [id]);
 
     if (result.rows.length === 0) {
       return null;
@@ -86,7 +96,7 @@ export default class DbUserRepository implements UserRepository {
   }
 
   async getUserByEmail(email: string): Promise<User | null> {
-    const result = await this.#db.query(this.#default_select_users_query + ' WHERE email = $1', [email]);
+    const result = await this.#db.query(this.#select_users_query + ' WHERE email = $1', [email]);
 
     if (result.rows.length === 0) {
       return null;

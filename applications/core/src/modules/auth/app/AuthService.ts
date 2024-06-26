@@ -3,7 +3,7 @@ import CredentialError from "@shared/errors/CredentialError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import types from "@shared/types";
 import Either from "@shared/utils/Either";
-import { PaginationOptions } from "@shared/utils/Pagination";
+import { PageOptions } from "@shared/utils/Pagination";
 import { randomUUID } from "crypto";
 import { inject, injectable } from "inversify";
 import 'reflect-metadata';
@@ -36,7 +36,7 @@ export type UpdatePoliciesParams = {
 };
 
 export type GetUsersParams = {
-  pagination?: PaginationOptions;
+  pagination?: PageOptions;
 };
 
 type ChangeAccessPlanParams = {

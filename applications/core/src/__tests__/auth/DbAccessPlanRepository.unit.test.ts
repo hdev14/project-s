@@ -15,7 +15,7 @@ describe('DbAccessPlanRepository unit tests', () => {
   });
 
   afterEach(() => {
-    query_mock.mockClear();
+    query_mock.mockReset();
   });
 
   describe('DbAccessPlanRepository.getAccessPlans', () => {

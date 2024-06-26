@@ -285,26 +285,28 @@ describe('AuthService unit tests', () => {
 
   describe('AuthService.getUsers', () => {
     it('returns a list of users', async () => {
-      user_repository_mock.getUsers.mockResolvedValueOnce([
-        new User({
-          id: faker.string.uuid(),
-          email: faker.internet.email(),
-          password: faker.string.alphanumeric(),
-          policies: []
-        }),
-        new User({
-          id: faker.string.uuid(),
-          email: faker.internet.email(),
-          password: faker.string.alphanumeric(),
-          policies: []
-        }),
-      ]);
+      user_repository_mock.getUsers.mockResolvedValueOnce({
+        results: [
+          new User({
+            id: faker.string.uuid(),
+            email: faker.internet.email(),
+            password: faker.string.alphanumeric(),
+            policies: []
+          }),
+          new User({
+            id: faker.string.uuid(),
+            email: faker.internet.email(),
+            password: faker.string.alphanumeric(),
+            policies: []
+          }),
+        ]
+      });
 
       const [data, error] = await auth_service.getUsers({});
 
       expect(error).toBeUndefined();
-      expect(data![0]).not.toBeInstanceOf(User);
-      expect(data).toHaveLength(2);
+      expect(data!.results[0]).not.toBeInstanceOf(User);
+      expect(data!.results).toHaveLength(2);
     });
   });
 

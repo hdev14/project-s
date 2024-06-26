@@ -66,7 +66,7 @@ describe('DbUserRepository unit tests', () => {
       expect(users[0]).toBeInstanceOf(User);
       expect(users).toHaveLength(2);
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users AS u JOIN user_policies AS up ON u.id = up.user_id JOIN policies AS p ON up.policy_id = p.id'
+        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id'
       );
     });
 
@@ -121,7 +121,7 @@ describe('DbUserRepository unit tests', () => {
       expect(users[0]).toBeInstanceOf(User);
       expect(users).toHaveLength(2);
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users AS u JOIN user_policies AS up ON u.id = up.user_id JOIN policies AS p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
+        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
         [pagination.limit, 0],
       );
     });
@@ -177,7 +177,7 @@ describe('DbUserRepository unit tests', () => {
       expect(users[0]).toBeInstanceOf(User);
       expect(users).toHaveLength(2);
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users AS u JOIN user_policies AS up ON u.id = up.user_id JOIN policies AS p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
+        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
         [pagination.limit, 10],
       );
     });
@@ -216,7 +216,7 @@ describe('DbUserRepository unit tests', () => {
       expect(user).toBeInstanceOf(User);
       expect(user?.toObject().policies).toHaveLength(2);
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users AS u JOIN user_policies AS up ON u.id = up.user_id JOIN policies AS p ON up.policy_id = p.id WHERE id = $1',
+        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.id = $1',
         [data.id]
       );
     });
@@ -231,7 +231,7 @@ describe('DbUserRepository unit tests', () => {
 
       expect(user).toBeNull()
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users AS u JOIN user_policies AS up ON u.id = up.user_id JOIN policies AS p ON up.policy_id = p.id WHERE id = $1',
+        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.id = $1',
         [user_id]
       );
     });
@@ -269,7 +269,7 @@ describe('DbUserRepository unit tests', () => {
       expect(user).toBeInstanceOf(User);
       expect(user?.toObject().policies).toHaveLength(2);
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users AS u JOIN user_policies AS up ON u.id = up.user_id JOIN policies AS p ON up.policy_id = p.id WHERE email = $1',
+        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE email = $1',
         [data.email]
       );
     });
@@ -284,7 +284,7 @@ describe('DbUserRepository unit tests', () => {
 
       expect(user).toBeNull()
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users AS u JOIN user_policies AS up ON u.id = up.user_id JOIN policies AS p ON up.policy_id = p.id WHERE email = $1',
+        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE email = $1',
         [user_email]
       );
     });

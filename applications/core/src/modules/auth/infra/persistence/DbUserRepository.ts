@@ -10,7 +10,7 @@ import 'reflect-metadata';
 @injectable()
 export default class DbUserRepository implements UserRepository {
   #db: Pool;
-  #default_select_users_query = 'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users "u" LEFT JOIN user_policies "up" ON u.id = up.user_id LEFT JOIN policies "p" ON up.policy_id = p.id';
+  #default_select_users_query = 'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id';
 
   constructor() {
     this.#db = Database.connect();

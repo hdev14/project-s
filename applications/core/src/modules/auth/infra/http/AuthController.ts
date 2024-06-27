@@ -34,7 +34,7 @@ export default class AuthController extends BaseHttpController {
     });
 
     if (error instanceof CredentialError) {
-      return this.json({ message: 'Credenciais inválidas' }, HttpStatusCodes.BAD_REQUEST);
+      return this.json({ message: error.message }, HttpStatusCodes.BAD_REQUEST);
     }
 
     const isProd = process.env.NODE_ENV === 'production';

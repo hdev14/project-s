@@ -16,7 +16,12 @@ import {
   request,
   response
 } from "inversify-express-utils";
-import { create_user_validation_schema, login_validation_schema, update_policies_validation_schema, update_user_validation_schema } from "./validations";
+import {
+  create_user_validation_schema,
+  login_validation_schema,
+  update_policies_validation_schema,
+  update_user_validation_schema
+} from "./validations";
 
 @controller('/api/auth')
 export default class AuthController extends BaseHttpController {

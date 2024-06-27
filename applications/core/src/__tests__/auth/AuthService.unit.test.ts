@@ -28,7 +28,7 @@ describe('AuthService unit tests', () => {
   );
 
   describe('AuthService.login', () => {
-    it("returns a not found error if user doesn't exist", async () => {
+    it("returns a credential error if user doesn't exist", async () => {
       user_repository_mock.getUserByEmail.mockResolvedValueOnce(null);
 
       const [data, error] = await auth_service.login({
@@ -37,8 +37,8 @@ describe('AuthService unit tests', () => {
       });
 
       expect(data).toBeUndefined();
-      expect(error).toBeInstanceOf(NotFoundError);
-      expect(error!.message).toEqual('Usuário não encontrado');
+      expect(error).toBeInstanceOf(CredentialError);
+      expect(error!.message).toEqual('Credenciais inválidas');
     });
 
     it("returns a credentials error if password is invalid", async () => {

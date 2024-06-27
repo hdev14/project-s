@@ -75,7 +75,7 @@ export default class AuthService {
     const user = await this.#user_repository.getUserByEmail(params.email);
 
     if (!user) {
-      return Either.left(new NotFoundError('Usuário não encontrado'));
+      return Either.left(new CredentialError());
     }
 
     const user_obj = user.toObject();

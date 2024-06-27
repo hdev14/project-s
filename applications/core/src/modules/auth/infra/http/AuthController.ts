@@ -1,9 +1,10 @@
 import AuthService from "@auth/app/AuthService";
 import HttpStatusCodes from "@shared/HttpStatusCodes";
+import CredentialError from "@shared/errors/CredentialError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import { requestValidator } from "@shared/middlewares";
 import types from "@shared/types";
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { inject } from "inversify";
 import {
   BaseHttpController,
@@ -12,9 +13,10 @@ import {
   httpPatch,
   httpPost,
   httpPut,
-  request
+  request,
+  response
 } from "inversify-express-utils";
-import { create_user_validation_schema, update_policies_validation_schema, update_user_validation_schema } from "./validations";
+import { create_user_validation_schema, login_validation_schema, update_policies_validation_schema, update_user_validation_schema } from "./validations";
 
 @controller('/api/auth')
 export default class AuthController extends BaseHttpController {
@@ -22,9 +24,30 @@ export default class AuthController extends BaseHttpController {
     super();
   }
 
-  @httpPost('/login')
-  async login() {
-    return this.ok();
+  @httpPost('/login', requestValidator(login_validation_schema))
+  async login(@request() req: Request, @response() res: Response) {
+    const { email, password } = req.body;
+
+    const [data, error] = await this.auth_service.login({
+      email,
+      password,
+    });
+
+    if (error instanceof CredentialError) {
+      return this.json({ message: 'Credenciais inválidas' }, HttpStatusCodes.BAD_REQUEST);
+    }
+
+    const isProd = process.env.NODE_ENV === 'production';
+
+    res.cookie('AT', data!.auth.token, {
+      httpOnly: isProd,
+      sameSite: isProd,
+      secure: isProd,
+      domain: isProd ? process.env.DOMAIN : '',
+      expires: data!.auth.expired_at,
+    });
+
+    return this.json(data, HttpStatusCodes.OK);
   }
 
   @httpGet('/users')

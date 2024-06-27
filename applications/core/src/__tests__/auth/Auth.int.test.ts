@@ -1,6 +1,8 @@
+import Encryptor from '@auth/app/Encryptor';
 import { AccessPlanTypes } from '@auth/domain/AccessPlan';
 import AuthModule from '@auth/infra/AuthModule';
 import { faker } from '@faker-js/faker/locale/pt_BR';
+import types from '@shared/types';
 import Application from 'src/Application';
 import supertest from 'supertest';
 
@@ -11,17 +13,36 @@ async function deleteAuthData() {
   await globalThis.db.query('DELETE FROM access_plans');
 }
 
+function cookieExists(cookies: Array<string>) {
+  let exists = false;
+
+  for (let idx = 0; idx < cookies.length; idx++) {
+    const [cookie, value] = cookies[idx].split(';')[0].split('=');
+    if (cookie === 'AT' && value !== '') {
+      exists = true;
+      break;
+    }
+  }
+  return exists;
+}
+
 describe('Auth integration tests', () => {
-  const request = supertest(new Application({ modules: [new AuthModule()] }).server);
+  const application = new Application({ modules: [new AuthModule()] });
+  const encryptor = application.container.get<Encryptor>(types.Encryptor);
+  const request = supertest(application.server);
   const active_access_plan_id = faker.string.uuid();
   const not_active_access_plan_id = faker.string.uuid();
-  const user_id = faker.string.uuid();
   const policy_slug = faker.word.verb();
+  const user = {
+    id: faker.string.uuid(),
+    email: faker.internet.email(),
+    password: faker.string.alphanumeric(10),
+  };
 
   beforeEach(async () => {
     await globalThis.db.query(
       'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
-      [user_id, faker.internet.email(), faker.string.alphanumeric(10)]
+      [user.id, user.email, encryptor.createHash(user.password)]
     );
     await globalThis.db.query(
       'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
@@ -148,13 +169,13 @@ describe('Auth integration tests', () => {
       };
 
       const response = await request
-        .put(`/api/auth/users/${user_id}`)
+        .put(`/api/auth/users/${user.id}`)
         .set('Content-Type', 'application/json')
         .send(data);
 
       expect(response.status).toEqual(204);
 
-      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [user_id]);
+      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [user.id]);
 
       expect(result.rows[0].email).toEqual(data.email);
     });
@@ -174,7 +195,7 @@ describe('Auth integration tests', () => {
 
     it("returns status code 400 if data is invalid", async () => {
       let response = await request
-        .put(`/api/auth/users/${user_id}`)
+        .put(`/api/auth/users/${user.id}`)
         .set('Content-Type', 'application/json')
         .send({
           email: faker.string.sample(), // invalid email
@@ -186,7 +207,7 @@ describe('Auth integration tests', () => {
       expect(response.body.errors[0].message).toEqual('O campo precisa ser um endereço de e-mail válido');
 
       response = await request
-        .put(`/api/auth/users/${user_id}`)
+        .put(`/api/auth/users/${user.id}`)
         .set('Content-Type', 'application/json')
         .send({
           password: faker.string.alphanumeric(7), // invalid password
@@ -199,7 +220,70 @@ describe('Auth integration tests', () => {
     });
   });
 
-  it.todo('POST: /api/auth/login');
+  describe('POST: /api/auth/login', () => {
+    it('should make a login', async () => {
+      const response = await request
+        .post('/api/auth/login')
+        .set('Content-Type', 'application/json')
+        .send({
+          email: user.email,
+          password: user.password,
+        });
+
+      const cookies = (response.headers['set-cookie'] ?? []) as unknown as Array<string>;
+
+      expect(response.status).toEqual(200);
+      expect(cookieExists(cookies)).toBeTruthy();
+      expect(response.body).toHaveProperty('user');
+      expect(response.body).toHaveProperty('auth');
+    });
+
+    it("returns status code 400 if user's doesn't exist", async () => {
+      const response = await request
+        .post('/api/auth/login')
+        .set('Content-Type', 'application/json')
+        .send({
+          email: faker.internet.email(),
+          password: user.password,
+        });
+
+
+      expect(response.status).toEqual(400);
+      expect(response.body.message).toEqual('Credenciais inválidas');
+    });
+
+    it("returns status code 400 if user's password is wrong", async () => {
+      const response = await request
+        .post('/api/auth/login')
+        .set('Content-Type', 'application/json')
+        .send({
+          email: user.email,
+          password: faker.string.alphanumeric(10),
+        });
+
+
+      expect(response.status).toEqual(400);
+      expect(response.body.message).toEqual('Credenciais inválidas');
+    });
+
+    it("returns status code 400 if data is invalid", async () => {
+      const response = await request
+        .post('/api/auth/login')
+        .set('Content-Type', 'application/json')
+        .send({
+          email: faker.string.alphanumeric(10), // invalid emial
+          password: faker.string.alphanumeric(7), // less then 8 characters
+        });
+
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(2);
+      expect(response.body.errors[0].field).toEqual('email');
+      expect(response.body.errors[0].message).toEqual('O campo precisa ser um endereço de e-mail válido');
+      expect(response.body.errors[1].field).toEqual('password');
+      expect(response.body.errors[1].message).toEqual('O campo precisa ter no minimo 8 caracteres');
+    });
+  });
 
   describe('GET: /api/auth/users/', () => {
     it('should return all users', async () => {
@@ -252,7 +336,7 @@ describe('Auth integration tests', () => {
   describe('PATCH: /api/auth/users/:id/policies', () => {
     it("should update user's policies", async () => {
       let response = await request
-        .patch(`/api/auth/users/${user_id}/policies`)
+        .patch(`/api/auth/users/${user.id}/policies`)
         .set('Content-Type', 'application/json')
         .send({
           policy_slugs: [policy_slug],
@@ -260,11 +344,11 @@ describe('Auth integration tests', () => {
         });
 
       expect(response.status).toEqual(204);
-      let result = await globalThis.db.query('SELECT count(*) as total FROM user_policies JOIN policies ON policy_id = policy_id WHERE user_id = $1', [user_id]);
+      let result = await globalThis.db.query('SELECT count(*) as total FROM user_policies JOIN policies ON policy_id = policy_id WHERE user_id = $1', [user.id]);
       expect(result.rows[0].total).toEqual('1');
 
       response = await request
-        .patch(`/api/auth/users/${user_id}/policies`)
+        .patch(`/api/auth/users/${user.id}/policies`)
         .set('Content-Type', 'application/json')
         .send({
           policy_slugs: [policy_slug],
@@ -272,7 +356,7 @@ describe('Auth integration tests', () => {
         });
 
       expect(response.status).toEqual(204);
-      result = await globalThis.db.query('SELECT count(*) as total FROM user_policies JOIN policies ON policy_id = policy_id WHERE user_id = $1', [user_id]);
+      result = await globalThis.db.query('SELECT count(*) as total FROM user_policies JOIN policies ON policy_id = policy_id WHERE user_id = $1', [user.id]);
       expect(result.rows[0].total).toEqual('0');
     });
 
@@ -291,12 +375,14 @@ describe('Auth integration tests', () => {
 
     it('returns status code 400 if data is invalid', async () => {
       const response = await request
-        .patch(`/api/auth/users/${user_id}/policies`)
+        .patch(`/api/auth/users/${user.id}/policies`)
         .set('Content-Type', 'application/json')
         .send({
           policy_slugs: [],
           mode: faker.word.verb(),
         });
+
+      response.headers
 
       expect(response.status).toEqual(400);
       expect(response.body.errors).toHaveLength(2);

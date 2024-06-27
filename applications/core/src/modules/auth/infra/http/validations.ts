@@ -28,3 +28,21 @@ export const update_user_validation_schema: Schema = {
     optional: true,
   },
 };
+
+export const update_policies_validation_schema: Schema = {
+  policy_slugs: {
+    isArray: {
+      errorMessage: 'O campo precisa ser um array válido',
+      options: {
+        min: 1,
+      }
+    },
+  },
+  mode: {
+    isString: true,
+    custom: {
+      if: (value: string) => !['attach', 'dettach'].includes(value),
+      errorMessage: 'O campo precisa ser um dos valores: attach ou dettach'
+    }
+  }
+};

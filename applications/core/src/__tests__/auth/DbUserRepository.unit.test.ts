@@ -406,7 +406,6 @@ describe('DbUserRepository unit tests', () => {
 
       await repository.updateUser(user);
 
-      expect(query_mock).toHaveBeenCalledTimes(1);
       expect(query_mock).toHaveBeenCalledWith(
         'UPDATE users SET email=$2, password=$3, access_plan_id=$4 WHERE id = $1',
         [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id],
@@ -428,7 +427,6 @@ describe('DbUserRepository unit tests', () => {
 
       await repository.updateUser(user);
 
-      expect(query_mock).toHaveBeenCalledTimes(1);
       expect(query_mock).toHaveBeenCalledWith(
         'UPDATE users SET email=$2, password=$3 WHERE id = $1',
         [user_obj.id, user_obj.email, user_obj.password],

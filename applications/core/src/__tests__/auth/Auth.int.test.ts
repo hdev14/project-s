@@ -16,6 +16,7 @@ describe('Auth integration tests', () => {
   const active_access_plan_id = faker.string.uuid();
   const not_active_access_plan_id = faker.string.uuid();
   const user_id = faker.string.uuid();
+  const policy_slug = faker.word.verb();
 
   beforeEach(async () => {
     await globalThis.db.query(
@@ -37,6 +38,10 @@ describe('Auth integration tests', () => {
     await globalThis.db.query(
       'INSERT INTO access_plans(id, active, amount, type, description) VALUES($1, $2, $3, $4, $5)',
       [not_active_access_plan_id, false, faker.number.float(), AccessPlanTypes.ANNUALLY, faker.lorem.lines(1)]
+    );
+    await globalThis.db.query(
+      'INSERT INTO policies(id, slug, description) VALUES($1, $2, $3)',
+      [faker.string.uuid(), policy_slug, faker.lorem.lines(1)]
     );
   });
 
@@ -197,7 +202,7 @@ describe('Auth integration tests', () => {
   it.todo('POST: /api/auth/login');
 
   describe('GET: /api/auth/users/', () => {
-    it("should return all users", async () => {
+    it('should return all users', async () => {
       const response = await request
         .get('/api/auth/users')
         .set('Content-Type', 'application/json')
@@ -208,7 +213,7 @@ describe('Auth integration tests', () => {
       expect(response.body).not.toHaveProperty('pagination');
     });
 
-    it("should return users with pagination", async () => {
+    it('should return users with pagination', async () => {
       let response = await request
         .get('/api/auth/users')
         .query({ page: 1, limit: 1 })
@@ -244,5 +249,61 @@ describe('Auth integration tests', () => {
     });
   });
 
-  it.todo('PATCH: /api/auth/users/:id/policies');
+  describe('PATCH: /api/auth/users/:id/policies', () => {
+    it("should update user's policies", async () => {
+      let response = await request
+        .patch(`/api/auth/users/${user_id}/policies`)
+        .set('Content-Type', 'application/json')
+        .send({
+          policy_slugs: [policy_slug],
+          mode: 'attach'
+        });
+
+      expect(response.status).toEqual(204);
+      let result = await globalThis.db.query('SELECT count(*) as total FROM user_policies JOIN policies ON policy_id = policy_id WHERE user_id = $1', [user_id]);
+      expect(result.rows[0].total).toEqual('1');
+
+      response = await request
+        .patch(`/api/auth/users/${user_id}/policies`)
+        .set('Content-Type', 'application/json')
+        .send({
+          policy_slugs: [policy_slug],
+          mode: 'dettach'
+        });
+
+      expect(response.status).toEqual(204);
+      result = await globalThis.db.query('SELECT count(*) as total FROM user_policies JOIN policies ON policy_id = policy_id WHERE user_id = $1', [user_id]);
+      expect(result.rows[0].total).toEqual('0');
+    });
+
+    it("returns status code 404 if user doesn't exist", async () => {
+      const response = await request
+        .patch(`/api/auth/users/${faker.string.uuid()}/policies`)
+        .set('Content-Type', 'application/json')
+        .send({
+          policy_slugs: [policy_slug],
+          mode: 'attach'
+        });
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Usuário não encontrado');
+    });
+
+    it('returns status code 400 if data is invalid', async () => {
+      const response = await request
+        .patch(`/api/auth/users/${user_id}/policies`)
+        .set('Content-Type', 'application/json')
+        .send({
+          policy_slugs: [],
+          mode: faker.word.verb(),
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(2);
+      expect(response.body.errors[0].field).toEqual('policy_slugs');
+      expect(response.body.errors[0].message).toEqual('O campo precisa ser um array válido');
+      expect(response.body.errors[1].field).toEqual('mode');
+      expect(response.body.errors[1].message).toEqual('O campo precisa ser um dos valores: attach ou dettach');
+    });
+  });
 });

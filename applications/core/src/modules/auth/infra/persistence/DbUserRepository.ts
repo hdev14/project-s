@@ -156,8 +156,9 @@ export default class DbUserRepository implements UserRepository {
 
     const has_policies = user_obj.policies.length > 0;
 
+    await this.#db.query('DELETE FROM user_policies WHERE user_id = $1', [user_obj.id]);
+
     if (has_policies) {
-      await this.#db.query('DELETE FROM user_policies WHERE user_id = $1', [user_obj.id]);
       await this.insertUserPolicies(user_obj.id, user_obj.policies);
     }
   }

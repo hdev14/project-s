@@ -12,10 +12,9 @@ import {
   httpPatch,
   httpPost,
   httpPut,
-  request,
-  requestParam
+  request
 } from "inversify-express-utils";
-import { create_user_validation_schema, update_user_validation_schema } from "./validations";
+import { create_user_validation_schema, update_policies_validation_schema, update_user_validation_schema } from "./validations";
 
 @controller('/api/auth')
 export default class AuthController extends BaseHttpController {
@@ -81,9 +80,21 @@ export default class AuthController extends BaseHttpController {
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
-  @httpPatch('/users/:id/policies')
-  async updatePolicies(@requestParam('id') id: string) {
-    console.log(id);
-    return this.ok();
+  @httpPatch('/users/:id/policies', requestValidator(update_policies_validation_schema))
+  async updatePolicies(@request() req: Request) {
+    const { id } = req.params;
+    const { policy_slugs, mode } = req.body;
+
+    const [, error] = await this.auth_service.updatePolicies({
+      mode,
+      policy_slugs,
+      user_id: id,
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: error.message }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 }

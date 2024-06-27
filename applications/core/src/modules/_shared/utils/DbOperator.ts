@@ -3,6 +3,11 @@ export default class DbOperator {
     let in_operator = '';
 
     for (let idx = 1; idx <= values.length; idx++) {
+      if (idx === values.length && idx === 1) {
+        in_operator += `($${idx})`;
+        break;
+      }
+
       if (idx === 1) {
         in_operator += `($${idx}`;
         continue;

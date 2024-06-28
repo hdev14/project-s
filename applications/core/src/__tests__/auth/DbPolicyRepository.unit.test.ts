@@ -79,7 +79,7 @@ describe('DbPolicyRepository unit tests', () => {
       expect(policies[0]).toBeInstanceOf(Policy);
       expect(policies).toHaveLength(3);
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT * FROM policies WHERE slug IN ($1, $2, $3)',
+        'SELECT * FROM policies WHERE slug IN ($1,$2,$3)',
         slugs,
       );
     });
@@ -136,7 +136,7 @@ describe('DbPolicyRepository unit tests', () => {
       await repository.createPolicy(policy);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO policies(id, slug, description) VALUES($1, $2, $3)',
+        'INSERT INTO policies (id,slug,description) VALUES ($1,$2,$3)',
         [policy_obj.id, policy_obj.slug, policy_obj.description]
       );
     });

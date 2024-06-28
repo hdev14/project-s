@@ -1,7 +1,7 @@
 import UserRepository from "@auth/app/UserRepository";
 import User, { UserObject } from "@auth/domain/User";
 import Database from "@shared/Database";
-import DbOperator from "@shared/utils/DbOperator";
+import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
 import { injectable } from "inversify";
 import { Pool } from "pg";
@@ -123,16 +123,19 @@ export default class DbUserRepository implements UserRepository {
 
   async createUser(user: User): Promise<void> {
     const user_obj = user.toObject();
+    const insert_obj = {
+      id: user_obj.id,
+      email: user_obj.email,
+      password: user_obj.password,
+      access_plan_id: user_obj.access_plan_id,
+      tenant_id: user_obj.tenant_id
+    };
 
-    const query = user_obj.access_plan_id !== undefined
-      ? 'INSERT INTO users (id, email, password, access_plan_id) VALUES ($1, $2, $3, $4)'
-      : 'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)';
+    const values = Object.values(insert_obj)
 
-    const values = user_obj.access_plan_id !== undefined
-      ? [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id]
-      : [user_obj.id, user_obj.email, user_obj.password];
+    const query = `INSERT INTO users ${DbUtils.columns(insert_obj)} VALUES ${DbUtils.values(values)}`;
 
-    await this.#db.query(query, values);
+    await this.#db.query(query, DbUtils.sanitizeValues(values));
 
     const has_policies = user_obj.policies.length > 0;
 
@@ -164,10 +167,10 @@ export default class DbUserRepository implements UserRepository {
   }
 
   private async insertUserPolicies(user_id: string, policies: Array<string>) {
-    const in_operator = DbOperator.IN(policies);
+    const in_operator = DbUtils.inOperator(policies);
 
     const policy_result = await this.#db.query(
-      `SELECT id FROM policies WHERE slug IN ${in_operator}`,
+      `SELECT id FROM policies WHERE slug ${in_operator}`,
       policies
     );
 

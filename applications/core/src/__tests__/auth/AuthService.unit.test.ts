@@ -115,6 +115,44 @@ describe('AuthService unit tests', () => {
       expect(error).toBeInstanceOf(NotFoundError);
       expect(error!.message).toEqual('Plano de acesso não encontrado');
     });
+
+    it("should register a new tenant's user", async () => {
+      encryptor_mock.createHash.mockReturnValueOnce('test');
+
+      const tenant_id = faker.string.uuid();
+
+      user_repository_mock.getUserById.mockResolvedValueOnce(new User({
+        id: tenant_id,
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(),
+        policies: [],
+      }));
+
+      const [data, error] = await auth_service.registerUser({
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(),
+        tenant_id,
+      });
+
+      expect(error).toBeUndefined();
+      expect(data!.id).toBeDefined();
+      expect(data!.password).toEqual('test');
+      expect(data!.tenant_id).toEqual(tenant_id);
+    });
+
+    it("return a not found erro when tenant doesn't exist", async () => {
+      encryptor_mock.createHash.mockReturnValueOnce('test');
+
+      const [data, error] = await auth_service.registerUser({
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(),
+        tenant_id: faker.string.uuid(),
+      });
+
+      expect(data).toBeUndefined();
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error!.message).toEqual('Empresa não encontrada');
+    });
   });
 
   describe('AuthService.updateUser', () => {

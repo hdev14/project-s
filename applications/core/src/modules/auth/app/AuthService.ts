@@ -25,7 +25,10 @@ export type UserParams = {
 
 export type LoginParams = UserParams;
 
-export type RegisterUserParams = UserParams & { access_plan_id?: string };
+export type RegisterUserParams = UserParams & {
+  access_plan_id?: string;
+  tenant_id?: string;
+};
 
 export type UpdateUserParams = Partial<UserParams> & { user_id: string };
 
@@ -102,12 +105,20 @@ export default class AuthService {
       }
     }
 
+    if (params.tenant_id !== undefined) {
+      const tenant = await this.#user_repository.getUserById(params.tenant_id);
+      if (!tenant) {
+        return Either.left(new NotFoundError('Empresa não encontrada'));
+      }
+    }
+
     const user = new User({
       id: randomUUID(),
       email: params.email,
       password: this.#encryptor.createHash(params.password),
       policies: [],
       access_plan_id: params.access_plan_id,
+      tenant_id: params.tenant_id,
     });
 
     await this.#user_repository.createUser(user);

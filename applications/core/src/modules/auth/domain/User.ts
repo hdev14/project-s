@@ -9,6 +9,7 @@ export type UserObject = {
   password: string;
   policies: Array<string>; // slugs
   access_plan_id?: string;
+  tenant_id?: string;
 }
 
 export default class User extends Aggregate<UserObject> implements AggregateRoot {
@@ -16,6 +17,7 @@ export default class User extends Aggregate<UserObject> implements AggregateRoot
   #password: string;
   #policies: Array<string>;
   #access_plan_id?: string;
+  #tenant_id?: string;
 
   constructor(obj: UserObject) {
     super(obj.id);
@@ -23,6 +25,7 @@ export default class User extends Aggregate<UserObject> implements AggregateRoot
     this.#password = obj.password;
     this.#policies = obj.policies;
     this.#access_plan_id = obj.access_plan_id;
+    this.#tenant_id = obj.tenant_id;
   }
 
   set email(value: string) {
@@ -38,6 +41,7 @@ export default class User extends Aggregate<UserObject> implements AggregateRoot
 
     for (let idx = 0; idx < this.#policies.length; idx++) {
       has_policy = this.#policies[idx] === policy.toObject().slug;
+      if (has_policy) break;
     }
 
     if (!has_policy) {
@@ -46,16 +50,16 @@ export default class User extends Aggregate<UserObject> implements AggregateRoot
   }
 
   dettachPolicy(policy: Policy) {
-    const newPolicies = [];
+    const new_policy = [];
 
     for (let idx = 0; idx < this.#policies.length; idx++) {
       const p = this.#policies[idx];
       if (p !== policy.toObject().slug) {
-        newPolicies.push(p);
+        new_policy.push(p);
       }
     }
 
-    this.#policies = newPolicies;
+    this.#policies = new_policy;
   }
 
   changeAccessPlan(access_plan: AccessPlan) {
@@ -69,6 +73,7 @@ export default class User extends Aggregate<UserObject> implements AggregateRoot
       password: this.#password,
       policies: this.#policies,
       access_plan_id: this.#access_plan_id,
-    }
+      tenant_id: this.#tenant_id
+    };
   }
 }

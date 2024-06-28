@@ -1,7 +1,7 @@
 import PolicyRepository, { PolicyFilter } from "@auth/app/PolicyRepository";
 import Policy from "@auth/domain/Policy";
 import Database from "@shared/Database";
-import DbOperator from "@shared/utils/DbOperator";
+import DbUtils from "@shared/utils/DbUtils";
 import { injectable } from "inversify";
 import { Pool } from "pg";
 import 'reflect-metadata';
@@ -20,8 +20,8 @@ export default class DbPolicyRepository implements PolicyRepository {
 
     if (filter && filter.slugs) {
       values = filter.slugs;
-      const in_operator = DbOperator.IN(filter.slugs);
-      query += ` WHERE slug IN ${in_operator}`;
+      const in_operator = DbUtils.inOperator(filter.slugs);
+      query += ` WHERE slug ${in_operator}`;
     }
 
     const result = await this.#db.query(query, values);
@@ -57,10 +57,10 @@ export default class DbPolicyRepository implements PolicyRepository {
   }
 
   async createPolicy(policy: Policy): Promise<void> {
-    const query = 'INSERT INTO policies(id, slug, description) VALUES($1, $2, $3)';
-    const data = policy.toObject();
-    const values = [data.id, data.slug, data.description];
-    await this.#db.query(query, values);
+    const policy_obj = policy.toObject();
+    const values = Object.values(policy_obj);
+    const query = `INSERT INTO policies ${DbUtils.columns(policy_obj)} VALUES ${DbUtils.values(values)}`;
+    await this.#db.query(query, DbUtils.sanitizeValues(values));
   }
 
   async deletePolicy(id: string): Promise<void> {

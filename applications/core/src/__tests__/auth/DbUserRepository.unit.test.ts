@@ -319,6 +319,7 @@ describe('DbUserRepository unit tests', () => {
         password: faker.string.alphanumeric(),
         policies,
         access_plan_id: faker.string.uuid(),
+        tenant_id: faker.string.uuid()
       };
 
       const user = new User(user_obj);
@@ -328,12 +329,12 @@ describe('DbUserRepository unit tests', () => {
       expect(query_mock).toHaveBeenCalledTimes(3);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'INSERT INTO users (id, email, password, access_plan_id) VALUES ($1, $2, $3, $4)',
-        [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id],
+        'INSERT INTO users (id,email,password,access_plan_id,tenant_id) VALUES ($1,$2,$3,$4,$5)',
+        [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id, user_obj.tenant_id],
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        `SELECT id FROM policies WHERE slug IN ($1, $2)`,
+        `SELECT id FROM policies WHERE slug IN ($1,$2)`,
         policies,
       );
       expect(query_mock).toHaveBeenNthCalledWith(
@@ -361,12 +362,58 @@ describe('DbUserRepository unit tests', () => {
 
       expect(query_mock).toHaveBeenCalledTimes(1);
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO users (id, email, password, access_plan_id) VALUES ($1, $2, $3, $4)',
+        'INSERT INTO users (id,email,password,access_plan_id) VALUES ($1,$2,$3,$4)',
         [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id],
       );
     });
 
     it("should ignore the access_plan_id when it is passed as undefined", async () => {
+      query_mock
+        .mockResolvedValueOnce({});
+
+      const user_obj = {
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(),
+        policies: [],
+        tenant_id: faker.string.uuid()
+      };
+
+      const user = new User(user_obj);
+
+      await repository.createUser(user);
+
+      expect(query_mock).toHaveBeenCalledTimes(1);
+      expect(query_mock).toHaveBeenCalledWith(
+        'INSERT INTO users (id,email,password,tenant_id) VALUES ($1,$2,$3,$4)',
+        [user_obj.id, user_obj.email, user_obj.password, user_obj.tenant_id],
+      );
+    });
+
+    it("should ignore the tenant_id when it is passed as undefined", async () => {
+      query_mock
+        .mockResolvedValueOnce({});
+
+      const user_obj = {
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(),
+        policies: [],
+        access_plan_id: faker.string.uuid(),
+      };
+
+      const user = new User(user_obj);
+
+      await repository.createUser(user);
+
+      expect(query_mock).toHaveBeenCalledTimes(1);
+      expect(query_mock).toHaveBeenCalledWith(
+        'INSERT INTO users (id,email,password,access_plan_id) VALUES ($1,$2,$3,$4)',
+        [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id],
+      );
+    });
+
+    it("should ignore both tenant_id and access_plan_id", async () => {
       query_mock
         .mockResolvedValueOnce({});
 
@@ -383,7 +430,7 @@ describe('DbUserRepository unit tests', () => {
 
       expect(query_mock).toHaveBeenCalledTimes(1);
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
+        'INSERT INTO users (id,email,password) VALUES ($1,$2,$3)',
         [user_obj.id, user_obj.email, user_obj.password],
       );
     });
@@ -473,7 +520,7 @@ describe('DbUserRepository unit tests', () => {
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         3,
-        'SELECT id FROM policies WHERE slug IN ($1, $2)',
+        'SELECT id FROM policies WHERE slug IN ($1,$2)',
         policies,
       );
       expect(query_mock).toHaveBeenNthCalledWith(

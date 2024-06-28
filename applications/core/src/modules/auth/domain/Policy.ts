@@ -12,7 +12,7 @@ export default class Policy extends Aggregate<PolicyObject> implements Aggregate
 
   constructor(obj: PolicyObject) {
     super(obj.id);
-    this.#slug = obj.slug;
+    this.#slug = obj.slug.toLocaleLowerCase().replace(/\s/g, '_');
     this.#description = obj.description;
   }
 

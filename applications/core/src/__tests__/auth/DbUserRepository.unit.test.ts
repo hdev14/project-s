@@ -67,7 +67,7 @@ describe('DbUserRepository unit tests', () => {
       expect(results).toHaveLength(2);
       expect(page_result).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id'
+        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id'
       );
     });
 
@@ -113,7 +113,7 @@ describe('DbUserRepository unit tests', () => {
         page: 1,
       };
 
-      const { results, page_result } = await repository.getUsers(page_options);
+      const { results, page_result } = await repository.getUsers({ page_options });
 
       expect(results[0]).toBeInstanceOf(User);
       expect(results).toHaveLength(1);
@@ -122,10 +122,11 @@ describe('DbUserRepository unit tests', () => {
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT DISTINCT count(u.id) as total FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id',
+        []
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
+        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
         [page_options.limit, 0],
       );
     });
@@ -172,7 +173,7 @@ describe('DbUserRepository unit tests', () => {
         page: 2,
       };
 
-      const { results, page_result } = await repository.getUsers(page_options);
+      const { results, page_result } = await repository.getUsers({ page_options });
 
       expect(results[0]).toBeInstanceOf(User);
       expect(results).toHaveLength(1);
@@ -181,11 +182,126 @@ describe('DbUserRepository unit tests', () => {
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT DISTINCT count(u.id) as total FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id',
+        []
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
+        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
         [page_options.limit, 1],
+      );
+    });
+
+    it('returns a list of users filtered by tenant_id', async () => {
+      const data = [
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(),
+          access_plan_id: faker.string.uuid(),
+        },
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(),
+          access_plan_id: faker.string.uuid(),
+        }
+      ];
+      query_mock.mockResolvedValueOnce({
+        rows: [
+          {
+            id: data[0].id,
+            email: data[0].email,
+            password: data[0].password,
+            access_plan_id: data[0].access_plan_id,
+            slug: faker.word.verb(),
+          },
+          {
+            id: data[0].id,
+            email: data[0].email,
+            password: data[0].password,
+            access_plan_id: data[0].access_plan_id,
+            slug: faker.word.verb(),
+          },
+          {
+            id: data[1].id,
+            email: data[1].email,
+            password: data[1].password,
+            access_plan_id: data[1].access_plan_id,
+            slug: faker.word.verb(),
+          },
+        ]
+      });
+
+      const tenant_id = faker.string.uuid();
+      const { results, page_result } = await repository.getUsers({ tenant_id });
+
+      expect(results[0]).toBeInstanceOf(User);
+      expect(results).toHaveLength(2);
+      expect(page_result).toBeUndefined();
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.tenant_id=$1',
+        [tenant_id]
+      );
+    });
+
+    it('returns a list of users when the limit of pagination is 1, the page is 2 and is filtered by tenant_id', async () => {
+      const data = [
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(),
+          access_plan_id: faker.string.uuid(),
+        },
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(),
+          access_plan_id: faker.string.uuid(),
+        }
+      ];
+
+      query_mock
+        .mockResolvedValueOnce({ rows: [{ total: 2 }] })
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              id: data[0].id,
+              email: data[0].email,
+              password: data[0].password,
+              access_plan_id: data[0].access_plan_id,
+              slug: faker.word.verb(),
+            },
+            {
+              id: data[0].id,
+              email: data[0].email,
+              password: data[0].password,
+              access_plan_id: data[0].access_plan_id,
+              slug: faker.word.verb(),
+            },
+          ]
+        });
+
+      const tenant_id = faker.string.uuid();
+      const page_options: PageOptions = {
+        limit: 1,
+        page: 2,
+      };
+
+      const { results, page_result } = await repository.getUsers({ tenant_id, page_options });
+
+      expect(results[0]).toBeInstanceOf(User);
+      expect(results).toHaveLength(1);
+      expect(page_result!.next_page).toEqual(-1);
+      expect(page_result!.total_of_pages).toEqual(2);
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        'SELECT DISTINCT count(u.id) as total FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.tenant_id=$1',
+        [tenant_id]
+      );
+      expect(query_mock).toHaveBeenNthCalledWith(
+        2,
+        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.tenant_id=$1 LIMIT $2 OFFSET $3',
+        [tenant_id, page_options.limit, 1],
       );
     });
   });
@@ -223,7 +339,7 @@ describe('DbUserRepository unit tests', () => {
       expect(user).toBeInstanceOf(User);
       expect(user?.toObject().policies).toHaveLength(2);
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.id = $1',
+        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.id = $1',
         [data.id]
       );
     });
@@ -238,7 +354,7 @@ describe('DbUserRepository unit tests', () => {
 
       expect(user).toBeNull()
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.id = $1',
+        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.id = $1',
         [user_id]
       );
     });
@@ -276,7 +392,7 @@ describe('DbUserRepository unit tests', () => {
       expect(user).toBeInstanceOf(User);
       expect(user?.toObject().policies).toHaveLength(2);
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE email = $1',
+        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE email = $1',
         [data.email]
       );
     });
@@ -291,7 +407,7 @@ describe('DbUserRepository unit tests', () => {
 
       expect(user).toBeNull()
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE email = $1',
+        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE email = $1',
         [user_email]
       );
     });

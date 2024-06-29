@@ -39,7 +39,7 @@ export type UpdatePoliciesParams = {
 };
 
 export type GetUsersParams = {
-  pagination?: PageOptions;
+  page_options?: PageOptions;
 };
 
 export type GetUsersResult = {
@@ -175,7 +175,7 @@ export default class AuthService {
   }
 
   async getUsers(params: GetUsersParams): Promise<Either<GetUsersResult>> {
-    const { results, page_result } = await this.#user_repository.getUsers(params.pagination);
+    const { results, page_result } = await this.#user_repository.getUsers({ page_options: params.page_options });
     const objs = [];
     for (let idx = 0; idx < results.length; idx++) {
       objs.push(results[idx].toObject());

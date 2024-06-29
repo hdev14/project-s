@@ -1,8 +1,8 @@
-import UserRepository from "@auth/app/UserRepository";
+import UserRepository, { UsersFilter } from "@auth/app/UserRepository";
 import User, { UserObject } from "@auth/domain/User";
 import Database from "@shared/infra/Database";
 import DbUtils from "@shared/utils/DbUtils";
-import Pagination, { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
+import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
 import { injectable } from "inversify";
 import { Pool } from "pg";
 import 'reflect-metadata';
@@ -10,18 +10,18 @@ import 'reflect-metadata';
 @injectable()
 export default class DbUserRepository implements UserRepository {
   #db: Pool;
-  #select_users_query = 'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id';
+  #select_users_query = 'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id';
   #count_select_users_query = 'SELECT DISTINCT count(u.id) as total FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id';
 
   constructor() {
     this.#db = Database.connect();
   }
 
-  async getUsers(page_options?: PageOptions): Promise<PaginatedResult<User>> {
-    const { result, total } = await this.selectUsers(page_options);
+  async getUsers(filter?: UsersFilter): Promise<PaginatedResult<User>> {
+    const { result, total } = await this.selectUsers(filter);
 
     const page_result = (total !== undefined && total > 0)
-      ? Pagination.calculatePageResult(total, page_options!)
+      ? Pagination.calculatePageResult(total, filter!.page_options!)
       : undefined;
 
     const user_objects = new Map<string, UserObject>();
@@ -45,7 +45,8 @@ export default class DbUserRepository implements UserRepository {
         email: row.email,
         password: row.password,
         access_plan_id: row.access_plan_id,
-        policies
+        policies,
+        tenant_id: row.tenant_id,
       });
     }
 
@@ -58,17 +59,28 @@ export default class DbUserRepository implements UserRepository {
     return { results, page_result };
   }
 
-  private async selectUsers(page_options?: PageOptions) {
-    if (page_options) {
-      const offset = Pagination.calculateOffset(page_options);
-      const total_result = await this.#db.query(this.#count_select_users_query);
+  private async selectUsers(filter?: UsersFilter) {
+    if (filter) {
+      const count_query = filter.tenant_id ? this.#count_select_users_query + ' WHERE u.tenant_id=$1' : this.#count_select_users_query;
+      const query = filter.tenant_id ? this.#select_users_query + ' WHERE u.tenant_id=$1' : this.#select_users_query;
+      const values: unknown[] = [filter.tenant_id];
 
-      const result = await this.#db.query(
-        this.#select_users_query + ' LIMIT $1 OFFSET $2',
-        [page_options.limit, offset]
-      );
+      if (filter.page_options) {
+        const offset = Pagination.calculateOffset(filter.page_options);
+        const total_result = await this.#db.query(count_query, DbUtils.sanitizeValues(values));
 
-      return { result, total: total_result.rows[0].total };
+        const paginated_query = filter.tenant_id ? query + ' LIMIT $2 OFFSET $3' : query + ' LIMIT $1 OFFSET $2';
+
+        const result = await this.#db.query(
+          paginated_query,
+          DbUtils.sanitizeValues(values.concat([filter.page_options.limit, offset]))
+        );
+
+        return { result, total: total_result.rows[0].total };
+      }
+
+      return { result: await this.#db.query(query, DbUtils.sanitizeValues(values)) };
+
     }
 
     return { result: await this.#db.query(this.#select_users_query) };
@@ -96,6 +108,7 @@ export default class DbUserRepository implements UserRepository {
       password: result.rows[0].password,
       access_plan_id: result.rows[0].access_plan_id,
       policies,
+      tenant_id: result.rows[0].tenant_id,
     });
   }
 
@@ -118,6 +131,7 @@ export default class DbUserRepository implements UserRepository {
       password: result.rows[0].password,
       access_plan_id: result.rows[0].access_plan_id,
       policies,
+      tenant_id: result.rows[0].tenant_id
     });
   }
 

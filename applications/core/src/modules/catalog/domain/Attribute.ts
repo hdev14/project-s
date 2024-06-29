@@ -1,14 +1,14 @@
 import ValueObject from "@shared/ddd/ValueObject";
 
 export type AttributeValue = {
-  att_name: string;
-  att_value: string;
+  name: string;
+  description: string;
 };
 
 export default class Attribute implements ValueObject<AttributeValue> {
   constructor(
-    readonly att_name: string,
-    readonly att_value: string
+    readonly name: string,
+    readonly description: string
   ) { }
 
   get value(): AttributeValue {

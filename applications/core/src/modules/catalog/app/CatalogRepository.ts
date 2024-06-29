@@ -1,8 +1,9 @@
 import CatalogItem from "@catalog/domain/CatalogItem";
-import { PageOptions } from "@shared/utils/Pagination";
+import { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
 
 export default interface CatalogRepository {
-  getCatalogItems(pagination: PageOptions): Promise<Array<CatalogItem>>;
+  getCatalogItems(page_options?: PageOptions): Promise<PaginatedResult<CatalogItem>>;
   createCatalogItem(catalog_item: CatalogItem): Promise<void>;
   updateCatalogItem(catalog_item: CatalogItem): Promise<void>;
+  deleteCatalogItem(id: string): Promise<void>;
 }

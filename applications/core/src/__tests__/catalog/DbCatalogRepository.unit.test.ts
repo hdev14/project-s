@@ -1,0 +1,163 @@
+import CatalogItem from "@catalog/domain/CatalogItem";
+import DbCatalogRepository from "@catalog/infra/DbCatalogRepository";
+import { faker } from '@faker-js/faker/locale/pt_BR';
+import Database from "@shared/infra/Database";
+import { PageOptions } from "@shared/utils/Pagination";
+
+const connect_spy = jest.spyOn(Database, 'connect');
+const query_mock = jest.fn();
+
+describe('DbCatalogRepository unit tests', () => {
+  connect_spy.mockImplementation(() => ({ query: query_mock }) as never);
+  const repository = new DbCatalogRepository();
+
+  afterAll(() => {
+    connect_spy.mockClear();
+  });
+
+  afterEach(() => {
+    query_mock.mockReset();
+  });
+
+  describe('DbCatalogRepository.getCatalogItems', () => {
+    it('returns a list of catalog items', async () => {
+      query_mock.mockResolvedValueOnce({
+        rows: [
+          {
+            id: faker.string.uuid(),
+            name: faker.commerce.productName(),
+            description: faker.commerce.productDescription(),
+            attributes: JSON.stringify([
+              {
+                name: faker.commerce.productAdjective(),
+                description: faker.lorem.lines()
+              }
+            ]),
+            is_service: faker.datatype.boolean(),
+            picture_url: faker.internet.url(),
+          },
+          {
+            id: faker.string.uuid(),
+            name: faker.commerce.productName(),
+            description: faker.commerce.productDescription(),
+            attributes: JSON.stringify([
+              {
+                name: faker.commerce.productAdjective(),
+                description: faker.lorem.lines()
+              }
+            ]),
+            is_service: faker.datatype.boolean(),
+            picture_url: faker.internet.url(),
+          },
+          {
+            id: faker.string.uuid(),
+            name: faker.commerce.productName(),
+            description: faker.commerce.productDescription(),
+            attributes: JSON.stringify([
+              {
+                name: faker.commerce.productAdjective(),
+                description: faker.lorem.lines()
+              }
+            ]),
+            is_service: faker.datatype.boolean(),
+            picture_url: faker.internet.url(),
+          },
+        ]
+      });
+
+      const { results } = await repository.getCatalogItems();
+
+      expect(results[0]).toBeInstanceOf(CatalogItem);
+      expect(results).toHaveLength(3);
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT * FROM catalog_items WHERE deleted_at IS NULL',
+      );
+    });
+
+    it('returns a list of catalog items when the limit of pagination is 1 and the page is 1', async () => {
+      query_mock
+        .mockResolvedValueOnce({ rows: [{ total: 2 }] })
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              id: faker.string.uuid(),
+              name: faker.commerce.productName(),
+              description: faker.commerce.productDescription(),
+              attributes: JSON.stringify([
+                {
+                  name: faker.commerce.productAdjective(),
+                  description: faker.lorem.lines()
+                }
+              ]),
+              is_service: faker.datatype.boolean(),
+              picture_url: faker.internet.url(),
+            },
+          ]
+        });
+
+      const pagination_options: PageOptions = {
+        limit: 1,
+        page: 1,
+      };
+
+      const { results, page_result } = await repository.getCatalogItems(pagination_options);
+
+      expect(results[0]).toBeInstanceOf(CatalogItem);
+      expect(results).toHaveLength(1);
+      expect(page_result!.next_page).toEqual(2);
+      expect(page_result!.total_of_pages).toEqual(2);
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        'SELECT count(id) as total FROM catalog_items WHERE deleted_at IS NULL',
+      );
+      expect(query_mock).toHaveBeenNthCalledWith(
+        2,
+        'SELECT * FROM catalog_items WHERE deleted_at IS NULL LIMIT $1 OFFSET $2',
+        [pagination_options.limit, 0],
+      );
+    });
+
+    it('returns a list of catalog items when the limit of pagination is 1 and the page is 2', async () => {
+      query_mock
+        .mockResolvedValueOnce({ rows: [{ total: 2 }] })
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              id: faker.string.uuid(),
+              name: faker.commerce.productName(),
+              description: faker.commerce.productDescription(),
+              attributes: JSON.stringify([
+                {
+                  name: faker.commerce.productAdjective(),
+                  description: faker.lorem.lines()
+                }
+              ]),
+              is_service: faker.datatype.boolean(),
+              picture_url: faker.internet.url(),
+            },
+          ]
+        });
+
+      const pagination_options: PageOptions = {
+        limit: 1,
+        page: 2,
+      };
+
+      const { results, page_result } = await repository.getCatalogItems(pagination_options);
+
+      expect(results[0]).toBeInstanceOf(CatalogItem);
+      expect(results).toHaveLength(1);
+      expect(page_result!.next_page).toEqual(-1);
+      expect(page_result!.total_of_pages).toEqual(2);
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        'SELECT count(id) as total FROM catalog_items WHERE deleted_at IS NULL',
+      );
+      expect(query_mock).toHaveBeenNthCalledWith(
+        2,
+        'SELECT * FROM catalog_items WHERE deleted_at IS NULL LIMIT $1 OFFSET $2',
+        [pagination_options.limit, 1],
+      );
+    });
+  });
+});

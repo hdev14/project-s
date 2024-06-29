@@ -17,7 +17,7 @@ export default class Address implements ValueObject<AddressValue> {
     readonly complement?: string,
   ) { }
 
-  get value(): AddressValue {
+  get description(): AddressValue {
     return this;
   }
 }

@@ -11,7 +11,7 @@ export default class Brand implements ValueObject<BrandValue> {
     readonly logo_url?: string,
   ) { }
 
-  get value(): BrandValue {
+  get description(): BrandValue {
     return this;
   }
 }

@@ -14,7 +14,7 @@ export default class CatalogService {
     return Either.left(new Error());
   }
 
-  async addNewAttribute(params: {}): Promise<Either<void>> {
+  async updatePicture(params: {}): Promise<Either<void>> {
     return Either.left(new Error());
   }
 }

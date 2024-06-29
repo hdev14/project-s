@@ -17,7 +17,7 @@ export default class PaymentMethod implements ValueObject<PaymentMethodValue> {
     readonly credit_card_external_id?: string
   ) { }
 
-  get value(): PaymentMethodValue {
+  get description(): PaymentMethodValue {
     return this;
   }
 }

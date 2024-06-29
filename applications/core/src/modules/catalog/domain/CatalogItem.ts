@@ -7,6 +7,7 @@ export type CatalogItemObject = {
   description: string;
   attributes: Array<AttributeValue>;
   is_service: boolean;
+  picture_url?: string;
 };
 
 export default class CatalogItem extends Aggregate<CatalogItemObject> {
@@ -14,17 +15,35 @@ export default class CatalogItem extends Aggregate<CatalogItemObject> {
   #description: string;
   #attributes: Array<Attribute> = [];
   #is_service: boolean;
+  #picture_url?: string;
 
   constructor(obj: CatalogItemObject) {
     super(obj.id);
     this.#name = obj.name;
     this.#description = obj.description;
     this.#is_service = obj.is_service;
+    this.#picture_url = obj.picture_url;
 
     for (let idx = 0; idx < obj.attributes.length; idx++) {
       const attribute = obj.attributes[idx];
-      this.#attributes.push(new Attribute(attribute.att_name, attribute.att_value));
+      this.#attributes.push(new Attribute(attribute.name, attribute.description));
     }
+  }
+
+  set name(value: string) {
+    this.#name = value;
+  }
+
+  set description(value: string) {
+    this.#description = value;
+  }
+
+  set attributes(value: Array<Attribute>) {
+    this.#attributes = value;
+  }
+
+  set picture_url(value: string) {
+    this.#picture_url = value;
   }
 
   toObject(): RequiredId<CatalogItemObject> {
@@ -40,6 +59,7 @@ export default class CatalogItem extends Aggregate<CatalogItemObject> {
       description: this.#description,
       is_service: this.#is_service,
       attributes,
+      picture_url: this.#picture_url,
     };
   }
 }

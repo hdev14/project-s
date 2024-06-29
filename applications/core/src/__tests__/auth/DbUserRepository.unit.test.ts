@@ -108,12 +108,12 @@ describe('DbUserRepository unit tests', () => {
           ]
         });
 
-      const pagination_options: PageOptions = {
+      const page_options: PageOptions = {
         limit: 1,
         page: 1,
       };
 
-      const { results, page_result } = await repository.getUsers(pagination_options);
+      const { results, page_result } = await repository.getUsers(page_options);
 
       expect(results[0]).toBeInstanceOf(User);
       expect(results).toHaveLength(1);
@@ -126,7 +126,7 @@ describe('DbUserRepository unit tests', () => {
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
         'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
-        [pagination_options.limit, 0],
+        [page_options.limit, 0],
       );
     });
 
@@ -167,12 +167,12 @@ describe('DbUserRepository unit tests', () => {
           ]
         });
 
-      const pagination_options: PageOptions = {
+      const page_options: PageOptions = {
         limit: 1,
         page: 2,
       };
 
-      const { results, page_result } = await repository.getUsers(pagination_options);
+      const { results, page_result } = await repository.getUsers(page_options);
 
       expect(results[0]).toBeInstanceOf(User);
       expect(results).toHaveLength(1);
@@ -185,7 +185,7 @@ describe('DbUserRepository unit tests', () => {
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
         'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
-        [pagination_options.limit, 1],
+        [page_options.limit, 1],
       );
     });
   });

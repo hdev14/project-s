@@ -58,14 +58,14 @@ export default class DbUserRepository implements UserRepository {
     return { results, page_result };
   }
 
-  private async selectUsers(pagination?: PageOptions) {
-    if (pagination) {
-      const offset = Pagination.calculateOffset(pagination);
+  private async selectUsers(page_options?: PageOptions) {
+    if (page_options) {
+      const offset = Pagination.calculateOffset(page_options);
       const total_result = await this.#db.query(this.#count_select_users_query);
 
       const result = await this.#db.query(
         this.#select_users_query + ' LIMIT $1 OFFSET $2',
-        [pagination.limit, offset]
+        [page_options.limit, offset]
       );
 
       return { result, total: total_result.rows[0].total };

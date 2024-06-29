@@ -1,7 +1,7 @@
 import Policy from "@auth/domain/Policy";
 import DbPolicyRepository from "@auth/infra/persistence/DbPolicyRepository";
 import { faker } from '@faker-js/faker/locale/pt_BR';
-import Database from "@shared/Database";
+import Database from "@shared/infra/Database";
 
 const connect_spy = jest.spyOn(Database, 'connect');
 const query_mock = jest.fn();

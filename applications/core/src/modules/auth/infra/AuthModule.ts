@@ -4,8 +4,9 @@ import AuthTokenManager from "@auth/app/AuthTokenManager";
 import Encryptor from "@auth/app/Encryptor";
 import PolicyRepository from "@auth/app/PolicyRepository";
 import UserRepository from "@auth/app/UserRepository";
-import Module from "@shared/Module";
-import types from "@shared/types";
+import AuthMiddleware from "@shared/infra/AuthMiddleware";
+import Module from "@shared/infra/Module";
+import types from "@shared/infra/types";
 import { ContainerModule } from "inversify";
 import BcryptEncryptor from "./auth/BcryptEncryptor";
 import JWTManager from "./auth/JWTManager";
@@ -23,6 +24,7 @@ export default class AuthModule implements Module {
       bind<AuthTokenManager>(types.AuthTokenManager).to(JWTManager).inSingletonScope();
       bind<Encryptor>(types.Encryptor).to(BcryptEncryptor).inSingletonScope();
       bind<AuthService>(types.AuthService).to(AuthService).inSingletonScope();
+      bind<AuthMiddleware>(types.AuthMiddleware).to(AuthMiddleware);
     });
 
     return module;

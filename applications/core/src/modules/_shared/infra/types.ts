@@ -5,4 +5,5 @@ export default {
   Encryptor: Symbol.for('Encryptor'),
   PolicyRepository: Symbol.for('PolicyRepository'),
   UserRepository: Symbol.for('UserRepository'),
+  AuthMiddleware: Symbol.for('AuthMiddleware'),
 };

@@ -1,5 +1,7 @@
-import Module from '@shared/Module';
-import { errorHandler } from '@shared/middlewares';
+import AuthProvider from '@shared/infra/AuthProvider';
+import Module from '@shared/infra/Module';
+import { errorHandler } from '@shared/infra/middlewares';
+import cookieParser from 'cookie-parser';
 import express from 'express';
 import { Container } from 'inversify';
 import { InversifyExpressServer } from 'inversify-express-utils';
@@ -14,11 +16,18 @@ export default class Application {
 
   constructor({ modules }: ApplicationOptions) {
     this.#container = this.setupModules(modules);
-    const server = new InversifyExpressServer(this.#container);
+    const server = new InversifyExpressServer(
+      this.#container,
+      null,
+      null,
+      null,
+      AuthProvider
+    );
 
     server.setConfig((app) => {
       app.use(express.json());
       app.use(express.urlencoded({ extended: true }));
+      app.use(cookieParser());
     });
 
     server.setErrorConfig((app) => {

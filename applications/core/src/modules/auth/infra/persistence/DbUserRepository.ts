@@ -1,6 +1,6 @@
 import UserRepository from "@auth/app/UserRepository";
 import User, { UserObject } from "@auth/domain/User";
-import Database from "@shared/Database";
+import Database from "@shared/infra/Database";
 import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
 import { injectable } from "inversify";

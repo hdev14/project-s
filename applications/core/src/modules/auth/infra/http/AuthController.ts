@@ -1,9 +1,9 @@
 import AuthService from "@auth/app/AuthService";
-import HttpStatusCodes from "@shared/HttpStatusCodes";
 import CredentialError from "@shared/errors/CredentialError";
 import NotFoundError from "@shared/errors/NotFoundError";
-import { requestValidator } from "@shared/middlewares";
-import types from "@shared/types";
+import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
+import { requestValidator } from "@shared/infra/middlewares";
+import types from "@shared/infra/types";
 import { Request, Response } from 'express';
 import { inject } from "inversify";
 import {
@@ -55,7 +55,7 @@ export default class AuthController extends BaseHttpController {
     return this.json(data, HttpStatusCodes.OK);
   }
 
-  @httpGet('/users')
+  @httpGet('/users', types.AuthMiddleware)
   async getUsers(@request() req: Request) {
     const { page, limit } = req.query;
     const params = (page && limit) ? ({
@@ -91,7 +91,11 @@ export default class AuthController extends BaseHttpController {
     return this.json(data, HttpStatusCodes.CREATED);
   }
 
-  @httpPut('/users/:id', requestValidator(update_user_validation_schema))
+  @httpPut(
+    '/users/:id',
+    types.AuthMiddleware,
+    requestValidator(update_user_validation_schema)
+  )
   async updateUser(@request() req: Request) {
     const { email, password } = req.body;
 
@@ -108,7 +112,11 @@ export default class AuthController extends BaseHttpController {
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
-  @httpPatch('/users/:id/policies', requestValidator(update_policies_validation_schema))
+  @httpPatch(
+    '/users/:id/policies',
+    types.AuthMiddleware,
+    requestValidator(update_policies_validation_schema)
+  )
   async updatePolicies(@request() req: Request) {
     const { id } = req.params;
     const { policy_slugs, mode } = req.body;

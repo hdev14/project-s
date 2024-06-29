@@ -1,6 +1,6 @@
 import PolicyRepository, { PolicyFilter } from "@auth/app/PolicyRepository";
 import Policy from "@auth/domain/Policy";
-import Database from "@shared/Database";
+import Database from "@shared/infra/Database";
 import DbUtils from "@shared/utils/DbUtils";
 import { injectable } from "inversify";
 import { Pool } from "pg";

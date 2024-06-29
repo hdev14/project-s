@@ -1,5 +1,5 @@
 import AuthModule from "@auth/infra/AuthModule";
-import Database from "@shared/Database";
+import Database from "@shared/infra/Database";
 import Application from "./Application";
 
 (async function main() {

@@ -1,8 +1,9 @@
+import AuthTokenManager from '@auth/app/AuthTokenManager';
 import Encryptor from '@auth/app/Encryptor';
 import { AccessPlanTypes } from '@auth/domain/AccessPlan';
 import AuthModule from '@auth/infra/AuthModule';
 import { faker } from '@faker-js/faker/locale/pt_BR';
-import types from '@shared/types';
+import types from '@shared/infra/types';
 import Application from 'src/Application';
 import supertest from 'supertest';
 
@@ -29,6 +30,7 @@ function cookieExists(cookies: Array<string>) {
 describe('Auth integration tests', () => {
   const application = new Application({ modules: [new AuthModule()] });
   const encryptor = application.container.get<Encryptor>(types.Encryptor);
+  const auth_token_manager = application.container.get<AuthTokenManager>(types.AuthTokenManager);
   const request = supertest(application.server);
   const active_access_plan_id = faker.string.uuid();
   const not_active_access_plan_id = faker.string.uuid();
@@ -38,6 +40,7 @@ describe('Auth integration tests', () => {
     email: faker.internet.email(),
     password: faker.string.alphanumeric(10),
   };
+  const { token } = auth_token_manager.generateToken(user);
 
   beforeEach(async () => {
     await globalThis.db.query(
@@ -171,6 +174,7 @@ describe('Auth integration tests', () => {
       const response = await request
         .put(`/api/auth/users/${user.id}`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send(data);
 
       expect(response.status).toEqual(204);
@@ -184,6 +188,7 @@ describe('Auth integration tests', () => {
       const response = await request
         .put(`/api/auth/users/${faker.string.uuid()}`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
@@ -197,6 +202,7 @@ describe('Auth integration tests', () => {
       let response = await request
         .put(`/api/auth/users/${user.id}`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({
           email: faker.string.sample(), // invalid email
         });
@@ -209,6 +215,7 @@ describe('Auth integration tests', () => {
       response = await request
         .put(`/api/auth/users/${user.id}`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({
           password: faker.string.alphanumeric(7), // invalid password
         });
@@ -290,6 +297,7 @@ describe('Auth integration tests', () => {
       const response = await request
         .get('/api/auth/users')
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send();
 
       expect(response.status).toEqual(200);
@@ -302,6 +310,7 @@ describe('Auth integration tests', () => {
         .get('/api/auth/users')
         .query({ page: 1, limit: 1 })
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send();
 
       expect(response.status).toEqual(200);
@@ -313,6 +322,7 @@ describe('Auth integration tests', () => {
         .get('/api/auth/users')
         .query({ page: 1, limit: 2 })
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send();
 
       expect(response.status).toEqual(200);
@@ -324,6 +334,7 @@ describe('Auth integration tests', () => {
         .get('/api/auth/users')
         .query({ page: 2, limit: 2 })
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send();
 
       expect(response.status).toEqual(200);
@@ -338,6 +349,7 @@ describe('Auth integration tests', () => {
       let response = await request
         .patch(`/api/auth/users/${user.id}/policies`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({
           policy_slugs: [policy_slug],
           mode: 'attach'
@@ -350,6 +362,7 @@ describe('Auth integration tests', () => {
       response = await request
         .patch(`/api/auth/users/${user.id}/policies`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({
           policy_slugs: [policy_slug],
           mode: 'dettach'
@@ -364,6 +377,7 @@ describe('Auth integration tests', () => {
       const response = await request
         .patch(`/api/auth/users/${faker.string.uuid()}/policies`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({
           policy_slugs: [policy_slug],
           mode: 'attach'
@@ -377,6 +391,7 @@ describe('Auth integration tests', () => {
       const response = await request
         .patch(`/api/auth/users/${user.id}/policies`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({
           policy_slugs: [],
           mode: faker.word.verb(),

@@ -146,10 +146,11 @@ export default class DbUserRepository implements UserRepository {
 
   async updateUser(user: User): Promise<void> {
     const user_obj = user.toObject();
+    const data = Object.assign({}, user_obj, { policies: undefined });
 
-    const query = `UPDATE users SET ${DbUtils.setColumns(user_obj)} WHERE id = $1`;
+    const query = `UPDATE users SET ${DbUtils.setColumns(data)} WHERE id = $1`;
 
-    await this.#db.query(query, DbUtils.sanitizeValues(Object.values(user_obj)));
+    await this.#db.query(query, DbUtils.sanitizeValues(Object.values(data)));
 
     const has_policies = user_obj.policies.length > 0;
 

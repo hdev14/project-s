@@ -242,4 +242,17 @@ describe('DbCatalogRepository unit tests', () => {
       );
     });
   });
+
+  describe('DbCatalogRepository.deleteCatalogItem', () => {
+    it('should soft delete a catalog item', async () => {
+      const catalog_item_id = faker.string.uuid();
+
+      await repository.deleteCatalogItem(catalog_item_id);
+
+      const [query, values] = query_mock.mock.calls[0];
+      expect(query).toEqual('UPDATE catalog_items SET deleted_at=$2 WHERE id=$1');
+      expect(values[0]).toEqual(catalog_item_id);
+      expect(typeof values[1]).toBe('number');
+    });
+  });
 });

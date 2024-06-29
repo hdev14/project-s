@@ -72,7 +72,15 @@ export default class DbCatalogRepository implements CatalogRepository {
     await this.#db.query(query, values);
   }
 
-  deleteCatalogItem(id: string): Promise<void> {
-    throw new Error();
+  async deleteCatalogItem(id: string): Promise<void> {
+    const data = {
+      id,
+      deleted_at: Date.now(),
+    };
+
+    await this.#db.query(
+      `UPDATE catalog_items SET ${DbUtils.setColumns(data)} WHERE id=$1`,
+      DbUtils.sanitizeValues(Object.values(Object.values(data)))
+    );
   }
 }

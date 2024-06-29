@@ -15,10 +15,13 @@ export default class DbUtils {
     const columns = [];
     const keys = Object.keys(obj);
 
+    let position = 2;
+
     for (let idx = 0; idx < keys.length; idx++) {
       const key = keys[idx];
       if (obj[key] !== undefined && obj[key] !== null && key !== 'id') {
-        columns.push(`${key}=$${idx + 1}`)
+        columns.push(`${key}=$${position}`);
+        position++;
       }
     }
 

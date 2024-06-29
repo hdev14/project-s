@@ -1,6 +1,7 @@
 import CatalogRepository from "@catalog/app/CatalogRepository";
 import CatalogItem from "@catalog/domain/CatalogItem";
 import Database from "@shared/infra/Database";
+import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
 import { Pool } from "pg";
 
@@ -51,8 +52,15 @@ export default class DbCatalogRepository implements CatalogRepository {
     return { result: await this.#db.query('SELECT * FROM catalog_items WHERE deleted_at IS NULL') };
   }
 
-  createCatalogItem(catalog_item: CatalogItem): Promise<void> {
-    throw new Error("Method not implemented.");
+  async createCatalogItem(catalog_item: CatalogItem): Promise<void> {
+    const catalog_item_obj = catalog_item.toObject();
+    const data = Object.assign(catalog_item_obj, { attributes: JSON.stringify(catalog_item_obj.attributes) })
+    const values = Object.values(data);
+
+    await this.#db.query(
+      `INSERT INTO catalog_items ${DbUtils.columns(data)} VALUES ${DbUtils.values(values)}`,
+      DbUtils.sanitizeValues(values),
+    );
   }
 
   updateCatalogItem(catalog_item: CatalogItem): Promise<void> {

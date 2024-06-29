@@ -16,7 +16,7 @@ export default class DbUtils {
 
     for (let idx = 0; idx <= values.length; idx++) {
       const value = values[idx];
-      if (value) {
+      if (value !== undefined && value !== null) {
         filtered_values.push(value);
       }
     }

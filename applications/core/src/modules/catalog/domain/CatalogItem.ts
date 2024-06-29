@@ -57,8 +57,8 @@ export default class CatalogItem extends Aggregate<CatalogItemObject> {
       id: this.id,
       name: this.#name,
       description: this.#description,
-      is_service: this.#is_service,
       attributes,
+      is_service: this.#is_service,
       picture_url: this.#picture_url,
     };
   }

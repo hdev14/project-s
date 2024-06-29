@@ -30,8 +30,7 @@ export class Principal implements interfaces.Principal {
       let has_role = false;
 
       for (let idx = 0; idx < this.details.policies.length; idx++) {
-        const policy = this.details.policies[idx];
-        if (policy === role) {
+        if (this.details.policies[idx] === role) {
           has_role = true;
           break;
         }

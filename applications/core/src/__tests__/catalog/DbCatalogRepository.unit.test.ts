@@ -201,4 +201,45 @@ describe('DbCatalogRepository unit tests', () => {
       );
     });
   });
+
+  describe('DbCatalogRepository.updateCatalogItem', () => {
+    it('should update a catalog_item', async () => {
+      const catalog_item_obj = {
+        id: faker.string.uuid(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [{ name: faker.word.noun(), description: faker.lorem.lines() }],
+        is_service: faker.datatype.boolean(),
+        picture_url: faker.internet.url(),
+      };
+
+      const catalog_item = new CatalogItem(catalog_item_obj);
+
+      await repository.updateCatalogItem(catalog_item);
+
+      expect(query_mock).toHaveBeenCalledWith(
+        'UPDATE catalog_items SET name=$2,description=$3,attributes=$4,is_service=$5,picture_url=$6 WHERE id=$1',
+        [catalog_item_obj.id, catalog_item_obj.name, catalog_item_obj.description, JSON.stringify(catalog_item_obj.attributes), catalog_item_obj.is_service, catalog_item_obj.picture_url]
+      );
+    });
+
+    it('should update a catalog_item without picture_url', async () => {
+      const catalog_item_obj = {
+        id: faker.string.uuid(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [{ name: faker.word.noun(), description: faker.lorem.lines() }],
+        is_service: faker.datatype.boolean(),
+      };
+
+      const catalog_item = new CatalogItem(catalog_item_obj);
+
+      await repository.updateCatalogItem(catalog_item);
+
+      expect(query_mock).toHaveBeenCalledWith(
+        'UPDATE catalog_items SET name=$2,description=$3,attributes=$4,is_service=$5 WHERE id=$1',
+        [catalog_item_obj.id, catalog_item_obj.name, catalog_item_obj.description, JSON.stringify(catalog_item_obj.attributes), catalog_item_obj.is_service]
+      );
+    });
+  });
 });

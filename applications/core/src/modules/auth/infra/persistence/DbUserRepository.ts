@@ -147,15 +147,9 @@ export default class DbUserRepository implements UserRepository {
   async updateUser(user: User): Promise<void> {
     const user_obj = user.toObject();
 
-    const query = user_obj.access_plan_id !== undefined
-      ? 'UPDATE users SET email=$2, password=$3, access_plan_id=$4 WHERE id = $1'
-      : 'UPDATE users SET email=$2, password=$3 WHERE id = $1';
+    const query = `UPDATE users SET ${DbUtils.setColumns(user_obj)} WHERE id = $1`;
 
-    const values = user_obj.access_plan_id !== undefined
-      ? [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id]
-      : [user_obj.id, user_obj.email, user_obj.password];
-
-    await this.#db.query(query, values);
+    await this.#db.query(query, DbUtils.sanitizeValues(Object.values(user_obj)));
 
     const has_policies = user_obj.policies.length > 0;
 

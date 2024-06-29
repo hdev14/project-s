@@ -1,5 +1,5 @@
 export default class DbUtils {
-  static columns(obj: object) {
+  static columns(obj: Record<string, any>) {
     const columns = [];
 
     for (const [key, value] of Object.entries(obj)) {
@@ -9,6 +9,20 @@ export default class DbUtils {
     }
 
     return `(${columns.toString()})`;
+  }
+
+  static setColumns(obj: Record<string, any>) {
+    const columns = [];
+    const keys = Object.keys(obj);
+
+    for (let idx = 0; idx < keys.length; idx++) {
+      const key = keys[idx];
+      if (obj[key] !== undefined && obj[key] !== null && key !== 'id') {
+        columns.push(`${key}=$${idx + 1}`)
+      }
+    }
+
+    return columns.toString();
   }
 
   static sanitizeValues(values: Array<unknown>) {

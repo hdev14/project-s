@@ -63,8 +63,13 @@ export default class DbCatalogRepository implements CatalogRepository {
     );
   }
 
-  updateCatalogItem(catalog_item: CatalogItem): Promise<void> {
-    throw new Error("Method not implemented.");
+  async updateCatalogItem(catalog_item: CatalogItem): Promise<void> {
+    const catalog_item_obj = catalog_item.toObject();
+    const data = Object.assign(catalog_item_obj, { attributes: JSON.stringify(catalog_item_obj.attributes) });
+    const query = `UPDATE catalog_items SET ${DbUtils.setColumns(data)} WHERE id=$1`;
+    const values = DbUtils.sanitizeValues(Object.values(data));
+
+    await this.#db.query(query, values);
   }
 
   deleteCatalogItem(id: string): Promise<void> {

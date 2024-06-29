@@ -4,44 +4,8 @@ import { UserObject } from "@auth/domain/User";
 import { NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { interfaces } from "inversify-express-utils";
+import { Principal } from "./Principal";
 import types from "./types";
-
-export class Principal implements interfaces.Principal {
-  details: UserObject | null;
-
-  constructor(user: UserObject | null) {
-    this.details = user;
-  }
-
-  isAuthenticated(): Promise<boolean> {
-    return Promise.resolve(this.details !== null);
-  }
-
-  isResourceOwner(resourceId: any): Promise<boolean> {
-    if (this.details !== null) {
-      return Promise.resolve(this.details.id === resourceId);
-    }
-
-    return Promise.resolve(false);
-  }
-
-  isInRole(role: string): Promise<boolean> {
-    if (this.details !== null) {
-      let has_role = false;
-
-      for (let idx = 0; idx < this.details.policies.length; idx++) {
-        if (this.details.policies[idx] === role) {
-          has_role = true;
-          break;
-        }
-      }
-
-      return Promise.resolve(has_role);
-    }
-
-    return Promise.resolve(false);
-  }
-}
 
 @injectable()
 export default class AuthProvider implements interfaces.AuthProvider {

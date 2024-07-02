@@ -46,7 +46,7 @@ export type GetUsersParams = {
 export type GetUsersResult = {
   results: Array<UserObject>;
   page_result?: PageResult;
-}
+};
 
 type ChangeAccessPlanParams = {
   user_id: string;

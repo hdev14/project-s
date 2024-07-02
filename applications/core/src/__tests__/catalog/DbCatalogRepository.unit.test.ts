@@ -95,12 +95,12 @@ describe('DbCatalogRepository unit tests', () => {
           ]
         });
 
-      const pagination_options: PageOptions = {
+      const page_options: PageOptions = {
         limit: 1,
         page: 1,
       };
 
-      const { results, page_result } = await repository.getCatalogItems(pagination_options);
+      const { results, page_result } = await repository.getCatalogItems({ page_options });
 
       expect(results[0]).toBeInstanceOf(CatalogItem);
       expect(results).toHaveLength(1);
@@ -109,11 +109,12 @@ describe('DbCatalogRepository unit tests', () => {
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT count(id) as total FROM catalog_items WHERE deleted_at IS NULL',
+        []
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
         'SELECT * FROM catalog_items WHERE deleted_at IS NULL LIMIT $1 OFFSET $2',
-        [pagination_options.limit, 0],
+        [page_options.limit, 0],
       );
     });
 
@@ -138,12 +139,12 @@ describe('DbCatalogRepository unit tests', () => {
           ]
         });
 
-      const pagination_options: PageOptions = {
+      const page_options: PageOptions = {
         limit: 1,
         page: 2,
       };
 
-      const { results, page_result } = await repository.getCatalogItems(pagination_options);
+      const { results, page_result } = await repository.getCatalogItems({ page_options });
 
       expect(results[0]).toBeInstanceOf(CatalogItem);
       expect(results).toHaveLength(1);
@@ -152,11 +153,121 @@ describe('DbCatalogRepository unit tests', () => {
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT count(id) as total FROM catalog_items WHERE deleted_at IS NULL',
+        []
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
         'SELECT * FROM catalog_items WHERE deleted_at IS NULL LIMIT $1 OFFSET $2',
-        [pagination_options.limit, 1],
+        [page_options.limit, 1],
+      );
+    });
+
+    it('returns a list of catalog items filtered by tenant_id', async () => {
+      query_mock.mockResolvedValueOnce({
+        rows: [
+          {
+            id: faker.string.uuid(),
+            name: faker.commerce.productName(),
+            description: faker.commerce.productDescription(),
+            attributes: JSON.stringify([
+              {
+                name: faker.commerce.productAdjective(),
+                description: faker.lorem.lines()
+              }
+            ]),
+            is_service: faker.datatype.boolean(),
+            picture_url: faker.internet.url(),
+          },
+          {
+            id: faker.string.uuid(),
+            name: faker.commerce.productName(),
+            description: faker.commerce.productDescription(),
+            attributes: JSON.stringify([
+              {
+                name: faker.commerce.productAdjective(),
+                description: faker.lorem.lines()
+              }
+            ]),
+            is_service: faker.datatype.boolean(),
+            picture_url: faker.internet.url(),
+            tenant_id: faker.string.uuid(),
+          },
+          {
+            id: faker.string.uuid(),
+            name: faker.commerce.productName(),
+            description: faker.commerce.productDescription(),
+            attributes: JSON.stringify([
+              {
+                name: faker.commerce.productAdjective(),
+                description: faker.lorem.lines()
+              }
+            ]),
+            is_service: faker.datatype.boolean(),
+            picture_url: faker.internet.url(),
+            tenant_id: faker.string.uuid(),
+          },
+        ]
+      });
+
+      const tenant_id = faker.string.uuid();
+
+      const { results } = await repository.getCatalogItems({
+        tenant_id
+      });
+
+      expect(results[0]).toBeInstanceOf(CatalogItem);
+      expect(results).toHaveLength(3);
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT * FROM catalog_items WHERE deleted_at IS NULL AND tenant_id=$1',
+        [tenant_id]
+      );
+    });
+
+    it('returns a list of catalog items when the limit of pagination is 1, page is 2 and are filtered by tenant_id', async () => {
+      query_mock
+        .mockResolvedValueOnce({ rows: [{ total: 2 }] })
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              id: faker.string.uuid(),
+              name: faker.commerce.productName(),
+              description: faker.commerce.productDescription(),
+              attributes: JSON.stringify([
+                {
+                  name: faker.commerce.productAdjective(),
+                  description: faker.lorem.lines()
+                }
+              ]),
+              is_service: faker.datatype.boolean(),
+              picture_url: faker.internet.url(),
+            },
+          ]
+        });
+
+      const page_options: PageOptions = {
+        limit: 1,
+        page: 2,
+      };
+      const tenant_id = faker.string.uuid();
+
+      const { results, page_result } = await repository.getCatalogItems({
+        page_options,
+        tenant_id,
+      });
+
+      expect(results[0]).toBeInstanceOf(CatalogItem);
+      expect(results).toHaveLength(1);
+      expect(page_result!.next_page).toEqual(-1);
+      expect(page_result!.total_of_pages).toEqual(2);
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        'SELECT count(id) as total FROM catalog_items WHERE deleted_at IS NULL AND tenant_id=$1',
+        [tenant_id]
+      );
+      expect(query_mock).toHaveBeenNthCalledWith(
+        2,
+        'SELECT * FROM catalog_items WHERE deleted_at IS NULL AND tenant_id=$1 LIMIT $2 OFFSET $3',
+        [tenant_id, page_options.limit, 1],
       );
     });
   });

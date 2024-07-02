@@ -1,8 +1,8 @@
-import CatalogRepository from "@catalog/app/CatalogRepository";
+import CatalogRepository, { CatalogItemsFilter } from "@catalog/app/CatalogRepository";
 import CatalogItem from "@catalog/domain/CatalogItem";
 import Database from "@shared/infra/Database";
 import DbUtils from "@shared/utils/DbUtils";
-import Pagination, { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
+import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
 import { Pool } from "pg";
 
 export default class DbCatalogRepository implements CatalogRepository {
@@ -12,11 +12,11 @@ export default class DbCatalogRepository implements CatalogRepository {
     this.#db = Database.connect();
   }
 
-  async getCatalogItems(page_options?: PageOptions): Promise<PaginatedResult<CatalogItem>> {
-    const { result, total } = await this.selectCatalogItems(page_options);
+  async getCatalogItems(filter?: CatalogItemsFilter): Promise<PaginatedResult<CatalogItem>> {
+    const { result, total } = await this.selectCatalogItems(filter);
 
     const page_result = (total !== undefined && total > 0)
-      ? Pagination.calculatePageResult(total, page_options!)
+      ? Pagination.calculatePageResult(total, filter!.page_options!)
       : undefined;
 
     const results = [];
@@ -36,20 +36,34 @@ export default class DbCatalogRepository implements CatalogRepository {
     return { results, page_result };
   }
 
-  private async selectCatalogItems(page_options?: PageOptions) {
-    if (page_options) {
-      const offset = Pagination.calculateOffset(page_options);
-      const total_result = await this.#db.query('SELECT count(id) as total FROM catalog_items WHERE deleted_at IS NULL');
+  private async selectCatalogItems(filter?: CatalogItemsFilter) {
+    const select_catalog_items = 'SELECT * FROM catalog_items WHERE deleted_at IS NULL';
 
-      const result = await this.#db.query(
-        'SELECT * FROM catalog_items WHERE deleted_at IS NULL LIMIT $1 OFFSET $2',
-        [page_options.limit, offset]
-      );
+    if (filter) {
+      const count_select_catalog_items = 'SELECT count(id) as total FROM catalog_items WHERE deleted_at IS NULL';
+      const count_query = filter.tenant_id ? count_select_catalog_items + ' AND tenant_id=$1' : count_select_catalog_items;
+      const query = filter.tenant_id ? select_catalog_items + ' AND tenant_id=$1' : select_catalog_items;
+      const values: unknown[] = [filter.tenant_id];
 
-      return { result, total: total_result.rows[0].total };
+      if (filter.page_options) {
+        const offset = Pagination.calculateOffset(filter.page_options);
+        const total_result = await this.#db.query(count_query, DbUtils.sanitizeValues(values));
+
+        const paginated_query = filter.tenant_id ? query + ' LIMIT $2 OFFSET $3' : query + ' LIMIT $1 OFFSET $2';
+
+        const result = await this.#db.query(
+          paginated_query,
+          DbUtils.sanitizeValues(values.concat([filter.page_options.limit, offset]))
+        );
+
+        return { result, total: total_result.rows[0].total };
+      }
+
+      return { result: await this.#db.query(query, DbUtils.sanitizeValues(values)) };
+
     }
 
-    return { result: await this.#db.query('SELECT * FROM catalog_items WHERE deleted_at IS NULL') };
+    return { result: await this.#db.query(select_catalog_items) };
   }
 
   async createCatalogItem(catalog_item: CatalogItem): Promise<void> {

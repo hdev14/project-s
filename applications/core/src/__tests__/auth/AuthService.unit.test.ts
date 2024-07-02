@@ -337,7 +337,11 @@ describe('AuthService unit tests', () => {
             password: faker.string.alphanumeric(),
             policies: []
           }),
-        ]
+        ],
+        page_result: {
+          next_page: 2,
+          total_of_pages: 2,
+        }
       });
 
       const [data, error] = await auth_service.getUsers({});
@@ -345,6 +349,10 @@ describe('AuthService unit tests', () => {
       expect(error).toBeUndefined();
       expect(data!.results[0]).not.toBeInstanceOf(User);
       expect(data!.results).toHaveLength(2);
+      expect(data!.page_result).toEqual({
+        next_page: 2,
+        total_of_pages: 2
+      });
     });
   });
 

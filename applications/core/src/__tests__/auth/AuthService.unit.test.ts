@@ -100,6 +100,7 @@ describe('AuthService unit tests', () => {
       expect(error).toBeUndefined();
       expect(data!.id).toBeDefined();
       expect(data!.password).toEqual('test');
+      expect(user_repository_mock.createUser).toHaveBeenCalled();
     });
 
     it("returns a not found error when access_plan_id is passed and access plan doesn't exist", async () => {
@@ -138,6 +139,7 @@ describe('AuthService unit tests', () => {
       expect(data!.id).toBeDefined();
       expect(data!.password).toEqual('test');
       expect(data!.tenant_id).toEqual(tenant_id);
+      expect(user_repository_mock.createUser).toHaveBeenCalled();
     });
 
     it("return a not found erro when tenant doesn't exist", async () => {

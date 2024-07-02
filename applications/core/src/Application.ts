@@ -28,6 +28,7 @@ export default class Application {
       app.use(express.json());
       app.use(express.urlencoded({ extended: true }));
       app.use(cookieParser());
+      // TODO: add helmet and cors
     });
 
     server.setErrorConfig((app) => {

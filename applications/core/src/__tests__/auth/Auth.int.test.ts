@@ -40,6 +40,7 @@ describe('Auth integration tests', () => {
     email: faker.internet.email(),
     password: faker.string.alphanumeric(10),
   };
+  const tenant_id = faker.string.uuid();
   const { token } = auth_token_manager.generateToken(user);
 
   beforeEach(async () => {
@@ -49,11 +50,15 @@ describe('Auth integration tests', () => {
     );
     await globalThis.db.query(
       'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
-      [faker.string.uuid(), faker.internet.email(), faker.string.alphanumeric(10)]
+      [tenant_id, faker.internet.email(), faker.string.alphanumeric(10)]
     );
     await globalThis.db.query(
-      'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
-      [faker.string.uuid(), faker.internet.email(), faker.string.alphanumeric(10)]
+      'INSERT INTO users (id, email, password, tenant_id) VALUES ($1, $2, $3, $4)',
+      [faker.string.uuid(), faker.internet.email(), faker.string.alphanumeric(10), tenant_id]
+    );
+    await globalThis.db.query(
+      'INSERT INTO users (id, email, password, tenant_id) VALUES ($1, $2, $3, $4)',
+      [faker.string.uuid(), faker.internet.email(), faker.string.alphanumeric(10), tenant_id]
     );
     await globalThis.db.query(
       'INSERT INTO access_plans(id, active, amount, type, description) VALUES($1, $2, $3, $4, $5)',
@@ -88,6 +93,38 @@ describe('Auth integration tests', () => {
       expect(response.body).toHaveProperty('email');
       expect(response.body).toHaveProperty('password');
       expect(response.body).not.toHaveProperty('access_plan_id');
+    });
+
+    it("creates a new tenant's user", async () => {
+      const response = await request
+        .post('/api/auth/users')
+        .set('Content-Type', 'application/json')
+        .send({
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+          tenant_id: user.id,
+        });
+
+      expect(response.status).toEqual(201);
+      expect(response.body).toHaveProperty('id');
+      expect(response.body).toHaveProperty('email');
+      expect(response.body).toHaveProperty('password');
+      expect(response.body).not.toHaveProperty('access_plan_id');
+      expect(response.body.tenant_id).toEqual(user.id);
+    });
+
+    it("returns status code 404 if tenant doesn't exist", async () => {
+      const response = await request
+        .post('/api/auth/users')
+        .set('Content-Type', 'application/json')
+        .send({
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+          tenant_id: faker.string.uuid(),
+        });
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Empresa não encontrada');
     });
 
     it("returns status code 404 if access plan doesn't exist", async () => {
@@ -301,8 +338,8 @@ describe('Auth integration tests', () => {
         .send();
 
       expect(response.status).toEqual(200);
-      expect(response.body.results).toHaveLength(3);
-      expect(response.body).not.toHaveProperty('pagination');
+      expect(response.body.results).toHaveLength(4);
+      expect(response.body).not.toHaveProperty('page_result');
     });
 
     it('should return users with pagination', async () => {
@@ -316,7 +353,7 @@ describe('Auth integration tests', () => {
       expect(response.status).toEqual(200);
       expect(response.body.results).toHaveLength(1);
       expect(response.body.page_result.next_page).toEqual(2);
-      expect(response.body.page_result.total_of_pages).toEqual(3);
+      expect(response.body.page_result.total_of_pages).toEqual(4);
 
       response = await request
         .get('/api/auth/users')
@@ -338,9 +375,21 @@ describe('Auth integration tests', () => {
         .send();
 
       expect(response.status).toEqual(200);
-      expect(response.body.results).toHaveLength(1);
+      expect(response.body.results).toHaveLength(2);
       expect(response.body.page_result.next_page).toEqual(-1);
       expect(response.body.page_result.total_of_pages).toEqual(2);
+    });
+
+    it('should return users filtered by tenant_id', async () => {
+      const response = await request
+        .get('/api/auth/users')
+        .query({ tenant_id })
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body.results).toHaveLength(2);
     });
   });
 

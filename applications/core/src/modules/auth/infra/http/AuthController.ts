@@ -57,13 +57,14 @@ export default class AuthController extends BaseHttpController {
 
   @httpGet('/users', types.AuthMiddleware)
   async getUsers(@request() req: Request) {
-    const { page, limit } = req.query;
+    const { page, limit, tenant_id } = req.query;
     const params = (page && limit) ? ({
-      pagination: {
+      tenant_id: tenant_id as string,
+      page_options: {
         limit: parseInt(limit.toString(), 10),
         page: parseInt(page.toString(), 10)
       }
-    }) : ({});
+    }) : ({ tenant_id: tenant_id as string });
 
     const [data] = await this.auth_service.getUsers(params);
 
@@ -72,12 +73,13 @@ export default class AuthController extends BaseHttpController {
 
   @httpPost('/users', requestValidator(create_user_validation_schema))
   async registerUser(@request() req: Request) {
-    const { email, password, access_plan_id } = req.body;
+    const { email, password, access_plan_id, tenant_id } = req.body;
 
     const [data, error] = await this.auth_service.registerUser({
       email,
       password,
-      access_plan_id
+      access_plan_id,
+      tenant_id,
     });
 
     if (error) {

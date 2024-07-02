@@ -14,6 +14,11 @@ export const create_user_validation_schema: Schema = {
     optional: true,
     errorMessage: 'O campo precisa ser um ID valido'
   },
+  tenant_id: {
+    isUUID: true,
+    optional: true,
+    errorMessage: 'O campo precisa ser um ID valido'
+  },
 };
 
 export const update_user_validation_schema: Schema = {

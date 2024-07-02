@@ -1,5 +1,8 @@
 import { AttributeValue } from "@catalog/domain/Attribute";
 import CatalogItem, { CatalogItemObject } from "@catalog/domain/CatalogItem";
+import Mediator from "@shared/Mediator";
+import TenantExistsCommand from "@shared/TenantExistsCommand";
+import NotFoundError from "@shared/errors/NotFoundError";
 import Either from "@shared/utils/Either";
 import { PageOptions, PageResult } from "@shared/utils/Pagination";
 import { randomUUID } from "crypto";
@@ -21,13 +24,16 @@ export type CreateCatalogItemParams = {
   attributes: Array<AttributeValue>;
   is_service: boolean;
   picture_url?: string;
+  tenant_id: string;
 };
 
 export default class CatalogService {
   #catalog_repository: CatalogRepository;
+  #mediator: Mediator;
 
-  constructor(catalog_repository: CatalogRepository) {
+  constructor(catalog_repository: CatalogRepository, mediator: Mediator) {
     this.#catalog_repository = catalog_repository;
+    this.#mediator = mediator;
   }
 
   async getCatalogItems(params: GetCatalogItemsParams): Promise<Either<GetCatalogItemsResult>> {
@@ -40,9 +46,16 @@ export default class CatalogService {
   }
 
   async createCatalogItem(params: CreateCatalogItemParams): Promise<Either<CatalogItemObject>> {
-    const catalog_item_obj = Object.assign({}, params, { id: randomUUID() });
-    const catalog_item = new CatalogItem(catalog_item_obj);
+    const exists = await this.#mediator.send<boolean>(new TenantExistsCommand(params.tenant_id));
+
+    if (!exists) {
+      return Either.left(new NotFoundError('Empresa não encontrada'));
+    }
+
+    const catalog_item = new CatalogItem(Object.assign({}, params, { id: randomUUID() }));
+
     await this.#catalog_repository.createCatalogItem(catalog_item);
+
     return Either.right(catalog_item.toObject());
   }
 

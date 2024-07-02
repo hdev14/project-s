@@ -30,6 +30,7 @@ export default class DbCatalogRepository implements CatalogRepository {
         is_service: row.is_service,
         attributes: JSON.parse(row.attributes),
         picture_url: row.picture_url,
+        tenant_id: row.tenant_id,
       }));
     }
 

@@ -275,6 +275,7 @@ describe('DbCatalogRepository unit tests', () => {
   describe('DbCatalogRepository.createCatalogItem', () => {
     it('should create a new catalog_item', async () => {
       const catalog_item_obj = {
+        tenant_id: faker.string.uuid(),
         id: faker.string.uuid(),
         name: faker.commerce.productName(),
         description: faker.commerce.productDescription(),
@@ -288,13 +289,14 @@ describe('DbCatalogRepository unit tests', () => {
       await repository.createCatalogItem(catalog_item);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO catalog_items (id,name,description,attributes,is_service,picture_url) VALUES ($1,$2,$3,$4,$5,$6)',
-        [catalog_item_obj.id, catalog_item_obj.name, catalog_item_obj.description, JSON.stringify(catalog_item_obj.attributes), catalog_item_obj.is_service, catalog_item_obj.picture_url]
+        'INSERT INTO catalog_items (id,name,description,attributes,is_service,tenant_id,picture_url) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+        [catalog_item_obj.id, catalog_item_obj.name, catalog_item_obj.description, JSON.stringify(catalog_item_obj.attributes), catalog_item_obj.is_service, catalog_item_obj.tenant_id, catalog_item_obj.picture_url]
       );
     });
 
     it('should create a new catalog_item without picture_url', async () => {
       const catalog_item_obj = {
+        tenant_id: faker.string.uuid(),
         id: faker.string.uuid(),
         name: faker.commerce.productName(),
         description: faker.commerce.productDescription(),
@@ -307,8 +309,8 @@ describe('DbCatalogRepository unit tests', () => {
       await repository.createCatalogItem(catalog_item);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO catalog_items (id,name,description,attributes,is_service) VALUES ($1,$2,$3,$4,$5)',
-        [catalog_item_obj.id, catalog_item_obj.name, catalog_item_obj.description, JSON.stringify(catalog_item_obj.attributes), catalog_item_obj.is_service]
+        'INSERT INTO catalog_items (id,name,description,attributes,is_service,tenant_id) VALUES ($1,$2,$3,$4,$5,$6)',
+        [catalog_item_obj.id, catalog_item_obj.name, catalog_item_obj.description, JSON.stringify(catalog_item_obj.attributes), catalog_item_obj.is_service, catalog_item_obj.tenant_id]
       );
     });
   });
@@ -316,6 +318,7 @@ describe('DbCatalogRepository unit tests', () => {
   describe('DbCatalogRepository.updateCatalogItem', () => {
     it('should update a catalog_item', async () => {
       const catalog_item_obj = {
+        tenant_id: faker.string.uuid(),
         id: faker.string.uuid(),
         name: faker.commerce.productName(),
         description: faker.commerce.productDescription(),
@@ -329,13 +332,14 @@ describe('DbCatalogRepository unit tests', () => {
       await repository.updateCatalogItem(catalog_item);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'UPDATE catalog_items SET name=$2,description=$3,attributes=$4,is_service=$5,picture_url=$6 WHERE id=$1',
-        [catalog_item_obj.id, catalog_item_obj.name, catalog_item_obj.description, JSON.stringify(catalog_item_obj.attributes), catalog_item_obj.is_service, catalog_item_obj.picture_url]
+        'UPDATE catalog_items SET name=$2,description=$3,attributes=$4,is_service=$5,tenant_id=$6,picture_url=$7 WHERE id=$1',
+        [catalog_item_obj.id, catalog_item_obj.name, catalog_item_obj.description, JSON.stringify(catalog_item_obj.attributes), catalog_item_obj.is_service, catalog_item_obj.tenant_id, catalog_item_obj.picture_url]
       );
     });
 
     it('should update a catalog_item without picture_url', async () => {
       const catalog_item_obj = {
+        tenant_id: faker.string.uuid(),
         id: faker.string.uuid(),
         name: faker.commerce.productName(),
         description: faker.commerce.productDescription(),
@@ -348,8 +352,8 @@ describe('DbCatalogRepository unit tests', () => {
       await repository.updateCatalogItem(catalog_item);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'UPDATE catalog_items SET name=$2,description=$3,attributes=$4,is_service=$5 WHERE id=$1',
-        [catalog_item_obj.id, catalog_item_obj.name, catalog_item_obj.description, JSON.stringify(catalog_item_obj.attributes), catalog_item_obj.is_service]
+        'UPDATE catalog_items SET name=$2,description=$3,attributes=$4,is_service=$5,tenant_id=$6 WHERE id=$1',
+        [catalog_item_obj.id, catalog_item_obj.name, catalog_item_obj.description, JSON.stringify(catalog_item_obj.attributes), catalog_item_obj.is_service, catalog_item_obj.tenant_id]
       );
     });
   });

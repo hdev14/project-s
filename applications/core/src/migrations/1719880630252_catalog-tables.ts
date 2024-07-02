@@ -10,7 +10,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     attributes: { type: 'jsonb', notNull: true, default: '[]' },
     is_service: { type: 'boolean', notNull: true, default: false },
     picture_url: { type: 'text', notNull: false },
-    tenant_id: { type: 'uuid', notNull: false, references: 'users' },
+    tenant_id: { type: 'uuid', notNull: true, references: 'users' },
     created_at: {
       type: 'timestamp',
       notNull: true,

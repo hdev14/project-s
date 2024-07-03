@@ -27,6 +27,8 @@ export type CreateCatalogItemParams = {
   tenant_id: string;
 };
 
+export type UpdateCatalogItemParams = Partial<Omit<CreateCatalogItemParams, 'tenant_id'>> & { catalog_item_id: string; };
+
 export default class CatalogService {
   #catalog_repository: CatalogRepository;
   #mediator: Mediator;
@@ -59,8 +61,23 @@ export default class CatalogService {
     return Either.right(catalog_item.toObject());
   }
 
-  async updateCatalogItem(params: {}): Promise<Either<CatalogItemObject>> {
-    return Either.left(new Error());
+  async updateCatalogItem(params: UpdateCatalogItemParams): Promise<Either<void>> {
+    const catalog_item = await this.#catalog_repository.getCatalogItemById(params.catalog_item_id);
+
+    if (!catalog_item) {
+      return Either.left(new NotFoundError('Item não encontrado'));
+    }
+
+    const obj = catalog_item.toObject();
+
+    catalog_item.name = params.name ?? obj.name;
+    catalog_item.description = params.description ?? obj.description;
+    catalog_item.attributes = params.attributes ?? obj.attributes;
+    catalog_item.picture_url = params.picture_url ?? obj.picture_url;
+
+    await this.#catalog_repository.updateCatalogItem(catalog_item);
+
+    return Either.right();
   }
 
   async updatePicture(params: {}): Promise<Either<void>> {

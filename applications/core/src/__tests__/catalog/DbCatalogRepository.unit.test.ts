@@ -370,4 +370,48 @@ describe('DbCatalogRepository unit tests', () => {
       expect(typeof values[1]).toBe('number');
     });
   });
+
+  describe('DbCatalogRepository.getCatalogItemById', () => {
+    it('returns a catalog item', async () => {
+      query_mock.mockResolvedValueOnce({
+        rows: [
+          {
+            id: faker.string.uuid(),
+            name: faker.commerce.productName(),
+            description: faker.commerce.productDescription(),
+            attributes: JSON.stringify([
+              {
+                name: faker.commerce.productAdjective(),
+                description: faker.lorem.lines()
+              }
+            ]),
+            is_service: faker.datatype.boolean(),
+            picture_url: faker.internet.url(),
+          },
+        ]
+      });
+
+      const catalog_item_id = faker.string.uuid();
+      const catalog_item = await repository.getCatalogItemById(catalog_item_id);
+
+      expect(catalog_item).toBeInstanceOf(CatalogItem);
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT * FROM catalog_items WHERE id=$1',
+        [catalog_item_id],
+      );
+    });
+
+    it("returns NULL if catalog item doesn't exist", async () => {
+      query_mock.mockResolvedValueOnce({ rows: [] });
+
+      const catalog_item_id = faker.string.uuid();
+      const catalog_item = await repository.getCatalogItemById(catalog_item_id);
+
+      expect(catalog_item).toBeNull()
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT * FROM catalog_items WHERE id=$1',
+        [catalog_item_id],
+      );
+    });
+  });
 });

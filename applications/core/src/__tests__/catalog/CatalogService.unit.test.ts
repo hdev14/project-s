@@ -97,4 +97,59 @@ describe('CatalogService unit tests', () => {
       expect(mediator_mock.send.mock.calls[0][0]).toBeInstanceOf(TenantExistsCommand);
     });
   });
+
+  describe('CatalogService.updateCatalogItem', () => {
+    it("should return a not found erro if catalog item doesn't exist", async () => {
+      catalog_repository_mock.getCatalogItemById.mockResolvedValueOnce(null);
+
+      const params = {
+        catalog_item_id: faker.string.uuid(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [{ name: faker.commerce.productAdjective(), description: faker.lorem.lines() }],
+        is_service: faker.datatype.boolean(),
+        tenant_id: faker.string.uuid(),
+      };
+
+      const [, error] = await catalog_service.updateCatalogItem(params);
+
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error!.message).toEqual('Item não encontrado');
+    });
+
+    it("should update a catalog item", async () => {
+      catalog_repository_mock.getCatalogItemById.mockResolvedValueOnce(
+        new CatalogItem({
+          id: faker.string.uuid(),
+          name: faker.commerce.productName(),
+          description: faker.commerce.productDescription(),
+          attributes: [{ name: faker.commerce.productAdjective(), description: faker.lorem.lines() }],
+          is_service: faker.datatype.boolean(),
+          tenant_id: faker.string.uuid(),
+          picture_url: faker.internet.url(),
+        })
+      );
+
+      const params = {
+        catalog_item_id: faker.string.uuid(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [{ name: faker.commerce.productAdjective(), description: faker.lorem.lines() }],
+        is_service: faker.datatype.boolean(),
+        tenant_id: faker.string.uuid(),
+        picture_url: faker.internet.url(),
+      };
+
+      const [, error] = await catalog_service.updateCatalogItem(params);
+
+      expect(error).toBeUndefined();
+      expect(catalog_repository_mock.updateCatalogItem).toHaveBeenCalledTimes(1);
+      const param = catalog_repository_mock.updateCatalogItem.mock.calls[0][0].toObject();
+      expect(param.name).toEqual(params.name);
+      expect(param.description).toEqual(params.description);
+      expect(param.attributes[0].name).toEqual(params.attributes[0].name);
+      expect(param.attributes[0].description).toEqual(params.attributes[0].description);
+      expect(param.picture_url).toEqual(params.picture_url);
+    });
+  });
 });

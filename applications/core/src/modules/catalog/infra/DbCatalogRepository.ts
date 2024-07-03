@@ -12,6 +12,19 @@ export default class DbCatalogRepository implements CatalogRepository {
     this.#db = Database.connect();
   }
 
+  async getCatalogItemById(id: string): Promise<CatalogItem | null> {
+    const result = await this.#db.query('SELECT * FROM catalog_items WHERE id=$1', [id]);
+
+    return result.rows.length === 0 ? null : new CatalogItem({
+      id: result.rows[0].id,
+      name: result.rows[0].name,
+      description: result.rows[0].description,
+      attributes: JSON.parse(result.rows[0].attributes),
+      is_service: result.rows[0].is_service,
+      tenant_id: result.rows[0].tenant_id,
+    });
+  }
+
   async getCatalogItems(filter?: CatalogItemsFilter): Promise<PaginatedResult<CatalogItem>> {
     const { result, total } = await this.selectCatalogItems(filter);
 

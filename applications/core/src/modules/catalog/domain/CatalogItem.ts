@@ -41,11 +41,15 @@ export default class CatalogItem extends Aggregate<CatalogItemObject> {
     this.#description = value;
   }
 
-  set attributes(value: Array<Attribute>) {
-    this.#attributes = value;
+  set attributes(value: Array<AttributeValue>) {
+    this.#attributes = [];
+
+    for (let idx = 0; idx < value.length; idx++) {
+      this.#attributes.push(new Attribute(value[idx].name, value[idx].description));
+    }
   }
 
-  set picture_url(value: string) {
+  set picture_url(value: string | undefined) {
     this.#picture_url = value;
   }
 

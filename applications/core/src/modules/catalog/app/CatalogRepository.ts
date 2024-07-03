@@ -11,4 +11,5 @@ export default interface CatalogRepository {
   createCatalogItem(catalog_item: CatalogItem): Promise<void>;
   updateCatalogItem(catalog_item: CatalogItem): Promise<void>;
   deleteCatalogItem(id: string): Promise<void>;
+  getCatalogItemById(id: string): Promise<CatalogItem | null>;
 }

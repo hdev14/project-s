@@ -177,11 +177,7 @@ export default class AuthService {
 
   async getUsers(params: GetUsersParams): Promise<Either<GetUsersResult>> {
     const { results, page_result } = await this.#user_repository.getUsers(params);
-    const objs = [];
-    for (let idx = 0; idx < results.length; idx++) {
-      objs.push(results[idx].toObject());
-    }
-    return Either.right({ results: objs, page_result });
+    return Either.right({ results: results.toObjectList(), page_result });
   }
 
   async changeAccessPlan(params: ChangeAccessPlanParams): Promise<Either<void>> {

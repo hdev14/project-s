@@ -1,3 +1,6 @@
+import Aggregate from "@shared/ddd/Aggregate";
+import Collection from "./Collection";
+
 export type PageOptions = {
   limit: number;
   page: number;
@@ -8,8 +11,8 @@ export type PageResult = {
   total_of_pages: number;
 };
 
-export type PaginatedResult<T> = {
-  results: Array<T>;
+export type PaginatedResult<T extends Aggregate<any>> = {
+  results: Collection<T>;
   page_result?: PageResult;
 }
 

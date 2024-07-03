@@ -40,11 +40,7 @@ export default class CatalogService {
 
   async getCatalogItems(params: GetCatalogItemsParams): Promise<Either<GetCatalogItemsResult>> {
     const { results, page_result } = await this.#catalog_repository.getCatalogItems(params);
-    const objs = [];
-    for (let idx = 0; idx < results.length; idx++) {
-      objs.push(results[idx].toObject());
-    }
-    return Either.right({ results: objs, page_result });
+    return Either.right({ results: results.toObjectList(), page_result });
   }
 
   async createCatalogItem(params: CreateCatalogItemParams): Promise<Either<CatalogItemObject>> {
@@ -78,9 +74,5 @@ export default class CatalogService {
     await this.#catalog_repository.updateCatalogItem(catalog_item);
 
     return Either.right();
-  }
-
-  async updatePicture(params: {}): Promise<Either<void>> {
-    return Either.left(new Error());
   }
 }

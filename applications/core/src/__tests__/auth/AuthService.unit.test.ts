@@ -10,6 +10,7 @@ import User from '@auth/domain/User';
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import CredentialError from '@shared/errors/CredentialError';
 import NotFoundError from '@shared/errors/NotFoundError';
+import Collection from '@shared/utils/Collection';
 import { mock } from 'jest-mock-extended';
 
 describe('AuthService unit tests', () => {
@@ -266,16 +267,19 @@ describe('AuthService unit tests', () => {
 
       const attach_policy_spy = jest.spyOn(user, 'attachPolicy');
 
-      policy_repository_mock.getPolicies.mockResolvedValueOnce([
-        new Policy({
-          id: faker.string.uuid(),
-          slug: faker.word.verb(),
-        }),
-        new Policy({
-          id: faker.string.uuid(),
-          slug: faker.word.verb(),
-        }),
-      ]);
+      policy_repository_mock.getPolicies.mockResolvedValueOnce(
+        new Collection(
+          [
+            new Policy({
+              id: faker.string.uuid(),
+              slug: faker.word.verb(),
+            }),
+            new Policy({
+              id: faker.string.uuid(),
+              slug: faker.word.verb(),
+            }),
+          ]
+        ));
       user_repository_mock.getUserById.mockResolvedValueOnce(user);
 
       const [, error] = await auth_service.updatePolicies({
@@ -299,16 +303,18 @@ describe('AuthService unit tests', () => {
 
       const dettach_policy_spy = jest.spyOn(user, 'dettachPolicy');
 
-      policy_repository_mock.getPolicies.mockResolvedValueOnce([
-        new Policy({
-          id: faker.string.uuid(),
-          slug: faker.word.verb(),
-        }),
-        new Policy({
-          id: faker.string.uuid(),
-          slug: faker.word.verb(),
-        }),
-      ]);
+      policy_repository_mock.getPolicies.mockResolvedValueOnce(
+        new Collection([
+          new Policy({
+            id: faker.string.uuid(),
+            slug: faker.word.verb(),
+          }),
+          new Policy({
+            id: faker.string.uuid(),
+            slug: faker.word.verb(),
+          }),
+        ])
+      );
       user_repository_mock.getUserById.mockResolvedValueOnce(user);
 
       const [, error] = await auth_service.updatePolicies({
@@ -326,7 +332,7 @@ describe('AuthService unit tests', () => {
   describe('AuthService.getUsers', () => {
     it('returns a list of users', async () => {
       user_repository_mock.getUsers.mockResolvedValueOnce({
-        results: [
+        results: new Collection([
           new User({
             id: faker.string.uuid(),
             email: faker.internet.email(),
@@ -339,7 +345,7 @@ describe('AuthService unit tests', () => {
             password: faker.string.alphanumeric(),
             policies: []
           }),
-        ],
+        ]),
         page_result: {
           next_page: 2,
           total_of_pages: 2,

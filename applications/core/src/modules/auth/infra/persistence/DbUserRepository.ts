@@ -1,6 +1,7 @@
 import UserRepository, { UsersFilter } from "@auth/app/UserRepository";
 import User, { UserObject } from "@auth/domain/User";
 import Database from "@shared/infra/Database";
+import Collection from "@shared/utils/Collection";
 import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
 import { injectable } from "inversify";
@@ -24,23 +25,23 @@ export default class DbUserRepository implements UserRepository {
       ? Pagination.calculatePageResult(total, filter!.page_options!)
       : undefined;
 
-    const user_objects = new Map<string, UserObject>();
+    const objs = new Map<string, UserObject>();
 
     for (let idx = 0; idx < result.rows.length; idx++) {
       const row = result.rows[idx];
 
-      if (user_objects.has(row.id)) {
-        const existent_user = user_objects.get(row.id);
+      if (objs.has(row.id)) {
+        const existent_user = objs.get(row.id);
         if (row.slug) {
           existent_user!.policies.push(row.slug);
         }
-        user_objects.set(row.id, existent_user!);
+        objs.set(row.id, existent_user!);
         continue;
       }
 
       const policies = row.slug ? [row.slug] : [];
 
-      user_objects.set(row.id, {
+      objs.set(row.id, {
         id: row.id,
         email: row.email,
         password: row.password,
@@ -50,13 +51,13 @@ export default class DbUserRepository implements UserRepository {
       });
     }
 
-    const results = [];
+    const users = [];
 
-    for (const user_obj of user_objects.values()) {
-      results.push(new User(user_obj));
+    for (const user_obj of objs.values()) {
+      users.push(new User(user_obj));
     }
 
-    return { results, page_result };
+    return { results: new Collection(users), page_result };
   }
 
   private async selectUsers(filter?: UsersFilter) {

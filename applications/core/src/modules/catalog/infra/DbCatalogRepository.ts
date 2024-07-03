@@ -1,6 +1,7 @@
 import CatalogRepository, { CatalogItemsFilter } from "@catalog/app/CatalogRepository";
 import CatalogItem from "@catalog/domain/CatalogItem";
 import Database from "@shared/infra/Database";
+import Collection from "@shared/utils/Collection";
 import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
 import { Pool } from "pg";
@@ -32,11 +33,11 @@ export default class DbCatalogRepository implements CatalogRepository {
       ? Pagination.calculatePageResult(total, filter!.page_options!)
       : undefined;
 
-    const results = [];
+    const catalog_items = [];
 
     for (let idx = 0; idx < result.rows.length; idx++) {
       const row = result.rows[idx];
-      results.push(new CatalogItem({
+      catalog_items.push(new CatalogItem({
         id: row.id,
         name: row.name,
         description: row.description,
@@ -47,7 +48,7 @@ export default class DbCatalogRepository implements CatalogRepository {
       }));
     }
 
-    return { results, page_result };
+    return { results: new Collection(catalog_items), page_result };
   }
 
   private async selectCatalogItems(filter?: CatalogItemsFilter) {

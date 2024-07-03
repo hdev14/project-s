@@ -1,6 +1,7 @@
 import AccessPlanRepository from "@auth/app/AccessPlanRepository";
 import AccessPlan from "@auth/domain/AccessPlan";
 import Database from "@shared/infra/Database";
+import Collection from "@shared/utils/Collection";
 import { injectable } from "inversify";
 import { Pool } from "pg";
 import 'reflect-metadata';
@@ -31,7 +32,7 @@ export default class DbAccessPlanRepository implements AccessPlanRepository {
     });
   }
 
-  async getAccessPlans(): Promise<AccessPlan[]> {
+  async getAccessPlans(): Promise<Collection<AccessPlan>> {
     const result = await this.#db.query('SELECT * FROM access_plans');
 
     const access_plans = [];
@@ -47,7 +48,7 @@ export default class DbAccessPlanRepository implements AccessPlanRepository {
       }));
     }
 
-    return access_plans;
+    return new Collection(access_plans);
   }
 
   async createAccessPlan(access_plan: AccessPlan): Promise<void> {

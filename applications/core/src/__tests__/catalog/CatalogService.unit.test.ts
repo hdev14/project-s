@@ -55,7 +55,7 @@ describe('CatalogService unit tests', () => {
   });
 
   describe('CatalogService.createCatalogItem', () => {
-    it('create a new catalog item', async () => {
+    it('creates a new catalog item', async () => {
       mediator_mock.send.mockResolvedValueOnce(true);
 
       const params = {

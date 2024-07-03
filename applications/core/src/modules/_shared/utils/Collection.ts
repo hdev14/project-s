@@ -6,7 +6,7 @@ export default class Collection<T extends Aggregate<any>> extends Array<T> {
     Object.seal(this);
   }
 
-  toObjectList<O = Record<string, any>>(): Array<O> {
+  toObjectList<O = unknown>(): Array<O> {
     const objs = [];
 
     for (let idx = 0; idx < this.length; idx++) {

@@ -2,13 +2,13 @@ import AuthTokenManager from '@auth/app/AuthTokenManager';
 import AuthModule from '@auth/infra/AuthModule';
 import CatalogModule from '@catalog/infra/CatalogModule';
 import { faker } from '@faker-js/faker/locale/pt_BR';
-import GlobalModule from '@shared/infra/GlobalModule';
+import SharedModule from '@shared/infra/SharedModule';
 import types from '@shared/infra/types';
 import Application from 'src/Application';
 import supertest from 'supertest';
 
 describe('Catalog integration tests', () => {
-  const application = new Application({ modules: [new GlobalModule(), new AuthModule(), new CatalogModule()] });
+  const application = new Application({ modules: [new SharedModule(), new AuthModule(), new CatalogModule()] });
   const auth_token_manager = application.container.get<AuthTokenManager>(types.AuthTokenManager);
   const request = supertest(application.server);
   const user = {

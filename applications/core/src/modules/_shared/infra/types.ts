@@ -6,4 +6,8 @@ export default {
   PolicyRepository: Symbol.for('PolicyRepository'),
   UserRepository: Symbol.for('UserRepository'),
   AuthMiddleware: Symbol.for('AuthMiddleware'),
+  CatalogService: Symbol.for('CatalogService'),
+  CatalogRepository: Symbol.for('CatalogRepository'),
+  Mediator: Symbol.for('Mediator'),
+  TenantExistsCommandHandler: Symbol.for('TenantExistsCommandHandler')
 };

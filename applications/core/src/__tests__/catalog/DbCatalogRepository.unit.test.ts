@@ -1,5 +1,5 @@
 import CatalogItem from "@catalog/domain/CatalogItem";
-import DbCatalogRepository from "@catalog/infra/DbCatalogRepository";
+import DbCatalogRepository from "@catalog/infra/persistence/DbCatalogRepository";
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import Database from "@shared/infra/Database";
 import { PageOptions } from "@shared/utils/Pagination";

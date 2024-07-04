@@ -11,6 +11,10 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     is_service: { type: 'boolean', notNull: true, default: false },
     picture_url: { type: 'text', notNull: false },
     tenant_id: { type: 'uuid', notNull: true, references: 'users' },
+    deleted_at: {
+      type: 'timestamp',
+      notNull: false,
+    },
     created_at: {
       type: 'timestamp',
       notNull: true,

@@ -4,8 +4,11 @@ import Database from "@shared/infra/Database";
 import Collection from "@shared/utils/Collection";
 import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
+import { injectable } from "inversify";
 import { Pool } from "pg";
+import 'reflect-metadata';
 
+@injectable()
 export default class DbCatalogRepository implements CatalogRepository {
   #db: Pool;
 
@@ -20,7 +23,7 @@ export default class DbCatalogRepository implements CatalogRepository {
       id: result.rows[0].id,
       name: result.rows[0].name,
       description: result.rows[0].description,
-      attributes: JSON.parse(result.rows[0].attributes),
+      attributes: result.rows[0].attributes,
       is_service: result.rows[0].is_service,
       tenant_id: result.rows[0].tenant_id,
     });
@@ -42,7 +45,7 @@ export default class DbCatalogRepository implements CatalogRepository {
         name: row.name,
         description: row.description,
         is_service: row.is_service,
-        attributes: JSON.parse(row.attributes),
+        attributes: row.attributes,
         picture_url: row.picture_url,
         tenant_id: row.tenant_id,
       }));

@@ -3,9 +3,12 @@ import CatalogItem, { CatalogItemObject } from "@catalog/domain/CatalogItem";
 import Mediator from "@shared/Mediator";
 import TenantExistsCommand from "@shared/TenantExistsCommand";
 import NotFoundError from "@shared/errors/NotFoundError";
+import types from "@shared/infra/types";
 import Either from "@shared/utils/Either";
 import { PageOptions, PageResult } from "@shared/utils/Pagination";
 import { randomUUID } from "crypto";
+import { inject, injectable } from "inversify";
+import 'reflect-metadata';
 import CatalogRepository from "./CatalogRepository";
 
 export type GetCatalogItemsParams = {
@@ -27,13 +30,19 @@ export type CreateCatalogItemParams = {
   tenant_id: string;
 };
 
-export type UpdateCatalogItemParams = Partial<Omit<CreateCatalogItemParams, 'tenant_id'>> & { catalog_item_id: string; };
+export type UpdateCatalogItemParams = Partial<Omit<CreateCatalogItemParams, 'tenant_id'>> & {
+  catalog_item_id: string;
+};
 
+@injectable()
 export default class CatalogService {
   #catalog_repository: CatalogRepository;
   #mediator: Mediator;
 
-  constructor(catalog_repository: CatalogRepository, mediator: Mediator) {
+  constructor(
+    @inject(types.CatalogRepository) catalog_repository: CatalogRepository,
+    @inject(types.Mediator) mediator: Mediator
+  ) {
     this.#catalog_repository = catalog_repository;
     this.#mediator = mediator;
   }

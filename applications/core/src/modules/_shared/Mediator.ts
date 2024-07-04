@@ -1,7 +1,10 @@
 
+import { injectable } from 'inversify';
+import 'reflect-metadata';
 import Command from "./Command";
 import Handler from "./Handler";
 
+@injectable()
 export default class Mediator {
   private readonly _handlers: Map<string, Handler> = new Map<string, Handler>();
 

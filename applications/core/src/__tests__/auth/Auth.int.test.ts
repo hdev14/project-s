@@ -329,7 +329,7 @@ describe('Auth integration tests', () => {
     });
   });
 
-  describe('GET: /api/auth/users/', () => {
+  describe('GET: /api/auth/users', () => {
     it('should return all users', async () => {
       const response = await request
         .get('/api/auth/users')

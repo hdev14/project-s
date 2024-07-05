@@ -17,6 +17,7 @@ describe('Catalog integration tests', () => {
     password: faker.string.alphanumeric(10),
   };
   const tenant_id = faker.string.uuid();
+  const catalog_item_id = faker.string.uuid();
   const { token } = auth_token_manager.generateToken(user);
 
   beforeEach(async () => {
@@ -24,7 +25,6 @@ describe('Catalog integration tests', () => {
       'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
       [user.id, user.email, user.password]
     );
-
 
     await globalThis.db.query(
       'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
@@ -34,7 +34,7 @@ describe('Catalog integration tests', () => {
     await globalThis.db.query(
       'INSERT INTO catalog_items (id, name, description, attributes, is_service, picture_url, tenant_id) VALUES ($1, $2, $3, $4, $5, $6, $7)',
       [
-        faker.string.uuid(),
+        catalog_item_id,
         faker.commerce.productName(),
         faker.commerce.productDescription(),
         JSON.stringify([]),
@@ -198,6 +198,62 @@ describe('Catalog integration tests', () => {
       expect(response.body.results).toHaveLength(1);
       expect(response.body.page_result.next_page).toEqual(-1);
       expect(response.body.page_result.total_of_pages).toEqual(2);
+    });
+  });
+
+  describe.skip('PUT: /api/catalog/items/:id', () => {
+    it('updates a catalog item', async () => {
+      const data = {
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [{ name: faker.commerce.productAdjective(), description: faker.lorem.lines() }],
+        picture_url: faker.internet.url(),
+      };
+
+      const response = await request
+        .put(`/api/catalog/items/${catalog_item_id}`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send(data);
+
+      expect(response.status).toEqual(204);
+      const result = await globalThis.db.query('SELECT * FROM catalog_items WHERE id=$1', [catalog_item_id]);
+      expect(result.rows[0].name).toEqual(data.name);
+      expect(result.rows[0].description).toEqual(data.description);
+      expect(result.rows[0].attributes[0].name).toEqual(data.attributes[0].name);
+      expect(result.rows[0].attributes[0].description).toEqual(data.attributes[0].description);
+    });
+
+    it("returns status code 404 if catalog item doesn't exist", async () => {
+      const response = await request
+        .put(`/api/catalog/items/${faker.string.uuid()}`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          name: faker.commerce.productName(),
+          description: faker.commerce.productDescription(),
+          attributes: [{ name: faker.commerce.productAdjective(), description: faker.lorem.lines() }],
+          picture_url: faker.internet.url(),
+        });
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Item não encontrado');
+    });
+
+    it('returns status code 400 if data is invalid', async () => {
+      const response = await request
+        .put(`/api/catalog/items/${catalog_item_id}`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          name: faker.number.int(),
+          description: faker.number.int(),
+          attributes: [{ name: faker.number.int(), description: faker.number.int() }],
+          picture_url: faker.internet.email(),
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(4);
     });
   });
 });

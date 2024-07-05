@@ -30,7 +30,7 @@ export type CreateCatalogItemParams = {
   tenant_id: string;
 };
 
-export type UpdateCatalogItemParams = Partial<Omit<CreateCatalogItemParams, 'tenant_id'>> & {
+export type UpdateCatalogItemParams = Partial<Omit<CreateCatalogItemParams, 'tenant_id' | 'is_service'>> & {
   catalog_item_id: string;
 };
 

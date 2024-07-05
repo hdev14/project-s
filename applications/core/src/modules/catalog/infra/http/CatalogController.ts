@@ -50,7 +50,27 @@ export default class CatalogController extends BaseHttpController {
 
   @httpPut('/items/:id')
   async updateCatalogItem(@request() req: Request) {
-    return this.ok();
+    const { id: catalog_item_id } = req.params;
+    const {
+      name,
+      attributes,
+      description,
+      picture_url,
+    } = req.body;
+
+    const [, error] = await this.catalog_service.updateCatalogItem({
+      catalog_item_id,
+      name,
+      attributes,
+      description,
+      picture_url,
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: error.message }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    return this.json({}, HttpStatusCodes.NO_CONTENT);
   }
 
   @httpGet('/items')

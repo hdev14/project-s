@@ -56,15 +56,4 @@ export default class DbPolicyRepository implements PolicyRepository {
       description: data.description,
     });
   }
-
-  async createPolicy(policy: Policy): Promise<void> {
-    const policy_obj = policy.toObject();
-    const values = Object.values(policy_obj);
-    const query = `INSERT INTO policies ${DbUtils.columns(policy_obj)} VALUES ${DbUtils.values(values)}`;
-    await this.#db.query(query, DbUtils.sanitizeValues(values));
-  }
-
-  async deletePolicy(id: string): Promise<void> {
-    await this.#db.query('DELETE FROM policies WHERE id=$1', [id]);
-  }
 }

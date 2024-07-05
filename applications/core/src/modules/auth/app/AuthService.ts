@@ -1,3 +1,5 @@
+import { AccessPlanObject } from "@auth/domain/AccessPlan";
+import { PolicyObject } from "@auth/domain/Policy";
 import User, { UserObject } from "@auth/domain/User";
 import CredentialError from "@shared/errors/CredentialError";
 import NotFoundError from "@shared/errors/NotFoundError";
@@ -198,5 +200,21 @@ export default class AuthService {
     await this.#user_repository.updateUser(user);
 
     return Either.right();
+  }
+
+  async createAccessPlan(): Promise<Either<AccessPlanObject>> {
+    return Either.left(new Error());
+  }
+
+  async updateAccessPlan(): Promise<Either<void>> {
+    return Either.left(new Error());
+  }
+
+  async getAccessPlans(): Promise<Either<Array<AccessPlanObject>>> {
+    return Either.left(new Error());
+  }
+
+  async getPolicies(): Promise<Either<Array<PolicyObject>>> {
+    return Either.left(new Error());
   }
 }

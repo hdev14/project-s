@@ -122,36 +122,4 @@ describe('DbPolicyRepository unit tests', () => {
       );
     });
   });
-
-  describe('DbPolicyRepository.createPolicy', () => {
-    it('creates a new policy', async () => {
-      const policy_obj = {
-        id: faker.string.uuid(),
-        slug: faker.word.verb(),
-        description: faker.lorem.lines(),
-      };
-
-      const policy = new Policy(policy_obj);
-
-      await repository.createPolicy(policy);
-
-      expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO policies (id,slug,description) VALUES ($1,$2,$3)',
-        [policy_obj.id, policy_obj.slug, policy_obj.description]
-      );
-    });
-  });
-
-  describe('DbPolicyRepository.deletePolicy', () => {
-    it('deletes a policy', async () => {
-      const policy_id = faker.string.uuid();
-
-      await repository.deletePolicy(policy_id);
-
-      expect(query_mock).toHaveBeenCalledWith(
-        'DELETE FROM policies WHERE id=$1',
-        [policy_id]
-      );
-    });
-  });
 });

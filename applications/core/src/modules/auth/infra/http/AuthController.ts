@@ -2,6 +2,7 @@ import AuthService from "@auth/app/AuthService";
 import CredentialError from "@shared/errors/CredentialError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
+import { Policies } from "@shared/infra/Principal";
 import { requestValidator } from "@shared/infra/middlewares";
 import types from "@shared/infra/types";
 import { Request, Response } from 'express';
@@ -57,6 +58,10 @@ export default class AuthController extends BaseHttpController {
 
   @httpGet('/users', types.AuthMiddleware)
   async getUsers(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.LIST_USERS)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
     const { page, limit, tenant_id } = req.query;
     const params = (page && limit) ? ({
       tenant_id: tenant_id as string,
@@ -74,6 +79,10 @@ export default class AuthController extends BaseHttpController {
   @httpPost('/users', requestValidator(create_user_validation_schema))
   async registerUser(@request() req: Request) {
     const { email, password, access_plan_id, tenant_id } = req.body;
+
+    if (tenant_id !== undefined && !await this.httpContext.user.isInRole(Policies.CREATE_TENANT_USER)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
 
     const [data, error] = await this.auth_service.registerUser({
       email,
@@ -99,6 +108,10 @@ export default class AuthController extends BaseHttpController {
     requestValidator(update_user_validation_schema)
   )
   async updateUser(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.UPDATE_USER)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
     const { email, password } = req.body;
 
     const [, error] = await this.auth_service.updateUser({
@@ -120,6 +133,10 @@ export default class AuthController extends BaseHttpController {
     requestValidator(update_policies_validation_schema)
   )
   async updatePolicies(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.UPDATE_USER_POLICIES)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
     const { id } = req.params;
     const { policy_slugs, mode } = req.body;
 

@@ -2,6 +2,7 @@ import AuthTokenManager from '@auth/app/AuthTokenManager';
 import AuthModule from '@auth/infra/AuthModule';
 import CatalogModule from '@catalog/infra/CatalogModule';
 import { faker } from '@faker-js/faker/locale/pt_BR';
+import { Policies } from '@shared/infra/Principal';
 import SharedModule from '@shared/infra/SharedModule';
 import types from '@shared/infra/types';
 import Application from 'src/Application';
@@ -15,6 +16,7 @@ describe('Catalog integration tests', () => {
     id: faker.string.uuid(),
     email: faker.internet.email(),
     password: faker.string.alphanumeric(10),
+    policies: Object.values(Policies),
   };
   const tenant_id = faker.string.uuid();
   const catalog_item_id = faker.string.uuid();
@@ -201,7 +203,7 @@ describe('Catalog integration tests', () => {
     });
   });
 
-  describe.skip('PUT: /api/catalog/items/:id', () => {
+  describe('PUT: /api/catalog/items/:id', () => {
     it('updates a catalog item', async () => {
       const data = {
         name: faker.commerce.productName(),
@@ -249,7 +251,7 @@ describe('Catalog integration tests', () => {
           name: faker.number.int(),
           description: faker.number.int(),
           attributes: [{ name: faker.number.int(), description: faker.number.int() }],
-          picture_url: faker.internet.email(),
+          picture_url: faker.string.sample(),
         });
 
       expect(response.status).toEqual(400);

@@ -3,6 +3,7 @@ import Encryptor from '@auth/app/Encryptor';
 import { AccessPlanTypes } from '@auth/domain/AccessPlan';
 import AuthModule from '@auth/infra/AuthModule';
 import { faker } from '@faker-js/faker/locale/pt_BR';
+import { Policies } from '@shared/infra/Principal';
 import types from '@shared/infra/types';
 import Application from 'src/Application';
 import supertest from 'supertest';
@@ -39,6 +40,7 @@ describe('Auth integration tests', () => {
     id: faker.string.uuid(),
     email: faker.internet.email(),
     password: faker.string.alphanumeric(10),
+    policies: Object.values(Policies),
   };
   const tenant_id = faker.string.uuid();
   const { token } = auth_token_manager.generateToken(user);
@@ -99,6 +101,7 @@ describe('Auth integration tests', () => {
       const response = await request
         .post('/api/auth/users')
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
@@ -117,6 +120,7 @@ describe('Auth integration tests', () => {
       const response = await request
         .post('/api/auth/users')
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),

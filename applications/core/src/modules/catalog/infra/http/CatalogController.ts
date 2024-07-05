@@ -1,6 +1,7 @@
 import CatalogService from "@catalog/app/CatalogService";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
+import { Policies } from "@shared/infra/Principal";
 import { requestValidator } from "@shared/infra/middlewares";
 import types from "@shared/infra/types";
 import { Request } from 'express';
@@ -13,7 +14,7 @@ import {
   httpPut,
   request
 } from "inversify-express-utils";
-import { create_catalog_item_validation_schema } from "./validations";
+import { create_catalog_item_validation_schema, update_catalog_item_validation_schema } from "./validations";
 
 @controller('/api/catalog', types.AuthMiddleware)
 export default class CatalogController extends BaseHttpController {
@@ -23,6 +24,10 @@ export default class CatalogController extends BaseHttpController {
 
   @httpPost('/items', requestValidator(create_catalog_item_validation_schema))
   async createCatalogItem(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.CREATE_CATALOG_ITEM)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
     const {
       name,
       description,
@@ -48,8 +53,12 @@ export default class CatalogController extends BaseHttpController {
     return this.json(data, HttpStatusCodes.CREATED);
   }
 
-  @httpPut('/items/:id')
+  @httpPut('/items/:id', requestValidator(update_catalog_item_validation_schema))
   async updateCatalogItem(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.UPDATE_CATALOG_ITEM)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
     const { id: catalog_item_id } = req.params;
     const {
       name,
@@ -70,11 +79,15 @@ export default class CatalogController extends BaseHttpController {
       return this.json({ message: error.message }, HttpStatusCodes.NOT_FOUND);
     }
 
-    return this.json({}, HttpStatusCodes.NO_CONTENT);
+    return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
   @httpGet('/items')
   async getCatalogItems(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.LIST_CATALOG_ITEMS)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
     const { page, limit, tenant_id } = req.query;
     const params = (page && limit) ? ({
       tenant_id: tenant_id as string,

@@ -22,6 +22,7 @@ import {
   create_access_plan_validation_schema,
   create_user_validation_schema,
   login_validation_schema,
+  update_access_plan_validation_schema,
   update_policies_validation_schema,
   update_user_validation_schema
 } from "./validations";
@@ -180,10 +181,34 @@ export default class AuthController extends BaseHttpController {
     return this.json(data, HttpStatusCodes.CREATED);
   }
 
-  @httpPut('/access_plans/:id', types.AuthMiddleware,)
+  @httpPut(
+    '/access_plans/:id',
+    types.AuthMiddleware,
+    requestValidator(update_access_plan_validation_schema)
+  )
   async updateAccessPlan(@request() req: Request) {
     if (!await this.httpContext.user.isInRole(Policies.UPDATE_ACCESS_PLAN)) {
       return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
+    const { id: access_plan_id } = req.params;
+    const {
+      active,
+      amount,
+      description,
+      type
+    } = req.body;
+
+    const [, error] = await this.auth_service.updateAccessPlan({
+      access_plan_id,
+      active,
+      amount,
+      description,
+      type
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: error.message }, HttpStatusCodes.NOT_FOUND);
     }
 
     return this.statusCode(HttpStatusCodes.NO_CONTENT);

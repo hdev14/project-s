@@ -78,5 +78,32 @@ export const create_access_plan_validation_schema: Schema = {
   description: {
     isString: true,
     optional: true,
+    errorMessage: 'O campo precisa ser um texto válido'
+  },
+}
+
+
+export const update_access_plan_validation_schema: Schema = {
+  amount: {
+    optional: true,
+    isFloat: true,
+    errorMessage: 'O campo precisa ser um número válido',
+  },
+  type: {
+    optional: true,
+    isIn: {
+      options: [Object.values(AccessPlanTypes)],
+      errorMessage: 'O campo precisa ser um tipo válido de plano de acesso'
+    }
+  },
+  description: {
+    isString: true,
+    optional: true,
+    errorMessage: 'O campo precisa ser um texto válido'
+  },
+  active: {
+    isBoolean: true,
+    optional: true,
+    errorMessage: 'O campo precisa ser um boleano válido'
   },
 }

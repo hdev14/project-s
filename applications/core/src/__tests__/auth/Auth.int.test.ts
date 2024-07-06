@@ -516,6 +516,62 @@ describe('Auth integration tests', () => {
     });
   });
 
+  describe('PUT: /api/auth/access_plans/:id', () => {
+    it('should update access plan', async () => {
+      const data = {
+        amount: faker.number.float({ fractionDigits: 5 }),
+        type: faker.helpers.enumValue(AccessPlanTypes),
+        description: faker.lorem.lines(),
+        active: faker.datatype.boolean(),
+      };
+
+      const response = await request
+        .put(`/api/auth/access_plans/${active_access_plan_id}`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send(data);
+
+      expect(response.status).toEqual(204);
+      const result = await globalThis.db.query('SELECT * FROM access_plans WHERE id = $1', [active_access_plan_id]);
+      expect(result.rows[0].amount).toEqual(data.amount);
+      expect(result.rows[0].type).toEqual(data.type);
+      expect(result.rows[0].description).toEqual(data.description);
+      expect(result.rows[0].active).toEqual(data.active);
+    });
+
+    it("returns status code 404 if access plan doesn't exist", async () => {
+      const response = await request
+        .put(`/api/auth/access_plans/${faker.string.uuid()}`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          amount: faker.number.float(),
+          type: faker.helpers.enumValue(AccessPlanTypes),
+          description: faker.lorem.lines(),
+          active: faker.datatype.boolean(),
+        });
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Plano de acesso não encontrado');
+    });
+
+    it('returns status code 400 if data is invalid', async () => {
+      const response = await request
+        .put(`/api/auth/access_plans/${active_access_plan_id}`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          amount: faker.string.sample(),
+          type: faker.string.sample(),
+          description: faker.number.int(),
+          active: faker.string.sample(),
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(4);
+    });
+  });
+
   describe('GET: /api/auth/access_plans', () => {
     it('returns an array of access plans', async () => {
       const response = await request

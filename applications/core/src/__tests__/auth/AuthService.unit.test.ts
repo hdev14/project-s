@@ -9,6 +9,7 @@ import Policy from '@auth/domain/Policy';
 import User from '@auth/domain/User';
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import CredentialError from '@shared/errors/CredentialError';
+import DomainError from '@shared/errors/DomainError';
 import NotFoundError from '@shared/errors/NotFoundError';
 import Collection from '@shared/utils/Collection';
 import { mock } from 'jest-mock-extended';
@@ -428,5 +429,38 @@ describe('AuthService unit tests', () => {
       expect(change_access_plan_spy).toHaveBeenCalledWith(access_plan);
       expect(user_repository_mock.updateUser).toHaveBeenCalledTimes(1);
     });
-  })
+  });
+
+  describe('AuthService.createAccessPlan', () => {
+    it('should create a new access plan', async () => {
+      const params = {
+        amount: faker.number.float(),
+        type: AccessPlanTypes.ANNUALLY,
+        description: faker.lorem.lines(),
+      };
+
+      const [data, error] = await auth_service.createAccessPlan(params);
+
+      expect(error).toBeUndefined();
+      expect(data!.id).toBeDefined();
+      expect(data!.active).toBe(false);
+      expect(data!.amount).toBe(params.amount);
+      expect(data!.description).toBe(params.description);
+      expect(data!.type).toBe(params.type);
+      expect(access_plan_repository_mock.createAccessPlan).toHaveBeenCalled();
+    });
+
+    it('should return a domain error when amount is negative', async () => {
+      const params = {
+        amount: faker.number.float() * -1,
+        type: AccessPlanTypes.ANNUALLY,
+        description: faker.lorem.lines(),
+      };
+
+      const [data, error] = await auth_service.createAccessPlan(params);
+
+      expect(data).toBeUndefined();
+      expect(error).toBeInstanceOf(DomainError);
+    });
+  });
 });

@@ -1,4 +1,5 @@
 import Aggregate, { AggregateRoot, RequiredId } from "@shared/ddd/Aggregate";
+import DomainError from "@shared/errors/DomainError";
 
 export enum AccessPlanTypes {
   MONTHLY = 'monthly',
@@ -25,6 +26,10 @@ export default class AccessPlan extends Aggregate<AccessPlanObject> implements A
     this.#type = obj.type;
     this.#description = obj.description;
     this.#active = obj.active;
+
+    if (this.#amount < 0) {
+      throw new DomainError(AccessPlan.name, 'Valor negativo de plano de acesso');
+    }
   }
 
   activate() {

@@ -1,12 +1,12 @@
-import { AccessPlanObject } from "@auth/domain/AccessPlan";
+import AccessPlan, { AccessPlanObject, AccessPlanTypes } from "@auth/domain/AccessPlan";
 import { PolicyObject } from "@auth/domain/Policy";
 import User, { UserObject } from "@auth/domain/User";
 import CredentialError from "@shared/errors/CredentialError";
+import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import types from "@shared/infra/types";
 import Either from "@shared/utils/Either";
 import { PageOptions, PageResult } from "@shared/utils/Pagination";
-import { randomUUID } from "crypto";
 import { inject, injectable } from "inversify";
 import 'reflect-metadata';
 import AccessPlanRepository from "./AccessPlanRepository";
@@ -50,9 +50,15 @@ export type GetUsersResult = {
   page_result?: PageResult;
 };
 
-type ChangeAccessPlanParams = {
+export type ChangeAccessPlanParams = {
   user_id: string;
   access_plan_id: string;
+};
+
+export type CreateAccessPlanParams = {
+  amount: number;
+  type: AccessPlanTypes;
+  description?: string;
 };
 
 @injectable()
@@ -116,7 +122,6 @@ export default class AuthService {
     }
 
     const user = new User({
-      id: randomUUID(),
       email: params.email,
       password: this.#encryptor.createHash(params.password),
       policies: [],
@@ -202,8 +207,25 @@ export default class AuthService {
     return Either.right();
   }
 
-  async createAccessPlan(): Promise<Either<AccessPlanObject>> {
-    return Either.left(new Error());
+  async createAccessPlan(params: CreateAccessPlanParams): Promise<Either<AccessPlanObject>> {
+    try {
+      const access_plan = new AccessPlan({
+        active: false,
+        amount: params.amount,
+        type: params.type,
+        description: params.description
+      });
+
+      await this.#access_plan_repository.createAccessPlan(access_plan);
+
+      return Either.right(access_plan.toObject());
+    } catch (error) {
+      if (error instanceof DomainError) {
+        return Either.left(error);
+      }
+
+      throw error;
+    }
   }
 
   async updateAccessPlan(): Promise<Either<void>> {

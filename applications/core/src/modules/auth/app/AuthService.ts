@@ -269,7 +269,8 @@ export default class AuthService {
   }
 
   async getAccessPlans(): Promise<Either<Array<AccessPlanObject>>> {
-    return Either.left(new Error());
+    const access_plans = await this.#access_plan_repository.getAccessPlans();
+    return Either.right(access_plans.toObjectList());
   }
 
   async getPolicies(): Promise<Either<Array<PolicyObject>>> {

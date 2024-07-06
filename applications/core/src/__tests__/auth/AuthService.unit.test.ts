@@ -537,4 +537,30 @@ describe('AuthService unit tests', () => {
       expect(error).toBeInstanceOf(DomainError);
     });
   });
+
+  describe('AuthService.getAccessPlan', () => {
+    it("should return an array of access plan", async () => {
+      access_plan_repository_mock.getAccessPlans.mockResolvedValueOnce(
+        new Collection([
+          new AccessPlan({
+            active: faker.datatype.boolean(),
+            amount: faker.number.float(),
+            type: AccessPlanTypes.MONTHLY,
+            description: faker.lorem.lines(),
+          }),
+          new AccessPlan({
+            active: faker.datatype.boolean(),
+            amount: faker.number.float(),
+            type: AccessPlanTypes.MONTHLY,
+            description: faker.lorem.lines(),
+          })
+        ])
+      );
+
+      const [data, error] = await auth_service.getAccessPlans();
+
+      expect(data).toHaveLength(2);
+      expect(error).toBeUndefined();
+    });
+  });
 });

@@ -61,6 +61,11 @@ export type CreateAccessPlanParams = {
   description?: string;
 };
 
+export type UpdateAccessPlanParams = Partial<CreateAccessPlanParams> & {
+  access_plan_id: string;
+  active?: boolean;
+};
+
 @injectable()
 export default class AuthService {
   #encryptor: Encryptor;
@@ -228,8 +233,39 @@ export default class AuthService {
     }
   }
 
-  async updateAccessPlan(): Promise<Either<void>> {
-    return Either.left(new Error());
+  async updateAccessPlan(params: UpdateAccessPlanParams): Promise<Either<void>> {
+    try {
+      const access_plan = await this.#access_plan_repository.getAccessPlanById(params.access_plan_id);
+
+      if (!access_plan) {
+        return Either.left(new NotFoundError('Plano de acesso não encontrado'));
+      }
+
+      if (params.active !== undefined) {
+        if (params.active && !access_plan.isActive()) {
+          access_plan.activate();
+        }
+
+        if (!params.active && access_plan.isActive()) {
+          access_plan.deactivate();
+        }
+      }
+
+      const obj = access_plan.toObject();
+
+      access_plan.amount = params.amount ?? obj.amount;
+      access_plan.description = params.description ?? obj.description;
+      access_plan.type = params.type ?? obj.type;
+
+      await this.#access_plan_repository.updateAccessPlan(access_plan);
+      return Either.right();
+    } catch (error) {
+      if (error instanceof DomainError) {
+        return Either.left(error);
+      }
+
+      throw error;
+    }
   }
 
   async getAccessPlans(): Promise<Either<Array<AccessPlanObject>>> {

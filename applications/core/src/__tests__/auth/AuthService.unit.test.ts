@@ -463,4 +463,78 @@ describe('AuthService unit tests', () => {
       expect(error).toBeInstanceOf(DomainError);
     });
   });
+
+  describe('AuthService.updateAccessPlan', () => {
+    it("should return a not found error if access plan doesn't", async () => {
+      access_plan_repository_mock.getAccessPlanById.mockResolvedValueOnce(null);
+
+      const params = {
+        access_plan_id: faker.string.uuid(),
+        amount: faker.number.float(),
+        type: AccessPlanTypes.ANNUALLY,
+        description: faker.lorem.lines(),
+        active: faker.datatype.boolean(),
+      };
+
+      const [, error] = await auth_service.updateAccessPlan(params);
+
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error!.message).toEqual('Plano de acesso não encontrado');
+    });
+
+    it('should update a access plan', async () => {
+      const access_plan_id = faker.string.uuid();
+      access_plan_repository_mock.getAccessPlanById.mockResolvedValueOnce(
+        new AccessPlan({
+          id: access_plan_id,
+          active: faker.datatype.boolean(),
+          amount: faker.number.float(),
+          type: AccessPlanTypes.MONTHLY,
+          description: faker.lorem.lines(),
+        })
+      );
+
+      const params = {
+        access_plan_id,
+        amount: faker.number.float(),
+        type: AccessPlanTypes.ANNUALLY,
+        description: faker.lorem.lines(),
+        active: faker.datatype.boolean(),
+      };
+
+      const [, error] = await auth_service.updateAccessPlan(params);
+
+      expect(error).toBeUndefined();
+      expect(access_plan_repository_mock.updateAccessPlan).toHaveBeenCalled();
+      expect(access_plan_repository_mock.updateAccessPlan.mock.calls[0][0].toObject()).toEqual({
+        id: params.access_plan_id,
+        amount: params.amount,
+        description: params.description,
+        type: params.type,
+        active: params.active,
+      });
+    });
+
+    it('should return a domain error if amount is negative', async () => {
+      access_plan_repository_mock.getAccessPlanById.mockResolvedValueOnce(
+        new AccessPlan({
+          active: faker.datatype.boolean(),
+          amount: faker.number.float(),
+          type: AccessPlanTypes.MONTHLY,
+          description: faker.lorem.lines(),
+        })
+      );
+      const params = {
+        access_plan_id: faker.string.uuid(),
+        amount: faker.number.float() * -1,
+        type: AccessPlanTypes.ANNUALLY,
+        description: faker.lorem.lines(),
+        active: faker.datatype.boolean(),
+      };
+
+      const [, error] = await auth_service.updateAccessPlan(params);
+
+      expect(error).toBeInstanceOf(DomainError);
+    });
+  });
 });

@@ -15,21 +15,32 @@ export type AccessPlanObject = {
 };
 
 export default class AccessPlan extends Aggregate<AccessPlanObject> implements AggregateRoot {
-  #amount: number;
+  #amount: number = 0;
   #type: AccessPlanTypes;
   #description?: string;
   #active: boolean;
 
   constructor(obj: AccessPlanObject) {
     super(obj.id);
-    this.#amount = obj.amount;
+    this.amount = obj.amount;
     this.#type = obj.type;
     this.#description = obj.description;
     this.#active = obj.active;
+  }
 
-    if (this.#amount < 0) {
+  set amount(value: number) {
+    if (value < 0) {
       throw new DomainError(AccessPlan.name, 'Valor negativo de plano de acesso');
     }
+    this.#amount = value;
+  }
+
+  set description(value: string | undefined) {
+    this.#description = value;
+  }
+
+  set type(value: AccessPlanTypes) {
+    this.#type = value;
   }
 
   activate() {

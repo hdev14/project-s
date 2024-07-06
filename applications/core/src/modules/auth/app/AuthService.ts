@@ -274,6 +274,7 @@ export default class AuthService {
   }
 
   async getPolicies(): Promise<Either<Array<PolicyObject>>> {
-    return Either.left(new Error());
+    const policies = await this.#policy_repository.getPolicies();
+    return Either.right(policies.toObjectList());
   }
 }

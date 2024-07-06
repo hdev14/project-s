@@ -435,7 +435,7 @@ describe('AuthService unit tests', () => {
     it('should create a new access plan', async () => {
       const params = {
         amount: faker.number.float(),
-        type: AccessPlanTypes.ANNUALLY,
+        type: faker.helpers.enumValue(AccessPlanTypes),
         description: faker.lorem.lines(),
       };
 
@@ -453,7 +453,7 @@ describe('AuthService unit tests', () => {
     it('should return a domain error when amount is negative', async () => {
       const params = {
         amount: faker.number.float() * -1,
-        type: AccessPlanTypes.ANNUALLY,
+        type: faker.helpers.enumValue(AccessPlanTypes),
         description: faker.lorem.lines(),
       };
 
@@ -471,7 +471,7 @@ describe('AuthService unit tests', () => {
       const params = {
         access_plan_id: faker.string.uuid(),
         amount: faker.number.float(),
-        type: AccessPlanTypes.ANNUALLY,
+        type: faker.helpers.enumValue(AccessPlanTypes),
         description: faker.lorem.lines(),
         active: faker.datatype.boolean(),
       };
@@ -489,7 +489,7 @@ describe('AuthService unit tests', () => {
           id: access_plan_id,
           active: faker.datatype.boolean(),
           amount: faker.number.float(),
-          type: AccessPlanTypes.MONTHLY,
+          type: faker.helpers.enumValue(AccessPlanTypes),
           description: faker.lorem.lines(),
         })
       );
@@ -497,7 +497,7 @@ describe('AuthService unit tests', () => {
       const params = {
         access_plan_id,
         amount: faker.number.float(),
-        type: AccessPlanTypes.ANNUALLY,
+        type: faker.helpers.enumValue(AccessPlanTypes),
         description: faker.lorem.lines(),
         active: faker.datatype.boolean(),
       };
@@ -520,14 +520,14 @@ describe('AuthService unit tests', () => {
         new AccessPlan({
           active: faker.datatype.boolean(),
           amount: faker.number.float(),
-          type: AccessPlanTypes.MONTHLY,
+          type: faker.helpers.enumValue(AccessPlanTypes),
           description: faker.lorem.lines(),
         })
       );
       const params = {
         access_plan_id: faker.string.uuid(),
         amount: faker.number.float() * -1,
-        type: AccessPlanTypes.ANNUALLY,
+        type: faker.helpers.enumValue(AccessPlanTypes),
         description: faker.lorem.lines(),
         active: faker.datatype.boolean(),
       };
@@ -545,19 +545,44 @@ describe('AuthService unit tests', () => {
           new AccessPlan({
             active: faker.datatype.boolean(),
             amount: faker.number.float(),
-            type: AccessPlanTypes.MONTHLY,
+            type: faker.helpers.enumValue(AccessPlanTypes),
             description: faker.lorem.lines(),
           }),
           new AccessPlan({
             active: faker.datatype.boolean(),
             amount: faker.number.float(),
-            type: AccessPlanTypes.MONTHLY,
+            type: faker.helpers.enumValue(AccessPlanTypes),
             description: faker.lorem.lines(),
           })
         ])
       );
 
       const [data, error] = await auth_service.getAccessPlans();
+
+      expect(data).toHaveLength(2);
+      expect(error).toBeUndefined();
+    });
+  });
+
+
+  describe('AuthService.getPolicies', () => {
+    it("should return an array of policy", async () => {
+      policy_repository_mock.getPolicies.mockResolvedValueOnce(
+        new Collection([
+          new Policy({
+            slug: faker.helpers.slugify(`${faker.word.words()} ${faker.word.words()}`),
+            description: faker.lorem.lines(),
+            is_secret: faker.datatype.boolean()
+          }),
+          new Policy({
+            slug: faker.helpers.slugify(`${faker.word.words()} ${faker.word.words()}`),
+            description: faker.lorem.lines(),
+            is_secret: faker.datatype.boolean()
+          }),
+        ])
+      );
+
+      const [data, error] = await auth_service.getPolicies();
 
       expect(data).toHaveLength(2);
       expect(error).toBeUndefined();

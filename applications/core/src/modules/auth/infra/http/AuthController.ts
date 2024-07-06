@@ -180,10 +180,7 @@ export default class AuthController extends BaseHttpController {
     return this.json(data, HttpStatusCodes.CREATED);
   }
 
-  @httpPut(
-    '/access_plans/:id',
-    types.AuthMiddleware,
-  )
+  @httpPut('/access_plans/:id', types.AuthMiddleware,)
   async updateAccessPlan(@request() req: Request) {
     if (!await this.httpContext.user.isInRole(Policies.UPDATE_ACCESS_PLAN)) {
       return this.statusCode(HttpStatusCodes.FORBIDDEN);
@@ -192,10 +189,7 @@ export default class AuthController extends BaseHttpController {
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
-  @httpGet(
-    '/access_plans',
-    types.AuthMiddleware,
-  )
+  @httpGet('/access_plans', types.AuthMiddleware)
   async getAccessPlans() {
     if (!await this.httpContext.user.isInRole(Policies.UPDATE_ACCESS_PLAN)) {
       return this.statusCode(HttpStatusCodes.FORBIDDEN);
@@ -206,10 +200,7 @@ export default class AuthController extends BaseHttpController {
     return this.json(data, HttpStatusCodes.OK);
   }
 
-  @httpGet(
-    '/policies',
-    types.AuthMiddleware,
-  )
+  @httpGet('/policies', types.AuthMiddleware)
   async getPolicies() {
     if (!await this.httpContext.user.isInRole(Policies.LIST_POLICIES)) {
       return this.statusCode(HttpStatusCodes.FORBIDDEN);

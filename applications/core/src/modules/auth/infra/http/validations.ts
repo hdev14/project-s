@@ -1,3 +1,4 @@
+import { AccessPlanTypes } from "@auth/domain/AccessPlan";
 import { Schema } from "express-validator";
 
 export const create_user_validation_schema: Schema = {
@@ -60,5 +61,22 @@ export const login_validation_schema: Schema = {
   password: {
     isLength: { options: { min: 8 } },
     errorMessage: 'O campo precisa ter no minimo 8 caracteres',
+  },
+};
+
+export const create_access_plan_validation_schema: Schema = {
+  amount: {
+    isFloat: true,
+    errorMessage: 'O campo precisa ser um número válido',
+  },
+  type: {
+    isIn: {
+      options: [Object.values(AccessPlanTypes)],
+      errorMessage: 'O campo precisa ser um tipo válido de plano de acesso'
+    }
+  },
+  description: {
+    isString: true,
+    optional: true,
   },
 }

@@ -74,6 +74,10 @@ describe('Auth integration tests', () => {
       'INSERT INTO policies(id, slug, description) VALUES($1, $2, $3)',
       [faker.string.uuid(), policy_slug, faker.lorem.lines(1)]
     );
+    await globalThis.db.query(
+      'INSERT INTO policies(id, slug, description) VALUES($1, $2, $3)',
+      [faker.string.uuid(), faker.helpers.slugify(faker.word.words(2)), faker.lorem.lines(1)]
+    );
   });
 
   afterEach(async () => {
@@ -409,7 +413,7 @@ describe('Auth integration tests', () => {
         });
 
       expect(response.status).toEqual(204);
-      let result = await globalThis.db.query('SELECT count(*) as total FROM user_policies JOIN policies ON policy_id = policy_id WHERE user_id = $1', [user.id]);
+      let result = await globalThis.db.query('SELECT count(*) as total FROM user_policies up JOIN policies p ON up.policy_id = p.id WHERE up.user_id = $1', [user.id]);
       expect(result.rows[0].total).toEqual('1');
 
       response = await request
@@ -458,6 +462,83 @@ describe('Auth integration tests', () => {
       expect(response.body.errors[0].message).toEqual('O campo precisa ser um array válido');
       expect(response.body.errors[1].field).toEqual('mode');
       expect(response.body.errors[1].message).toEqual('O campo precisa ser um dos valores: attach ou dettach');
+    });
+  });
+
+  describe('POST: /api/auth/access_plans', () => {
+    it('creates a new access plan', async () => {
+      const response = await request
+        .post('/api/auth/access_plans')
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          amount: faker.number.float(),
+          type: faker.helpers.enumValue(AccessPlanTypes),
+          description: faker.lorem.lines(),
+        });
+
+      expect(response.status).toEqual(201);
+      expect(response.body).toHaveProperty('id');
+      expect(response.body).toHaveProperty('amount');
+      expect(response.body).toHaveProperty('type');
+      expect(response.body).toHaveProperty('description');
+      expect(response.body).toHaveProperty('active');
+    });
+
+    it("returns status code 422 if access plan has a negative amount", async () => {
+      const response = await request
+        .post('/api/auth/access_plans')
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          amount: faker.number.float() * -1,
+          type: faker.helpers.enumValue(AccessPlanTypes),
+          description: faker.lorem.lines(),
+        });
+
+      expect(response.status).toEqual(422);
+      expect(response.body.message).toEqual('Valor negativo de plano de acesso');
+    });
+
+    it("returns status code 400 if data is not valid", async () => {
+      const response = await request
+        .post('/api/auth/access_plans')
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          amount: faker.string.sample(),
+          type: faker.word.words(),
+          description: faker.number.int(),
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(3);
+    });
+  });
+
+  describe('GET: /api/auth/access_plans', () => {
+    it('returns an array of access plans', async () => {
+      const response = await request
+        .get('/api/auth/access_plans')
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body).toHaveLength(2)
+    });
+  });
+
+  describe('GET: /api/auth/policies', () => {
+    it('returns an array of policies', async () => {
+      const response = await request
+        .get('/api/auth/policies')
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body).toHaveLength(2)
     });
   });
 });

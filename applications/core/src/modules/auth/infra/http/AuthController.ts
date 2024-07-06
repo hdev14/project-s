@@ -1,5 +1,6 @@
 import AuthService from "@auth/app/AuthService";
 import CredentialError from "@shared/errors/CredentialError";
+import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
 import { Policies } from "@shared/infra/Principal";
@@ -18,6 +19,7 @@ import {
   response
 } from "inversify-express-utils";
 import {
+  create_access_plan_validation_schema,
   create_user_validation_schema,
   login_validation_schema,
   update_policies_validation_schema,
@@ -151,5 +153,70 @@ export default class AuthController extends BaseHttpController {
     }
 
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
+  }
+
+  @httpPost(
+    '/access_plans',
+    types.AuthMiddleware,
+    requestValidator(create_access_plan_validation_schema)
+  )
+  async createAccessPlan(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.CREATE_ACCESS_PLAN)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
+    const { amount, type, description } = req.body;
+
+    const [data, error] = await this.auth_service.createAccessPlan({
+      amount,
+      type,
+      description,
+    });
+
+    if (error instanceof DomainError) {
+      return this.json({ message: error.message }, HttpStatusCodes.UNPROCESSABLE_CONTENT);
+    }
+
+    return this.json(data, HttpStatusCodes.CREATED);
+  }
+
+  @httpPut(
+    '/access_plans/:id',
+    types.AuthMiddleware,
+  )
+  async updateAccessPlan(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.UPDATE_ACCESS_PLAN)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
+    return this.statusCode(HttpStatusCodes.NO_CONTENT);
+  }
+
+  @httpGet(
+    '/access_plans',
+    types.AuthMiddleware,
+  )
+  async getAccessPlans() {
+    if (!await this.httpContext.user.isInRole(Policies.UPDATE_ACCESS_PLAN)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
+    const [data] = await this.auth_service.getAccessPlans();
+
+    return this.json(data, HttpStatusCodes.OK);
+  }
+
+  @httpGet(
+    '/policies',
+    types.AuthMiddleware,
+  )
+  async getPolicies() {
+    if (!await this.httpContext.user.isInRole(Policies.LIST_POLICIES)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
+    const [data] = await this.auth_service.getPolicies();
+
+    return this.json(data, HttpStatusCodes.OK)
   }
 }

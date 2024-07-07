@@ -277,4 +277,14 @@ export default class AuthService {
     const policies = await this.#policy_repository.getPolicies();
     return Either.right(policies.toObjectList());
   }
+
+  async forgetPassword(params: { email: string }): Promise<Either<void>> {
+    // send an email with the reset code
+    return Either.left(new Error())
+  }
+
+  async resetPassword(params: { code: string, password: string }): Promise<Either<void>> {
+    // change password if code exists, then disable code
+    return Either.left(new Error())
+  }
 }

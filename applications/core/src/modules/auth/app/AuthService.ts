@@ -319,8 +319,8 @@ export default class AuthService {
 
     await this.#email_service.send({
       email: user.email,
-      message: `Este é seu código de verificação para redefinir a senha: ${code}`,
-      title: 'Código de verificação para redefinição de senha'
+      message: `Este é código de verificação para redefinição de senha: \n ${code}`,
+      title: 'Código de redefinição de senha'
     });
 
     return Either.right();

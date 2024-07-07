@@ -1,9 +1,11 @@
 import AccessPlanRepository from '@auth/app/AccessPlanRepository';
 import AuthService from "@auth/app/AuthService";
 import AuthTokenManager from "@auth/app/AuthTokenManager";
+import EmailService from '@auth/app/EmailService';
 import Encryptor from "@auth/app/Encryptor";
 import PolicyRepository from "@auth/app/PolicyRepository";
 import UserRepository from "@auth/app/UserRepository";
+import VerificationCodeRepository from '@auth/app/VerificationCodeRepository';
 import AccessPlan, { AccessPlanTypes } from '@auth/domain/AccessPlan';
 import Policy from '@auth/domain/Policy';
 import User from '@auth/domain/User';
@@ -20,6 +22,8 @@ describe('AuthService unit tests', () => {
   const auth_token_manager_mock = mock<AuthTokenManager>();
   const policy_repository_mock = mock<PolicyRepository>();
   const access_plan_repository_mock = mock<AccessPlanRepository>();
+  const verification_code_mock = mock<VerificationCodeRepository>();
+  const email_service_mock = mock<EmailService>();
 
   const auth_service = new AuthService(
     encryptor_mock,
@@ -27,6 +31,8 @@ describe('AuthService unit tests', () => {
     user_repository_mock,
     policy_repository_mock,
     access_plan_repository_mock,
+    verification_code_mock,
+    email_service_mock
   );
 
   describe('AuthService.login', () => {
@@ -586,6 +592,46 @@ describe('AuthService unit tests', () => {
 
       expect(data).toHaveLength(2);
       expect(error).toBeUndefined();
+    });
+  });
+
+  describe('AuthService.forgetPassword', () => {
+    it("should return not found error if user doesn't exist", async () => {
+      user_repository_mock.getUserByEmail.mockResolvedValueOnce(null);
+
+      const [, error] = await auth_service.forgetPassword({ email: faker.internet.email() });
+
+      expect(error).toBeInstanceOf(NotFoundError);
+    });
+
+    it("should create a new verification code", async () => {
+      user_repository_mock.getUserByEmail.mockResolvedValueOnce(
+        new User({
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+          policies: [],
+        })
+      );
+
+      const [, error] = await auth_service.forgetPassword({ email: faker.internet.email() });
+
+      expect(error).toBeUndefined();
+      expect(verification_code_mock.createVerificationCode).toHaveBeenCalled();
+    });
+
+    it("should send an email with the generated verification code", async () => {
+      user_repository_mock.getUserByEmail.mockResolvedValueOnce(
+        new User({
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+          policies: [],
+        })
+      );
+
+      const [, error] = await auth_service.forgetPassword({ email: faker.internet.email() });
+
+      expect(error).toBeUndefined();
+      expect(email_service_mock.send).toHaveBeenCalled();
     });
   });
 });

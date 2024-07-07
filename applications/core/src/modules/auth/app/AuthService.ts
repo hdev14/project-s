@@ -1,19 +1,23 @@
 import AccessPlan, { AccessPlanObject, AccessPlanTypes } from "@auth/domain/AccessPlan";
 import { PolicyObject } from "@auth/domain/Policy";
 import User, { UserObject } from "@auth/domain/User";
+import VerificationCode from "@auth/domain/VerificationCode";
 import CredentialError from "@shared/errors/CredentialError";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import types from "@shared/infra/types";
 import Either from "@shared/utils/Either";
 import { PageOptions, PageResult } from "@shared/utils/Pagination";
+import { randomInt } from "crypto";
 import { inject, injectable } from "inversify";
 import 'reflect-metadata';
 import AccessPlanRepository from "./AccessPlanRepository";
 import AuthTokenManager, { TokenResult } from "./AuthTokenManager";
+import EmailService from "./EmailService";
 import Encryptor from "./Encryptor";
 import PolicyRepository from "./PolicyRepository";
 import UserRepository from "./UserRepository";
+import VerificationCodeRepository from "./VerificationCodeRepository";
 
 export type LoginResult = {
   user: UserObject;
@@ -66,6 +70,15 @@ export type UpdateAccessPlanParams = Partial<CreateAccessPlanParams> & {
   active?: boolean;
 };
 
+export type ForgetPasswordParams = {
+  email: string;
+};
+
+export type ResetPasswordParams = {
+  code: string;
+  password: string;
+};
+
 @injectable()
 export default class AuthService {
   #encryptor: Encryptor;
@@ -73,6 +86,8 @@ export default class AuthService {
   #user_repository: UserRepository;
   #policy_repository: PolicyRepository;
   #access_plan_repository: AccessPlanRepository;
+  #verification_code_repository: VerificationCodeRepository;
+  #email_service: EmailService;
 
   constructor(
     @inject(types.Encryptor) encryptor: Encryptor,
@@ -80,12 +95,16 @@ export default class AuthService {
     @inject(types.UserRepository) user_repository: UserRepository,
     @inject(types.PolicyRepository) policy_repository: PolicyRepository,
     @inject(types.AccessPlanRepository) access_plan_repository: AccessPlanRepository,
+    verification_code_repository: VerificationCodeRepository,
+    email_service: EmailService,
   ) {
     this.#encryptor = encryptor;
     this.#auth_token_manager = auth_token_manager;
     this.#user_repository = user_repository;
     this.#policy_repository = policy_repository;
     this.#access_plan_repository = access_plan_repository;
+    this.#verification_code_repository = verification_code_repository;
+    this.#email_service = email_service;
   }
 
   async login(params: LoginParams): Promise<Either<LoginResult>> {
@@ -278,12 +297,36 @@ export default class AuthService {
     return Either.right(policies.toObjectList());
   }
 
-  async forgetPassword(params: { email: string }): Promise<Either<void>> {
-    // send an email with the reset code
-    return Either.left(new Error())
+  async forgetPassword(params: ForgetPasswordParams): Promise<Either<void>> {
+    const user = await this.#user_repository.getUserByEmail(params.email);
+
+    if (!user) {
+      return Either.left(new NotFoundError('Usuário não encontrado'));
+    }
+
+    const expired_at = new Date();
+    expired_at.setMinutes(expired_at.getMinutes() + 1);
+
+    const code = `${randomInt(1, 9)}${randomInt(1, 9)}${randomInt(1, 9)}${randomInt(1, 9)}`;
+
+    const verification_code = new VerificationCode({
+      code,
+      user_id: user.id,
+      expired_at,
+    });
+
+    await this.#verification_code_repository.createVerificationCode(verification_code);
+
+    await this.#email_service.send({
+      email: user.email,
+      message: `Este é seu código de verificação para redefinir a senha: ${code}`,
+      title: 'Código de verificação para redefinição de senha'
+    });
+
+    return Either.right();
   }
 
-  async resetPassword(params: { code: string, password: string }): Promise<Either<void>> {
+  async resetPassword(params: ResetPasswordParams): Promise<Either<void>> {
     // change password if code exists, then disable code
     return Either.left(new Error())
   }

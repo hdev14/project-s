@@ -4,6 +4,7 @@ import User, { UserObject } from "@auth/domain/User";
 import VerificationCode from "@auth/domain/VerificationCode";
 import CredentialError from "@shared/errors/CredentialError";
 import DomainError from "@shared/errors/DomainError";
+import ExpiredCodeError from "@shared/errors/ExpiredCode";
 import NotFoundError from "@shared/errors/NotFoundError";
 import types from "@shared/infra/types";
 import Either from "@shared/utils/Either";
@@ -327,7 +328,23 @@ export default class AuthService {
   }
 
   async resetPassword(params: ResetPasswordParams): Promise<Either<void>> {
-    // change password if code exists, then disable code
-    return Either.left(new Error())
+    const verification_code = await this.#verification_code_repository.getVerificationCodeByCode(params.code);
+
+    if (!verification_code) {
+      return Either.left(new NotFoundError('Código não encontrado'));
+    }
+
+    if (verification_code.isExpired()) {
+      return Either.left(new ExpiredCodeError(verification_code.code));
+    }
+
+    const user = await this.#user_repository.getUserById(verification_code.user_id);
+
+    if (user) {
+      user.password = this.#encryptor.createHash(params.password);
+      await this.#user_repository.updateUser(user);
+    }
+
+    return Either.right();
   }
 }

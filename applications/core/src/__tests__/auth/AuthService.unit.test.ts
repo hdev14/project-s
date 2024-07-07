@@ -9,9 +9,11 @@ import VerificationCodeRepository from '@auth/app/VerificationCodeRepository';
 import AccessPlan, { AccessPlanTypes } from '@auth/domain/AccessPlan';
 import Policy from '@auth/domain/Policy';
 import User from '@auth/domain/User';
+import VerificationCode from '@auth/domain/VerificationCode';
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import CredentialError from '@shared/errors/CredentialError';
 import DomainError from '@shared/errors/DomainError';
+import ExpiredCodeError from '@shared/errors/ExpiredCode';
 import NotFoundError from '@shared/errors/NotFoundError';
 import Collection from '@shared/utils/Collection';
 import { mock } from 'jest-mock-extended';
@@ -632,6 +634,67 @@ describe('AuthService unit tests', () => {
 
       expect(error).toBeUndefined();
       expect(email_service_mock.send).toHaveBeenCalled();
+    });
+  });
+
+  describe('AuthService.resetPassword', () => {
+    it("should return not found error if verification code doesn't exsit", async () => {
+      verification_code_mock.getVerificationCodeByCode.mockResolvedValueOnce(null);
+
+      const [, error] = await auth_service.resetPassword({
+        code: faker.string.numeric(4),
+        password: faker.string.alphanumeric()
+      });
+
+      expect(error).toBeInstanceOf(NotFoundError);
+    });
+
+    it('should return expired code error if verification code has expired', async () => {
+      verification_code_mock.getVerificationCodeByCode.mockResolvedValueOnce(
+        new VerificationCode({
+          code: faker.string.numeric(4),
+          expired_at: faker.date.past(),
+          user_id: faker.string.uuid(),
+        })
+      );
+
+      const [, error] = await auth_service.resetPassword({
+        code: faker.string.numeric(4),
+        password: faker.string.alphanumeric()
+      });
+
+      expect(error).toBeInstanceOf(ExpiredCodeError);
+    });
+
+    it('should update user password', async () => {
+      const verification_code = new VerificationCode({
+        code: faker.string.numeric(4),
+        expired_at: faker.date.future(),
+        user_id: faker.string.uuid(),
+      });
+
+      verification_code_mock.getVerificationCodeByCode.mockResolvedValueOnce(verification_code);
+
+      const user = new User({
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(),
+        policies: []
+      });
+
+      user_repository_mock.getUserById.mockResolvedValueOnce(user);
+
+      encryptor_mock.createHash.mockReturnValueOnce('test');
+
+      const [, error] = await auth_service.resetPassword({
+        code: faker.string.numeric(4),
+        password: faker.string.alphanumeric()
+      });
+
+      expect(error).toBeUndefined();
+      expect(user_repository_mock.getUserById).toHaveBeenCalledWith(verification_code.user_id);
+      expect(user_repository_mock.updateUser).toHaveBeenCalled();
+      const new_password = user_repository_mock.updateUser.mock.calls[0][0].toObject().password;
+      expect(new_password).toEqual('test');
     });
   });
 });

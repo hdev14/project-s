@@ -19,8 +19,20 @@ export default class VerificationCode extends Aggregate<VerificationCodeObject> 
     this.#expired_at = obj.expired_at;
   }
 
+  get code() {
+    return this.#code
+  }
+
+  get user_id() {
+    return this.#user_id
+  }
+
   expire() {
     this.#expired_at = new Date();
+  }
+
+  isExpired() {
+    return this.#expired_at < new Date();
   }
 
   toObject(): RequiredId<VerificationCodeObject> {

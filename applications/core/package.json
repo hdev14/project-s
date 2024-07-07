@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "Main backend application with all logic to manage subscription operations",
   "main": "./build/index.js",
+  "type": "commonjs",
   "scripts": {
     "start:dev": "npx dotenv -e .env -- npx ts-node -r tsconfig-paths/register  ./src/index.ts",
-    "test:unit": "npx jest unit --passWithNoTests --watch --silent=false --config=jest.unit.config.js",
+    "test:unit": "NODE_OPTIONS=--experimental-vm-modules npx jest unit --passWithNoTests --watch --silent=false --config=jest.unit.config.js",
     "test:int": "npx dotenv -e .env.test -- npx jest int --detectOpenHandles --passWithNoTests --watch --silent=false --config=jest.int.config.js",
     "test:arch": "npx jest arch --passWithNoTests --silent=false",
     "db:migrate": "node-pg-migrate --migration-file-language ts --migrations-dir ./src/migrations --envPath .env --tsconfig ./tsconfig.json --template-file-name ./migration-template.ts"
@@ -48,6 +49,7 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.6",
+    "emailjs": "^4.0.3",
     "express": "^4.19.2",
     "inversify": "^6.0.2",
     "inversify-express-utils": "^6.4.6",

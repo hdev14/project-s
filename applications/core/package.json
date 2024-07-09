@@ -6,7 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "start:dev": "npx dotenv -e .env -- npx ts-node -r tsconfig-paths/register  ./src/index.ts",
-    "test:unit": "NODE_OPTIONS=--experimental-vm-modules npx jest unit --passWithNoTests --watch --silent=false --config=jest.unit.config.js",
+    "test:unit": "jest unit --passWithNoTests --watch --silent=false --config=jest.unit.config.js",
     "test:int": "npx dotenv -e .env.test -- npx jest int --detectOpenHandles --passWithNoTests --watch --silent=false --config=jest.int.config.js",
     "test:arch": "npx jest arch --passWithNoTests --silent=false",
     "db:migrate": "node-pg-migrate --migration-file-language ts --migrations-dir ./src/migrations --envPath .env --tsconfig ./tsconfig.json --template-file-name ./migration-template.ts"
@@ -28,6 +28,7 @@
     "@types/jest": "^29.5.12",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.14.2",
+    "@types/nodemailer": "^6.4.15",
     "@types/pg": "^8.11.6",
     "@types/supertest": "^6.0.2",
     "dotenv": "^16.4.5",
@@ -54,6 +55,7 @@
     "inversify": "^6.0.2",
     "inversify-express-utils": "^6.4.6",
     "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.14",
     "pg": "^8.12.0",
     "reflect-metadata": "^0.2.2"
   }

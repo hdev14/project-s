@@ -96,8 +96,8 @@ export default class AuthService {
     @inject(types.UserRepository) user_repository: UserRepository,
     @inject(types.PolicyRepository) policy_repository: PolicyRepository,
     @inject(types.AccessPlanRepository) access_plan_repository: AccessPlanRepository,
-    verification_code_repository: VerificationCodeRepository,
-    email_service: EmailService,
+    @inject(types.VerificationCodeRepository) verification_code_repository: VerificationCodeRepository,
+    @inject(types.EmailService) email_service: EmailService,
   ) {
     this.#encryptor = encryptor;
     this.#auth_token_manager = auth_token_manager;
@@ -320,7 +320,7 @@ export default class AuthService {
 
     await this.#email_service.send({
       email: user.email,
-      message: `Este é código de verificação para redefinição de senha: \n ${code}`,
+      message: `Este é o código de verificação para redefinição de senha: \n ${code}`,
       title: 'Código de redefinição de senha'
     });
 

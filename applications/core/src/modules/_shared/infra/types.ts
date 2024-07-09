@@ -9,5 +9,7 @@ export default {
   CatalogService: Symbol.for('CatalogService'),
   CatalogRepository: Symbol.for('CatalogRepository'),
   Mediator: Symbol.for('Mediator'),
-  TenantExistsCommandHandler: Symbol.for('TenantExistsCommandHandler')
+  TenantExistsCommandHandler: Symbol.for('TenantExistsCommandHandler'),
+  EmailService: Symbol.for('EmailService'),
+  VerificationCodeRepository: Symbol.for('VerificationCodeRepository'),
 };

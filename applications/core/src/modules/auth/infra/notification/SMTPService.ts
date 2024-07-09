@@ -9,15 +9,22 @@ export default class SMTPService implements EmailService {
   #smtp_client: nodemailer.Transporter;
 
   constructor() {
-    this.#smtp_client = nodemailer.createTransport({
-      auth: {
-        user: process.env.SMTP_USER!,
-        pass: process.env.SMTP_PASSWORD!,
-      },
+    const config = {
       port: parseInt(process.env.SMPT_PORT!, 10),
       host: process.env.SMTP_HOST!,
-      secure: process.env.NODE_ENV === 'production',
-    });
+    };
+
+    if (process.env.NODE_ENV === 'production') {
+      Object.assign(config, {
+        auth: {
+          user: process.env.SMTP_USER!,
+          pass: process.env.SMTP_PASSWORD!,
+        },
+        secure: true,
+      });
+    }
+
+    this.#smtp_client = nodemailer.createTransport(config);
   }
 
   async send(params: EmailParams): Promise<void> {

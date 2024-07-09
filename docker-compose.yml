@@ -8,3 +8,8 @@ services:
     environment:
       - POSTGRES_USER=local
       - POSTGRES_PASSWORD=local
+  maildev:
+    image: maildev/maildev
+    ports:
+      - "1080:1080"
+      - "1025:1025"

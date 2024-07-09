@@ -597,11 +597,11 @@ describe('AuthService unit tests', () => {
     });
   });
 
-  describe('AuthService.forgetPassword', () => {
+  describe('AuthService.forgotPassword', () => {
     it("should return not found error if user doesn't exist", async () => {
       user_repository_mock.getUserByEmail.mockResolvedValueOnce(null);
 
-      const [, error] = await auth_service.forgetPassword({ email: faker.internet.email() });
+      const [, error] = await auth_service.forgotPassword({ email: faker.internet.email() });
 
       expect(error).toBeInstanceOf(NotFoundError);
     });
@@ -615,7 +615,7 @@ describe('AuthService unit tests', () => {
         })
       );
 
-      const [, error] = await auth_service.forgetPassword({ email: faker.internet.email() });
+      const [, error] = await auth_service.forgotPassword({ email: faker.internet.email() });
 
       expect(error).toBeUndefined();
       expect(verification_code_mock.createVerificationCode).toHaveBeenCalled();
@@ -630,7 +630,7 @@ describe('AuthService unit tests', () => {
         })
       );
 
-      const [, error] = await auth_service.forgetPassword({ email: faker.internet.email() });
+      const [, error] = await auth_service.forgotPassword({ email: faker.internet.email() });
 
       expect(error).toBeUndefined();
       expect(email_service_mock.send).toHaveBeenCalled();

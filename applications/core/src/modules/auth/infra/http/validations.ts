@@ -106,4 +106,11 @@ export const update_access_plan_validation_schema: Schema = {
     optional: true,
     errorMessage: 'O campo precisa ser um boleano válido'
   },
-}
+};
+
+export const forgot_password_validation_schema: Schema = {
+  email: {
+    isEmail: true,
+    errorMessage: 'O campo precisa ser um endereço de e-mail válido',
+  }
+};

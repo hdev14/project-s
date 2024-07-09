@@ -10,7 +10,7 @@ export default class SMTPService implements EmailService {
 
   constructor() {
     const config = {
-      port: parseInt(process.env.SMPT_PORT!, 10),
+      port: parseInt(process.env.SMTP_PORT!, 10),
       host: process.env.SMTP_HOST!,
     };
 

@@ -21,6 +21,7 @@ import {
 import {
   create_access_plan_validation_schema,
   create_user_validation_schema,
+  forgot_password_validation_schema,
   login_validation_schema,
   update_access_plan_validation_schema,
   update_policies_validation_schema,
@@ -234,5 +235,18 @@ export default class AuthController extends BaseHttpController {
     const [data] = await this.auth_service.getPolicies();
 
     return this.json(data, HttpStatusCodes.OK)
+  }
+
+  @httpPost('/passwords', requestValidator(forgot_password_validation_schema))
+  async forgotPassword(@request() req: Request) {
+    const { email } = req.body;
+
+    const [, error] = await this.auth_service.forgotPassword({ email });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: error.message }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 }

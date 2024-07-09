@@ -71,7 +71,7 @@ export type UpdateAccessPlanParams = Partial<CreateAccessPlanParams> & {
   active?: boolean;
 };
 
-export type ForgetPasswordParams = {
+export type ForgotPasswordParams = {
   email: string;
 };
 
@@ -298,7 +298,7 @@ export default class AuthService {
     return Either.right(policies.toObjectList());
   }
 
-  async forgetPassword(params: ForgetPasswordParams): Promise<Either<void>> {
+  async forgotPassword(params: ForgotPasswordParams): Promise<Either<void>> {
     const user = await this.#user_repository.getUserByEmail(params.email);
 
     if (!user) {
@@ -310,17 +310,19 @@ export default class AuthService {
 
     const code = `${randomInt(1, 9)}${randomInt(1, 9)}${randomInt(1, 9)}${randomInt(1, 9)}`;
 
+    const user_obj = user.toObject();
+
     const verification_code = new VerificationCode({
       code,
-      user_id: user.id,
+      user_id: user_obj.id,
       expired_at,
     });
 
     await this.#verification_code_repository.createVerificationCode(verification_code);
 
     await this.#email_service.send({
-      email: user.email,
-      message: `Este é o código de verificação para redefinição de senha: \n ${code}`,
+      email: user_obj.email,
+      message: `Este é o código de verificação para redefinição de senha: ${code}`,
       title: 'Código de redefinição de senha'
     });
 

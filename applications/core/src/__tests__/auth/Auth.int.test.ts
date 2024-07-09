@@ -11,6 +11,7 @@ import supertest from 'supertest';
 async function deleteAuthData() {
   await globalThis.db.query('DELETE FROM user_policies');
   await globalThis.db.query('DELETE FROM policies');
+  await globalThis.db.query('DELETE FROM verification_codes');
   await globalThis.db.query('DELETE FROM users');
   await globalThis.db.query('DELETE FROM access_plans');
 }
@@ -595,6 +596,39 @@ describe('Auth integration tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body).toHaveLength(2)
+    });
+  });
+
+  describe('POST: /api/auth/passwords', () => {
+    it("returns status code 404 if email doesn't exist", async () => {
+      const response = await request
+        .post('/api/auth/passwords')
+        .set('Content-Type', 'application/json')
+        .send({ email: faker.internet.email() });
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Usuário não encontrado')
+    });
+
+    it('returns status code 400 if email is invalid', async () => {
+      const response = await request
+        .post('/api/auth/passwords')
+        .set('Content-Type', 'application/json')
+        .send({ email: faker.string.sample() });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(1);
+    });
+
+    it('should create a new verification code', async () => {
+      const response = await request
+        .post('/api/auth/passwords')
+        .set('Content-Type', 'application/json')
+        .send({ email: user.email });
+
+      expect(response.status).toEqual(204);
+      const result = await globalThis.db.query('SELECT * FROM verification_codes WHERE user_id = $1', [user.id]);
+      expect(result.rows[0]).toBeDefined();
     });
   });
 });

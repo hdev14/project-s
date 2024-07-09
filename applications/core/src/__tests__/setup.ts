@@ -1,4 +1,4 @@
-import Database from '@shared/infra/Database';
+import Database from "@shared/infra/Database";
 
 beforeAll(async () => {
   try {

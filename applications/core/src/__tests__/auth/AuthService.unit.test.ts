@@ -1,10 +1,10 @@
 import AccessPlanRepository from '@auth/app/AccessPlanRepository';
-import AuthService from "@auth/app/AuthService";
-import AuthTokenManager from "@auth/app/AuthTokenManager";
+import AuthService from '@auth/app/AuthService';
+import AuthTokenManager from '@auth/app/AuthTokenManager';
 import EmailService from '@auth/app/EmailService';
-import Encryptor from "@auth/app/Encryptor";
-import PolicyRepository from "@auth/app/PolicyRepository";
-import UserRepository from "@auth/app/UserRepository";
+import Encryptor from '@auth/app/Encryptor';
+import PolicyRepository from '@auth/app/PolicyRepository';
+import UserRepository from '@auth/app/UserRepository';
 import VerificationCodeRepository from '@auth/app/VerificationCodeRepository';
 import AccessPlan, { AccessPlanTypes } from '@auth/domain/AccessPlan';
 import Policy from '@auth/domain/Policy';

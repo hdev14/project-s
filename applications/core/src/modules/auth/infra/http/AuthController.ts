@@ -234,7 +234,7 @@ export default class AuthController extends BaseHttpController {
 
     const [data] = await this.auth_service.getPolicies();
 
-    return this.json(data, HttpStatusCodes.OK)
+    return this.json(data, HttpStatusCodes.OK);
   }
 
   @httpPost('/passwords', requestValidator(forgot_password_validation_schema))
@@ -247,6 +247,11 @@ export default class AuthController extends BaseHttpController {
       return this.json({ message: error.message }, HttpStatusCodes.NOT_FOUND);
     }
 
+    return this.statusCode(HttpStatusCodes.NO_CONTENT);
+  }
+
+  @httpPatch('/passwords')
+  async resetPassword(@request() req: Request) {
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 }

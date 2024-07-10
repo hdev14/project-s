@@ -19,16 +19,12 @@ export default class DbUserRepository implements UserRepository {
   }
 
   async getUsers(filter?: UsersFilter): Promise<PaginatedResult<User>> {
-    const { result, total } = await this.selectUsers(filter);
-
-    const page_result = (total !== undefined && total > 0)
-      ? Pagination.calculatePageResult(total, filter!.page_options!)
-      : undefined;
+    const { rows, page_result } = await this.selectUsers(filter);
 
     const objs = new Map<string, UserObject>();
 
-    for (let idx = 0; idx < result.rows.length; idx++) {
-      const row = result.rows[idx];
+    for (let idx = 0; idx < rows.length; idx++) {
+      const row = rows[idx];
 
       if (objs.has(row.id)) {
         const existent_user = objs.get(row.id);
@@ -68,23 +64,30 @@ export default class DbUserRepository implements UserRepository {
 
       if (filter.page_options) {
         const offset = Pagination.calculateOffset(filter.page_options);
-        const total_result = await this.#db.query(count_query, DbUtils.sanitizeValues(values));
+        const count_result = await this.#db.query(count_query, DbUtils.sanitizeValues(values));
 
         const paginated_query = filter.tenant_id ? query + ' LIMIT $2 OFFSET $3' : query + ' LIMIT $1 OFFSET $2';
 
-        const result = await this.#db.query(
+        const { rows } = await this.#db.query(
           paginated_query,
           DbUtils.sanitizeValues(values.concat([filter.page_options.limit, offset]))
         );
 
-        return { result, total: total_result.rows[0].total };
+        const page_result = (count_result.rows[0].total !== undefined && count_result.rows[0].total > 0)
+          ? Pagination.calculatePageResult(count_result.rows[0].total, filter!.page_options!)
+          : undefined;
+
+        return { rows, page_result };
       }
 
-      return { result: await this.#db.query(query, DbUtils.sanitizeValues(values)) };
+      const { rows } = await this.#db.query(query, DbUtils.sanitizeValues(values));
 
+      return { rows };
     }
 
-    return { result: await this.#db.query(this.#select_users_query) };
+    const { rows } = await this.#db.query(this.#select_users_query)
+
+    return { rows };
   }
 
   async getUserById(id: string): Promise<User | null> {

@@ -17,7 +17,7 @@ export default class Bank implements ValueObject<BankValue> {
     readonly bank_code: string,
   ) { }
 
-  get description(): BankValue {
+  get value(): BankValue {
     return this;
   }
 }

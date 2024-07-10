@@ -1,18 +1,88 @@
-import { PageOptions } from "@shared/utils/Pagination";
-import CompanyRepository from "../app/CompanyRepository";
-import Company from "../domain/Company";
+import Database from "@shared/infra/Database";
+import Collection from "@shared/utils/Collection";
+import DbUtils from "@shared/utils/DbUtils";
+import { PaginatedResult } from "@shared/utils/Pagination";
+import { Pool } from "pg";
+import CompanyRepository, { CompaniesFilter } from "../app/CompanyRepository";
+import Company, { CompanyObject } from "../domain/Company";
 
 export default class DbCompanyRepository implements CompanyRepository {
+  #db: Pool;
+
+  constructor() {
+    this.#db = Database.connect();
+  }
+
+  async getCompanies(filter?: CompaniesFilter): Promise<PaginatedResult<Company>> {
+    const { rows: company_rows } = await this.#db.query('SELECT * FROM users WHERE tenant_id IS NULL AND is_admin = false');
+
+    const company_ids = [];
+
+    for (let idx = 0; idx < company_rows.length; idx++) {
+      company_ids.push(company_rows[idx].id);
+    }
+
+    const { rows: employee_rows } = await this.#db.query(`SELECT * FROM users WHERE tenant_id ${DbUtils.inOperator(company_ids)}`, company_ids);
+
+    const companies = [];
+
+    for (let idx = 0; idx < company_rows.length; idx++) {
+      const company = company_rows[idx];
+
+      const company_obj: CompanyObject = {
+        id: company.id,
+        document: company.document,
+        name: company.name,
+        access_plan_id: company.access_plan_id,
+        bank: {
+          account: company.account,
+          account_digit: company.account_digit,
+          agency: company.agency,
+          agency_digit: company.agency_digit,
+          bank_code: company.bank_code,
+        },
+        address: {
+          district: company.district,
+          street: company.street,
+          number: company.number,
+          state: company.state,
+          complement: company.complement,
+        },
+        brand: {
+          color: company.color,
+          logo_url: company.logo_url,
+        },
+        employees: []
+      };
+
+      for (let j = 0; j < employee_rows.length; j++) {
+        const employee = employee_rows[j];
+
+        if (employee.tenant_id === company.id) {
+          company_obj.employees.push({
+            id: employee.id,
+            document: employee.document,
+            email: employee.email,
+            name: employee.name,
+          });
+        }
+      }
+
+      companies.push(new Company(company_obj));
+    }
+
+    return { results: new Collection(companies) };
+  }
+
   createCompany(company: Company): Promise<void> {
     throw new Error("Method not implemented.");
   }
+
   updateCompany(company: Company): Promise<void> {
     throw new Error("Method not implemented.");
   }
+
   getCompanyById(id: string): Promise<Company> {
-    throw new Error("Method not implemented.");
-  }
-  getCompanies(pagination: PageOptions): Promise<Company[]> {
     throw new Error("Method not implemented.");
   }
 }

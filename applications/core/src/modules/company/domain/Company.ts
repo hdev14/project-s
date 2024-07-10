@@ -12,7 +12,7 @@ export type CompanyObject = {
   bank: BankValue;
   brand: BrandValue;
   employees: Array<EmployeeObject>;
-  registration_plan_id: string;
+  access_plan_id: string;
 };
 
 export default class Company extends Aggregate<CompanyObject> implements AggregateRoot {
@@ -21,7 +21,7 @@ export default class Company extends Aggregate<CompanyObject> implements Aggrega
   #address: Address;
   #bank: Bank;
   #brand: Brand;
-  #registration_plan_id: string;
+  #access_plan_id: string;
   #employees: Array<Employee> = [];
 
   constructor(obj: CompanyObject) {
@@ -43,7 +43,7 @@ export default class Company extends Aggregate<CompanyObject> implements Aggrega
       obj.bank.bank_code,
     );
     this.#brand = new Brand(obj.brand.color, obj.brand.logo_url);
-    this.#registration_plan_id = obj.registration_plan_id;
+    this.#access_plan_id = obj.access_plan_id;
     for (let idx = 0; idx < obj.employees.length; idx++) {
       this.#employees.push(new Employee(obj.employees[idx]));
     }
@@ -63,7 +63,7 @@ export default class Company extends Aggregate<CompanyObject> implements Aggrega
       address: this.#address,
       bank: this.#bank,
       brand: this.#brand,
-      registration_plan_id: this.#registration_plan_id,
+      access_plan_id: this.#access_plan_id,
       employees,
     };
   }

@@ -1,9 +1,14 @@
-import { PageOptions } from "@shared/utils/Pagination";
+import { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
 import Company from "../domain/Company";
+
+export type CompaniesFilter = {
+  tenant_id?: string;
+  page_options?: PageOptions;
+};
 
 export default interface CompanyRepository {
   createCompany(company: Company): Promise<void>;
   updateCompany(company: Company): Promise<void>;
-  getCompanyById(id: string): Promise<Company>;
-  getCompanies(pagination: PageOptions): Promise<Array<Company>>;
+  getCompanyById(id: string): Promise<Company | null>;
+  getCompanies(filter?: CompaniesFilter): Promise<PaginatedResult<Company>>;
 }

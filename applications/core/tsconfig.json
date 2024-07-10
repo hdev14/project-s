@@ -25,6 +25,9 @@
       "@catalog/*": [
         "src/modules/catalog/*"
       ],
+      "@company/*": [
+        "src/modules/company/*"
+      ],
       "@subscriber/*": [
         "src/modules/subscriber/*"
       ],

@@ -30,16 +30,12 @@ export default class DbCatalogRepository implements CatalogRepository {
   }
 
   async getCatalogItems(filter?: CatalogItemsFilter): Promise<PaginatedResult<CatalogItem>> {
-    const { result, total } = await this.selectCatalogItems(filter);
-
-    const page_result = (total !== undefined && total > 0)
-      ? Pagination.calculatePageResult(total, filter!.page_options!)
-      : undefined;
+    const { rows, page_result } = await this.selectCatalogItems(filter);
 
     const catalog_items = [];
 
-    for (let idx = 0; idx < result.rows.length; idx++) {
-      const row = result.rows[idx];
+    for (let idx = 0; idx < rows.length; idx++) {
+      const row = rows[idx];
       catalog_items.push(new CatalogItem({
         id: row.id,
         name: row.name,
@@ -65,23 +61,28 @@ export default class DbCatalogRepository implements CatalogRepository {
 
       if (filter.page_options) {
         const offset = Pagination.calculateOffset(filter.page_options);
-        const total_result = await this.#db.query(count_query, DbUtils.sanitizeValues(values));
+        const count_result = await this.#db.query(count_query, DbUtils.sanitizeValues(values));
 
         const paginated_query = filter.tenant_id ? query + ' LIMIT $2 OFFSET $3' : query + ' LIMIT $1 OFFSET $2';
 
-        const result = await this.#db.query(
+        const { rows } = await this.#db.query(
           paginated_query,
           DbUtils.sanitizeValues(values.concat([filter.page_options.limit, offset]))
         );
 
-        return { result, total: total_result.rows[0].total };
+        const page_result = (count_result.rows[0].total !== undefined && count_result.rows[0].total > 0)
+          ? Pagination.calculatePageResult(count_result.rows[0].total, filter!.page_options!)
+          : undefined;
+
+        return { rows, page_result };
       }
 
-      return { result: await this.#db.query(query, DbUtils.sanitizeValues(values)) };
-
+      const { rows } = await this.#db.query(query, DbUtils.sanitizeValues(values));
+      return { rows };
     }
 
-    return { result: await this.#db.query(select_catalog_items) };
+    const { rows } = await this.#db.query(select_catalog_items);
+    return { rows };
   }
 
   async createCatalogItem(catalog_item: CatalogItem): Promise<void> {

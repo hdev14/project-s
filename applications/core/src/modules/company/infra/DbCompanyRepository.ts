@@ -1,7 +1,7 @@
 import Database from "@shared/infra/Database";
 import Collection from "@shared/utils/Collection";
 import DbUtils from "@shared/utils/DbUtils";
-import { PaginatedResult } from "@shared/utils/Pagination";
+import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
 import { Pool } from "pg";
 import CompanyRepository, { CompaniesFilter } from "../app/CompanyRepository";
 import Company, { CompanyObject } from "../domain/Company";
@@ -14,7 +14,7 @@ export default class DbCompanyRepository implements CompanyRepository {
   }
 
   async getCompanies(filter?: CompaniesFilter): Promise<PaginatedResult<Company>> {
-    const { rows: company_rows } = await this.#db.query('SELECT * FROM users WHERE tenant_id IS NULL AND is_admin = false');
+    const { rows: company_rows, page_result } = await this.selectCompanies(filter);
 
     const company_ids = [];
 
@@ -71,7 +71,31 @@ export default class DbCompanyRepository implements CompanyRepository {
       companies.push(new Company(company_obj));
     }
 
-    return { results: new Collection(companies) };
+    return { results: new Collection(companies), page_result };
+  }
+
+  private async selectCompanies(filter?: CompaniesFilter) {
+    const query = 'SELECT * FROM users WHERE tenant_id IS NULL AND is_admin = false';
+
+    if (filter && filter.page_options) {
+      const count_query = 'SELECT count(id) as total FROM users WHERE tenant_id IS NULL AND is_admin = false';
+      const offset = Pagination.calculateOffset(filter.page_options);
+      const total_result = await this.#db.query(count_query);
+
+      const paginated_query = `${query} LIMIT $1 OFFSET $2`;
+
+      const result = await this.#db.query(paginated_query, [filter.page_options.limit, offset]);
+
+      const page_result = (total_result.rows[0].total !== undefined && total_result.rows[0].total > 0)
+        ? Pagination.calculatePageResult(total_result.rows[0].total, filter!.page_options!)
+        : undefined;
+
+      return { rows: result.rows, page_result };
+    }
+
+    const { rows } = await this.#db.query(query);
+
+    return { rows };
   }
 
   createCompany(company: Company): Promise<void> {

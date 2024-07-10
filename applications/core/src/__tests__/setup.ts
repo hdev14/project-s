@@ -10,7 +10,9 @@ beforeAll(async () => {
 
 afterAll(async () => {
   try {
-    await globalThis.db.end();
+    if (globalThis.db.end) {
+      await globalThis.db.end();
+    }
   } catch (e: any) {
     console.error(e.stack);
   }

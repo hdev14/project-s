@@ -4,10 +4,6 @@ module.exports = {
   ...rootConfig,
   ...{
     displayName: "Integration Tests",
-    coveragePathIgnorePatterns: [
-      "/node_modules/",
-      "/src/migrations"
-    ],
     clearMocks: true,
     setupFilesAfterEnv: ["<rootDir>/src/__tests__/setup.ts"],
     testMatch: [

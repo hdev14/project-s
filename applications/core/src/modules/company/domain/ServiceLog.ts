@@ -3,6 +3,9 @@ import Commission, { CommissionObject } from "./Commission";
 
 export type ServiceLogObject = {
   id?: string;
+  // TODO: commission_amount
+  // TODO: employee_id
+  // TODO: service_id
   commission: CommissionObject;
   customer_id: string;
   tenant_id: string;

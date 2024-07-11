@@ -1,4 +1,4 @@
-import Aggregate, { RequiredId } from "@shared/ddd/Aggregate";
+import Aggregate, { AggregateRoot, RequiredId } from "@shared/ddd/Aggregate";
 
 export enum TaxTypes {
   PERCENTAGE = 'percentage',
@@ -12,7 +12,7 @@ export type CommissionObject = {
   tax_type: TaxTypes;
 };
 
-export default class Commission extends Aggregate<CommissionObject> {
+export default class Commission extends Aggregate<CommissionObject> implements AggregateRoot {
   #catalog_item_id: string;
   #tax: number;
   #tax_type: TaxTypes;

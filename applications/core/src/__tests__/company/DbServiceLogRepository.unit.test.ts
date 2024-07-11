@@ -34,6 +34,7 @@ describe('DbServiceLogRepository unit tests', () => {
               tenant_id: faker.string.uuid(),
               paid_amount: faker.number.float(),
               registed_at: faker.date.anytime(),
+              c_id: faker.string.uuid()
             },
             {
               id: faker.string.uuid(),
@@ -44,6 +45,7 @@ describe('DbServiceLogRepository unit tests', () => {
               tenant_id: faker.string.uuid(),
               paid_amount: faker.number.float(),
               registed_at: faker.date.anytime(),
+              c_id: faker.string.uuid()
             }
           ]
         });
@@ -75,6 +77,7 @@ describe('DbServiceLogRepository unit tests', () => {
               tenant_id: faker.string.uuid(),
               paid_amount: faker.number.float(),
               registed_at: faker.date.anytime(),
+              c_id: faker.string.uuid()
             }
           ]
         });
@@ -117,6 +120,7 @@ describe('DbServiceLogRepository unit tests', () => {
               tenant_id: faker.string.uuid(),
               paid_amount: faker.number.float(),
               registed_at: faker.date.anytime(),
+              c_id: faker.string.uuid()
             },
           ]
         });

@@ -23,7 +23,10 @@ export default class DbCompanyRepository implements CompanyRepository {
       company_ids.push(company_rows[idx].id);
     }
 
-    const { rows: employee_rows } = await this.#db.query(`SELECT * FROM users WHERE tenant_id ${DbUtils.inOperator(company_ids)}`, company_ids);
+    const { rows: employee_rows } = await this.#db.query(
+      `SELECT * FROM users WHERE tenant_id ${DbUtils.inOperator(company_ids)}`,
+      company_ids
+    );
 
     const companies = [];
 
@@ -105,8 +108,8 @@ export default class DbCompanyRepository implements CompanyRepository {
       employees: []
     };
 
-    for (let j = 0; j < employee_rows.length; j++) {
-      const employee = employee_rows[j];
+    for (let idx = 0; idx < employee_rows.length; idx++) {
+      const employee = employee_rows[idx];
 
       if (employee.tenant_id === company.id) {
         company_obj.employees.push({

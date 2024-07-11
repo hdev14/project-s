@@ -7,7 +7,6 @@ export type CompaniesFilter = {
 };
 
 export default interface CompanyRepository {
-  createCompany(company: Company): Promise<void>;
   updateCompany(company: Company): Promise<void>;
   getCompanyById(id: string): Promise<Company | null>;
   getCompanies(filter?: CompaniesFilter): Promise<PaginatedResult<Company>>;

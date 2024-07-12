@@ -34,7 +34,10 @@ describe('DbServiceLogRepository unit tests', () => {
               tenant_id: faker.string.uuid(),
               paid_amount: faker.number.float(),
               registed_at: faker.date.anytime(),
-              c_id: faker.string.uuid()
+              c_id: faker.string.uuid(),
+              commision_amount: faker.number.float(),
+              employee_id: faker.string.uuid(),
+              service_id: faker.string.uuid(),
             },
             {
               id: faker.string.uuid(),
@@ -45,8 +48,11 @@ describe('DbServiceLogRepository unit tests', () => {
               tenant_id: faker.string.uuid(),
               paid_amount: faker.number.float(),
               registed_at: faker.date.anytime(),
-              c_id: faker.string.uuid()
-            }
+              c_id: faker.string.uuid(),
+              commision_amount: faker.number.float(),
+              employee_id: faker.string.uuid(),
+              service_id: faker.string.uuid(),
+            },
           ]
         });
 
@@ -58,7 +64,7 @@ describe('DbServiceLogRepository unit tests', () => {
       expect(results).toHaveLength(2);
       expect(page_result).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT *, c.id as c_id FROM service_logs sl JOIN commissions c ON sl.commission_id = c.id WHERE sl.tenant_id = $1',
+        'SELECT * FROM service_logs WHERE tenant_id = $1',
         [tenant_id]
       );
     });
@@ -77,8 +83,11 @@ describe('DbServiceLogRepository unit tests', () => {
               tenant_id: faker.string.uuid(),
               paid_amount: faker.number.float(),
               registed_at: faker.date.anytime(),
-              c_id: faker.string.uuid()
-            }
+              c_id: faker.string.uuid(),
+              commision_amount: faker.number.float(),
+              employee_id: faker.string.uuid(),
+              service_id: faker.string.uuid(),
+            },
           ]
         });
 
@@ -101,7 +110,7 @@ describe('DbServiceLogRepository unit tests', () => {
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT *, c.id as c_id FROM service_logs sl JOIN commissions c ON sl.commission_id = c.id WHERE sl.tenant_id = $1 LIMIT $2 OFFSET $3',
+        'SELECT * FROM service_logs WHERE tenant_id = $1 LIMIT $2 OFFSET $3',
         [tenant_id, page_options.limit, 0],
       );
     });
@@ -120,7 +129,10 @@ describe('DbServiceLogRepository unit tests', () => {
               tenant_id: faker.string.uuid(),
               paid_amount: faker.number.float(),
               registed_at: faker.date.anytime(),
-              c_id: faker.string.uuid()
+              c_id: faker.string.uuid(),
+              commision_amount: faker.number.float(),
+              employee_id: faker.string.uuid(),
+              service_id: faker.string.uuid(),
             },
           ]
         });
@@ -144,7 +156,7 @@ describe('DbServiceLogRepository unit tests', () => {
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT *, c.id as c_id FROM service_logs sl JOIN commissions c ON sl.commission_id = c.id WHERE sl.tenant_id = $1 LIMIT $2 OFFSET $3',
+        'SELECT * FROM service_logs WHERE tenant_id = $1 LIMIT $2 OFFSET $3',
         [tenant_id, page_options.limit, 1],
       );
     });

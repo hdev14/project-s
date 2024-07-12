@@ -25,12 +25,9 @@ export default class DbServiceLogRepository implements ServiceLogRepository {
         paid_amount: row.paid_amount,
         registed_at: row.registed_at,
         tenant_id: row.tenant_id,
-        commission: {
-          catalog_item_id: row.catalog_item_id,
-          tax: row.tax,
-          tax_type: row.type_tax,
-          id: row.c_id
-        }
+        commission_amount: row.commission_amount,
+        employee_id: row.employee_id,
+        service_id: row.service_id,
       }))
     }
 
@@ -38,7 +35,7 @@ export default class DbServiceLogRepository implements ServiceLogRepository {
   }
 
   private async selectServiceLogs(filter: ServiceLogsFilter) {
-    const query = 'SELECT *, c.id as c_id FROM service_logs sl JOIN commissions c ON sl.commission_id = c.id WHERE sl.tenant_id = $1';
+    const query = 'SELECT * FROM service_logs WHERE tenant_id = $1';
 
     if (filter.page_options) {
       const count_query = 'SELECT count(id) as total FROM service_logs WHERE tenant_id = $1';

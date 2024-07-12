@@ -1,12 +1,10 @@
 import Aggregate, { AggregateRoot, RequiredId } from "@shared/ddd/Aggregate";
-import Commission, { CommissionObject } from "./Commission";
 
 export type ServiceLogObject = {
   id?: string;
-  // TODO: commission_amount
-  // TODO: employee_id
-  // TODO: service_id
-  commission: CommissionObject;
+  commission_amount: number;
+  employee_id: string;
+  service_id: string;
   customer_id: string;
   tenant_id: string;
   paid_amount: number;
@@ -14,7 +12,9 @@ export type ServiceLogObject = {
 };
 
 export default class ServiceLog extends Aggregate<ServiceLogObject> implements AggregateRoot {
-  #commission: Commission;
+  #commission_amount: number;
+  #employee_id: string;
+  #service_id: string;
   #customer_id: string;
   #tenant_id: string;
   #paid_amount: number;
@@ -22,7 +22,9 @@ export default class ServiceLog extends Aggregate<ServiceLogObject> implements A
 
   constructor(obj: ServiceLogObject) {
     super(obj.id);
-    this.#commission = new Commission(obj.commission);
+    this.#commission_amount = obj.commission_amount;
+    this.#employee_id = obj.employee_id;
+    this.#service_id = obj.service_id;
     this.#customer_id = obj.customer_id;
     this.#tenant_id = obj.tenant_id;
     this.#paid_amount = obj.paid_amount;
@@ -32,7 +34,9 @@ export default class ServiceLog extends Aggregate<ServiceLogObject> implements A
   toObject(): RequiredId<ServiceLogObject> {
     return {
       id: this.id,
-      commission: this.#commission.toObject(),
+      commission_amount: this.#commission_amount,
+      employee_id: this.#employee_id,
+      service_id: this.#service_id,
       customer_id: this.#customer_id,
       tenant_id: this.#tenant_id,
       paid_amount: this.#paid_amount,

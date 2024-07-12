@@ -5,7 +5,6 @@ import NotFoundError from "@shared/errors/NotFoundError";
 import { injectable } from "inversify";
 import 'reflect-metadata';
 import AccessPlanRepository from "./AccessPlanRepository";
-import EmailService from "./EmailService";
 import Encryptor from "./Encryptor";
 import UserRepository from "./UserRepository";
 
@@ -13,18 +12,15 @@ import UserRepository from "./UserRepository";
 @injectable()
 export default class CreateTenantUserCommandHandler implements Handler<CreateTenantUserCommand, string> {
   #user_repository: UserRepository;
-  #email_service: EmailService;
   #encryptor: Encryptor;
   #access_plan_repository: AccessPlanRepository;
 
   constructor(
     user_repository: UserRepository,
-    email_service: EmailService,
     encryptor: Encryptor,
     access_plan_repository: AccessPlanRepository,
   ) {
     this.#user_repository = user_repository;
-    this.#email_service = email_service;
     this.#encryptor = encryptor;
     this.#access_plan_repository = access_plan_repository;
   }

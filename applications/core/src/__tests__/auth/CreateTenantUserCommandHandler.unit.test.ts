@@ -1,6 +1,5 @@
 import AccessPlanRepository from "@auth/app/AccessPlanRepository";
 import CreateTenantUserCommandHandler from "@auth/app/CreateTenantUserCommandHandler";
-import EmailService from "@auth/app/EmailService";
 import Encryptor from "@auth/app/Encryptor";
 import UserRepository from "@auth/app/UserRepository";
 import AccessPlan, { AccessPlanTypes } from "@auth/domain/AccessPlan";
@@ -13,13 +12,11 @@ import { mock } from "jest-mock-extended";
 
 describe('CreateTenantUserCommandHandler unit tests', () => {
   const user_repository_mock = mock<UserRepository>();
-  const email_service_mock = mock<EmailService>();
   const encryptor_mock = mock<Encryptor>();
   const access_plan_repository_mock = mock<AccessPlanRepository>();
 
   const handler = new CreateTenantUserCommandHandler(
     user_repository_mock,
-    email_service_mock,
     encryptor_mock,
     access_plan_repository_mock,
   );

@@ -35,7 +35,7 @@ describe('DbServiceLogRepository unit tests', () => {
               paid_amount: faker.number.float(),
               registed_at: faker.date.anytime(),
               c_id: faker.string.uuid(),
-              commision_amount: faker.number.float(),
+              commission_amount: faker.number.float(),
               employee_id: faker.string.uuid(),
               service_id: faker.string.uuid(),
             },
@@ -49,7 +49,7 @@ describe('DbServiceLogRepository unit tests', () => {
               paid_amount: faker.number.float(),
               registed_at: faker.date.anytime(),
               c_id: faker.string.uuid(),
-              commision_amount: faker.number.float(),
+              commission_amount: faker.number.float(),
               employee_id: faker.string.uuid(),
               service_id: faker.string.uuid(),
             },
@@ -84,7 +84,7 @@ describe('DbServiceLogRepository unit tests', () => {
               paid_amount: faker.number.float(),
               registed_at: faker.date.anytime(),
               c_id: faker.string.uuid(),
-              commision_amount: faker.number.float(),
+              commission_amount: faker.number.float(),
               employee_id: faker.string.uuid(),
               service_id: faker.string.uuid(),
             },
@@ -130,7 +130,7 @@ describe('DbServiceLogRepository unit tests', () => {
               paid_amount: faker.number.float(),
               registed_at: faker.date.anytime(),
               c_id: faker.string.uuid(),
-              commision_amount: faker.number.float(),
+              commission_amount: faker.number.float(),
               employee_id: faker.string.uuid(),
               service_id: faker.string.uuid(),
             },
@@ -158,6 +158,43 @@ describe('DbServiceLogRepository unit tests', () => {
         2,
         'SELECT * FROM service_logs WHERE tenant_id = $1 LIMIT $2 OFFSET $3',
         [tenant_id, page_options.limit, 1],
+      );
+    });
+  });
+
+  describe('DbServiceLogRepository.createServiceLog', () => {
+    it('creates a service log', async () => {
+      query_mock
+        .mockResolvedValueOnce({});
+
+      const service_log_obj = {
+        id: faker.string.uuid(),
+        customer_id: faker.string.uuid(),
+        tenant_id: faker.string.uuid(),
+        paid_amount: faker.number.float(),
+        registed_at: faker.date.anytime(),
+        commission_amount: faker.number.float(),
+        employee_id: faker.string.uuid(),
+        service_id: faker.string.uuid(),
+      };
+
+      const service_log = new ServiceLog(service_log_obj);
+
+      await repository.createServiceLog(service_log);
+
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        'INSERT INTO service_logs (id,commission_amount,employee_id,service_id,customer_id,tenant_id,paid_amount,registed_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)',
+        [
+          service_log_obj.id,
+          service_log_obj.commission_amount,
+          service_log_obj.employee_id,
+          service_log_obj.service_id,
+          service_log_obj.customer_id,
+          service_log_obj.tenant_id,
+          service_log_obj.paid_amount,
+          service_log_obj.registed_at,
+        ],
       );
     });
   });

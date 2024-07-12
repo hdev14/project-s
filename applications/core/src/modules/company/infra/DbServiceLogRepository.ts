@@ -1,5 +1,6 @@
 import Database from "@shared/infra/Database";
 import Collection from "@shared/utils/Collection";
+import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
 import { Pool } from "pg";
 import ServiceLogRepository, { ServiceLogsFilter } from "../app/ServiceLogRepository";
@@ -58,7 +59,12 @@ export default class DbServiceLogRepository implements ServiceLogRepository {
     return { rows };
   }
 
-  createServiceLog(service_log: ServiceLog): Promise<void> {
-    throw new Error("Method not implemented.");
+  async createServiceLog(service_log: ServiceLog): Promise<void> {
+    const service_log_obj = service_log.toObject();
+
+    const values = Object.values(service_log_obj)
+    const query = `INSERT INTO service_logs ${DbUtils.columns(service_log_obj)} VALUES ${DbUtils.values(values)}`;
+
+    await this.#db.query(query, values);
   }
 }

@@ -8,7 +8,7 @@ import TenantExistsCommandHandler from "@auth/app/TenantExistsCommandHandler";
 import UserRepository from "@auth/app/UserRepository";
 import VerificationCodeRepository from "@auth/app/VerificationCodeRepository";
 import Mediator from "@shared/Mediator";
-import TenantExistsCommand from "@shared/TenantExistsCommand";
+import TenantExistsCommand from "@shared/commands/TenantExistsCommand";
 import AuthMiddleware from "@shared/infra/AuthMiddleware";
 import Module from "@shared/infra/Module";
 import types from "@shared/infra/types";

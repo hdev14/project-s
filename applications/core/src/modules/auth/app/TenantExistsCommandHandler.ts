@@ -1,5 +1,5 @@
 import Handler from "@shared/Handler";
-import TenantExistsCommand from "@shared/TenantExistsCommand";
+import TenantExistsCommand from "@shared/commands/TenantExistsCommand";
 import types from "@shared/infra/types";
 import { inject, injectable } from "inversify";
 import 'reflect-metadata';

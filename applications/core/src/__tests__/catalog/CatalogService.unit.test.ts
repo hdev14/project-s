@@ -1,12 +1,12 @@
+import CatalogRepository from '@catalog/app/CatalogRepository';
+import CatalogService from '@catalog/app/CatalogService';
+import CatalogItem from '@catalog/domain/CatalogItem';
 import { faker } from '@faker-js/faker/locale/pt_BR';
+import TenantExistsCommand from '@shared/commands/TenantExistsCommand';
+import NotFoundError from '@shared/errors/NotFoundError';
+import Mediator from '@shared/Mediator';
+import Collection from '@shared/utils/Collection';
 import { mock } from 'jest-mock-extended';
-import Mediator from 'src/modules/_shared/Mediator';
-import TenantExistsCommand from 'src/modules/_shared/TenantExistsCommand';
-import NotFoundError from 'src/modules/_shared/errors/NotFoundError';
-import Collection from 'src/modules/_shared/utils/Collection';
-import CatalogRepository from 'src/modules/catalog/app/CatalogRepository';
-import CatalogService from 'src/modules/catalog/app/CatalogService';
-import CatalogItem from 'src/modules/catalog/domain/CatalogItem';
 
 describe('CatalogService unit tests', () => {
   const catalog_repository_mock = mock<CatalogRepository>();

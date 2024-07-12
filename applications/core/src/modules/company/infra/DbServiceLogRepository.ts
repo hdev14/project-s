@@ -61,10 +61,11 @@ export default class DbServiceLogRepository implements ServiceLogRepository {
 
   async createServiceLog(service_log: ServiceLog): Promise<void> {
     const service_log_obj = service_log.toObject();
-
     const values = Object.values(service_log_obj)
-    const query = `INSERT INTO service_logs ${DbUtils.columns(service_log_obj)} VALUES ${DbUtils.values(values)}`;
 
-    await this.#db.query(query, values);
+    await this.#db.query(
+      `INSERT INTO service_logs ${DbUtils.columns(service_log_obj)} VALUES ${DbUtils.values(values)}`,
+      values
+    );
   }
 }

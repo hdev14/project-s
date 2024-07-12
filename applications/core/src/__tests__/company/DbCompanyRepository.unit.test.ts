@@ -289,6 +289,7 @@ describe('DbCompanyRepository unit tests', () => {
       expect(query_mock).toHaveBeenCalledWith(
         'UPDATE users SET document=$2,name=$3,access_plan_id=$4,street=$5,district=$6,state=$7,number=$8,complement=$9,account=$10,account_digit=$11,agency=$12,agency_digit=$13,bank_code=$14,color=$15,logo_url=$16 WHERE id = $1',
         [
+          company_obj.id,
           company_obj.document,
           company_obj.name,
           company_obj.access_plan_id,

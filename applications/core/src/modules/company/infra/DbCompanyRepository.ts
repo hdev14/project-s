@@ -60,8 +60,8 @@ export default class DbCompanyRepository implements CompanyRepository {
   }
 
   async updateCompany(company: Company): Promise<void> {
-    const { document, name, address, bank, brand, access_plan_id } = company.toObject();
-    const data = Object.assign({}, { document, name, access_plan_id }, address, bank, brand);
+    const { id, document, name, address, bank, brand, access_plan_id } = company.toObject();
+    const data = Object.assign({}, { id, document, name, access_plan_id }, address, bank, brand);
 
     await this.#db.query(
       `UPDATE users SET ${DbUtils.setColumns(data)} WHERE id = $1`,

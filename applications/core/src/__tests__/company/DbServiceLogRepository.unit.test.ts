@@ -182,8 +182,7 @@ describe('DbServiceLogRepository unit tests', () => {
 
       await repository.createServiceLog(service_log);
 
-      expect(query_mock).toHaveBeenNthCalledWith(
-        1,
+      expect(query_mock).toHaveBeenCalledWith(
         'INSERT INTO service_logs (id,commission_amount,employee_id,service_id,customer_id,tenant_id,paid_amount,registed_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)',
         [
           service_log_obj.id,

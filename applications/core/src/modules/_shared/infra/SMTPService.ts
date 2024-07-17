@@ -1,7 +1,7 @@
-import EmailService, { EmailParams } from "@auth/app/EmailService";
 import { injectable } from "inversify";
 import nodemailer from 'nodemailer';
 import 'reflect-metadata';
+import EmailService, { EmailParams } from "./EmailService";
 
 
 @injectable()

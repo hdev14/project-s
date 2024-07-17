@@ -4,6 +4,7 @@ import { AccessPlanTypes } from '@auth/domain/AccessPlan';
 import AuthModule from '@auth/infra/AuthModule';
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import { Policies } from '@shared/infra/Principal';
+import SharedModule from '@shared/infra/SharedModule';
 import types from '@shared/infra/types';
 import Application from 'src/Application';
 import supertest from 'supertest';
@@ -30,7 +31,7 @@ function cookieExists(cookies: Array<string>) {
 }
 
 describe('Auth integration tests', () => {
-  const application = new Application({ modules: [new AuthModule()] });
+  const application = new Application({ modules: [new SharedModule(), new AuthModule()] });
   const encryptor = application.container.get<Encryptor>(types.Encryptor);
   const auth_token_manager = application.container.get<AuthTokenManager>(types.AuthTokenManager);
   const request = supertest(application.server);

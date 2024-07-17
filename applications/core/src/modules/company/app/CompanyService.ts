@@ -2,6 +2,7 @@ import Either from "@shared/utils/Either";
 import { CompanyObject } from "../domain/Company";
 
 export default class CompanyService {
+  // TODO
   async createCompany(params: {}): Promise<Either<CompanyObject>> {
     return Either.left(new Error());
   }

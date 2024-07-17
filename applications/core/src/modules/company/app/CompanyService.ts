@@ -81,6 +81,10 @@ export default class CompanyService {
     }
   }
 
+  async updateCompany(params: {}): Promise<Either<void>> {
+    return Either.left(new Error());
+  }
+
   async getCompanies(params: {}): Promise<Either<Array<CompanyObject>>> {
     return Either.left(new Error());
   }

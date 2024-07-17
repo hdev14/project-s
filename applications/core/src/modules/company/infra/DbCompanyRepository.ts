@@ -9,9 +9,16 @@ import Company, { CompanyObject } from "../domain/Company";
 export default class DbCompanyRepository implements CompanyRepository {
   #db: Pool;
   #select_companies_query = 'SELECT * FROM users WHERE tenant_id IS NULL AND is_admin = false';
+  #count_query = 'SELECT count(id) as total FROM users WHERE tenant_id IS NULL AND is_admin = false';
 
   constructor() {
     this.#db = Database.connect();
+  }
+
+  async documentExists(document: string): Promise<boolean> {
+    const result = await this.#db.query(`${this.#count_query} AND document = $1`, [document]);
+
+    return !!result.rows[0].total;
   }
 
   async getCompanies(filter?: CompaniesFilter): Promise<PaginatedResult<Company>> {
@@ -39,9 +46,8 @@ export default class DbCompanyRepository implements CompanyRepository {
 
   private async selectCompanies(filter?: CompaniesFilter) {
     if (filter && filter.page_options) {
-      const count_query = 'SELECT count(id) as total FROM users WHERE tenant_id IS NULL AND is_admin = false';
       const offset = Pagination.calculateOffset(filter.page_options);
-      const count_result = await this.#db.query(count_query);
+      const count_result = await this.#db.query(this.#count_query);
 
       const paginated_query = `${this.#select_companies_query} LIMIT $1 OFFSET $2`;
 

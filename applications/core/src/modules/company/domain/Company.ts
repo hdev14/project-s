@@ -10,7 +10,7 @@ export type CompanyObject = {
   name: string;
   address: AddressValue;
   bank: BankValue;
-  brand: BrandValue;
+  brand?: BrandValue;
   employees: Array<EmployeeObject>;
   access_plan_id: string;
 };
@@ -20,7 +20,7 @@ export default class Company extends Aggregate<CompanyObject> implements Aggrega
   #name: string;
   #address: Address;
   #bank: Bank;
-  #brand: Brand;
+  #brand?: Brand;
   #access_plan_id: string;
   #employees: Array<Employee> = [];
 
@@ -42,7 +42,9 @@ export default class Company extends Aggregate<CompanyObject> implements Aggrega
       obj.bank.agency_digit,
       obj.bank.bank_code,
     );
-    this.#brand = new Brand(obj.brand.color, obj.brand.logo_url);
+    if (obj.brand) {
+      this.#brand = new Brand(obj.brand.color, obj.brand.logo_url);
+    }
     this.#access_plan_id = obj.access_plan_id;
     for (let idx = 0; idx < obj.employees.length; idx++) {
       this.#employees.push(new Employee(obj.employees[idx]));

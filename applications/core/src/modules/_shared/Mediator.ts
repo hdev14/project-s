@@ -18,7 +18,7 @@ export default class Mediator {
     }
   }
 
-  public async send<R = any>(command: Command): Promise<void | R> {
+  public async send<R = void>(command: Command): Promise<R> {
     const handler = this._handlers.get(command.name) as Handler<Command, R>;
 
     if (!handler) {

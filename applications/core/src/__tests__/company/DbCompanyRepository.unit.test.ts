@@ -385,4 +385,34 @@ describe('DbCompanyRepository unit tests', () => {
       );
     });
   });
+
+  describe('DbCompanyRepository.documentExists', () => {
+    it('returns TRUE if document already exists', async () => {
+      query_mock
+        .mockResolvedValueOnce({ rows: [{ total: 1 }] });
+
+      const document = faker.string.numeric(14);
+
+      const result = await repository.documentExists(document);
+
+      expect(result).toBeTruthy();
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT count(id) as total FROM users WHERE tenant_id IS NULL AND is_admin = false AND document = $1',
+        [document]
+      );
+    });
+
+    it("returns FALSE if document doesn't exist", async () => {
+      query_mock.mockResolvedValueOnce({ rows: [{ total: 0 }] });
+
+      const document = faker.string.numeric(14);
+      const result = await repository.documentExists(document);
+
+      expect(result).toBeFalsy()
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT count(id) as total FROM users WHERE tenant_id IS NULL AND is_admin = false AND document = $1',
+        [document]
+      );
+    });
+  });
 });

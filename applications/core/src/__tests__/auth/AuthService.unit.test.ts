@@ -1,7 +1,6 @@
 import AccessPlanRepository from '@auth/app/AccessPlanRepository';
 import AuthService from '@auth/app/AuthService';
 import AuthTokenManager from '@auth/app/AuthTokenManager';
-import EmailService from '@auth/app/EmailService';
 import Encryptor from '@auth/app/Encryptor';
 import PolicyRepository from '@auth/app/PolicyRepository';
 import UserRepository from '@auth/app/UserRepository';
@@ -15,6 +14,7 @@ import CredentialError from '@shared/errors/CredentialError';
 import DomainError from '@shared/errors/DomainError';
 import ExpiredCodeError from '@shared/errors/ExpiredCode';
 import NotFoundError from '@shared/errors/NotFoundError';
+import EmailService from '@shared/infra/EmailService';
 import Collection from '@shared/utils/Collection';
 import { mock } from 'jest-mock-extended';
 

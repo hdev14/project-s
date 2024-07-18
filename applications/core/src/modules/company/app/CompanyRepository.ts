@@ -2,7 +2,6 @@ import { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
 import Company from "../domain/Company";
 
 export type CompaniesFilter = {
-  tenant_id?: string;
   page_options?: PageOptions;
 };
 

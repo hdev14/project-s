@@ -6,6 +6,7 @@ import AlreadyRegisteredError from "@shared/errors/AlreadyRegisteredError";
 import EmailService from "@shared/infra/EmailService";
 import { Policies } from "@shared/infra/Principal";
 import Either from "@shared/utils/Either";
+import { PageOptions, PageResult } from "@shared/utils/Pagination";
 import Company, { CompanyObject } from "../domain/Company";
 import CompanyRepository from "./CompanyRepository";
 
@@ -16,6 +17,15 @@ export type CreateCompanyParams = {
   access_plan_id: string;
   bank: BankValue;
   address: AddressValue;
+};
+
+export type GetCompanisParams = {
+  page_options?: PageOptions;
+};
+
+export type GetCompaniesResult = {
+  results: Array<CompanyObject>;
+  page_result?: PageResult;
 };
 
 export default class CompanyService {
@@ -85,7 +95,9 @@ export default class CompanyService {
     return Either.left(new Error());
   }
 
-  async getCompanies(params: {}): Promise<Either<Array<CompanyObject>>> {
-    return Either.left(new Error());
+  async getCompanies(params: GetCompanisParams): Promise<Either<GetCompaniesResult>> {
+    const { results, page_result } = await this.#company_repository.getCompanies(params);
+
+    return Either.right({ results: results.toObjectList(), page_result });
   }
 }

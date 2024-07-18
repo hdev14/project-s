@@ -28,6 +28,28 @@ export type GetCompaniesResult = {
   page_result?: PageResult;
 };
 
+export type GetCompanyParams = {};
+
+export type UpdateCompanyAddressParams = {};
+
+export type UpdateCompanyBankParams = {};
+
+export type UpdateCompanyBrandParams = {};
+
+export type AddEmployeeParams = {};
+
+export type DeactivateEmploeeParams = {};
+
+export type RegisterServiceLogParams = {};
+
+export type GetServiceLogsParams = {};
+
+export type CreateCommissionParams = {};
+
+export type UpdateCommissionParams = {};
+
+export type GetCommissionsParams = {};
+
 export default class CompanyService {
   #mediator: Mediator;
   #email_service: EmailService;
@@ -91,13 +113,53 @@ export default class CompanyService {
     }
   }
 
-  async updateCompany(params: {}): Promise<Either<void>> {
-    return Either.left(new Error());
-  }
-
   async getCompanies(params: GetCompanisParams): Promise<Either<GetCompaniesResult>> {
     const { results, page_result } = await this.#company_repository.getCompanies(params);
 
     return Either.right({ results: results.toObjectList(), page_result });
+  }
+
+  async getCompany(params: GetCompanyParams): Promise<Either<CompanyObject>> {
+    return Either.left(new Error())
+  }
+
+  async updateCompanyAddress(params: UpdateCompanyAddressParams): Promise<Either<void>> {
+    return Either.left(new Error());
+  }
+
+  async updateCompanyBank(params: UpdateCompanyBankParams): Promise<Either<void>> {
+    return Either.left(new Error());
+  }
+
+  async updateCompanyBrand(params: UpdateCompanyBrandParams): Promise<Either<void>> {
+    return Either.left(new Error());
+  }
+
+  async addEmployee(params: AddEmployeeParams): Promise<Either<void>> {
+    return Either.left(new Error());
+  }
+
+  async deactivateEmployee(params: DeactivateEmploeeParams): Promise<Either<void>> {
+    return Either.left(new Error());
+  }
+
+  async createServiceLog(params: RegisterServiceLogParams): Promise<Either<void>> {
+    return Either.left(new Error());
+  }
+
+  async getServiceLogs(params: GetServiceLogsParams): Promise<Either<void>> {
+    return Either.left(new Error());
+  }
+
+  async createCommission(params: CreateCommissionParams): Promise<Either<void>> {
+    return Either.left(new Error());
+  }
+
+  async updateCommission(params: UpdateCommissionParams): Promise<Either<void>> {
+    return Either.left(new Error());
+  }
+
+  async getCommissions(params: GetCommissionsParams): Promise<Either<void>> {
+    return Either.left(new Error());
   }
 }

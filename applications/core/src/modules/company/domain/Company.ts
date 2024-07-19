@@ -51,6 +51,18 @@ export default class Company extends Aggregate<CompanyObject> implements Aggrega
     }
   }
 
+  set address(value: Address) {
+    this.#address = value;
+  }
+
+  set bank(value: Bank) {
+    this.#bank = value;
+  }
+
+  set brand(value: Brand) {
+    this.#brand = value;
+  }
+
   // TODO
   addNewEmployee(employee: Employee) {
     this.#employees.push(employee);

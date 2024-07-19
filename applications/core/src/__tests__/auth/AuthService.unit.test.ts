@@ -546,7 +546,7 @@ describe('AuthService unit tests', () => {
     });
   });
 
-  describe('AuthService.getAccessPlan', () => {
+  describe('AuthService.getAccessPlans', () => {
     it("should return an array of access plan", async () => {
       access_plan_repository_mock.getAccessPlans.mockResolvedValueOnce(
         new Collection([
@@ -571,7 +571,6 @@ describe('AuthService unit tests', () => {
       expect(error).toBeUndefined();
     });
   });
-
 
   describe('AuthService.getPolicies', () => {
     it("should return an array of policy", async () => {

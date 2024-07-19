@@ -1,8 +1,10 @@
-import { BankValue } from "@company/domain/Bank";
-import { AddressValue } from "@shared/Address";
+import Bank, { BankValue } from "@company/domain/Bank";
+import Brand, { BrandValue } from "@company/domain/Brand";
+import Address, { AddressValue } from "@shared/Address";
 import Mediator from "@shared/Mediator";
 import CreateTenantUserCommand from "@shared/commands/CreateTenantUserCommand";
 import AlreadyRegisteredError from "@shared/errors/AlreadyRegisteredError";
+import NotFoundError from "@shared/errors/NotFoundError";
 import EmailService from "@shared/infra/EmailService";
 import { Policies } from "@shared/infra/Principal";
 import Either from "@shared/utils/Either";
@@ -28,13 +30,21 @@ export type GetCompaniesResult = {
   page_result?: PageResult;
 };
 
-export type GetCompanyParams = {};
+export type GetCompanyParams = {
+  company_id: string;
+};
 
-export type UpdateCompanyAddressParams = {};
+export type UpdateCompanyAddressParams = {
+  company_id: string;
+} & Partial<AddressValue>;
 
-export type UpdateCompanyBankParams = {};
+export type UpdateCompanyBankParams = {
+  company_id: string;
+} & Partial<BankValue>;
 
-export type UpdateCompanyBrandParams = {};
+export type UpdateCompanyBrandParams = {
+  company_id: string;
+} & BrandValue;
 
 export type AddEmployeeParams = {};
 
@@ -120,19 +130,80 @@ export default class CompanyService {
   }
 
   async getCompany(params: GetCompanyParams): Promise<Either<CompanyObject>> {
-    return Either.left(new Error())
+    const company = await this.#company_repository.getCompanyById(params.company_id);
+
+    if (!company) {
+      return Either.left(new NotFoundError('Empresa não encontrado'));
+    }
+
+    return Either.right(company.toObject());
   }
 
   async updateCompanyAddress(params: UpdateCompanyAddressParams): Promise<Either<void>> {
-    return Either.left(new Error());
+    const company = await this.#company_repository.getCompanyById(params.company_id);
+
+    if (!company) {
+      return Either.left(new NotFoundError('Empresa não encontrada'));
+    }
+
+    const current_address = company.toObject().address;
+
+    company.address = new Address(
+      params.street ?? current_address.street,
+      params.district ?? current_address.district,
+      params.state ?? current_address.state,
+      params.number ?? current_address.number,
+      params.complement ?? current_address.complement,
+    );;
+
+    await this.#company_repository.updateCompany(company);
+
+    return Either.right();
   }
 
   async updateCompanyBank(params: UpdateCompanyBankParams): Promise<Either<void>> {
-    return Either.left(new Error());
+    const company = await this.#company_repository.getCompanyById(params.company_id);
+
+    if (!company) {
+      return Either.left(new NotFoundError('Empresa não encontrada'));
+    }
+
+    const current_bank = company.toObject().bank;
+
+    company.bank = new Bank(
+      params.account ?? current_bank.account,
+      params.account_digit ?? current_bank.account_digit,
+      params.agency ?? current_bank.agency,
+      params.agency_digit ?? current_bank.agency_digit,
+      params.bank_code ?? current_bank.bank_code,
+    );
+
+    await this.#company_repository.updateCompany(company);
+
+    return Either.right();
   }
 
   async updateCompanyBrand(params: UpdateCompanyBrandParams): Promise<Either<void>> {
-    return Either.left(new Error());
+    const company = await this.#company_repository.getCompanyById(params.company_id);
+
+    if (!company) {
+      return Either.left(new NotFoundError('Empresa não encontrada'));
+    }
+
+    const current_brand = company.toObject().brand;
+
+    if (!current_brand) {
+      company.brand = new Brand(params.color, params.logo_url);
+    } else {
+      company.brand = new Brand(
+        params.color ?? current_brand.color,
+        params.logo_url ?? current_brand.logo_url
+      );
+    }
+
+    await this.#company_repository.updateCompany(company);
+
+    return Either.right();
   }
 
   async addEmployee(params: AddEmployeeParams): Promise<Either<void>> {

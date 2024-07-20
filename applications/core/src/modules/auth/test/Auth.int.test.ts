@@ -46,6 +46,8 @@ describe('Auth integration tests', () => {
   };
   const tenant_id = faker.string.uuid();
   const { token } = auth_token_manager.generateToken(user);
+  const verification_code = faker.string.numeric(5);
+  const expired_verification_code = faker.string.numeric(5);
 
   beforeEach(async () => {
     await globalThis.db.query(
@@ -79,6 +81,14 @@ describe('Auth integration tests', () => {
     await globalThis.db.query(
       'INSERT INTO policies(id, slug, description) VALUES($1, $2, $3)',
       [faker.string.uuid(), faker.helpers.slugify(faker.word.words(2)), faker.lorem.lines(1)]
+    );
+    await globalThis.db.query(
+      'INSERT INTO verification_codes(id, code, user_id, expired_at) VALUES($1, $2, $3, $4)',
+      [faker.string.uuid(), verification_code, user.id, faker.date.future()]
+    );
+    await globalThis.db.query(
+      'INSERT INTO verification_codes(id, code, user_id, expired_at) VALUES($1, $2, $3, $4)',
+      [faker.string.uuid(), expired_verification_code, user.id, faker.date.past()]
     );
   });
 
@@ -630,6 +640,48 @@ describe('Auth integration tests', () => {
       expect(response.status).toEqual(204);
       const result = await globalThis.db.query('SELECT * FROM verification_codes WHERE user_id = $1', [user.id]);
       expect(result.rows[0]).toBeDefined();
+    });
+  });
+
+  describe('PATCH: /api/auth/passwords', () => {
+    it("returns status code 404 if verification code doesn't exist", async () => {
+      const response = await request
+        .patch('/api/auth/passwords')
+        .set('Content-Type', 'application/json')
+        .send({
+          code: faker.string.numeric(5),
+          passowrd: faker.string.alphanumeric()
+        });
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Código não encontrado');
+    });
+
+    it('returns status code 400 if verification code has expired', async () => {
+      const response = await request
+        .patch('/api/auth/passwords')
+        .set('Content-Type', 'application/json')
+        .send({
+          code: expired_verification_code,
+          passowrd: faker.string.alphanumeric()
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.message).toEqual('O código está expirado');
+    });
+
+    it('should has changed the user password', async () => {
+      const response = await request
+        .patch('/api/auth/passwords')
+        .set('Content-Type', 'application/json')
+        .send({
+          code: verification_code,
+          passowrd: faker.string.alphanumeric()
+        });
+
+      expect(response.status).toEqual(204);
+      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [user.id]);
+      expect(result.rows[0].password).not.toEqual(user.password);
     });
   });
 });

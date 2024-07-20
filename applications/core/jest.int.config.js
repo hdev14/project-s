@@ -5,7 +5,7 @@ module.exports = {
   ...{
     displayName: "Integration Tests",
     clearMocks: true,
-    setupFilesAfterEnv: ["<rootDir>/src/__tests__/setup.ts"],
+    setupFilesAfterEnv: ["<rootDir>/src/test_setup.ts"],
     testMatch: [
       "**/*.int.test.ts"
     ]

@@ -1,0 +1,11 @@
+{
+  "notfound.access_plan": "Plano de acesso não encontrado",
+  "notfound.company": "Empresa não encontrada",
+  "notfound.user": "Usuário não encontrado",
+  "notfound.code": "Código não encontrado",
+  "notfound.catalog_item": "Item não encontrado",
+  "credential_error": "Credenciais Inválidas",
+  "deactivate_access_plan": "Plano de acesso desativado",
+  "negative_access_plan_amount": "Valor negativo de plano de acesso",
+  "expired_code": "O código está expirado"
+}

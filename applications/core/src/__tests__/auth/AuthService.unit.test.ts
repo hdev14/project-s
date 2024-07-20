@@ -48,7 +48,7 @@ describe('AuthService unit tests', () => {
 
       expect(data).toBeUndefined();
       expect(error).toBeInstanceOf(CredentialError);
-      expect(error!.message).toEqual('Credenciais inválidas');
+      expect(error!.message).toEqual('credential_error');
     });
 
     it("returns a credentials error if password is invalid", async () => {
@@ -68,7 +68,7 @@ describe('AuthService unit tests', () => {
 
       expect(data).toBeUndefined();
       expect(error).toBeInstanceOf(CredentialError);
-      expect(error!.message).toEqual('Credenciais inválidas');
+      expect(error!.message).toEqual('credential_error');
     });
 
     it("returns a login result if credentials are valid", async () => {
@@ -124,7 +124,7 @@ describe('AuthService unit tests', () => {
 
       expect(data).toBeUndefined();
       expect(error).toBeInstanceOf(NotFoundError);
-      expect(error!.message).toEqual('Plano de acesso não encontrado');
+      expect(error!.message).toEqual('notfound.access_plan');
     });
 
     it("should register a new tenant's user", async () => {
@@ -163,7 +163,7 @@ describe('AuthService unit tests', () => {
 
       expect(data).toBeUndefined();
       expect(error).toBeInstanceOf(NotFoundError);
-      expect(error!.message).toEqual('Empresa não encontrada');
+      expect(error!.message).toEqual('notfound.company');
     });
   });
 
@@ -179,7 +179,7 @@ describe('AuthService unit tests', () => {
 
       expect(data).toBeUndefined();
       expect(error).toBeInstanceOf(NotFoundError);
-      expect(error!.message).toEqual('Usuário não encontrado');
+      expect(error!.message).toEqual('notfound.user');
     });
 
     it("updates an user", async () => {
@@ -263,7 +263,7 @@ describe('AuthService unit tests', () => {
 
       expect(data).toBeUndefined();
       expect(error).toBeInstanceOf(NotFoundError);
-      expect(error!.message).toEqual('Usuário não encontrado');
+      expect(error!.message).toEqual('notfound.user');
     });
 
     it("should attach policies", async () => {
@@ -384,7 +384,7 @@ describe('AuthService unit tests', () => {
 
       expect(data).toBeUndefined();
       expect(error).toBeInstanceOf(NotFoundError);
-      expect(error!.message).toEqual('Plano de acesso não encontrado');
+      expect(error!.message).toEqual('notfound.access_plan');
     });
 
     it("returns a not found error if user doesn't exist", async () => {
@@ -404,7 +404,7 @@ describe('AuthService unit tests', () => {
 
       expect(data).toBeUndefined();
       expect(error).toBeInstanceOf(NotFoundError);
-      expect(error!.message).toEqual('Usuário não encontrado');
+      expect(error!.message).toEqual('notfound.user');
     });
 
     it("should update user access plan", async () => {
@@ -487,7 +487,7 @@ describe('AuthService unit tests', () => {
       const [, error] = await auth_service.updateAccessPlan(params);
 
       expect(error).toBeInstanceOf(NotFoundError);
-      expect(error!.message).toEqual('Plano de acesso não encontrado');
+      expect(error!.message).toEqual('notfound.access_plan');
     });
 
     it('should update a access plan', async () => {

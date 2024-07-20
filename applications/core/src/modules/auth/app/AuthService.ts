@@ -132,17 +132,17 @@ export default class AuthService {
     if (params.access_plan_id !== undefined) {
       const access_plan = await this.#access_plan_repository.getAccessPlanById(params.access_plan_id);
       if (!access_plan) {
-        return Either.left(new NotFoundError('Plano de acesso não encontrado'));
+        return Either.left(new NotFoundError('notfound.access_plan'));
       }
       if (!access_plan.isActive()) {
-        return Either.left(new Error('Plano de acesso desativado'));
+        return Either.left(new Error('deactivate_access_plan'));
       }
     }
 
     if (params.tenant_id !== undefined) {
       const tenant = await this.#user_repository.getUserById(params.tenant_id);
       if (!tenant) {
-        return Either.left(new NotFoundError('Empresa não encontrada'));
+        return Either.left(new NotFoundError('notfound.company'));
       }
     }
 
@@ -163,7 +163,7 @@ export default class AuthService {
     const user = await this.#user_repository.getUserById(params.user_id);
 
     if (!user) {
-      return Either.left(new NotFoundError('Usuário não encontrado'));
+      return Either.left(new NotFoundError('notfound.user'));
     }
 
     if (params.email) {
@@ -183,7 +183,7 @@ export default class AuthService {
     const user = await this.#user_repository.getUserById(params.user_id);
 
     if (!user) {
-      return Either.left(new NotFoundError('Usuário não encontrado'));
+      return Either.left(new NotFoundError('notfound.user'));
     }
 
     const policies = await this.#policy_repository.getPolicies({
@@ -216,13 +216,13 @@ export default class AuthService {
     const access_plan = await this.#access_plan_repository.getAccessPlanById(params.access_plan_id);
 
     if (!access_plan) {
-      return Either.left(new NotFoundError('Plano de acesso não encontrado'));
+      return Either.left(new NotFoundError('notfound.access_plan'));
     }
 
     const user = await this.#user_repository.getUserById(params.user_id);
 
     if (!user) {
-      return Either.left(new NotFoundError('Usuário não encontrado'));
+      return Either.left(new NotFoundError('notfound.user'));
     }
 
     user.changeAccessPlan(access_plan);
@@ -258,7 +258,7 @@ export default class AuthService {
       const access_plan = await this.#access_plan_repository.getAccessPlanById(params.access_plan_id);
 
       if (!access_plan) {
-        return Either.left(new NotFoundError('Plano de acesso não encontrado'));
+        return Either.left(new NotFoundError('notfound.access_plan'));
       }
 
       if (params.active !== undefined) {
@@ -302,7 +302,7 @@ export default class AuthService {
     const user = await this.#user_repository.getUserByEmail(params.email);
 
     if (!user) {
-      return Either.left(new NotFoundError('Usuário não encontrado'));
+      return Either.left(new NotFoundError('notfound.user'));
     }
 
     const expired_at = new Date();
@@ -333,11 +333,11 @@ export default class AuthService {
     const verification_code = await this.#verification_code_repository.getVerificationCodeByCode(params.code);
 
     if (!verification_code) {
-      return Either.left(new NotFoundError('Código não encontrado'));
+      return Either.left(new NotFoundError('notfound.code'));
     }
 
     if (verification_code.isExpired()) {
-      return Either.left(new ExpiredCodeError(verification_code.code));
+      return Either.left(new ExpiredCodeError());
     }
 
     const user = await this.#user_repository.getUserById(verification_code.user_id);

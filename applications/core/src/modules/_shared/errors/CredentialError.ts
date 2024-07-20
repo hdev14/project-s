@@ -1,6 +1,6 @@
 export default class CredentialError extends Error {
   constructor() {
-    super('Credenciais inválidas');
+    super('credential_error');
     this.name = this.constructor.name;
     Object.setPrototypeOf(this, CredentialError.prototype);
   }

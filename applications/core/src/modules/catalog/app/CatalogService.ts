@@ -56,7 +56,7 @@ export default class CatalogService {
     const exists = await this.#mediator.send<boolean>(new TenantExistsCommand(params.tenant_id));
 
     if (!exists) {
-      return Either.left(new NotFoundError('Empresa não encontrada'));
+      return Either.left(new NotFoundError('notfound.company'));
     }
 
     const catalog_item = new CatalogItem(Object.assign({}, params, { id: randomUUID() }));
@@ -70,7 +70,7 @@ export default class CatalogService {
     const catalog_item = await this.#catalog_repository.getCatalogItemById(params.catalog_item_id);
 
     if (!catalog_item) {
-      return Either.left(new NotFoundError('Item não encontrado'));
+      return Either.left(new NotFoundError('notfound.catalog_item'));
     }
 
     const obj = catalog_item.toObject();

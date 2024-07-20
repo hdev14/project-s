@@ -115,7 +115,7 @@ describe('CatalogService unit tests', () => {
       const [, error] = await catalog_service.updateCatalogItem(params);
 
       expect(error).toBeInstanceOf(NotFoundError);
-      expect(error!.message).toEqual('Item não encontrado');
+      expect(error!.message).toEqual('notfound.catalog_item');
     });
 
     it("should update a catalog item", async () => {

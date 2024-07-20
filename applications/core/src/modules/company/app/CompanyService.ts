@@ -143,7 +143,7 @@ export default class CompanyService {
     const company = await this.#company_repository.getCompanyById(params.company_id);
 
     if (!company) {
-      return Either.left(new NotFoundError('Empresa não encontrada'));
+      return Either.left(new NotFoundError('notfound.company'));
     }
 
     const current_address = company.toObject().address;
@@ -165,7 +165,7 @@ export default class CompanyService {
     const company = await this.#company_repository.getCompanyById(params.company_id);
 
     if (!company) {
-      return Either.left(new NotFoundError('Empresa não encontrada'));
+      return Either.left(new NotFoundError('notfound.company'));
     }
 
     const current_bank = company.toObject().bank;
@@ -187,7 +187,7 @@ export default class CompanyService {
     const company = await this.#company_repository.getCompanyById(params.company_id);
 
     if (!company) {
-      return Either.left(new NotFoundError('Empresa não encontrada'));
+      return Either.left(new NotFoundError('notfound.company'));
     }
 
     const current_brand = company.toObject().brand;

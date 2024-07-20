@@ -47,7 +47,7 @@ export default class CatalogController extends BaseHttpController {
     });
 
     if (error instanceof NotFoundError) {
-      return this.json({ message: error.message }, HttpStatusCodes.NOT_FOUND);
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
     }
 
     return this.json(data, HttpStatusCodes.CREATED);
@@ -76,7 +76,7 @@ export default class CatalogController extends BaseHttpController {
     });
 
     if (error instanceof NotFoundError) {
-      return this.json({ message: error.message }, HttpStatusCodes.NOT_FOUND);
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
     }
 
     return this.statusCode(HttpStatusCodes.NO_CONTENT);

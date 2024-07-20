@@ -29,7 +29,7 @@ export default class CreateTenantUserCommandHandler implements Handler<CreateTen
     const access_plan = await this.#access_plan_repository.getAccessPlanById(command.access_plan_id);
 
     if (!access_plan) {
-      throw new NotFoundError('Plano de acesso não encontrado');
+      throw new NotFoundError('notfound.access_plan');
     }
 
     const user = new User({

@@ -44,7 +44,7 @@ export default class AuthController extends BaseHttpController {
     });
 
     if (error instanceof CredentialError) {
-      return this.json({ message: error.message }, HttpStatusCodes.BAD_REQUEST);
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.BAD_REQUEST);
     }
 
     const isProd = process.env.NODE_ENV === 'production';
@@ -97,9 +97,9 @@ export default class AuthController extends BaseHttpController {
 
     if (error) {
       if (error instanceof NotFoundError) {
-        return this.json({ message: error.message }, HttpStatusCodes.NOT_FOUND);
+        return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
       }
-      return this.json({ message: error.message }, HttpStatusCodes.UNPROCESSABLE_CONTENT);
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.UNPROCESSABLE_CONTENT);
     }
 
 
@@ -125,7 +125,7 @@ export default class AuthController extends BaseHttpController {
     });
 
     if (error instanceof NotFoundError) {
-      return this.json({ message: error.message }, HttpStatusCodes.NOT_FOUND);
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
     }
 
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
@@ -151,7 +151,7 @@ export default class AuthController extends BaseHttpController {
     });
 
     if (error instanceof NotFoundError) {
-      return this.json({ message: error.message }, HttpStatusCodes.NOT_FOUND);
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
     }
 
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
@@ -176,7 +176,7 @@ export default class AuthController extends BaseHttpController {
     });
 
     if (error instanceof DomainError) {
-      return this.json({ message: error.message }, HttpStatusCodes.UNPROCESSABLE_CONTENT);
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.UNPROCESSABLE_CONTENT);
     }
 
     return this.json(data, HttpStatusCodes.CREATED);
@@ -209,7 +209,7 @@ export default class AuthController extends BaseHttpController {
     });
 
     if (error instanceof NotFoundError) {
-      return this.json({ message: error.message }, HttpStatusCodes.NOT_FOUND);
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
     }
 
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
@@ -241,15 +241,17 @@ export default class AuthController extends BaseHttpController {
   async forgotPassword(@request() req: Request) {
     const { email } = req.body;
 
+
     const [, error] = await this.auth_service.forgotPassword({ email });
 
     if (error instanceof NotFoundError) {
-      return this.json({ message: error.message }, HttpStatusCodes.NOT_FOUND);
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
     }
 
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
+  // TODO
   @httpPatch('/passwords')
   async resetPassword(@request() req: Request) {
     return this.statusCode(HttpStatusCodes.NO_CONTENT);

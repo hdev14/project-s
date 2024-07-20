@@ -303,7 +303,7 @@ describe('Auth integration tests', () => {
 
 
       expect(response.status).toEqual(400);
-      expect(response.body.message).toEqual('Credenciais inválidas');
+      expect(response.body.message).toEqual('Credenciais Inválidas');
     });
 
     it("returns status code 400 if user's password is wrong", async () => {
@@ -317,7 +317,7 @@ describe('Auth integration tests', () => {
 
 
       expect(response.status).toEqual(400);
-      expect(response.body.message).toEqual('Credenciais inválidas');
+      expect(response.body.message).toEqual('Credenciais Inválidas');
     });
 
     it("returns status code 400 if data is invalid", async () => {

@@ -30,7 +30,7 @@ export default class Application {
     const i18n = new I18n({
       locales: ['pt', 'en'],
       defaultLocale: 'pt',
-      cookie: 'application-language',
+      cookie: 'api-language',
       directory: path.join(__dirname, './modules/_shared/i18n'),
       updateFiles: false,
     });

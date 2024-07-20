@@ -15,7 +15,7 @@ export default class DbVerificationCodeRepository implements VerificationCodeRep
   }
 
   async getVerificationCodeByCode(code: string): Promise<VerificationCode | null> {
-    const result = await this.#db.query('SELECT * FROM verification_codes WHERE expired_at > NOW() AND code = $1', [code]);
+    const result = await this.#db.query('SELECT * FROM verification_codes WHERE code = $1', [code]);
 
     if (result.rows.length === 0) {
       return null;

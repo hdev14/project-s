@@ -46,8 +46,8 @@ describe('Auth integration tests', () => {
   };
   const tenant_id = faker.string.uuid();
   const { token } = auth_token_manager.generateToken(user);
-  const verification_code = faker.string.numeric(5);
-  const expired_verification_code = faker.string.numeric(5);
+  const verification_code = faker.string.numeric(4);
+  const expired_verification_code = faker.string.numeric(4);
 
   beforeEach(async () => {
     await globalThis.db.query(
@@ -649,8 +649,8 @@ describe('Auth integration tests', () => {
         .patch('/api/auth/passwords')
         .set('Content-Type', 'application/json')
         .send({
-          code: faker.string.numeric(5),
-          passowrd: faker.string.alphanumeric()
+          code: faker.string.numeric(4),
+          password: faker.string.alphanumeric(10)
         });
 
       expect(response.status).toEqual(404);
@@ -663,11 +663,24 @@ describe('Auth integration tests', () => {
         .set('Content-Type', 'application/json')
         .send({
           code: expired_verification_code,
-          passowrd: faker.string.alphanumeric()
+          password: faker.string.alphanumeric(10)
         });
 
       expect(response.status).toEqual(400);
       expect(response.body.message).toEqual('O código está expirado');
+    });
+
+    it('returns status code 400 if data is invalid', async () => {
+      const response = await request
+        .patch('/api/auth/passwords')
+        .set('Content-Type', 'application/json')
+        .send({
+          code: faker.string.numeric(10), // length
+          password: faker.string.numeric(6),
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(2);
     });
 
     it('should has changed the user password', async () => {
@@ -676,7 +689,7 @@ describe('Auth integration tests', () => {
         .set('Content-Type', 'application/json')
         .send({
           code: verification_code,
-          passowrd: faker.string.alphanumeric()
+          password: faker.string.alphanumeric(10)
         });
 
       expect(response.status).toEqual(204);

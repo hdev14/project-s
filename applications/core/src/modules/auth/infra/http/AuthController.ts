@@ -1,6 +1,7 @@
 import AuthService from "@auth/app/AuthService";
 import CredentialError from "@shared/errors/CredentialError";
 import DomainError from "@shared/errors/DomainError";
+import ExpiredCodeError from "@shared/errors/ExpiredCode";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
 import { Policies } from "@shared/infra/Principal";
@@ -23,6 +24,7 @@ import {
   create_user_validation_schema,
   forgot_password_validation_schema,
   login_validation_schema,
+  reset_password_validation_schema,
   update_access_plan_validation_schema,
   update_policies_validation_schema,
   update_user_validation_schema
@@ -251,9 +253,22 @@ export default class AuthController extends BaseHttpController {
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
-  // TODO
-  @httpPatch('/passwords')
+  @httpPatch('/passwords', requestValidator(reset_password_validation_schema))
   async resetPassword(@request() req: Request) {
+    const { code, password } = req.body;
+    const [, error] = await this.auth_service.resetPassword({
+      code,
+      password,
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    if (error instanceof ExpiredCodeError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.BAD_REQUEST)
+    }
+
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 }

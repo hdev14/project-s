@@ -36,7 +36,7 @@ describe('DbVerificationCodeRepository unit tests', () => {
 
       expect(verification_code).toBeInstanceOf(VerificationCode);
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT * FROM verification_codes WHERE expired_at > NOW() AND code = $1',
+        'SELECT * FROM verification_codes WHERE code = $1',
         [code]
       );
     });
@@ -51,7 +51,7 @@ describe('DbVerificationCodeRepository unit tests', () => {
 
       expect(verification_code).toBeNull();
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT * FROM verification_codes WHERE expired_at > NOW() AND code = $1',
+        'SELECT * FROM verification_codes WHERE code = $1',
         [code]
       );
     });

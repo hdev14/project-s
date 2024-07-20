@@ -114,3 +114,14 @@ export const forgot_password_validation_schema: Schema = {
     errorMessage: 'O campo precisa ser um endereço de e-mail válido',
   }
 };
+
+export const reset_password_validation_schema: Schema = {
+  code: {
+    isLength: { options: { max: 4 } },
+    errorMessage: 'O campo precisa ter no minimo 4 caracteres',
+  },
+  password: {
+    isLength: { options: { min: 8 } },
+    errorMessage: 'O campo precisa ter no minimo 8 caracteres',
+  },
+};

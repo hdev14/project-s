@@ -4,33 +4,33 @@ import { Schema } from "express-validator";
 export const create_user_validation_schema: Schema = {
   email: {
     isEmail: true,
-    errorMessage: 'O campo precisa ser um endereço de e-mail válido',
+    errorMessage: 'validation.email',
   },
   password: {
     isLength: { options: { min: 8 } },
-    errorMessage: 'O campo precisa ter no minimo 8 caracteres',
+    errorMessage: 'validation.password',
   },
   access_plan_id: {
     isUUID: true,
     optional: true,
-    errorMessage: 'O campo precisa ser um ID valido'
+    errorMessage: 'validation.id'
   },
   tenant_id: {
     isUUID: true,
     optional: true,
-    errorMessage: 'O campo precisa ser um ID valido'
+    errorMessage: 'validation.id'
   },
 };
 
 export const update_user_validation_schema: Schema = {
   email: {
     isEmail: true,
-    errorMessage: 'O campo precisa ser um endereço de e-mail válido',
+    errorMessage: 'validation.email',
     optional: true,
   },
   password: {
     isLength: { options: { min: 8 } },
-    errorMessage: 'O campo precisa ter no minimo 8 caracteres',
+    errorMessage: 'validation.password',
     optional: true,
   },
 };
@@ -38,7 +38,7 @@ export const update_user_validation_schema: Schema = {
 export const update_policies_validation_schema: Schema = {
   policy_slugs: {
     isArray: {
-      errorMessage: 'O campo precisa ser um array válido',
+      errorMessage: 'validation.array',
       options: {
         min: 1,
       }
@@ -48,7 +48,7 @@ export const update_policies_validation_schema: Schema = {
     isString: true,
     custom: {
       if: (value: string) => !['attach', 'dettach'].includes(value),
-      errorMessage: 'O campo precisa ser um dos valores: attach ou dettach'
+      errorMessage: 'validation.custom'
     }
   }
 };
@@ -56,29 +56,29 @@ export const update_policies_validation_schema: Schema = {
 export const login_validation_schema: Schema = {
   email: {
     isEmail: true,
-    errorMessage: 'O campo precisa ser um endereço de e-mail válido',
+    errorMessage: 'validation.email',
   },
   password: {
     isLength: { options: { min: 8 } },
-    errorMessage: 'O campo precisa ter no minimo 8 caracteres',
+    errorMessage: 'validation.password',
   },
 };
 
 export const create_access_plan_validation_schema: Schema = {
   amount: {
     isFloat: true,
-    errorMessage: 'O campo precisa ser um número válido',
+    errorMessage: 'validation.number',
   },
   type: {
     isIn: {
       options: [Object.values(AccessPlanTypes)],
-      errorMessage: 'O campo precisa ser um tipo válido de plano de acesso'
+      errorMessage: 'validation.access_plan_type'
     }
   },
   description: {
     isString: true,
     optional: true,
-    errorMessage: 'O campo precisa ser um texto válido'
+    errorMessage: 'validation.text'
   },
 }
 
@@ -87,41 +87,41 @@ export const update_access_plan_validation_schema: Schema = {
   amount: {
     optional: true,
     isFloat: true,
-    errorMessage: 'O campo precisa ser um número válido',
+    errorMessage: 'validation.number',
   },
   type: {
     optional: true,
     isIn: {
       options: [Object.values(AccessPlanTypes)],
-      errorMessage: 'O campo precisa ser um tipo válido de plano de acesso'
+      errorMessage: 'validation.access_plan_type'
     }
   },
   description: {
     isString: true,
     optional: true,
-    errorMessage: 'O campo precisa ser um texto válido'
+    errorMessage: 'validation.text'
   },
   active: {
     isBoolean: true,
     optional: true,
-    errorMessage: 'O campo precisa ser um boleano válido'
+    errorMessage: 'validation.boolean'
   },
 };
 
 export const forgot_password_validation_schema: Schema = {
   email: {
     isEmail: true,
-    errorMessage: 'O campo precisa ser um endereço de e-mail válido',
+    errorMessage: 'validation.email',
   }
 };
 
 export const reset_password_validation_schema: Schema = {
   code: {
     isLength: { options: { max: 4 } },
-    errorMessage: 'O campo precisa ter no minimo 4 caracteres',
+    errorMessage: 'validation.code',
   },
   password: {
     isLength: { options: { min: 8 } },
-    errorMessage: 'O campo precisa ter no minimo 8 caracteres',
+    errorMessage: 'validation.password',
   },
 };

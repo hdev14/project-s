@@ -473,7 +473,7 @@ describe('Auth integration tests', () => {
       expect(response.body.errors[0].field).toEqual('policy_slugs');
       expect(response.body.errors[0].message).toEqual('O campo precisa ser um array válido');
       expect(response.body.errors[1].field).toEqual('mode');
-      expect(response.body.errors[1].message).toEqual('O campo precisa ser um dos valores: attach ou dettach');
+      expect(response.body.errors[1].message).toEqual('O campo precisa ser um valor válido');
     });
   });
 

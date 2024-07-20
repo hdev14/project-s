@@ -7,5 +7,16 @@
   "credential_error": "Invalid credentials",
   "deactivate_access_plan": "Access plan deactivated",
   "negative_access_plan_amount": "Negative amount for access plna",
-  "expired_code": "The core is expired"
+  "expired_code": "The code is expired",
+  "validation.email": "The field must be a valid email address",
+  "validation.password": "The field must have at least 8 characteres",
+  "validation.id": "The field must have a valid ID ",
+  "validation.array": "The field must be an array",
+  "validation.custom": "The field must be a valid value",
+  "validation.number": "The field must be a valid number",
+  "validation.access_plan_type": "The field must be a valid access plan type",
+  "validation.text": "The field must be a valid text",
+  "validation.boolean": "The field must be a valid boolean",
+  "validation.code": "The field must have at most 4 characteres",
+  "validation.url": "The field must be a valid url"
 }

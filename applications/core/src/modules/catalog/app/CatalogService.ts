@@ -24,6 +24,7 @@ export type GetCatalogItemsResult = {
 export type CreateCatalogItemParams = {
   name: string;
   description: string;
+  amount: number;
   attributes: Array<AttributeValue>;
   is_service: boolean;
   picture_url?: string;

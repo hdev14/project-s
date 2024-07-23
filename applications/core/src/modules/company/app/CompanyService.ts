@@ -52,7 +52,14 @@ export type AddEmployeeParams = {};
 
 export type DeactivateEmploeeParams = {};
 
-export type RegisterServiceLogParams = {};
+export type RegisterServiceLogParams = {
+  employee_id: string;
+  service_id: string;
+  customer_id: string;
+  tenant_id: string;
+  paid_amount: number;
+  registed_at: Date;
+};
 
 export type GetServiceLogsParams = {
   tenant_id: string;

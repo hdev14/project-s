@@ -15,6 +15,7 @@ import {
   request
 } from "inversify-express-utils";
 import { create_catalog_item_validation_schema, update_catalog_item_validation_schema } from "./validations";
+import DomainError from "@shared/errors/DomainError";
 
 @controller('/api/catalog', types.AuthMiddleware)
 export default class CatalogController extends BaseHttpController {
@@ -34,7 +35,8 @@ export default class CatalogController extends BaseHttpController {
       attributes,
       is_service = false,
       tenant_id,
-      picture_url
+      picture_url,
+      amount,
     } = req.body;
 
     const [data, error] = await this.catalog_service.createCatalogItem({
@@ -43,11 +45,16 @@ export default class CatalogController extends BaseHttpController {
       attributes,
       is_service,
       tenant_id,
-      picture_url
+      picture_url,
+      amount
     });
 
     if (error instanceof NotFoundError) {
       return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    if (error instanceof DomainError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.BAD_REQUEST);
     }
 
     return this.json(data, HttpStatusCodes.CREATED);

@@ -18,5 +18,6 @@
   "validation.text": "O campo precisa ser um texto válido",
   "validation.boolean": "O campo precisa ser um boleano válido",
   "validation.code": "O campo precisa ter no maximo 4 caracteres",
-  "validation.url": "O campo precisa ser uma url válida"
+  "validation.url": "O campo precisa ser uma url válida",
+  "catalog_item_negative_amount": "Valor do item negativo"
 }

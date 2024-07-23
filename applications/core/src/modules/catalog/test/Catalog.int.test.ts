@@ -34,7 +34,7 @@ describe('Catalog integration tests', () => {
     );
 
     await globalThis.db.query(
-      'INSERT INTO catalog_items (id, name, description, attributes, is_service, picture_url, tenant_id) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+      'INSERT INTO catalog_items (id, name, description, attributes, is_service, picture_url, tenant_id, amount) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
       [
         catalog_item_id,
         faker.commerce.productName(),
@@ -43,11 +43,12 @@ describe('Catalog integration tests', () => {
         faker.datatype.boolean(),
         faker.internet.url(),
         user.id,
+        faker.number.float(),
       ]
     )
 
     await globalThis.db.query(
-      'INSERT INTO catalog_items (id, name, description, attributes, is_service, picture_url, tenant_id) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+      'INSERT INTO catalog_items (id, name, description, attributes, is_service, picture_url, tenant_id, amount) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
       [
         faker.string.uuid(),
         faker.commerce.productName(),
@@ -55,12 +56,13 @@ describe('Catalog integration tests', () => {
         JSON.stringify([]),
         faker.datatype.boolean(),
         faker.internet.url(),
-        tenant_id
+        tenant_id,
+        faker.number.float(),
       ]
     )
 
     await globalThis.db.query(
-      'INSERT INTO catalog_items (id, name, description, attributes, is_service, picture_url, tenant_id) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+      'INSERT INTO catalog_items (id, name, description, attributes, is_service, picture_url, tenant_id, amount) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
       [
         faker.string.uuid(),
         faker.commerce.productName(),
@@ -68,7 +70,8 @@ describe('Catalog integration tests', () => {
         JSON.stringify([]),
         faker.datatype.boolean(),
         faker.internet.url(),
-        tenant_id
+        tenant_id,
+        faker.number.float(),
       ]
     )
   });
@@ -87,6 +90,7 @@ describe('Catalog integration tests', () => {
         .send({
           name: faker.commerce.productName(),
           description: faker.commerce.productDescription(),
+          amount: faker.number.float(),
           attributes: [{ name: faker.commerce.productAdjective(), description: faker.lorem.lines() }],
           is_service: faker.datatype.boolean(),
           picture_url: faker.internet.url(),
@@ -111,6 +115,7 @@ describe('Catalog integration tests', () => {
         .send({
           name: faker.commerce.productName(),
           description: faker.commerce.productDescription(),
+          amount: faker.number.float(),
           attributes: [{ name: faker.commerce.productAdjective(), description: faker.lorem.lines() }],
           is_service: faker.datatype.boolean(),
           picture_url: faker.internet.url(),
@@ -129,6 +134,7 @@ describe('Catalog integration tests', () => {
         .send({
           name: faker.number.int(),
           description: faker.number.int(),
+          amount: faker.string.sample(),
           attributes: [{ name: faker.number.int(), description: faker.number.int() }],
           is_service: faker.string.sample(),
           picture_url: faker.string.sample(),
@@ -136,7 +142,26 @@ describe('Catalog integration tests', () => {
         });
 
       expect(response.status).toEqual(400);
-      expect(response.body.errors).toHaveLength(6);
+      expect(response.body.errors).toHaveLength(7);
+    });
+
+    it("returns status code 400 if amount is negative", async () => {
+      const response = await request
+        .post('/api/catalog/items')
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          name: faker.commerce.productName(),
+          description: faker.commerce.productDescription(),
+          amount: faker.number.float() * -1,
+          attributes: [{ name: faker.commerce.productAdjective(), description: faker.lorem.lines() }],
+          is_service: faker.datatype.boolean(),
+          picture_url: faker.internet.url(),
+          tenant_id: user.id,
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.message).toEqual('Valor do item negativo');
     });
   });
 

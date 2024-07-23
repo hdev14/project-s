@@ -3,6 +3,7 @@ import CatalogService from '@catalog/app/CatalogService';
 import CatalogItem from '@catalog/domain/CatalogItem';
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import TenantExistsCommand from '@shared/commands/TenantExistsCommand';
+import DomainError from '@shared/errors/DomainError';
 import NotFoundError from '@shared/errors/NotFoundError';
 import Mediator from '@shared/Mediator';
 import Collection from '@shared/utils/Collection';
@@ -100,6 +101,24 @@ describe('CatalogService unit tests', () => {
       expect(error).toBeInstanceOf(NotFoundError);
       expect(mediator_mock.send).toHaveBeenCalledTimes(1);
       expect(mediator_mock.send.mock.calls[0][0]).toBeInstanceOf(TenantExistsCommand);
+    });
+
+    it("results a domain error if amount is negative", async () => {
+      mediator_mock.send.mockResolvedValueOnce(true);
+
+      const params = {
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        amount: faker.number.float() * -1,
+        attributes: [{ name: faker.commerce.productAdjective(), description: faker.lorem.lines() }],
+        is_service: faker.datatype.boolean(),
+        tenant_id: faker.string.uuid(),
+      };
+
+      const [data, error] = await catalog_service.createCatalogItem(params);
+
+      expect(data).toBeUndefined();
+      expect(error).toBeInstanceOf(DomainError);
     });
   });
 

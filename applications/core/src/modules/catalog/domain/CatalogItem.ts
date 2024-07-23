@@ -1,5 +1,6 @@
 import Aggregate, { RequiredId } from "@shared/ddd/Aggregate";
 import Attribute, { AttributeValue } from "./Attribute";
+import DomainError from "@shared/errors/DomainError";
 
 export type CatalogItemObject = {
   id?: string;
@@ -18,7 +19,7 @@ export default class CatalogItem extends Aggregate<CatalogItemObject> {
   #attributes: Array<Attribute> = [];
   #is_service: boolean;
   #tenant_id: string;
-  #amount: number;
+  #amount: number = 0;
   #picture_url?: string;
 
   constructor(obj: CatalogItemObject) {
@@ -27,7 +28,7 @@ export default class CatalogItem extends Aggregate<CatalogItemObject> {
     this.#description = obj.description;
     this.#is_service = obj.is_service;
     this.#tenant_id = obj.tenant_id;
-    this.#amount = obj.amount;
+    this.amount = obj.amount;
     this.#picture_url = obj.picture_url;
 
     for (let idx = 0; idx < obj.attributes.length; idx++) {
@@ -42,6 +43,14 @@ export default class CatalogItem extends Aggregate<CatalogItemObject> {
 
   set description(value: string) {
     this.#description = value;
+  }
+
+  set amount(value: number) {
+    if (value <= 0) {
+      throw new DomainError(CatalogItem.name, 'catalog_item_negative_amount');
+    }
+
+    this.#amount = value;
   }
 
   set attributes(value: Array<AttributeValue>) {

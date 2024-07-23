@@ -10,6 +10,7 @@ import { randomUUID } from "crypto";
 import { inject, injectable } from "inversify";
 import 'reflect-metadata';
 import CatalogRepository from "./CatalogRepository";
+import DomainError from "@shared/errors/DomainError";
 
 export type GetCatalogItemsParams = {
   tenant_id?: string;
@@ -54,17 +55,26 @@ export default class CatalogService {
   }
 
   async createCatalogItem(params: CreateCatalogItemParams): Promise<Either<CatalogItemObject>> {
-    const exists = await this.#mediator.send<boolean>(new TenantExistsCommand(params.tenant_id));
 
-    if (!exists) {
-      return Either.left(new NotFoundError('notfound.company'));
+    try {
+      const exists = await this.#mediator.send<boolean>(new TenantExistsCommand(params.tenant_id));
+
+      if (!exists) {
+        return Either.left(new NotFoundError('notfound.company'));
+      }
+
+      const catalog_item = new CatalogItem(Object.assign({}, params, { id: randomUUID() }));
+
+      await this.#catalog_repository.createCatalogItem(catalog_item);
+
+      return Either.right(catalog_item.toObject());
+    } catch (error) {
+      if (error instanceof DomainError) {
+        return Either.left(error);
+      }
+
+      throw error;
     }
-
-    const catalog_item = new CatalogItem(Object.assign({}, params, { id: randomUUID() }));
-
-    await this.#catalog_repository.createCatalogItem(catalog_item);
-
-    return Either.right(catalog_item.toObject());
   }
 
   async updateCatalogItem(params: UpdateCatalogItemParams): Promise<Either<void>> {

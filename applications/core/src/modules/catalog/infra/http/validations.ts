@@ -9,6 +9,10 @@ export const create_catalog_item_validation_schema: Schema = {
     isLength: { options: { min: 8 } },
     errorMessage: 'validation.password',
   },
+  amount: {
+    isFloat: true,
+    errorMessage: 'validation.number',
+  },
   attributes: {
     isArray: true,
     errorMessage: 'validation.array',

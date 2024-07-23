@@ -2,6 +2,7 @@ import { AttributeValue } from "@catalog/domain/Attribute";
 import CatalogItem, { CatalogItemObject } from "@catalog/domain/CatalogItem";
 import Mediator from "@shared/Mediator";
 import TenantExistsCommand from "@shared/commands/TenantExistsCommand";
+import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import types from "@shared/infra/types";
 import Either from "@shared/utils/Either";
@@ -10,7 +11,6 @@ import { randomUUID } from "crypto";
 import { inject, injectable } from "inversify";
 import 'reflect-metadata';
 import CatalogRepository from "./CatalogRepository";
-import DomainError from "@shared/errors/DomainError";
 
 export type GetCatalogItemsParams = {
   tenant_id?: string;

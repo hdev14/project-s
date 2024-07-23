@@ -1,7 +1,7 @@
 import GetCatalogItemAmountCommand from "@shared/commands/GetCatalogItemAmountCommand";
+import NotFoundError from "@shared/errors/NotFoundError";
 import Handler from "@shared/Handler";
 import CatalogRepository from "./CatalogRepository";
-import NotFoundError from "@shared/errors/NotFoundError";
 
 export default class GetCatalogItemAmountCommandHandler implements Handler<GetCatalogItemAmountCommand, number> {
   #catalog_repository: CatalogRepository;

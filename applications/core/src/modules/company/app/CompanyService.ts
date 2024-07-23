@@ -1,5 +1,6 @@
 import Bank, { BankValue } from "@company/domain/Bank";
 import Brand, { BrandValue } from "@company/domain/Brand";
+import { ServiceLogObject } from "@company/domain/ServiceLog";
 import Address, { AddressValue } from "@shared/Address";
 import Mediator from "@shared/Mediator";
 import CreateTenantUserCommand from "@shared/commands/CreateTenantUserCommand";
@@ -11,7 +12,6 @@ import Either from "@shared/utils/Either";
 import { PageOptions, PageResult } from "@shared/utils/Pagination";
 import Company, { CompanyObject } from "../domain/Company";
 import CompanyRepository from "./CompanyRepository";
-import { ServiceLogObject } from "@company/domain/ServiceLog";
 import ServiceLogRepository from "./ServiceLogRepository";
 
 export type CreateCompanyParams = {

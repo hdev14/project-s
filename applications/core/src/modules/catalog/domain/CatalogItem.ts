@@ -1,6 +1,6 @@
 import Aggregate, { RequiredId } from "@shared/ddd/Aggregate";
-import Attribute, { AttributeValue } from "./Attribute";
 import DomainError from "@shared/errors/DomainError";
+import Attribute, { AttributeValue } from "./Attribute";
 
 export type CatalogItemObject = {
   id?: string;

@@ -1,7 +1,6 @@
 import GetCatalogItemAmountCommandHandler from "@catalog/app/GetCatalogItemAmountCommandHandler";
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import GetCatalogItemAmountCommand from "@shared/commands/GetCatalogItemAmountCommand";
-import { NotBeforeError } from "jsonwebtoken";
 import { mock } from 'jest-mock-extended';
 import CatalogRepository from "@catalog/app/CatalogRepository";
 import CatalogItem from "@catalog/domain/CatalogItem";

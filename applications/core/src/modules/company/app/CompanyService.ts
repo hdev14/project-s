@@ -11,6 +11,8 @@ import Either from "@shared/utils/Either";
 import { PageOptions, PageResult } from "@shared/utils/Pagination";
 import Company, { CompanyObject } from "../domain/Company";
 import CompanyRepository from "./CompanyRepository";
+import { ServiceLogObject } from "@company/domain/ServiceLog";
+import ServiceLogRepository from "./ServiceLogRepository";
 
 export type CreateCompanyParams = {
   name: string;
@@ -52,7 +54,15 @@ export type DeactivateEmploeeParams = {};
 
 export type RegisterServiceLogParams = {};
 
-export type GetServiceLogsParams = {};
+export type GetServiceLogsParams = {
+  tenant_id: string;
+  page_options?: PageOptions;
+};
+
+export type GetServiceLogsResult = {
+  results: Array<ServiceLogObject>;
+  page_result?: PageResult;
+};
 
 export type CreateCommissionParams = {};
 
@@ -64,15 +74,18 @@ export default class CompanyService {
   #mediator: Mediator;
   #email_service: EmailService;
   #company_repository: CompanyRepository;
+  #service_log_repository: ServiceLogRepository;
 
   constructor(
     mediator: Mediator,
     email_service: EmailService,
     company_repository: CompanyRepository,
+    service_log_repository: ServiceLogRepository,
   ) {
     this.#mediator = mediator;
     this.#email_service = email_service;
     this.#company_repository = company_repository;
+    this.#service_log_repository = service_log_repository;
   }
 
   async createCompany(params: CreateCompanyParams): Promise<Either<CompanyObject>> {
@@ -218,8 +231,10 @@ export default class CompanyService {
     return Either.left(new Error());
   }
 
-  async getServiceLogs(params: GetServiceLogsParams): Promise<Either<void>> {
-    return Either.left(new Error());
+  async getServiceLogs(params: GetServiceLogsParams): Promise<Either<GetServiceLogsResult>> {
+    const { results, page_result } = await this.#service_log_repository.getServiceLogs(params);
+
+    return Either.right({ results: results.toObjectList(), page_result });
   }
 
   async createCommission(params: CreateCommissionParams): Promise<Either<void>> {

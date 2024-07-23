@@ -86,7 +86,6 @@ describe('DbCommissionRepository unit tests', () => {
     });
   });
 
-
   describe('DbCommissionRepository.createCommission', () => {
     it('creates a service log', async () => {
       query_mock
@@ -113,6 +112,44 @@ describe('DbCommissionRepository unit tests', () => {
           commission_obj.tax_type,
           commission_obj.tenant_id,
         ],
+      );
+    });
+  });
+
+  describe('DbCommissionRepository.getCommissionByCatalogItemId', () => {
+    it('returns a commission by catalog item id', async () => {
+      query_mock
+        .mockResolvedValueOnce({
+          rows: [{
+            id: faker.string.uuid(),
+            catalog_item_id: faker.string.uuid(),
+            tax: faker.number.float(),
+            tax_type: faker.helpers.enumValue(TaxTypes),
+            tenant_id: faker.string.uuid(),
+          }]
+        });
+
+      const catalog_item_id = faker.string.uuid();
+      const commission = await repository.getCommissionByCatalogItemId(catalog_item_id);
+
+      expect(commission).toBeInstanceOf(Commission);
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT * FROM commissions WHERE catalog_item_id = $1',
+        [catalog_item_id]
+      );
+    });
+
+    it("returns NULL if commission doesn't exist", async () => {
+      query_mock
+        .mockResolvedValueOnce({ rows: [] });
+
+      const catalog_item_id = faker.string.uuid();
+      const commission = await repository.getCommissionByCatalogItemId(catalog_item_id);
+
+      expect(commission).toBeNull();
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT * FROM commissions WHERE catalog_item_id = $1',
+        [catalog_item_id]
       );
     });
   });

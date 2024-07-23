@@ -1,6 +1,8 @@
 import CompanyRepository from "@company/app/CompanyRepository";
 import CompanyService from "@company/app/CompanyService";
+import ServiceLogRepository from "@company/app/ServiceLogRepository";
 import Company from "@company/domain/Company";
+import ServiceLog from "@company/domain/ServiceLog";
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import CreateTenantUserCommand from "@shared/commands/CreateTenantUserCommand";
 import AlreadyRegisteredError from "@shared/errors/AlreadyRegisteredError";
@@ -15,8 +17,14 @@ describe('CompanyService unit tests', () => {
   const mediator_mock = mock<Mediator>();
   const email_service_mock = mock<EmailService>();
   const company_repository_mock = mock<CompanyRepository>();
+  const service_log_repository_mock = mock<ServiceLogRepository>();
 
-  const company_service = new CompanyService(mediator_mock, email_service_mock, company_repository_mock);
+  const company_service = new CompanyService(
+    mediator_mock,
+    email_service_mock,
+    company_repository_mock,
+    service_log_repository_mock,
+  );
 
   describe('CompanyService.createCompany', () => {
     it("creates a new company", async () => {
@@ -213,7 +221,7 @@ describe('CompanyService unit tests', () => {
   });
 
   describe('CompanyService.getCompanies', () => {
-    it('returns a list of users', async () => {
+    it('returns a list of companies', async () => {
       company_repository_mock.getCompanies.mockResolvedValueOnce({
         results: new Collection([
           new Company({
@@ -511,6 +519,49 @@ describe('CompanyService unit tests', () => {
       expect(company.brand).toEqual({
         color: params.color,
         logo_url: params.logo_url,
+      });
+    });
+  });
+
+  describe('CompanyService.getServiceLogs', () => {
+    it('returns a list of service logs', async () => {
+      service_log_repository_mock.getServiceLogs.mockResolvedValueOnce({
+        results: new Collection([
+          new ServiceLog({
+            commission_amount: faker.number.float(),
+            customer_id: faker.string.uuid(),
+            employee_id: faker.string.uuid(),
+            paid_amount: faker.number.float(),
+            registed_at: faker.date.anytime(),
+            service_id: faker.string.uuid(),
+            tenant_id: faker.string.uuid(),
+          }),
+          new ServiceLog({
+            commission_amount: faker.number.float(),
+            customer_id: faker.string.uuid(),
+            employee_id: faker.string.uuid(),
+            paid_amount: faker.number.float(),
+            registed_at: faker.date.anytime(),
+            service_id: faker.string.uuid(),
+            tenant_id: faker.string.uuid(),
+          }),
+        ]),
+        page_result: {
+          next_page: 2,
+          total_of_pages: 2,
+        }
+      });
+
+      const [data, error] = await company_service.getServiceLogs({
+        tenant_id: faker.string.uuid(),
+      });
+
+      expect(error).toBeUndefined();
+      expect(data!.results[0]).not.toBeInstanceOf(ServiceLog);
+      expect(data!.results).toHaveLength(2);
+      expect(data!.page_result).toEqual({
+        next_page: 2,
+        total_of_pages: 2
       });
     });
   });

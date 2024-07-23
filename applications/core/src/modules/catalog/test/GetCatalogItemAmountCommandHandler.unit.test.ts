@@ -1,10 +1,10 @@
+import CatalogRepository from "@catalog/app/CatalogRepository";
 import GetCatalogItemAmountCommandHandler from "@catalog/app/GetCatalogItemAmountCommandHandler";
+import CatalogItem from "@catalog/domain/CatalogItem";
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import GetCatalogItemAmountCommand from "@shared/commands/GetCatalogItemAmountCommand";
-import { mock } from 'jest-mock-extended';
-import CatalogRepository from "@catalog/app/CatalogRepository";
-import CatalogItem from "@catalog/domain/CatalogItem";
 import NotFoundError from "@shared/errors/NotFoundError";
+import { mock } from 'jest-mock-extended';
 
 describe('GetCatalogItemAmountCommandHandler unit tests', () => {
   const catalog_repository_mock = mock<CatalogRepository>();

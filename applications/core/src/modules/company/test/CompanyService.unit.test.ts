@@ -1,6 +1,8 @@
+import CommissionRepository from "@company/app/CommissionRepository";
 import CompanyRepository from "@company/app/CompanyRepository";
 import CompanyService from "@company/app/CompanyService";
 import ServiceLogRepository from "@company/app/ServiceLogRepository";
+import Commission, { TaxTypes } from "@company/domain/Commission";
 import Company from "@company/domain/Company";
 import ServiceLog from "@company/domain/ServiceLog";
 import { faker } from '@faker-js/faker/locale/pt_BR';
@@ -18,12 +20,14 @@ describe('CompanyService unit tests', () => {
   const email_service_mock = mock<EmailService>();
   const company_repository_mock = mock<CompanyRepository>();
   const service_log_repository_mock = mock<ServiceLogRepository>();
+  const commission_repository_mock = mock<CommissionRepository>();
 
   const company_service = new CompanyService(
     mediator_mock,
     email_service_mock,
     company_repository_mock,
     service_log_repository_mock,
+    commission_repository_mock,
   );
 
   describe('CompanyService.createCompany', () => {
@@ -565,4 +569,122 @@ describe('CompanyService unit tests', () => {
       });
     });
   });
+
+  describe('CompanyService.createServiceLog', () => {
+    it("should return not found error if employee doesn't exist", async () => {
+      mediator_mock.send.mockResolvedValueOnce(false);
+
+      const [data, error] = await company_service.createServiceLog({
+        customer_id: faker.string.uuid(),
+        employee_id: faker.string.uuid(),
+        service_id: faker.string.uuid(),
+        tenant_id: faker.string.uuid(),
+      });
+
+      expect(data).toBeUndefined();
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error!.message).toEqual('notfound.employee');
+    });
+
+    it("should return not found error if employee doesn't exist", async () => {
+      mediator_mock.send
+        .mockResolvedValueOnce(true)
+        .mockResolvedValueOnce(false);
+
+      const [data, error] = await company_service.createServiceLog({
+        customer_id: faker.string.uuid(),
+        employee_id: faker.string.uuid(),
+        service_id: faker.string.uuid(),
+        tenant_id: faker.string.uuid(),
+      });
+
+      expect(data).toBeUndefined();
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error!.message).toEqual('notfound.customer');
+    });
+
+    it("should return not found error if service doesn't exist", async () => {
+      mediator_mock.send
+        .mockResolvedValueOnce(true)
+        .mockResolvedValueOnce(true)
+        .mockRejectedValueOnce(new NotFoundError('notfound.catalog_item'));
+
+      const [data, error] = await company_service.createServiceLog({
+        customer_id: faker.string.uuid(),
+        employee_id: faker.string.uuid(),
+        service_id: faker.string.uuid(),
+        tenant_id: faker.string.uuid(),
+      });
+
+      expect(data).toBeUndefined();
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error!.message).toEqual('notfound.catalog_item');
+    });
+
+
+    it("should create a service log without commission amount", async () => {
+      const service_amount = faker.number.float();
+
+      mediator_mock.send
+        .mockResolvedValueOnce(true)
+        .mockResolvedValueOnce(true)
+        .mockResolvedValueOnce(service_amount);
+
+      commission_repository_mock.getCommissionByCatalogItemId.mockResolvedValueOnce(null);
+
+      const params = {
+        customer_id: faker.string.uuid(),
+        employee_id: faker.string.uuid(),
+        service_id: faker.string.uuid(),
+        tenant_id: faker.string.uuid(),
+      };
+
+      const [data, error] = await company_service.createServiceLog(params);
+
+      expect(error).toBeUndefined();
+      expect(data!.id).toBeDefined();
+      expect(data!.customer_id).toEqual(params.customer_id);
+      expect(data!.employee_id).toEqual(params.employee_id);
+      expect(data!.service_id).toEqual(params.service_id);
+      expect(data!.tenant_id).toEqual(params.tenant_id);
+      expect(data!.paid_amount).toEqual(service_amount);
+      expect(data!.commission_amount).toEqual(0);
+    });
+
+    it("should create a new service log with commission amount", async () => {
+      const service_amount = faker.number.float();
+
+      mediator_mock.send
+        .mockResolvedValueOnce(true)
+        .mockResolvedValueOnce(true)
+        .mockResolvedValueOnce(service_amount)
+
+      const commission = new Commission({
+        catalog_item_id: faker.string.uuid(),
+        tax: faker.number.float(),
+        tax_type: faker.helpers.enumValue(TaxTypes),
+        tenant_id: faker.string.uuid(),
+      });
+
+      commission_repository_mock.getCommissionByCatalogItemId.mockResolvedValueOnce(commission);
+
+      const params = {
+        customer_id: faker.string.uuid(),
+        employee_id: faker.string.uuid(),
+        service_id: faker.string.uuid(),
+        tenant_id: faker.string.uuid(),
+      };
+
+      const [data, error] = await company_service.createServiceLog(params);
+
+      expect(error).toBeUndefined();
+      expect(data!.id).toBeDefined();
+      expect(data!.customer_id).toEqual(params.customer_id);
+      expect(data!.employee_id).toEqual(params.employee_id);
+      expect(data!.service_id).toEqual(params.service_id);
+      expect(data!.tenant_id).toEqual(params.tenant_id);
+      expect(data!.paid_amount).toEqual(service_amount);
+      expect(data!.commission_amount).toBeGreaterThan(0);
+    });
+  })
 });

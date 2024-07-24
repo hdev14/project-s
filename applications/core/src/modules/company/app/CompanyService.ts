@@ -1,9 +1,11 @@
 import Bank, { BankValue } from "@company/domain/Bank";
 import Brand, { BrandValue } from "@company/domain/Brand";
-import { ServiceLogObject } from "@company/domain/ServiceLog";
+import ServiceLog, { ServiceLogObject } from "@company/domain/ServiceLog";
 import Address, { AddressValue } from "@shared/Address";
 import Mediator from "@shared/Mediator";
 import CreateTenantUserCommand from "@shared/commands/CreateTenantUserCommand";
+import GetCatalogItemAmountCommand from "@shared/commands/GetCatalogItemAmountCommand";
+import UserExistsCommand from "@shared/commands/UserExistsCommand";
 import AlreadyRegisteredError from "@shared/errors/AlreadyRegisteredError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import EmailService from "@shared/infra/EmailService";
@@ -11,6 +13,7 @@ import { Policies } from "@shared/infra/Principal";
 import Either from "@shared/utils/Either";
 import { PageOptions, PageResult } from "@shared/utils/Pagination";
 import Company, { CompanyObject } from "../domain/Company";
+import CommissionRepository from "./CommissionRepository";
 import CompanyRepository from "./CompanyRepository";
 import ServiceLogRepository from "./ServiceLogRepository";
 
@@ -57,8 +60,6 @@ export type RegisterServiceLogParams = {
   service_id: string;
   customer_id: string;
   tenant_id: string;
-  paid_amount: number;
-  registed_at: Date;
 };
 
 export type GetServiceLogsParams = {
@@ -82,17 +83,20 @@ export default class CompanyService {
   #email_service: EmailService;
   #company_repository: CompanyRepository;
   #service_log_repository: ServiceLogRepository;
+  #commission_repository: CommissionRepository;
 
   constructor(
     mediator: Mediator,
     email_service: EmailService,
     company_repository: CompanyRepository,
     service_log_repository: ServiceLogRepository,
+    commission_repository: CommissionRepository,
   ) {
     this.#mediator = mediator;
     this.#email_service = email_service;
     this.#company_repository = company_repository;
     this.#service_log_repository = service_log_repository;
+    this.#commission_repository = commission_repository;
   }
 
   async createCompany(params: CreateCompanyParams): Promise<Either<CompanyObject>> {
@@ -234,8 +238,42 @@ export default class CompanyService {
     return Either.left(new Error());
   }
 
-  async createServiceLog(params: RegisterServiceLogParams): Promise<Either<void>> {
-    return Either.left(new Error());
+  async createServiceLog(params: RegisterServiceLogParams): Promise<Either<ServiceLogObject>> {
+    try {
+      const has_employee = await this.#mediator.send<boolean>(new UserExistsCommand(params.employee_id));
+
+      if (!has_employee) {
+        return Either.left(new NotFoundError('notfound.employee'));
+      }
+
+      const has_customer = await this.#mediator.send<boolean>(new UserExistsCommand(params.customer_id));
+
+      if (!has_customer) {
+        return Either.left(new NotFoundError('notfound.customer'));
+      }
+
+      const commission = await this.#commission_repository.getCommissionByCatalogItemId(params.service_id);
+
+      const service_amount = await this.#mediator.send<number>(new GetCatalogItemAmountCommand(params.service_id));
+
+      const service_log = new ServiceLog({
+        commission_amount: commission ? commission.calculate(service_amount) : 0,
+        customer_id: params.customer_id,
+        employee_id: params.employee_id,
+        paid_amount: service_amount,
+        service_id: params.service_id,
+        tenant_id: params.tenant_id,
+        registed_at: new Date(),
+      });
+
+      return Either.right(service_log.toObject());
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        return Either.left(error);
+      }
+
+      throw error;
+    }
   }
 
   async getServiceLogs(params: GetServiceLogsParams): Promise<Either<GetServiceLogsResult>> {

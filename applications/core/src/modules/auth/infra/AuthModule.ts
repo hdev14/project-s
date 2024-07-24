@@ -9,7 +9,7 @@ import UserRepository from "@auth/app/UserRepository";
 import VerificationCodeRepository from "@auth/app/VerificationCodeRepository";
 import Mediator from "@shared/Mediator";
 import CreateTenantUserCommand from "@shared/commands/CreateTenantUserCommand";
-import TenantExistsCommand from "@shared/commands/TenantExistsCommand";
+import UserExistsCommand from "@shared/commands/TenantExistsCommand";
 import AuthMiddleware from "@shared/infra/AuthMiddleware";
 import Module from "@shared/infra/Module";
 import types from "@shared/infra/types";
@@ -38,7 +38,7 @@ export default class AuthModule implements Module {
       bind<VerificationCodeRepository>(types.VerificationCodeRepository).to(DbVerificationCodeRepository).inSingletonScope();
       onActivation<Mediator>(types.Mediator, (_context, mediator) => {
         mediator.register(
-          TenantExistsCommand.name,
+          UserExistsCommand.name,
           new TenantExistsCommandHandler(user_repository),
         );
         mediator.register(

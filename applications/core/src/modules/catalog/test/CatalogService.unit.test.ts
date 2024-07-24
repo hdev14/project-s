@@ -2,7 +2,7 @@ import CatalogRepository from '@catalog/app/CatalogRepository';
 import CatalogService from '@catalog/app/CatalogService';
 import CatalogItem from '@catalog/domain/CatalogItem';
 import { faker } from '@faker-js/faker/locale/pt_BR';
-import TenantExistsCommand from '@shared/commands/TenantExistsCommand';
+import UserExistsCommand from '@shared/commands/UserExistsCommand';
 import DomainError from '@shared/errors/DomainError';
 import NotFoundError from '@shared/errors/NotFoundError';
 import Mediator from '@shared/Mediator';
@@ -100,7 +100,7 @@ describe('CatalogService unit tests', () => {
       expect(data).toBeUndefined();
       expect(error).toBeInstanceOf(NotFoundError);
       expect(mediator_mock.send).toHaveBeenCalledTimes(1);
-      expect(mediator_mock.send.mock.calls[0][0]).toBeInstanceOf(TenantExistsCommand);
+      expect(mediator_mock.send.mock.calls[0][0]).toBeInstanceOf(UserExistsCommand);
     });
 
     it("results a domain error if amount is negative", async () => {

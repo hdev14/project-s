@@ -27,6 +27,14 @@ export default class Commission extends Aggregate<CommissionObject> implements A
     this.#tenant_id = obj.tenant_id;
   }
 
+  calculate(paid_amount: number) {
+    if (this.#tax_type === TaxTypes.PERCENTAGE) {
+      return paid_amount * this.#tax;
+    }
+
+    return this.#tax;
+  }
+
   toObject(): RequiredId<CommissionObject> {
     return {
       id: this.id,

@@ -1,7 +1,7 @@
 import { AttributeValue } from "@catalog/domain/Attribute";
 import CatalogItem, { CatalogItemObject } from "@catalog/domain/CatalogItem";
 import Mediator from "@shared/Mediator";
-import TenantExistsCommand from "@shared/commands/TenantExistsCommand";
+import UserExistsCommand from "@shared/commands/UserExistsCommand";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import types from "@shared/infra/types";
@@ -57,7 +57,7 @@ export default class CatalogService {
   async createCatalogItem(params: CreateCatalogItemParams): Promise<Either<CatalogItemObject>> {
 
     try {
-      const exists = await this.#mediator.send<boolean>(new TenantExistsCommand(params.tenant_id));
+      const exists = await this.#mediator.send<boolean>(new UserExistsCommand(params.tenant_id));
 
       if (!exists) {
         return Either.left(new NotFoundError('notfound.company'));

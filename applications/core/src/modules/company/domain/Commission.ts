@@ -1,4 +1,5 @@
 import Aggregate, { AggregateRoot, RequiredId } from "@shared/ddd/Aggregate";
+import DomainError from "@shared/errors/DomainError";
 
 export enum TaxTypes {
   PERCENTAGE = 'percentage',
@@ -15,16 +16,23 @@ export type CommissionObject = {
 
 export default class Commission extends Aggregate<CommissionObject> implements AggregateRoot {
   #catalog_item_id: string;
-  #tax: number;
+  #tax: number = 0;
   #tax_type: TaxTypes;
   #tenant_id: string;
 
   constructor(obj: CommissionObject) {
     super(obj.id);
     this.#catalog_item_id = obj.catalog_item_id;
-    this.#tax = obj.tax;
     this.#tax_type = obj.tax_type;
+    this.tax = obj.tax;
     this.#tenant_id = obj.tenant_id;
+  }
+
+  set tax(value: number) {
+    if (this.#tax_type === TaxTypes.PERCENTAGE && value > 1) {
+      throw new DomainError(Commission.name, 'tax_percentage_error');
+    }
+    this.#tax = value;
   }
 
   calculate(paid_amount: number) {

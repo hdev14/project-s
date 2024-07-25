@@ -8,6 +8,7 @@ import ServiceLog from "@company/domain/ServiceLog";
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import CreateTenantUserCommand from "@shared/commands/CreateTenantUserCommand";
 import AlreadyRegisteredError from "@shared/errors/AlreadyRegisteredError";
+import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import EmailService from "@shared/infra/EmailService";
 import { Policies } from "@shared/infra/Principal";
@@ -628,7 +629,9 @@ describe('CompanyService unit tests', () => {
       mediator_mock.send
         .mockResolvedValueOnce(true)
         .mockResolvedValueOnce(true)
-        .mockResolvedValueOnce(service_amount);
+        .mockResolvedValueOnce({
+          amount: service_amount,
+        });
 
       commission_repository_mock.getCommissionByCatalogItemId.mockResolvedValueOnce(null);
 
@@ -657,7 +660,9 @@ describe('CompanyService unit tests', () => {
       mediator_mock.send
         .mockResolvedValueOnce(true)
         .mockResolvedValueOnce(true)
-        .mockResolvedValueOnce(service_amount)
+        .mockResolvedValueOnce({
+          amount: service_amount,
+        })
 
       const commission = new Commission({
         catalog_item_id: faker.string.uuid(),
@@ -686,5 +691,56 @@ describe('CompanyService unit tests', () => {
       expect(data!.paid_amount).toEqual(service_amount);
       expect(data!.commission_amount).toBeGreaterThan(0);
     });
-  })
+  });
+
+  describe('CompanyService.createCommission', () => {
+    it("should return not found error if catalog item doesn't exist", async () => {
+      mediator_mock.send.mockRejectedValueOnce(new NotFoundError('test'));
+
+      const [data, error] = await company_service.createCommission({
+        catalog_item_id: faker.string.uuid(),
+        tax: faker.number.float(),
+        tax_type: TaxTypes.PERCENTAGE,
+        tenant_id: faker.string.uuid(),
+      });
+
+      expect(data).toBeUndefined();
+      expect(error).toBeInstanceOf(NotFoundError);
+    });
+
+    it('should return a domain error if tax type is "percentage" and the amount is greater than 1', async () => {
+      mediator_mock.send.mockResolvedValueOnce({ id: faker.string.uuid() });
+
+      const [data, error] = await company_service.createCommission({
+        catalog_item_id: faker.string.uuid(),
+        tax: faker.number.int({ min: 2 }),
+        tax_type: TaxTypes.PERCENTAGE,
+        tenant_id: faker.string.uuid(),
+      });
+
+      expect(data).toBeUndefined();
+      expect(error).toBeInstanceOf(DomainError);
+      expect(error!.message).toEqual('tax_percentage_error');
+    });
+
+    it('creates a new commission', async () => {
+      mediator_mock.send.mockResolvedValueOnce({ id: faker.string.uuid() });
+
+      const params = {
+        catalog_item_id: faker.string.uuid(),
+        tax: faker.number.float({ max: 1 }),
+        tax_type: TaxTypes.PERCENTAGE,
+        tenant_id: faker.string.uuid(),
+      };
+
+      const [data, error] = await company_service.createCommission(params);
+
+      expect(commission_repository_mock.createCommission).toHaveBeenCalledTimes(1);
+      expect(error).toBeUndefined();
+      expect(data!.id).toBeDefined();
+      expect(data!.tax).toEqual(params.tax);
+      expect(data!.tax_type).toEqual(params.tax_type);
+      expect(data!.tenant_id).toEqual(params.tenant_id);
+    });
+  });
 });

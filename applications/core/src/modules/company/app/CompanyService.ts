@@ -1,12 +1,14 @@
 import Bank, { BankValue } from "@company/domain/Bank";
 import Brand, { BrandValue } from "@company/domain/Brand";
+import Commission, { CommissionObject, TaxTypes } from "@company/domain/Commission";
 import ServiceLog, { ServiceLogObject } from "@company/domain/ServiceLog";
 import Address, { AddressValue } from "@shared/Address";
 import Mediator from "@shared/Mediator";
 import CreateTenantUserCommand from "@shared/commands/CreateTenantUserCommand";
-import GetCatalogItemAmountCommand from "@shared/commands/GetCatalogItemAmountCommand";
+import GetCatalogItemCommand from "@shared/commands/GetCatalogItemCommand";
 import UserExistsCommand from "@shared/commands/UserExistsCommand";
 import AlreadyRegisteredError from "@shared/errors/AlreadyRegisteredError";
+import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import EmailService from "@shared/infra/EmailService";
 import { Policies } from "@shared/infra/Principal";
@@ -55,7 +57,7 @@ export type AddEmployeeParams = {};
 
 export type DeactivateEmploeeParams = {};
 
-export type RegisterServiceLogParams = {
+export type CreateServiceLogParams = {
   employee_id: string;
   service_id: string;
   customer_id: string;
@@ -72,7 +74,12 @@ export type GetServiceLogsResult = {
   page_result?: PageResult;
 };
 
-export type CreateCommissionParams = {};
+export type CreateCommissionParams = {
+  catalog_item_id: string;
+  tax: number;
+  tax_type: TaxTypes;
+  tenant_id: string;
+};
 
 export type UpdateCommissionParams = {};
 
@@ -238,7 +245,7 @@ export default class CompanyService {
     return Either.left(new Error());
   }
 
-  async createServiceLog(params: RegisterServiceLogParams): Promise<Either<ServiceLogObject>> {
+  async createServiceLog(params: CreateServiceLogParams): Promise<Either<ServiceLogObject>> {
     try {
       const has_employee = await this.#mediator.send<boolean>(new UserExistsCommand(params.employee_id));
 
@@ -254,13 +261,13 @@ export default class CompanyService {
 
       const commission = await this.#commission_repository.getCommissionByCatalogItemId(params.service_id);
 
-      const service_amount = await this.#mediator.send<number>(new GetCatalogItemAmountCommand(params.service_id));
+      const catalog_item = await this.#mediator.send<any>(new GetCatalogItemCommand(params.service_id));
 
       const service_log = new ServiceLog({
-        commission_amount: commission ? commission.calculate(service_amount) : 0,
+        commission_amount: commission ? commission.calculate(catalog_item.amount) : 0,
         customer_id: params.customer_id,
         employee_id: params.employee_id,
-        paid_amount: service_amount,
+        paid_amount: catalog_item.amount,
         service_id: params.service_id,
         tenant_id: params.tenant_id,
         registed_at: new Date(),
@@ -282,8 +289,22 @@ export default class CompanyService {
     return Either.right({ results: results.toObjectList(), page_result });
   }
 
-  async createCommission(params: CreateCommissionParams): Promise<Either<void>> {
-    return Either.left(new Error());
+  async createCommission(params: CreateCommissionParams): Promise<Either<CommissionObject>> {
+    try {
+      await this.#mediator.send<any>(new GetCatalogItemCommand(params.catalog_item_id));
+
+      const commission = new Commission(params);
+
+      await this.#commission_repository.createCommission(commission);
+
+      return Either.right(commission.toObject());
+    } catch (error) {
+      if (error instanceof NotFoundError || error instanceof DomainError) {
+        return Either.left(error);
+      }
+
+      throw error;
+    }
   }
 
   async updateCommission(params: UpdateCommissionParams): Promise<Either<void>> {

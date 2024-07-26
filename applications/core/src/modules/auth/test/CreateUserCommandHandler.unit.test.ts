@@ -1,21 +1,21 @@
 import AccessPlanRepository from "@auth/app/AccessPlanRepository";
-import CreateTenantUserCommandHandler from "@auth/app/CreateTenantUserCommandHandler";
+import CreateUserCommandHandler from "@auth/app/CreateUserCommandHandler";
 import Encryptor from "@auth/app/Encryptor";
 import UserRepository from "@auth/app/UserRepository";
 import AccessPlan, { AccessPlanTypes } from "@auth/domain/AccessPlan";
 import User from "@auth/domain/User";
 import { faker } from '@faker-js/faker/locale/pt_BR';
-import CreateTenantUserCommand from "@shared/commands/CreateTenantUserCommand";
+import CreateUserCommand from "@shared/commands/CreateUserCommand";
 import NotFoundError from "@shared/errors/NotFoundError";
 import { Policies } from "@shared/infra/Principal";
 import { mock } from "jest-mock-extended";
 
-describe('CreateTenantUserCommandHandler unit tests', () => {
+describe('CreateUserCommandHandler unit tests', () => {
   const user_repository_mock = mock<UserRepository>();
   const encryptor_mock = mock<Encryptor>();
   const access_plan_repository_mock = mock<AccessPlanRepository>();
 
-  const handler = new CreateTenantUserCommandHandler(
+  const handler = new CreateUserCommandHandler(
     user_repository_mock,
     encryptor_mock,
     access_plan_repository_mock,
@@ -33,7 +33,7 @@ describe('CreateTenantUserCommandHandler unit tests', () => {
 
     encryptor_mock.createHash.mockReturnValueOnce('test');
 
-    const command = new CreateTenantUserCommand({
+    const command = new CreateUserCommand({
       access_plan_id: faker.string.uuid(),
       default_policies: [Policies.LIST_USERS],
       email: faker.internet.email(),
@@ -54,10 +54,34 @@ describe('CreateTenantUserCommandHandler unit tests', () => {
     expect(obj.policies).toEqual(command.default_policies);
   });
 
+  it('should create a new regular user', async () => {
+    encryptor_mock.createHash.mockReturnValueOnce('test');
+
+    const command = new CreateUserCommand({
+      default_policies: [Policies.LIST_USERS],
+      email: faker.internet.email(),
+      temp_password: faker.string.sample(),
+      tenant_id: faker.string.uuid(),
+    });
+
+    const user_id = await handler.handle(command);
+
+    expect(user_id).toBeTruthy();
+    expect(encryptor_mock.createHash).toHaveBeenCalledWith(command.temp_password);
+    expect(user_repository_mock.createUser).toHaveBeenCalled();
+    const param = user_repository_mock.createUser.mock.calls[0][0];
+    expect(param).toBeInstanceOf(User);
+    const obj = param.toObject();
+    expect(obj.email).toEqual(command.email);
+    expect(obj.password).toEqual('test');
+    expect(obj.tenant_id).toEqual(command.tenant_id);
+    expect(obj.policies).toEqual(command.default_policies);
+  });
+
   it("should throw a not found error if access plan doesn't exist", async () => {
     access_plan_repository_mock.getAccessPlanById.mockResolvedValueOnce(null);
 
-    const command = new CreateTenantUserCommand({
+    const command = new CreateUserCommand({
       access_plan_id: faker.string.uuid(),
       default_policies: [Policies.LIST_USERS],
       email: faker.internet.email(),

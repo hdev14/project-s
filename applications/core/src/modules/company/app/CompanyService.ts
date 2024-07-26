@@ -4,7 +4,7 @@ import Commission, { CommissionObject, TaxTypes } from "@company/domain/Commissi
 import ServiceLog, { ServiceLogObject } from "@company/domain/ServiceLog";
 import Address, { AddressValue } from "@shared/Address";
 import Mediator from "@shared/Mediator";
-import CreateTenantUserCommand from "@shared/commands/CreateTenantUserCommand";
+import CreateUserCommand from "@shared/commands/CreateUserCommand";
 import GetCatalogItemCommand from "@shared/commands/GetCatalogItemCommand";
 import UserExistsCommand from "@shared/commands/UserExistsCommand";
 import AlreadyRegisteredError from "@shared/errors/AlreadyRegisteredError";
@@ -53,7 +53,7 @@ export type UpdateCompanyBrandParams = {
   company_id: string;
 } & BrandValue;
 
-export type AddEmployeeParams = {};
+export type CreateEmployeeParams = {};
 
 export type DeactivateEmploeeParams = {};
 
@@ -118,7 +118,7 @@ export default class CompanyService {
         return Either.left(new AlreadyRegisteredError('CNPJ já cadastrado'));
       }
 
-      const tenant_id = await this.#mediator.send<string>(new CreateTenantUserCommand({
+      const user_id = await this.#mediator.send<string>(new CreateUserCommand({
         email: params.email,
         temp_password: params.document.slice(0, 5),
         access_plan_id: params.access_plan_id,
@@ -135,7 +135,7 @@ export default class CompanyService {
       }));
 
       const company = new Company({
-        id: tenant_id,
+        id: user_id,
         name: params.name,
         access_plan_id: params.access_plan_id,
         address: params.address,
@@ -241,7 +241,13 @@ export default class CompanyService {
     return Either.right();
   }
 
-  async addEmployee(params: AddEmployeeParams): Promise<Either<void>> {
+  async createEmployee(params: CreateEmployeeParams): Promise<Either<void>> {
+    // TODO
+    /**
+     * - Create an user with default policies and temp password
+     * - Save employee data
+     * - Send email with the instructions
+     */
     return Either.left(new Error());
   }
 
@@ -324,9 +330,5 @@ export default class CompanyService {
     await this.#commission_repository.updateCommission(commission);
 
     return Either.right();
-  }
-
-  async getCommissions(params: GetCommissionsParams): Promise<Either<void>> {
-    return Either.left(new Error());
   }
 }

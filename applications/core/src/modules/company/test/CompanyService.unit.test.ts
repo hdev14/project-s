@@ -6,7 +6,7 @@ import Commission, { TaxTypes } from "@company/domain/Commission";
 import Company from "@company/domain/Company";
 import ServiceLog from "@company/domain/ServiceLog";
 import { faker } from '@faker-js/faker/locale/pt_BR';
-import CreateTenantUserCommand from "@shared/commands/CreateTenantUserCommand";
+import CreateUserCommand from "@shared/commands/CreateUserCommand";
 import AlreadyRegisteredError from "@shared/errors/AlreadyRegisteredError";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
@@ -66,7 +66,7 @@ describe('CompanyService unit tests', () => {
       expect(company.name).toEqual(params.name);
       expect(mediator_mock.send).toHaveBeenCalledTimes(1);
       const mediator_command = mediator_mock.send.mock.calls[0][0];
-      expect(mediator_command).toBeInstanceOf(CreateTenantUserCommand);
+      expect(mediator_command).toBeInstanceOf(CreateUserCommand);
     });
 
     it("should return a not found error if access plan doesn't exist", async () => {
@@ -152,7 +152,7 @@ describe('CompanyService unit tests', () => {
       await company_service.createCompany(params);
 
       expect(mediator_mock.send).toHaveBeenCalledTimes(1);
-      const mediator_command = mediator_mock.send.mock.calls[0][0] as CreateTenantUserCommand;
+      const mediator_command = mediator_mock.send.mock.calls[0][0] as CreateUserCommand;
       expect(mediator_command.temp_password).toEqual('12345');
     });
 
@@ -181,7 +181,7 @@ describe('CompanyService unit tests', () => {
       await company_service.createCompany(params);
 
       expect(mediator_mock.send).toHaveBeenCalledTimes(1);
-      const mediator_command = mediator_mock.send.mock.calls[0][0] as CreateTenantUserCommand;
+      const mediator_command = mediator_mock.send.mock.calls[0][0] as CreateUserCommand;
       expect(mediator_command.default_policies).toEqual([
         Policies.CREATE_TENANT_USER,
         Policies.LIST_USERS,

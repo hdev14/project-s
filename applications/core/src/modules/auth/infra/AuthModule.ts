@@ -1,14 +1,14 @@
 import AccessPlanRepository from "@auth/app/AccessPlanRepository";
 import AuthService from "@auth/app/AuthService";
 import AuthTokenManager from "@auth/app/AuthTokenManager";
-import CreateTenantUserCommandHandler from "@auth/app/CreateTenantUserCommandHandler";
+import CreateUserCommandHandler from "@auth/app/CreateTenantUserCommandHandler";
 import Encryptor from "@auth/app/Encryptor";
 import PolicyRepository from "@auth/app/PolicyRepository";
 import TenantExistsCommandHandler from "@auth/app/TenantExistsCommandHandler";
 import UserRepository from "@auth/app/UserRepository";
 import VerificationCodeRepository from "@auth/app/VerificationCodeRepository";
 import Mediator from "@shared/Mediator";
-import CreateTenantUserCommand from "@shared/commands/CreateTenantUserCommand";
+import CreateUserCommand from "@shared/commands/CreateTenantUserCommand";
 import UserExistsCommand from "@shared/commands/TenantExistsCommand";
 import AuthMiddleware from "@shared/infra/AuthMiddleware";
 import Module from "@shared/infra/Module";
@@ -42,8 +42,8 @@ export default class AuthModule implements Module {
           new TenantExistsCommandHandler(user_repository),
         );
         mediator.register(
-          CreateTenantUserCommand.name,
-          new CreateTenantUserCommandHandler(user_repository, encryptor, access_plan_repository)
+          CreateUserCommand.name,
+          new CreateUserCommandHandler(user_repository, encryptor, access_plan_repository)
         )
         return mediator;
       })

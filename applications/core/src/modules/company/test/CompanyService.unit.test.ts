@@ -743,4 +743,48 @@ describe('CompanyService unit tests', () => {
       expect(data!.tenant_id).toEqual(params.tenant_id);
     });
   });
+
+  describe('CompanyService.updateCommission', () => {
+    it("returns a not found error if commission doesn't exist", async () => {
+      commission_repository_mock.getCommissionById.mockResolvedValueOnce(null)
+
+      const params = {
+        commission_id: faker.string.uuid(),
+        tax: faker.number.float(),
+        tax_type: TaxTypes.RAW,
+      };
+
+      const [, error] = await company_service.updateCommission(params);
+
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error!.message).toEqual('notfound.commission');
+    });
+
+    it("updates a commission", async () => {
+      commission_repository_mock.getCommissionById.mockResolvedValueOnce(
+        new Commission({
+          id: faker.string.uuid(),
+          tax: faker.number.float(),
+          tax_type: TaxTypes.RAW,
+          tenant_id: faker.string.uuid(),
+          catalog_item_id: faker.string.uuid(),
+        })
+      );
+
+
+      const params = {
+        commission_id: faker.string.uuid(),
+        tax: faker.number.float(),
+        tax_type: TaxTypes.RAW,
+      };
+
+      const [, error] = await company_service.updateCommission(params);
+
+      expect(error).toBeUndefined();
+      expect(commission_repository_mock.updateCommission).toHaveBeenCalledTimes(1);
+      const commission = commission_repository_mock.updateCommission.mock.calls[0][0].toObject();
+      expect(commission.tax).toEqual(params.tax);
+      expect(commission.tax_type).toEqual(params.tax_type);
+    });
+  });
 });

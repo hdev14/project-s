@@ -4,6 +4,7 @@ import CompanyService from "@company/app/CompanyService";
 import ServiceLogRepository from "@company/app/ServiceLogRepository";
 import Commission, { TaxTypes } from "@company/domain/Commission";
 import Company from "@company/domain/Company";
+import Employee from "@company/domain/Employee";
 import ServiceLog from "@company/domain/ServiceLog";
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import CreateUserCommand from "@shared/commands/CreateUserCommand";
@@ -871,6 +872,38 @@ describe('CompanyService unit tests', () => {
         message: 'Para efetuar o primeiro acesso a plataforma utilize como senha os primeiros 6 digitos do CPF.',
         title: 'Colaborador cadastrado!'
       });
+    });
+  });
+
+  describe('CompanyService.deactivateEmployee', () => {
+    it("returns a not found error if employee doesn't exist", async () => {
+      company_repository_mock.getEmployeeById.mockResolvedValueOnce(null);
+
+      const [, error] = await company_service.deactivateEmployee({
+        employee_id: faker.string.uuid(),
+      });
+
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error!.message).toEqual('notfound.employee');
+    });
+
+    it("should deactivate the employee", async () => {
+      company_repository_mock.getEmployeeById.mockResolvedValueOnce(
+        new Employee({
+          document: faker.string.numeric(11),
+          email: faker.internet.email(),
+          name: faker.person.fullName(),
+        }),
+      )
+
+      const [, error] = await company_service.deactivateEmployee({
+        employee_id: faker.string.uuid(),
+      });
+
+      expect(error).toBeUndefined();
+      expect(company_repository_mock.updateEmployee).toHaveBeenCalled();
+      const obj = company_repository_mock.updateEmployee.mock.calls[0][0].toObject();
+      expect(obj.deactived_at).toBeTruthy();
     });
   });
 });

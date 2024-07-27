@@ -427,6 +427,7 @@ describe('DbCompanyRepository unit tests', () => {
         document: faker.string.numeric(11),
         email: faker.internet.email(),
         name: faker.person.fullName(),
+        deactived_at: faker.date.anytime(),
       };
 
       const employee = new Employee(employee_obj);
@@ -434,13 +435,56 @@ describe('DbCompanyRepository unit tests', () => {
       await repository.updateEmployee(employee);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'UPDATE users SET name=$2,document=$3,email=$4 WHERE id = $1',
+        'UPDATE users SET name=$2,document=$3,email=$4,deactived_at=$5 WHERE id = $1',
         [
           employee_obj.id,
           employee_obj.name,
           employee_obj.document,
           employee_obj.email,
+          employee_obj.deactived_at,
         ],
+      );
+    });
+  });
+
+  describe('DbCompanyRepository.getEmployeeById', () => {
+    it('returns an employe by id', async () => {
+      query_mock
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              id: faker.string.uuid(),
+              document: faker.string.numeric(11),
+              name: faker.company.name(),
+              deactivated_at: faker.datatype.boolean(),
+              email: faker.internet.email(),
+            },
+          ]
+        });
+
+      const employee_id = faker.string.uuid();
+      const employee = await repository.getEmployeeById(employee_id);
+
+      expect(employee).toBeInstanceOf(Employee);
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        'SELECT * FROM users WHERE tenant_id IS NOT NULL AND is_admin = false AND id = $1',
+        [employee_id]
+      );
+    });
+
+    it("returns NULL if employee doesn't exist", async () => {
+      query_mock.mockResolvedValueOnce({
+        rows: []
+      });
+
+      const employee_id = faker.string.uuid();
+      const employee = await repository.getEmployeeById(employee_id);
+
+      expect(employee).toBeNull()
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT * FROM users WHERE tenant_id IS NOT NULL AND is_admin = false AND id = $1',
+        [employee_id]
       );
     });
   });

@@ -62,7 +62,9 @@ export type CreateEmployeeParams = {
   policies: string[];
 };
 
-export type DeactivateEmploeeParams = {};
+export type DeactivateEmploeeParams = {
+  employee_id: string;
+};
 
 export type CreateServiceLogParams = {
   employee_id: string;
@@ -279,7 +281,17 @@ export default class CompanyService {
   }
 
   async deactivateEmployee(params: DeactivateEmploeeParams): Promise<Either<void>> {
-    return Either.left(new Error());
+    const employee = await this.#company_repository.getEmployeeById(params.employee_id);
+
+    if (!employee) {
+      return Either.left(new NotFoundError('notfound.employee'));
+    }
+
+    employee.deactive();
+
+    await this.#company_repository.updateEmployee(employee);
+
+    return Either.right();
   }
 
   async createServiceLog(params: CreateServiceLogParams): Promise<Either<ServiceLogObject>> {

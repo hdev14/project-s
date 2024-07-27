@@ -63,24 +63,6 @@ export default class Company extends Aggregate<CompanyObject> implements Aggrega
     this.#brand = value;
   }
 
-  // TODO
-  addNewEmployee(employee: Employee) {
-    this.#employees.push(employee);
-  }
-
-  getNewEmployees() {
-    const new_employees = [];
-
-    for (let idx = 0; idx < this.#employees.length; idx++) {
-      const employee = this.#employees[idx];
-      if (employee.isNew) {
-        new_employees.push(employee);
-      }
-    }
-
-    return new_employees;
-  }
-
   toObject(): RequiredId<CompanyObject> {
     const employees = [];
 

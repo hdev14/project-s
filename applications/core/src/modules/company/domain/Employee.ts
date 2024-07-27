@@ -5,58 +5,37 @@ export type EmployeeObject = {
   name: string;
   document: string;
   email: string;
+  deactived_at?: Date;
 };
 
 export default class Employee extends Aggregate<EmployeeObject> {
   #name: string;
   #document: string;
   #email: string;
-  #is_new = false;
-  #has_updates = false;
+  #deactived_at?: Date;
 
   constructor(obj: EmployeeObject) {
     super(obj.id);
     this.#name = obj.name;
     this.#document = obj.document;
     this.#email = obj.email;
-  }
-
-  // TODO
-  static new(obj: EmployeeObject) {
-    const employee = new Employee(obj);
-    employee.isNew = true;
-    return employee;
+    this.#deactived_at = obj.deactived_at;
   }
 
   set name(value: string) {
     this.#name = value;
-    this.hasUpdates = true;
   }
 
   set email(value: string) {
     this.#email = value;
-    this.hasUpdates = true;
   }
 
   set document(value: string) {
     this.#document = value;
-    this.hasUpdates = true;
   }
 
-  get isNew() {
-    return this.#is_new;
-  }
-
-  get hasUpdates() {
-    return this.#has_updates;
-  }
-
-  private set isNew(value: boolean) {
-    this.#is_new = value;
-  }
-
-  private set hasUpdates(value: boolean) {
-    this.#has_updates = value;
+  deactive() {
+    this.#deactived_at = new Date();
   }
 
   toObject(): RequiredId<EmployeeObject> {
@@ -64,7 +43,8 @@ export default class Employee extends Aggregate<EmployeeObject> {
       id: this.id,
       name: this.#name,
       document: this.#document,
-      email: this.#email
+      email: this.#email,
+      deactived_at: this.#deactived_at,
     };
   }
 }

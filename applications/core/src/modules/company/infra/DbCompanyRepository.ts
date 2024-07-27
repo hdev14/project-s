@@ -16,6 +16,25 @@ export default class DbCompanyRepository implements CompanyRepository {
     this.#db = Database.connect();
   }
 
+  async getEmployeeById(id: string): Promise<Employee | null> {
+    const result = await this.#db.query(
+      'SELECT * FROM users WHERE tenant_id IS NOT NULL AND is_admin = false AND id = $1',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    return new Employee({
+      id: result.rows[0].id,
+      name: result.rows[0].name,
+      document: result.rows[0].document,
+      email: result.rows[0].email,
+      deactived_at: result.rows[0].deactived_at,
+    });
+  }
+
   async updateEmployee(employee: Employee): Promise<void> {
     const data = employee.toObject();
 

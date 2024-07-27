@@ -787,4 +787,69 @@ describe('CompanyService unit tests', () => {
       expect(commission.tax_type).toEqual(params.tax_type);
     });
   });
+
+  describe('CompanyService.createEmployee', () => {
+    it("returns a not found error if tenant doesn't exist", async () => {
+      mediator_mock.send.mockResolvedValueOnce(false);
+
+      const [data, error] = await company_service.createEmployee({
+        document: faker.string.numeric(11),
+        email: faker.internet.email(),
+        name: faker.person.fullName(),
+        tenant_id: faker.string.uuid(),
+        policies: [faker.helpers.enumValue(Policies)]
+      });
+
+      expect(data).toBeUndefined();
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error!.message).toEqual('notfound.company');
+    });
+
+    it("should create a new user for the employee", async () => {
+      const user_id = faker.string.uuid();
+      mediator_mock.send.mockResolvedValueOnce(true);
+      mediator_mock.send.mockResolvedValueOnce(user_id);
+
+      const params = {
+        document: '12345678910',
+        email: faker.internet.email(),
+        name: faker.person.fullName(),
+        tenant_id: faker.string.uuid(),
+        policies: [faker.helpers.enumValue(Policies)]
+      };
+
+      await company_service.createEmployee(params);
+
+      expect(mediator_mock.send).toHaveBeenCalledTimes(2);
+      const command = mediator_mock.send.mock.calls[1][0] as any;
+      expect(command.email).toEqual(params.email);
+      expect(command.temp_password).toEqual('123456');
+      expect(command.access_plan_id).toBeUndefined();
+      expect(command.default_policies).toEqual(params.policies);
+      expect(command.tenant_id).toEqual(params.tenant_id);
+    });
+
+    it("should create a new employee", async () => {
+      const user_id = faker.string.uuid();
+      mediator_mock.send.mockResolvedValueOnce(true);
+      mediator_mock.send.mockResolvedValueOnce(user_id);
+
+      const params = {
+        document: '12345678910',
+        email: faker.internet.email(),
+        name: faker.person.fullName(),
+        tenant_id: faker.string.uuid(),
+        policies: [faker.helpers.enumValue(Policies)]
+      };
+
+      const [data, error] = await company_service.createEmployee(params);
+
+      expect(company_repository_mock.updateEmployee).toHaveBeenCalled();
+      expect(error).toBeUndefined();
+      expect(data!.id).toEqual(user_id);
+      expect(data!.document).toEqual(params.document);
+      expect(data!.email).toEqual(params.email);
+      expect(data!.name).toEqual(params.name);
+    });
+  });
 });

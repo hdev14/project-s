@@ -1,3 +1,4 @@
+import Employee from "@company/domain/Employee";
 import Database from "@shared/infra/Database";
 import Collection from "@shared/utils/Collection";
 import DbUtils from "@shared/utils/DbUtils";
@@ -13,6 +14,15 @@ export default class DbCompanyRepository implements CompanyRepository {
 
   constructor() {
     this.#db = Database.connect();
+  }
+
+  async updateEmployee(employee: Employee): Promise<void> {
+    const data = employee.toObject();
+
+    await this.#db.query(
+      `UPDATE users SET ${DbUtils.setColumns(data)} WHERE id = $1`,
+      DbUtils.sanitizeValues(Object.values(data))
+    );
   }
 
   async documentExists(document: string): Promise<boolean> {

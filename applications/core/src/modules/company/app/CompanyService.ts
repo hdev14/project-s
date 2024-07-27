@@ -1,6 +1,7 @@
 import Bank, { BankValue } from "@company/domain/Bank";
 import Brand, { BrandValue } from "@company/domain/Brand";
 import Commission, { CommissionObject, TaxTypes } from "@company/domain/Commission";
+import Employee, { EmployeeObject } from "@company/domain/Employee";
 import ServiceLog, { ServiceLogObject } from "@company/domain/ServiceLog";
 import Address, { AddressValue } from "@shared/Address";
 import Mediator from "@shared/Mediator";
@@ -53,7 +54,13 @@ export type UpdateCompanyBrandParams = {
   company_id: string;
 } & BrandValue;
 
-export type CreateEmployeeParams = {};
+export type CreateEmployeeParams = {
+  name: string;
+  document: string;
+  email: string;
+  tenant_id: string;
+  policies: string[];
+};
 
 export type DeactivateEmploeeParams = {};
 
@@ -241,14 +248,28 @@ export default class CompanyService {
     return Either.right();
   }
 
-  async createEmployee(params: CreateEmployeeParams): Promise<Either<void>> {
-    // TODO
-    /**
-     * - Create an user with default policies and temp password
-     * - Save employee data
-     * - Send email with the instructions
-     */
-    return Either.left(new Error());
+  async createEmployee(params: CreateEmployeeParams): Promise<Either<EmployeeObject>> {
+    if (!await this.#mediator.send<boolean>(new UserExistsCommand(params.tenant_id))) {
+      return Either.left(new NotFoundError('notfound.company'));
+    }
+
+    const user_id = await this.#mediator.send<string>(new CreateUserCommand({
+      default_policies: params.policies,
+      email: params.email,
+      temp_password: params.document.slice(0, 6),
+      tenant_id: params.tenant_id,
+    }));
+
+    const employee = new Employee({
+      id: user_id,
+      document: params.document,
+      email: params.email,
+      name: params.name,
+    });
+
+    await this.#company_repository.updateEmployee(employee);
+
+    return Either.right(employee.toObject());
   }
 
   async deactivateEmployee(params: DeactivateEmploeeParams): Promise<Either<void>> {

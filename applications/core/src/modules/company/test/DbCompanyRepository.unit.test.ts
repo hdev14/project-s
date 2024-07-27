@@ -1,4 +1,5 @@
 import Company from "@company/domain/Company";
+import Employee from "@company/domain/Employee";
 import DbCompanyRepository from "@company/infra/DbCompanyRepository";
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import Database from "@shared/infra/Database";
@@ -412,6 +413,34 @@ describe('DbCompanyRepository unit tests', () => {
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT count(id) as total FROM users WHERE tenant_id IS NULL AND is_admin = false AND document = $1',
         [document]
+      );
+    });
+  });
+
+  describe('DbCompanyRepository.updateEmployee', () => {
+    it("updates a employee", async () => {
+      query_mock
+        .mockResolvedValueOnce({});
+
+      const employee_obj = {
+        id: faker.string.uuid(),
+        document: faker.string.numeric(11),
+        email: faker.internet.email(),
+        name: faker.person.fullName(),
+      };
+
+      const employee = new Employee(employee_obj);
+
+      await repository.updateEmployee(employee);
+
+      expect(query_mock).toHaveBeenCalledWith(
+        'UPDATE users SET name=$2,document=$3,email=$4 WHERE id = $1',
+        [
+          employee_obj.id,
+          employee_obj.name,
+          employee_obj.document,
+          employee_obj.email,
+        ],
       );
     });
   });

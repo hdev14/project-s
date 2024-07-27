@@ -96,7 +96,9 @@ export type UpdateCommissionParams = {
   tax_type: TaxTypes;
 };
 
-export type GetCommissionsParams = {};
+export type GetCommissionsParams = {
+  commission_id: string;
+};
 
 export default class CompanyService {
   #mediator: Mediator;
@@ -369,5 +371,15 @@ export default class CompanyService {
     await this.#commission_repository.updateCommission(commission);
 
     return Either.right();
+  }
+
+  async getCommission(params: GetCommissionsParams): Promise<Either<CommissionObject>> {
+    const commission = await this.#commission_repository.getCommissionById(params.commission_id);
+
+    if (!commission) {
+      return Either.left(new NotFoundError('notfound.commission'));
+    }
+
+    return Either.right(commission.toObject());
   }
 }

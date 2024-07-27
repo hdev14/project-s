@@ -269,6 +269,12 @@ export default class CompanyService {
 
     await this.#company_repository.updateEmployee(employee);
 
+    await this.#email_service.send({
+      email: params.email,
+      message: 'Para efetuar o primeiro acesso a plataforma utilize como senha os primeiros 6 digitos do CPF.',
+      title: 'Colaborador cadastrado!'
+    });
+
     return Either.right(employee.toObject());
   }
 

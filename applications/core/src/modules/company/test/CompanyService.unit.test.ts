@@ -851,5 +851,26 @@ describe('CompanyService unit tests', () => {
       expect(data!.email).toEqual(params.email);
       expect(data!.name).toEqual(params.name);
     });
+
+    it("should send a welcome email to the employee's email", async () => {
+      mediator_mock.send.mockResolvedValueOnce(true);
+      mediator_mock.send.mockResolvedValueOnce(faker.string.uuid());
+
+      const params = {
+        document: faker.string.numeric(11),
+        email: faker.internet.email(),
+        name: faker.person.fullName(),
+        tenant_id: faker.string.uuid(),
+        policies: [faker.helpers.enumValue(Policies)]
+      };
+
+      await company_service.createEmployee(params);
+
+      expect(email_service_mock.send).toHaveBeenCalledWith({
+        email: params.email,
+        message: 'Para efetuar o primeiro acesso a plataforma utilize como senha os primeiros 6 digitos do CPF.',
+        title: 'Colaborador cadastrado!'
+      });
+    });
   });
 });

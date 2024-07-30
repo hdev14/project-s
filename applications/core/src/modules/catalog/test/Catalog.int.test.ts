@@ -81,10 +81,10 @@ describe('Catalog integration tests', () => {
     await globalThis.db.query('DELETE FROM users');
   });
 
-  describe('POST: /api/catalog/items', () => {
+  describe('POST: /api/catalogs/items', () => {
     it('creates a new catalog item', async () => {
       const response = await request
-        .post('/api/catalog/items')
+        .post('/api/catalogs/items')
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
@@ -109,7 +109,7 @@ describe('Catalog integration tests', () => {
 
     it("returns status code 404 if tenant doesn't exist", async () => {
       const response = await request
-        .post('/api/catalog/items')
+        .post('/api/catalogs/items')
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
@@ -128,7 +128,7 @@ describe('Catalog integration tests', () => {
 
     it("returns status code 400 if data is not valid", async () => {
       const response = await request
-        .post('/api/catalog/items')
+        .post('/api/catalogs/items')
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
@@ -147,7 +147,7 @@ describe('Catalog integration tests', () => {
 
     it("returns status code 400 if amount is negative", async () => {
       const response = await request
-        .post('/api/catalog/items')
+        .post('/api/catalogs/items')
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
@@ -165,10 +165,10 @@ describe('Catalog integration tests', () => {
     });
   });
 
-  describe('GET: /api/catalog/items/:tenant_id?', () => {
+  describe('GET: /api/catalogs/items/:tenant_id?', () => {
     it("should return all catalog items", async () => {
       const response = await request
-        .get('/api/catalog/items')
+        .get('/api/catalogs/items')
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({});
@@ -179,7 +179,7 @@ describe('Catalog integration tests', () => {
 
     it("should return all tenant's catalog items", async () => {
       const response = await request
-        .get('/api/catalog/items')
+        .get('/api/catalogs/items')
         .set('Content-Type', 'application/json')
         .query({ tenant_id })
         .auth(token, { type: 'bearer' })
@@ -191,7 +191,7 @@ describe('Catalog integration tests', () => {
 
     it('should return users with pagination', async () => {
       let response = await request
-        .get('/api/catalog/items')
+        .get('/api/catalogs/items')
         .query({ page: 1, limit: 1 })
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
@@ -203,7 +203,7 @@ describe('Catalog integration tests', () => {
       expect(response.body.page_result.total_of_pages).toEqual(3);
 
       response = await request
-        .get('/api/catalog/items')
+        .get('/api/catalogs/items')
         .query({ page: 1, limit: 2 })
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
@@ -215,7 +215,7 @@ describe('Catalog integration tests', () => {
       expect(response.body.page_result.total_of_pages).toEqual(2);
 
       response = await request
-        .get('/api/catalog/items')
+        .get('/api/catalogs/items')
         .query({ page: 2, limit: 2 })
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
@@ -228,7 +228,7 @@ describe('Catalog integration tests', () => {
     });
   });
 
-  describe('PUT: /api/catalog/items/:id', () => {
+  describe('PUT: /api/catalogs/items/:id', () => {
     it('updates a catalog item', async () => {
       const data = {
         name: faker.commerce.productName(),
@@ -238,7 +238,7 @@ describe('Catalog integration tests', () => {
       };
 
       const response = await request
-        .put(`/api/catalog/items/${catalog_item_id}`)
+        .put(`/api/catalogs/items/${catalog_item_id}`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send(data);
@@ -253,7 +253,7 @@ describe('Catalog integration tests', () => {
 
     it("returns status code 404 if catalog item doesn't exist", async () => {
       const response = await request
-        .put(`/api/catalog/items/${faker.string.uuid()}`)
+        .put(`/api/catalogs/items/${faker.string.uuid()}`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
@@ -269,7 +269,7 @@ describe('Catalog integration tests', () => {
 
     it('returns status code 400 if data is invalid', async () => {
       const response = await request
-        .put(`/api/catalog/items/${catalog_item_id}`)
+        .put(`/api/catalogs/items/${catalog_item_id}`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({

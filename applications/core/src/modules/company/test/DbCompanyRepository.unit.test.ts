@@ -1,6 +1,6 @@
 import Company from "@company/domain/Company";
 import Employee from "@company/domain/Employee";
-import DbCompanyRepository from "@company/infra/DbCompanyRepository";
+import DbCompanyRepository from "@company/infra/persistence/DbCompanyRepository";
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import Database from "@shared/infra/Database";
 import { PageOptions } from "@shared/utils/Pagination";

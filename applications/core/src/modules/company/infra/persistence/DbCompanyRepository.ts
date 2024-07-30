@@ -3,10 +3,13 @@ import Database from "@shared/infra/Database";
 import Collection from "@shared/utils/Collection";
 import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
+import { injectable } from "inversify";
 import { Pool } from "pg";
-import CompanyRepository, { CompaniesFilter } from "../app/CompanyRepository";
-import Company, { CompanyObject } from "../domain/Company";
+import 'reflect-metadata';
+import CompanyRepository, { CompaniesFilter } from "../../app/CompanyRepository";
+import Company, { CompanyObject } from "../../domain/Company";
 
+@injectable()
 export default class DbCompanyRepository implements CompanyRepository {
   #db: Pool;
   #select_companies_query = 'SELECT * FROM users WHERE tenant_id IS NULL AND is_admin = false';

@@ -1,15 +1,15 @@
 import AccessPlanRepository from "@auth/app/AccessPlanRepository";
 import AuthService from "@auth/app/AuthService";
 import AuthTokenManager from "@auth/app/AuthTokenManager";
-import CreateUserCommandHandler from "@auth/app/CreateTenantUserCommandHandler";
+import CreateUserCommandHandler from "@auth/app/CreateUserCommandHandler";
 import Encryptor from "@auth/app/Encryptor";
 import PolicyRepository from "@auth/app/PolicyRepository";
-import TenantExistsCommandHandler from "@auth/app/TenantExistsCommandHandler";
+import UserExistsCommandHandler from "@auth/app/UserExistsCommandHandler";
 import UserRepository from "@auth/app/UserRepository";
 import VerificationCodeRepository from "@auth/app/VerificationCodeRepository";
 import Mediator from "@shared/Mediator";
-import CreateUserCommand from "@shared/commands/CreateTenantUserCommand";
-import UserExistsCommand from "@shared/commands/TenantExistsCommand";
+import CreateUserCommand from "@shared/commands/CreateUserCommand";
+import UserExistsCommand from "@shared/commands/UserExistsCommand";
 import AuthMiddleware from "@shared/infra/AuthMiddleware";
 import Module from "@shared/infra/Module";
 import types from "@shared/infra/types";
@@ -39,14 +39,14 @@ export default class AuthModule implements Module {
       onActivation<Mediator>(types.Mediator, (_context, mediator) => {
         mediator.register(
           UserExistsCommand.name,
-          new TenantExistsCommandHandler(user_repository),
+          new UserExistsCommandHandler(user_repository),
         );
         mediator.register(
           CreateUserCommand.name,
           new CreateUserCommandHandler(user_repository, encryptor, access_plan_repository)
         )
         return mediator;
-      })
+      });
     });
 
     return module;

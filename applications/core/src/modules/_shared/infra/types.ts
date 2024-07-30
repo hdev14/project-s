@@ -12,4 +12,8 @@ export default {
   TenantExistsCommandHandler: Symbol.for('TenantExistsCommandHandler'),
   EmailService: Symbol.for('EmailService'),
   VerificationCodeRepository: Symbol.for('VerificationCodeRepository'),
+  CompanyService: Symbol.for('CompanyService'),
+  CompanyRepository: Symbol.for('CompanyRepository'),
+  ServiceLogRepository: Symbol.for('ServiceLogRepository'),
+  CommissionRepository: Symbol.for('CommissionRepository'),
 };

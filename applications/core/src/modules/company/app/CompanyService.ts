@@ -13,8 +13,11 @@ import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import EmailService from "@shared/infra/EmailService";
 import { Policies } from "@shared/infra/Principal";
+import types from "@shared/infra/types";
 import Either from "@shared/utils/Either";
 import { PageOptions, PageResult } from "@shared/utils/Pagination";
+import { inject, injectable } from "inversify";
+import 'reflect-metadata';
 import Company, { CompanyObject } from "../domain/Company";
 import CommissionRepository from "./CommissionRepository";
 import CompanyRepository from "./CompanyRepository";
@@ -100,6 +103,7 @@ export type GetCommissionsParams = {
   commission_id: string;
 };
 
+@injectable()
 export default class CompanyService {
   #mediator: Mediator;
   #email_service: EmailService;
@@ -108,11 +112,11 @@ export default class CompanyService {
   #commission_repository: CommissionRepository;
 
   constructor(
-    mediator: Mediator,
-    email_service: EmailService,
-    company_repository: CompanyRepository,
-    service_log_repository: ServiceLogRepository,
-    commission_repository: CommissionRepository,
+    @inject(types.Mediator) mediator: Mediator,
+    @inject(types.EmailService) email_service: EmailService,
+    @inject(types.CompanyService) company_repository: CompanyRepository,
+    @inject(types.ServiceLogRepository) service_log_repository: ServiceLogRepository,
+    @inject(types.CommissionRepository) commission_repository: CommissionRepository,
   ) {
     this.#mediator = mediator;
     this.#email_service = email_service;

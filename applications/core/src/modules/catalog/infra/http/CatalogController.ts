@@ -1,4 +1,5 @@
 import CatalogService from "@catalog/app/CatalogService";
+import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
 import { Policies } from "@shared/infra/Principal";
@@ -15,9 +16,8 @@ import {
   request
 } from "inversify-express-utils";
 import { create_catalog_item_validation_schema, update_catalog_item_validation_schema } from "./validations";
-import DomainError from "@shared/errors/DomainError";
 
-@controller('/api/catalog', types.AuthMiddleware)
+@controller('/api/catalogs', types.AuthMiddleware)
 export default class CatalogController extends BaseHttpController {
   constructor(@inject(types.CatalogService) readonly catalog_service: CatalogService) {
     super();

@@ -1,6 +1,6 @@
 import { TaxTypes } from "@company/domain/Commission";
 import ServiceLog from "@company/domain/ServiceLog";
-import DbServiceLogRepository from "@company/infra/DbServiceLogRepository";
+import DbServiceLogRepository from "@company/infra/persistence/DbServiceLogRepository";
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import Database from "@shared/infra/Database";
 import { PageOptions } from "@shared/utils/Pagination";

@@ -3,9 +3,12 @@ import Collection from "@shared/utils/Collection";
 import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
 import { Pool } from "pg";
-import ServiceLogRepository, { ServiceLogsFilter } from "../app/ServiceLogRepository";
-import ServiceLog from "../domain/ServiceLog";
+import 'reflect-metadata';
+import ServiceLogRepository, { ServiceLogsFilter } from "../../app/ServiceLogRepository";
+import ServiceLog from "../../domain/ServiceLog";
+import { injectable } from "inversify";
 
+@injectable()
 export default class DbServiceLogRepository implements ServiceLogRepository {
   #db: Pool;
 

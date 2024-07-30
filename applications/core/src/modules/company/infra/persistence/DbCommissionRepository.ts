@@ -2,8 +2,11 @@ import CommissionRepository from "@company/app/CommissionRepository";
 import Commission from "@company/domain/Commission";
 import Database from "@shared/infra/Database";
 import DbUtils from "@shared/utils/DbUtils";
+import { injectable } from "inversify";
 import { Pool } from "pg";
+import 'reflect-metadata';
 
+@injectable()
 export default class DbCommissionRepository implements CommissionRepository {
   #db: Pool;
 

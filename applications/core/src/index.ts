@@ -1,5 +1,6 @@
 import AuthModule from "@auth/infra/AuthModule";
 import CatalogModule from "@catalog/infra/CatalogModule";
+import CompanyModule from "@company/infra/CompanyModule";
 import Database from "@shared/infra/Database";
 import SharedModule from "@shared/infra/SharedModule";
 import Application from "./Application";
@@ -8,7 +9,12 @@ import Application from "./Application";
   try {
     Database.connect();
     const application = new Application({
-      modules: [new SharedModule(), new AuthModule(), new CatalogModule()]
+      modules: [
+        new SharedModule(),
+        new AuthModule(),
+        new CatalogModule(),
+        new CompanyModule()
+      ]
     });
     application.server.listen(process.env.SERVER_PORT, () => {
       console.log('Server is running!');

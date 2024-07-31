@@ -1,4 +1,5 @@
 import CompanyService from "@company/app/CompanyService";
+import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
 import types from "@shared/infra/types";
 import { Request } from 'express';
@@ -42,7 +43,17 @@ export default class CompanyController extends BaseHttpController {
 
   @httpGet('/:id')
   async getCompany(@request() req: Request) {
-    return this.ok();
+    const { id } = req.params;
+
+    const [data, error] = await this.company_service.getCompany({
+      company_id: id,
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    return this.json(data, HttpStatusCodes.OK);
   }
 
   @httpPatch('/:id/addresses')

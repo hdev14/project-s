@@ -27,11 +27,12 @@ describe('Company integration tests', () => {
     policies: Object.values(Policies),
   };
   const { token } = auth_token_manager.generateToken(user);
+  const company_id = faker.string.uuid();
 
   beforeEach(async () => {
     await globalThis.db.query(
       'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
-      [faker.string.uuid(), faker.internet.email(), faker.string.alphanumeric(10)]
+      [company_id, faker.internet.email(), faker.string.alphanumeric(10)]
     );
     await globalThis.db.query(
       'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
@@ -105,7 +106,35 @@ describe('Company integration tests', () => {
     });
   });
 
-  it.todo('GET: /api/companies/:id');
+  describe('GET: /api/companies/:id', () => {
+    it("returns status code 404 if company doesn't exist", async () => {
+      const response = await request
+        .get(`/api/companies/${faker.string.uuid()}`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send();
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Empresa não encontrada');
+    });
+
+    it("returns company", async () => {
+      const response = await request
+        .get(`/api/companies/${company_id}`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body).toHaveProperty('document');
+      expect(response.body).toHaveProperty('name');
+      expect(response.body).toHaveProperty('address');
+      expect(response.body).toHaveProperty('bank');
+      expect(response.body).toHaveProperty('brand');
+      expect(response.body).toHaveProperty('employees');
+      expect(response.body).toHaveProperty('access_plan_id');
+    });
+  });
 
   it.todo('PATCH: /api/companies/:id/addresses');
 

@@ -183,7 +183,7 @@ export default class CompanyService {
     const company = await this.#company_repository.getCompanyById(params.company_id);
 
     if (!company) {
-      return Either.left(new NotFoundError('Empresa não encontrado'));
+      return Either.left(new NotFoundError('notfound.company'));
     }
 
     return Either.right(company.toObject());

@@ -55,7 +55,6 @@ export default class CatalogService {
   }
 
   async createCatalogItem(params: CreateCatalogItemParams): Promise<Either<CatalogItemObject>> {
-
     try {
       const exists = await this.#mediator.send<boolean>(new UserExistsCommand(params.tenant_id));
 

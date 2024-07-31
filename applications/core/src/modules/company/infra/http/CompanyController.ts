@@ -1,4 +1,5 @@
 import CompanyService from "@company/app/CompanyService";
+import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
 import types from "@shared/infra/types";
 import { Request } from 'express';
 import { inject } from "inversify";
@@ -26,7 +27,17 @@ export default class CompanyController extends BaseHttpController {
 
   @httpGet('/')
   async getCompanies(@request() req: Request) {
-    return this.ok();
+    const { page, limit } = req.query;
+    const params = (page && limit) ? ({
+      page_options: {
+        limit: parseInt(limit.toString(), 10),
+        page: parseInt(page.toString(), 10)
+      }
+    }) : {};
+
+    const [data] = await this.company_service.getCompanies(params);
+
+    return this.json(data, HttpStatusCodes.OK);
   }
 
   @httpGet('/:id')

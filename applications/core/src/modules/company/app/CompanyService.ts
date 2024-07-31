@@ -114,7 +114,7 @@ export default class CompanyService {
   constructor(
     @inject(types.Mediator) mediator: Mediator,
     @inject(types.EmailService) email_service: EmailService,
-    @inject(types.CompanyService) company_repository: CompanyRepository,
+    @inject(types.CompanyRepository) company_repository: CompanyRepository,
     @inject(types.ServiceLogRepository) service_log_repository: ServiceLogRepository,
     @inject(types.CommissionRepository) commission_repository: CommissionRepository,
   ) {

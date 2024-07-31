@@ -136,7 +136,68 @@ describe('Company integration tests', () => {
     });
   });
 
-  it.todo('PATCH: /api/companies/:id/addresses');
+  describe('PATCH: /api/companies/:id/addresses', () => {
+    it("returns status code 404 if company doesn't exist", async () => {
+      const response = await request
+        .patch(`/api/companies/${faker.string.uuid()}/addresses`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          street: faker.location.street(),
+          district: faker.location.secondaryAddress(),
+          state: faker.location.state({ abbreviated: true }),
+          number: faker.string.numeric(),
+          complement: faker.string.sample(),
+        });
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Empresa não encontrada');
+    });
+
+    it("returns status code 400 if data is invalid", async () => {
+      const response = await request
+        .patch(`/api/companies/${company_id}/addresses`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          street: faker.number.float(),
+          district: faker.number.float(),
+          state: faker.number.float(),
+          number: faker.number.float(),
+          complement: faker.number.float(),
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(6);
+    });
+
+    it("updates company's address", async () => {
+      const data = {
+        street: faker.location.street(),
+        district: faker.location.secondaryAddress(),
+        state: faker.location.state({ abbreviated: true }),
+        number: faker.string.numeric(),
+        complement: faker.string.sample(),
+      };
+
+      const response = await request
+        .patch(`/api/companies/${company_id}/addresses`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send(data);
+
+      expect(response.status).toEqual(204);
+
+      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [company_id]);
+      const company = result.rows[0];
+
+      expect(company.street).toEqual(data.street);
+      expect(company.district).toEqual(data.district);
+      expect(company.state).toEqual(data.state);
+      expect(company.number).toEqual(data.number);
+      expect(company.complement).toEqual(data.complement);
+    });
+  });
 
   it.todo('PATCH: /api/companies/:id/banks');
 

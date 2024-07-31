@@ -1,6 +1,7 @@
 import CompanyService from "@company/app/CompanyService";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
+import { requestValidator } from "@shared/infra/middlewares";
 import types from "@shared/infra/types";
 import { Request } from 'express';
 import { inject } from "inversify";
@@ -14,6 +15,7 @@ import {
   httpPut,
   request
 } from "inversify-express-utils";
+import { update_company_address_validation_schema } from "./validations";
 
 @controller('/api/companies')
 export default class CompanyController extends BaseHttpController {
@@ -56,9 +58,31 @@ export default class CompanyController extends BaseHttpController {
     return this.json(data, HttpStatusCodes.OK);
   }
 
-  @httpPatch('/:id/addresses')
-  async updateCompanyAddress() {
-    return this.ok();
+  @httpPatch('/:id/addresses', requestValidator(update_company_address_validation_schema))
+  async updateCompanyAddress(@request() req: Request) {
+    const { id } = req.params;
+    const {
+      street,
+      district,
+      state,
+      number,
+      complement,
+    } = req.body;
+
+    const [, error] = await this.company_service.updateCompanyAddress({
+      company_id: id,
+      street,
+      district,
+      state,
+      number,
+      complement,
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
   @httpPatch('/:id/banks')

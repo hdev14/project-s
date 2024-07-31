@@ -15,7 +15,7 @@ import {
   httpPut,
   request
 } from "inversify-express-utils";
-import { update_company_address_validation_schema } from "./validations";
+import { update_company_address_validation_schema, update_company_bank_validation_schema } from "./validations";
 
 @controller('/api/companies')
 export default class CompanyController extends BaseHttpController {
@@ -85,9 +85,31 @@ export default class CompanyController extends BaseHttpController {
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
-  @httpPatch('/:id/banks')
-  async updateCompanyBank() {
-    return this.ok();
+  @httpPatch('/:id/banks', requestValidator(update_company_bank_validation_schema))
+  async updateCompanyBank(@request() req: Request) {
+    const { id } = req.params;
+    const {
+      account,
+      account_digit,
+      agency,
+      agency_digit,
+      bank_code,
+    } = req.body;
+
+    const [, error] = await this.company_service.updateCompanyBank({
+      company_id: id,
+      account,
+      account_digit,
+      agency,
+      agency_digit,
+      bank_code,
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
   @httpPatch('/:id/brands')

@@ -199,7 +199,68 @@ describe('Company integration tests', () => {
     });
   });
 
-  it.todo('PATCH: /api/companies/:id/banks');
+  describe('PATCH: /api/companies/:id/banks', () => {
+    it("returns status code 404 if company doesn't exist", async () => {
+      const response = await request
+        .patch(`/api/companies/${faker.string.uuid()}/banks`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          account: faker.string.numeric(5),
+          account_digit: faker.string.numeric(2),
+          agency: faker.string.numeric(4),
+          agency_digit: faker.string.numeric(1),
+          bank_code: faker.string.numeric(3),
+        });
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Empresa não encontrada');
+    });
+
+    it("returns status code 400 if data is invalid", async () => {
+      const response = await request
+        .patch(`/api/companies/${company_id}/banks`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          account: faker.string.sample({ min: 11, max: 100 }),
+          account_digit: faker.string.sample({ min: 11, max: 100 }),
+          agency: faker.string.sample({ min: 11, max: 100 }),
+          agency_digit: faker.string.sample({ min: 11, max: 100 }),
+          bank_code: faker.string.sample({ min: 11, max: 100 }),
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(10);
+    });
+
+    it("updates company's address", async () => {
+      const data = {
+        account: faker.string.numeric(5),
+        account_digit: faker.string.numeric(2),
+        agency: faker.string.numeric(4),
+        agency_digit: faker.string.numeric(1),
+        bank_code: faker.string.numeric(3),
+      };
+
+      const response = await request
+        .patch(`/api/companies/${company_id}/banks`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send(data);
+
+      expect(response.status).toEqual(204);
+
+      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [company_id]);
+      const company = result.rows[0];
+
+      expect(company.account).toEqual(data.account);
+      expect(company.account_digit).toEqual(data.account_digit);
+      expect(company.agency).toEqual(data.agency);
+      expect(company.agency_digit).toEqual(data.agency_digit);
+      expect(company.bank_code).toEqual(data.bank_code);
+    });
+  });
 
   it.todo('PATCH: /api/companies/:id/brands');
 

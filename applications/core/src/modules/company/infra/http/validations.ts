@@ -26,3 +26,46 @@ export const update_company_address_validation_schema: Schema = {
     errorMessage: 'validation.text',
   },
 };
+
+export const update_company_bank_validation_schema: Schema = {
+  account: {
+    isNumeric: true,
+    errorMessage: 'validation.number',
+    isLength: {
+      options: { max: 10 },
+      errorMessage: 'validation.length',
+    }
+  },
+  account_digit: {
+    isNumeric: true,
+    errorMessage: 'validation.number',
+    isLength: {
+      options: { max: 2 },
+      errorMessage: 'validation.length',
+    }
+  },
+  agency: {
+    isNumeric: true,
+    errorMessage: 'validation.number',
+    isLength: {
+      options: { max: 6 },
+      errorMessage: 'validation.length',
+    }
+  },
+  agency_digit: {
+    isNumeric: true,
+    errorMessage: 'validation.number',
+    isLength: {
+      options: { max: 2 },
+      errorMessage: 'validation.length',
+    }
+  },
+  bank_code: {
+    isNumeric: true,
+    errorMessage: 'validation.number',
+    isLength: {
+      options: { max: 4 },
+      errorMessage: 'validation.length',
+    }
+  },
+}

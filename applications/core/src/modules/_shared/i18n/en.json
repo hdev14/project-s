@@ -19,5 +19,6 @@
   "validation.boolean": "The field must be a valid boolean",
   "validation.code": "The field must have at most 4 characteres",
   "validation.url": "The field must be a valid url",
-  "validation.state": "The state has to be abbreviated"
+  "validation.state": "The state has to be abbreviated",
+  "validation.length": "The field has passed the max of characters"
 }

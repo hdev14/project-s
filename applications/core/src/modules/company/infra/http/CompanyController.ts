@@ -15,7 +15,11 @@ import {
   httpPut,
   request
 } from "inversify-express-utils";
-import { update_company_address_validation_schema, update_company_bank_validation_schema } from "./validations";
+import {
+  update_company_address_validation_schema,
+  update_company_bank_validation_schema,
+  update_company_brand_validation_schema
+} from "./validations";
 
 @controller('/api/companies')
 export default class CompanyController extends BaseHttpController {
@@ -112,9 +116,22 @@ export default class CompanyController extends BaseHttpController {
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
-  @httpPatch('/:id/brands')
-  async updateCompanyBrand() {
-    return this.ok();
+  @httpPatch('/:id/brands', requestValidator(update_company_brand_validation_schema))
+  async updateCompanyBrand(@request() req: Request) {
+    const { id } = req.params;
+    const { color, logo_url } = req.body;
+
+    const [, error] = await this.company_service.updateCompanyBrand({
+      company_id: id,
+      color,
+      logo_url,
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
   @httpPost('/employees')

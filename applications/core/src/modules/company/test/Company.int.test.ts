@@ -234,7 +234,7 @@ describe('Company integration tests', () => {
       expect(response.body.errors).toHaveLength(10);
     });
 
-    it("updates company's address", async () => {
+    it("updates company's bank", async () => {
       const data = {
         account: faker.string.numeric(5),
         account_digit: faker.string.numeric(2),
@@ -262,7 +262,56 @@ describe('Company integration tests', () => {
     });
   });
 
-  it.todo('PATCH: /api/companies/:id/brands');
+  describe('PATCH: /api/companies/:id/brands', () => {
+    it("returns status code 404 if company doesn't exist", async () => {
+      const response = await request
+        .patch(`/api/companies/${faker.string.uuid()}/brands`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          color: faker.color.rgb(),
+          logo_url: faker.internet.url(),
+        });
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Empresa não encontrada');
+    });
+
+    it("returns status code 400 if data is invalid", async () => {
+      const response = await request
+        .patch(`/api/companies/${company_id}/brands`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          color: faker.string.sample(),
+          logo_url: faker.number.float(),
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(2);
+    });
+
+    it("updates company's brand", async () => {
+      const data = {
+        color: faker.color.rgb(),
+        logo_url: faker.internet.url(),
+      };
+
+      const response = await request
+        .patch(`/api/companies/${company_id}/brands`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send(data);
+
+      expect(response.status).toEqual(204);
+
+      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [company_id]);
+      const company = result.rows[0];
+
+      expect(company.color).toEqual(data.color);
+      expect(company.logo_url).toEqual(data.logo_url);
+    });
+  });
 
   it.todo('POST: /api/companies/employees');
 

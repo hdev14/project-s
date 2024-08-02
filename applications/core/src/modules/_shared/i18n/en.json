@@ -20,5 +20,6 @@
   "validation.code": "The field must have at most 4 characteres",
   "validation.url": "The field must be a valid url",
   "validation.state": "The state has to be abbreviated",
-  "validation.length": "The field has passed the max of characters"
+  "validation.length": "The field has passed the max of characters",
+  "validation.color": "The field must be a RGB color"
 }

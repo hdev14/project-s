@@ -69,3 +69,14 @@ export const update_company_bank_validation_schema: Schema = {
     }
   },
 }
+
+export const update_company_brand_validation_schema: Schema = {
+  color: {
+    isHexColor: true,
+    errorMessage: 'validation.color',
+  },
+  logo_url: {
+    isURL: true,
+    errorMessage: 'validation.url'
+  },
+}

@@ -21,5 +21,6 @@
   "validation.url": "O campo precisa ser uma url válida",
   "catalog_item_negative_amount": "Valor do item negativo",
   "validation.state": "O estado precisa conter apenas duas letras",
-  "validation.length": "O campo passou do tamanho máximo de caracteres"
+  "validation.length": "O campo passou do tamanho máximo de caracteres",
+  "validation.color": "O campo precisar ser um texto no formato RGB"
 }

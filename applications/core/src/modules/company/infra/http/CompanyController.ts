@@ -47,12 +47,12 @@ export default class CompanyController extends BaseHttpController {
     return this.json(data, HttpStatusCodes.OK);
   }
 
-  @httpGet('/:id')
+  @httpGet('/:company_id')
   async getCompany(@request() req: Request) {
-    const { id } = req.params;
+    const { company_id } = req.params;
 
     const [data, error] = await this.company_service.getCompany({
-      company_id: id,
+      company_id,
     });
 
     if (error instanceof NotFoundError) {
@@ -62,9 +62,9 @@ export default class CompanyController extends BaseHttpController {
     return this.json(data, HttpStatusCodes.OK);
   }
 
-  @httpPatch('/:id/addresses', requestValidator(update_company_address_validation_schema))
+  @httpPatch('/:company_id/addresses', requestValidator(update_company_address_validation_schema))
   async updateCompanyAddress(@request() req: Request) {
-    const { id } = req.params;
+    const { company_id } = req.params;
     const {
       street,
       district,
@@ -74,7 +74,7 @@ export default class CompanyController extends BaseHttpController {
     } = req.body;
 
     const [, error] = await this.company_service.updateCompanyAddress({
-      company_id: id,
+      company_id,
       street,
       district,
       state,
@@ -89,9 +89,9 @@ export default class CompanyController extends BaseHttpController {
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
-  @httpPatch('/:id/banks', requestValidator(update_company_bank_validation_schema))
+  @httpPatch('/:company_id/banks', requestValidator(update_company_bank_validation_schema))
   async updateCompanyBank(@request() req: Request) {
-    const { id } = req.params;
+    const { company_id } = req.params;
     const {
       account,
       account_digit,
@@ -101,7 +101,7 @@ export default class CompanyController extends BaseHttpController {
     } = req.body;
 
     const [, error] = await this.company_service.updateCompanyBank({
-      company_id: id,
+      company_id,
       account,
       account_digit,
       agency,
@@ -116,13 +116,13 @@ export default class CompanyController extends BaseHttpController {
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
-  @httpPatch('/:id/brands', requestValidator(update_company_brand_validation_schema))
+  @httpPatch('/:company_id/brands', requestValidator(update_company_brand_validation_schema))
   async updateCompanyBrand(@request() req: Request) {
-    const { id } = req.params;
+    const { company_id } = req.params;
     const { color, logo_url } = req.body;
 
     const [, error] = await this.company_service.updateCompanyBrand({
-      company_id: id,
+      company_id,
       color,
       logo_url,
     });
@@ -134,37 +134,49 @@ export default class CompanyController extends BaseHttpController {
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
-  @httpPost('/employees')
+  @httpPost('/:company_id/employees')
   async createEmployee() {
     return this.ok();
   }
 
-  @httpDelete('/employees/:id')
+  @httpDelete('/:company_id/employees/:employee_id')
   async deactivateEmployee() {
     return this.ok();
   }
 
-  @httpPost('/service-logs')
+  @httpPost('/:company_id/service-logs')
   async createServiceLog() {
     return this.ok();
   }
 
-  @httpGet('/service-logs')
-  async getServiceLogs() {
-    return this.ok();
+  @httpGet('/:company_id/service-logs')
+  async getServiceLogs(@request() req: Request) {
+    const { company_id } = req.params;
+    const { page, limit } = req.query;
+    const params = (page && limit) ? ({
+      tenant_id: company_id,
+      page_options: {
+        limit: parseInt(limit.toString(), 10),
+        page: parseInt(page.toString(), 10)
+      }
+    }) : { tenant_id: company_id };
+
+    const [data,] = await this.company_service.getServiceLogs(params);
+
+    return this.json(data, HttpStatusCodes.OK);
   }
 
-  @httpPost('/commissions')
+  @httpPost('/:company_id/commissions')
   async createCommission() {
     return this.ok();
   }
 
-  @httpPut('/commissions/:id')
+  @httpPut('/:company_id/commissions/:commission_id')
   async updateCommission() {
     return this.ok();
   }
 
-  @httpGet('/commissions/:id')
+  @httpGet('/:company_id/commissions/:commission_id')
   async getCommission() {
     return this.ok();
   }

@@ -28,6 +28,9 @@ describe('Company integration tests', () => {
   };
   const { token } = auth_token_manager.generateToken(user);
   const company_id = faker.string.uuid();
+  const customer_id = faker.string.uuid();
+  const employee_id = faker.string.uuid();
+  const service_id = faker.string.uuid();
 
   beforeEach(async () => {
     await globalThis.db.query(
@@ -46,9 +49,71 @@ describe('Company integration tests', () => {
       'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
       [faker.string.uuid(), faker.internet.email(), faker.string.alphanumeric(10)]
     );
+    await globalThis.db.query(
+      'INSERT INTO users (id, email, password, tenant_id) VALUES ($1, $2, $3, $4)',
+      [customer_id, faker.internet.email(), faker.string.alphanumeric(10), company_id]
+    );
+    await globalThis.db.query(
+      'INSERT INTO users (id, email, password, tenant_id) VALUES ($1, $2, $3, $4)',
+      [employee_id, faker.internet.email(), faker.string.alphanumeric(10), company_id]
+    );
+    await globalThis.db.query(
+      'INSERT INTO catalog_items (id, name, description, attributes, is_service, picture_url, tenant_id, amount) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+      [
+        service_id,
+        faker.commerce.productName(),
+        faker.commerce.productDescription(),
+        JSON.stringify([]),
+        true,
+        faker.internet.url(),
+        company_id,
+        faker.number.float(),
+      ]
+    );
+    await globalThis.db.query(
+      'INSERT INTO service_logs (id, commission_amount, employee_id, service_id, customer_id, tenant_id, paid_amount, registed_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+      [
+        faker.string.uuid(),
+        faker.number.float(),
+        employee_id,
+        service_id,
+        customer_id,
+        company_id,
+        faker.number.float(),
+        faker.date.anytime()
+      ]
+    );
+    await globalThis.db.query(
+      'INSERT INTO service_logs (id, commission_amount, employee_id, service_id, customer_id, tenant_id, paid_amount, registed_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+      [
+        faker.string.uuid(),
+        faker.number.float(),
+        employee_id,
+        service_id,
+        customer_id,
+        company_id,
+        faker.number.float(),
+        faker.date.anytime()
+      ]
+    );
+    await globalThis.db.query(
+      'INSERT INTO service_logs (id, commission_amount, employee_id, service_id, customer_id, tenant_id, paid_amount, registed_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+      [
+        faker.string.uuid(),
+        faker.number.float(),
+        employee_id,
+        service_id,
+        customer_id,
+        company_id,
+        faker.number.float(),
+        faker.date.anytime()
+      ]
+    );
   });
 
   afterEach(async () => {
+    await globalThis.db.query('DELETE FROM service_logs');
+    await globalThis.db.query('DELETE FROM catalog_items');
     await globalThis.db.query('DELETE FROM users');
   });
 
@@ -106,7 +171,7 @@ describe('Company integration tests', () => {
     });
   });
 
-  describe('GET: /api/companies/:id', () => {
+  describe('GET: /api/companies/:company_id', () => {
     it("returns status code 404 if company doesn't exist", async () => {
       const response = await request
         .get(`/api/companies/${faker.string.uuid()}`)
@@ -136,7 +201,7 @@ describe('Company integration tests', () => {
     });
   });
 
-  describe('PATCH: /api/companies/:id/addresses', () => {
+  describe('PATCH: /api/companies/:company_id/addresses', () => {
     it("returns status code 404 if company doesn't exist", async () => {
       const response = await request
         .patch(`/api/companies/${faker.string.uuid()}/addresses`)
@@ -199,7 +264,7 @@ describe('Company integration tests', () => {
     });
   });
 
-  describe('PATCH: /api/companies/:id/banks', () => {
+  describe('PATCH: /api/companies/:company_id/banks', () => {
     it("returns status code 404 if company doesn't exist", async () => {
       const response = await request
         .patch(`/api/companies/${faker.string.uuid()}/banks`)
@@ -262,7 +327,7 @@ describe('Company integration tests', () => {
     });
   });
 
-  describe('PATCH: /api/companies/:id/brands', () => {
+  describe('PATCH: /api/companies/:company_id/brands', () => {
     it("returns status code 404 if company doesn't exist", async () => {
       const response = await request
         .patch(`/api/companies/${faker.string.uuid()}/brands`)
@@ -313,17 +378,67 @@ describe('Company integration tests', () => {
     });
   });
 
-  it.todo('POST: /api/companies/employees');
+  it.todo('POST: /api/companies/:company_id/employees');
 
-  it.todo('DELETE: /api/companies/employees/:id');
+  it.todo('DELETE: /api/companies/:company_id/employees/:employee_id');
 
-  it.todo('POST: /api/companies/service-logs');
+  it.todo('POST: /api/companies/:company_id/service-logs');
 
-  it.todo('GET: /api/companies/service-logs');
+  describe('GET: /api/companies/:company_id/service-logs', () => {
+    it('should return all service logs', async () => {
+      const response = await request
+        .get(`/api/companies/${company_id}/service-logs`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send();
 
-  it.todo('POST: /api/companies/commissions');
+      expect(response.status).toEqual(200);
+      expect(response.body.results).toHaveLength(3);
+      expect(response.body).not.toHaveProperty('page_result');
+    });
 
-  it.todo('PUT: /api/companies/commissions/:id');
+    it('should return service logs with pagination', async () => {
+      let response = await request
+        .get(`/api/companies/${company_id}/service-logs`)
+        .query({ page: 1, limit: 1 })
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send();
 
-  it.todo('GET: /api/companies/commissions/:id');
+      expect(response.status).toEqual(200);
+      expect(response.body.results).toHaveLength(1);
+      expect(response.body.page_result.next_page).toEqual(2);
+      expect(response.body.page_result.total_of_pages).toEqual(3);
+
+      response = await request
+        .get(`/api/companies/${company_id}/service-logs`)
+        .query({ page: 1, limit: 2 })
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body.results).toHaveLength(2);
+      expect(response.body.page_result.next_page).toEqual(2);
+      expect(response.body.page_result.total_of_pages).toEqual(2);
+
+      response = await request
+        .get(`/api/companies/${company_id}/service-logs`)
+        .query({ page: 2, limit: 2 })
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body.results).toHaveLength(1);
+      expect(response.body.page_result.next_page).toEqual(-1);
+      expect(response.body.page_result.total_of_pages).toEqual(2);
+    });
+  });
+
+  it.todo('POST: /api/companies/:company_id/commissions');
+
+  it.todo('PUT: /api/companies/:company_id/commissions/:commission_id');
+
+  it.todo('GET: /api/companies/:company_id/commissions/:commission_id');
 });

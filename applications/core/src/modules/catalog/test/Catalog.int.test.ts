@@ -27,12 +27,10 @@ describe('Catalog integration tests', () => {
       'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
       [user.id, user.email, user.password]
     );
-
     await globalThis.db.query(
       'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
       [tenant_id, user.email, user.password]
     );
-
     await globalThis.db.query(
       'INSERT INTO catalog_items (id, name, description, attributes, is_service, picture_url, tenant_id, amount) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
       [
@@ -45,8 +43,7 @@ describe('Catalog integration tests', () => {
         user.id,
         faker.number.float(),
       ]
-    )
-
+    );
     await globalThis.db.query(
       'INSERT INTO catalog_items (id, name, description, attributes, is_service, picture_url, tenant_id, amount) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
       [
@@ -59,8 +56,7 @@ describe('Catalog integration tests', () => {
         tenant_id,
         faker.number.float(),
       ]
-    )
-
+    );
     await globalThis.db.query(
       'INSERT INTO catalog_items (id, name, description, attributes, is_service, picture_url, tenant_id, amount) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
       [
@@ -73,7 +69,7 @@ describe('Catalog integration tests', () => {
         tenant_id,
         faker.number.float(),
       ]
-    )
+    );
   });
 
   afterEach(async () => {

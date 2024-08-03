@@ -33,7 +33,6 @@ export default class DbCommissionRepository implements CommissionRepository {
   async createCommission(commission: Commission): Promise<void> {
     const commission_obj = commission.toObject();
     const values = Object.values(commission_obj);
-
     await this.#db.query(
       `INSERT INTO commissions ${DbUtils.columns(commission_obj)} VALUES ${DbUtils.values(values)}`,
       values

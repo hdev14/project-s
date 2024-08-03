@@ -1,4 +1,5 @@
 import CompanyService from "@company/app/CompanyService";
+import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
 import { requestValidator } from "@shared/infra/middlewares";
@@ -16,6 +17,7 @@ import {
   request
 } from "inversify-express-utils";
 import {
+  create_commission_validation_schema,
   create_service_log_validation_schema,
   update_company_address_validation_schema,
   update_company_bank_validation_schema,
@@ -185,9 +187,31 @@ export default class CompanyController extends BaseHttpController {
     return this.json(data, HttpStatusCodes.OK);
   }
 
-  @httpPost('/:company_id/commissions')
-  async createCommission() {
-    return this.ok();
+  @httpPost('/:company_id/commissions', requestValidator(create_commission_validation_schema))
+  async createCommission(@request() req: Request) {
+    const { company_id } = req.params;
+    const {
+      catalog_item_id,
+      tax,
+      tax_type,
+    } = req.body;
+
+    const [data, error] = await this.company_service.createCommission({
+      catalog_item_id,
+      tax,
+      tax_type,
+      tenant_id: company_id,
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    if (error instanceof DomainError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.BAD_REQUEST);
+    }
+
+    return this.json(data, HttpStatusCodes.CREATED);
   }
 
   @httpPut('/:company_id/commissions/:commission_id')

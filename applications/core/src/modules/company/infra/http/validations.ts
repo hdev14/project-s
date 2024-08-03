@@ -1,3 +1,4 @@
+import { TaxTypes } from "@company/domain/Commission";
 import { Schema } from "express-validator";
 
 export const update_company_address_validation_schema: Schema = {
@@ -93,5 +94,22 @@ export const create_service_log_validation_schema: Schema = {
   service_id: {
     isUUID: true,
     errorMessage: 'validation.id',
+  },
+}
+
+export const create_commission_validation_schema: Schema = {
+  catalog_item_id: {
+    isUUID: true,
+    errorMessage: 'validation.id',
+  },
+  tax: {
+    isFloat: true,
+    errorMessage: 'validation.number'
+  },
+  tax_type: {
+    isIn: {
+      options: [Object.values(TaxTypes)],
+      errorMessage: 'validation.tax_type'
+    }
   },
 }

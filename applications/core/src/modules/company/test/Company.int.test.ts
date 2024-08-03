@@ -1,6 +1,7 @@
 import AuthTokenManager from '@auth/app/AuthTokenManager';
 import AuthModule from '@auth/infra/AuthModule';
 import CatalogModule from '@catalog/infra/CatalogModule';
+import { TaxTypes } from '@company/domain/Commission';
 import CompanyModule from '@company/infra/CompanyModule';
 import { faker } from '@faker-js/faker';
 import { Policies } from '@shared/infra/Principal';
@@ -112,6 +113,7 @@ describe('Company integration tests', () => {
   });
 
   afterEach(async () => {
+    await globalThis.db.query('DELETE FROM commissions');
     await globalThis.db.query('DELETE FROM service_logs');
     await globalThis.db.query('DELETE FROM catalog_items');
     await globalThis.db.query('DELETE FROM users');
@@ -504,7 +506,73 @@ describe('Company integration tests', () => {
     });
   });
 
-  it.todo('POST: /api/companies/:company_id/commissions');
+  describe('POST: /api/companies/:company_id/commissions', () => {
+    it("returns status code 404 if service doesn't exist", async () => {
+      const response = await request
+        .post(`/api/companies/${company_id}/commissions`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          catalog_item_id: faker.string.uuid(),
+          tax: faker.number.float(),
+          tax_type: faker.helpers.enumValue(TaxTypes),
+        });
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Item não encontrado');
+    });
+
+    it("returns status code 400 if data is invalid", async () => {
+      const response = await request
+        .post(`/api/companies/${company_id}/commissions`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          catalog_item_id: faker.string.sample(),
+          tax: faker.string.sample(),
+          tax_type: faker.string.sample(),
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(3);
+    });
+
+    it("creates a new commission", async () => {
+      const data = {
+        catalog_item_id: service_id,
+        tax: faker.number.float(),
+        tax_type: faker.helpers.enumValue(TaxTypes),
+      };
+
+      const response = await request
+        .post(`/api/companies/${company_id}/commissions`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send(data);
+
+      expect(response.status).toEqual(201);
+      expect(response.body).toHaveProperty('id');
+      expect(response.body.catalog_item_id).toEqual(service_id);
+      expect(response.body.tax).toEqual(data.tax);
+      expect(response.body.tax_type).toEqual(data.tax_type);
+      expect(response.body.tenant_id).toEqual(company_id);
+    });
+
+    it("returns status code 400 if tax type is percentage and are greater than 1", async () => {
+      const response = await request
+        .post(`/api/companies/${company_id}/commissions`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          catalog_item_id: service_id,
+          tax: faker.number.float({ min: 1.1, max: 100 }),
+          tax_type: TaxTypes.PERCENTAGE,
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.message).toEqual('Taxa de commissão inválida');
+    });
+  });
 
   it.todo('PUT: /api/companies/:company_id/commissions/:commission_id');
 

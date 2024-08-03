@@ -23,5 +23,7 @@
   "validation.length": "The field has passed the max of characters",
   "validation.color": "The field must be a RGB color",
   "notfound.employee": "Employee not found",
-  "notfound.customer": "Customer not found"
+  "notfound.customer": "Customer not found",
+  "validation.tax_type": "The field must b a valid type of commission's tax",
+  "tax_percentage_error": "Invalid commission's tax"
 }

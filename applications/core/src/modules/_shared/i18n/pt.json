@@ -24,5 +24,7 @@
   "validation.length": "O campo passou do tamanho máximo de caracteres",
   "validation.color": "O campo precisar ser um texto no formato RGB",
   "notfound.employee": "Colaborador não encontrado",
-  "notfound.customer": "Cliente não encontrado"
+  "notfound.customer": "Cliente não encontrado",
+  "validation.tax_type": "O campo precisa ser um tipo válido de taxa de comissão",
+  "tax_percentage_error": "Taxa de commissão inválida"
 }

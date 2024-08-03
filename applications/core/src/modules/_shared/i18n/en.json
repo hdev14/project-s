@@ -21,5 +21,7 @@
   "validation.url": "The field must be a valid url",
   "validation.state": "The state has to be abbreviated",
   "validation.length": "The field has passed the max of characters",
-  "validation.color": "The field must be a RGB color"
+  "validation.color": "The field must be a RGB color",
+  "notfound.employee": "Employee not found",
+  "notfound.customer": "Customer not found"
 }

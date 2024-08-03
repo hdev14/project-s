@@ -16,6 +16,7 @@ import {
   request
 } from "inversify-express-utils";
 import {
+  create_service_log_validation_schema,
   update_company_address_validation_schema,
   update_company_bank_validation_schema,
   update_company_brand_validation_schema
@@ -144,9 +145,27 @@ export default class CompanyController extends BaseHttpController {
     return this.ok();
   }
 
-  @httpPost('/:company_id/service-logs')
-  async createServiceLog() {
-    return this.ok();
+  @httpPost('/:company_id/service-logs', requestValidator(create_service_log_validation_schema))
+  async createServiceLog(@request() req: Request) {
+    const { company_id } = req.params;
+    const {
+      customer_id,
+      employee_id,
+      service_id,
+    } = req.body;
+
+    const [data, error] = await this.company_service.createServiceLog({
+      customer_id,
+      employee_id,
+      service_id,
+      tenant_id: company_id,
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    return this.json(data, HttpStatusCodes.CREATED);
   }
 
   @httpGet('/:company_id/service-logs')

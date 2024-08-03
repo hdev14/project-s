@@ -382,7 +382,75 @@ describe('Company integration tests', () => {
 
   it.todo('DELETE: /api/companies/:company_id/employees/:employee_id');
 
-  it.todo('POST: /api/companies/:company_id/service-logs');
+  describe('POST: /api/companies/:company_id/service-logs', () => {
+    it("returns status code 404 if employee doesn't exist", async () => {
+      const response = await request
+        .post(`/api/companies/${company_id}/service-logs`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          employee_id: faker.string.uuid(),
+          customer_id,
+          service_id,
+        });
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Colaborador não encontrado');
+    });
+
+    it("returns status code 404 if customer doesn't exist", async () => {
+      const response = await request
+        .post(`/api/companies/${company_id}/service-logs`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          employee_id,
+          customer_id: faker.string.uuid(),
+          service_id,
+        });
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Cliente não encontrado');
+    });
+
+    it('returns status code 400 if data is invalid', async () => {
+      const response = await request
+        .post(`/api/companies/${company_id}/service-logs`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          employee_id: faker.string.sample(),
+          customer_id: faker.string.sample(),
+          service_id: faker.string.sample(),
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(3);
+    });
+
+
+    it("should register a new service log", async () => {
+      const response = await request
+        .post(`/api/companies/${company_id}/service-logs`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send({
+          employee_id,
+          customer_id,
+          service_id,
+        });
+
+      expect(response.status).toEqual(201);
+      expect(response.body).toHaveProperty('id');
+      expect(response.body).toHaveProperty('commission_amount');
+      expect(response.body).toHaveProperty('paid_amount');
+      expect(response.body).toHaveProperty('registed_at');
+      expect(response.body.employee_id).toEqual(employee_id);
+      expect(response.body.service_id).toEqual(service_id);
+      expect(response.body.customer_id).toEqual(customer_id);
+      expect(response.body.tenant_id).toEqual(company_id);
+    });
+  });
 
   describe('GET: /api/companies/:company_id/service-logs', () => {
     it('should return all service logs', async () => {

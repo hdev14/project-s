@@ -80,3 +80,18 @@ export const update_company_brand_validation_schema: Schema = {
     errorMessage: 'validation.url'
   },
 }
+
+export const create_service_log_validation_schema: Schema = {
+  employee_id: {
+    isUUID: true,
+    errorMessage: 'validation.id',
+  },
+  customer_id: {
+    isUUID: true,
+    errorMessage: 'validation.id',
+  },
+  service_id: {
+    isUUID: true,
+    errorMessage: 'validation.id',
+  },
+}

@@ -1,1 +1,18 @@
 **WIP**
+- setup
+  - docker
+  - db migration
+- architecture
+  - clean arch
+  - hexagonal arch
+  - domain model
+  - modular
+  - structure
+- tests
+  - unit tests
+  - integration tests
+  - e2e tests
+- methodologies
+  - domain driven design
+  - test driven development
+- technologies

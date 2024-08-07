@@ -5,21 +5,21 @@ export type EmployeeObject = {
   name: string;
   document: string;
   email: string;
-  deactived_at?: Date;
+  deactivated_at?: Date;
 };
 
 export default class Employee extends Aggregate<EmployeeObject> {
   #name: string;
   #document: string;
   #email: string;
-  #deactived_at?: Date;
+  #deactivated_at?: Date;
 
   constructor(obj: EmployeeObject) {
     super(obj.id);
     this.#name = obj.name;
     this.#document = obj.document;
     this.#email = obj.email;
-    this.#deactived_at = obj.deactived_at;
+    this.#deactivated_at = obj.deactivated_at;
   }
 
   set name(value: string) {
@@ -35,7 +35,7 @@ export default class Employee extends Aggregate<EmployeeObject> {
   }
 
   deactive() {
-    this.#deactived_at = new Date();
+    this.#deactivated_at = new Date();
   }
 
   toObject(): RequiredId<EmployeeObject> {
@@ -44,7 +44,7 @@ export default class Employee extends Aggregate<EmployeeObject> {
       name: this.#name,
       document: this.#document,
       email: this.#email,
-      deactived_at: this.#deactived_at,
+      deactivated_at: this.#deactivated_at,
     };
   }
 }

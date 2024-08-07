@@ -427,7 +427,7 @@ describe('DbCompanyRepository unit tests', () => {
         document: faker.string.numeric(11),
         email: faker.internet.email(),
         name: faker.person.fullName(),
-        deactived_at: faker.date.anytime(),
+        deactivated_at: faker.date.anytime(),
       };
 
       const employee = new Employee(employee_obj);
@@ -435,13 +435,13 @@ describe('DbCompanyRepository unit tests', () => {
       await repository.updateEmployee(employee);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'UPDATE users SET name=$2,document=$3,email=$4,deactived_at=$5 WHERE id = $1',
+        'UPDATE users SET name=$2,document=$3,email=$4,deactivated_at=$5 WHERE id = $1',
         [
           employee_obj.id,
           employee_obj.name,
           employee_obj.document,
           employee_obj.email,
-          employee_obj.deactived_at,
+          employee_obj.deactivated_at,
         ],
       );
     });

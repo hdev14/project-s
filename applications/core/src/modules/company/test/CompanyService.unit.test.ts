@@ -903,7 +903,7 @@ describe('CompanyService unit tests', () => {
       expect(error).toBeUndefined();
       expect(company_repository_mock.updateEmployee).toHaveBeenCalled();
       const obj = company_repository_mock.updateEmployee.mock.calls[0][0].toObject();
-      expect(obj.deactived_at).toBeTruthy();
+      expect(obj.deactivated_at).toBeTruthy();
     });
   });
 

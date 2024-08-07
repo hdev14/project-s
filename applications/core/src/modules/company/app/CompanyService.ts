@@ -130,7 +130,7 @@ export default class CompanyService {
       const exists = await this.#company_repository.documentExists(params.document);
 
       if (exists) {
-        return Either.left(new AlreadyRegisteredError('CNPJ já cadastrado'));
+        return Either.left(new AlreadyRegisteredError('already_registered_company'));
       }
 
       const user_id = await this.#mediator.send<string>(new CreateUserCommand({

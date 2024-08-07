@@ -8,6 +8,7 @@
   - domain modeling
   - modular
   - structure
+  - monorepo
 - tests
   - unit tests
   - integration tests

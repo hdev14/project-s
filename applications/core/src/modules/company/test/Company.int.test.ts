@@ -382,7 +382,31 @@ describe('Company integration tests', () => {
 
   it.todo('POST: /api/companies/:company_id/employees');
 
-  it.todo('DELETE: /api/companies/:company_id/employees/:employee_id');
+  describe('DELETE: /api/companies/:company_id/employees/:employee_id', () => {
+    it("returns status code 404 if employee doesn't exist", async () => {
+      const response = await request
+        .delete(`/api/companies/${company_id}/employees/${faker.string.uuid()}`)
+        .set('Content-Type', 'application/json')
+        .send();
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Colaborador não encontrado');
+    });
+
+    it("should deactivate the employee", async () => {
+      const response = await request
+        .delete(`/api/companies/${company_id}/employees/${employee_id}`)
+        .set('Content-Type', 'application/json')
+        .send();
+
+      expect(response.status).toEqual(204);
+
+      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [employee_id]);
+
+      expect(result.rows[0].deactivated_at).toBeInstanceOf(Date);
+      expect(result.rows[0].deactivated_at).not.toBeNull();
+    });
+  });
 
   describe('POST: /api/companies/:company_id/service-logs', () => {
     it("returns status code 404 if employee doesn't exist", async () => {

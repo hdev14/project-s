@@ -143,8 +143,18 @@ export default class CompanyController extends BaseHttpController {
   }
 
   @httpDelete('/:company_id/employees/:employee_id')
-  async deactivateEmployee() {
-    return this.ok();
+  async deactivateEmployee(@request() req: Request) {
+    const { employee_id } = req.params;
+
+    const [, error] = await this.company_service.deactivateEmployee({
+      employee_id
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
   @httpPost('/:company_id/service-logs', requestValidator(create_service_log_validation_schema))

@@ -230,7 +230,17 @@ export default class CompanyController extends BaseHttpController {
   }
 
   @httpGet('/:company_id/commissions/:commission_id')
-  async getCommission() {
-    return this.ok();
+  async getCommission(@request() req: Request) {
+    const { commission_id } = req.params;
+
+    const [data, error] = await this.company_service.getCommission({
+      commission_id
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    return this.json(data, HttpStatusCodes.OK);
   }
 }

@@ -26,5 +26,6 @@
   "notfound.employee": "Colaborador não encontrado",
   "notfound.customer": "Cliente não encontrado",
   "validation.tax_type": "O campo precisa ser um tipo válido de taxa de comissão",
-  "tax_percentage_error": "Taxa de commissão inválida"
+  "tax_percentage_error": "Taxa de commissão inválida",
+  "notfound.commission": "Comissão não encontrada"
 }

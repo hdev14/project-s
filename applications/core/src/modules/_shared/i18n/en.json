@@ -25,5 +25,6 @@
   "notfound.employee": "Employee not found",
   "notfound.customer": "Customer not found",
   "validation.tax_type": "The field must b a valid type of commission's tax",
-  "tax_percentage_error": "Invalid commission's tax"
+  "tax_percentage_error": "Invalid commission's tax",
+  "notfound.commission": "Commission not found"
 }

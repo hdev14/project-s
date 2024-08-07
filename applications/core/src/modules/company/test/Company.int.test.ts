@@ -32,6 +32,7 @@ describe('Company integration tests', () => {
   const customer_id = faker.string.uuid();
   const employee_id = faker.string.uuid();
   const service_id = faker.string.uuid();
+  const commission_id = faker.string.uuid();
 
   beforeEach(async () => {
     await globalThis.db.query(
@@ -108,6 +109,17 @@ describe('Company integration tests', () => {
         company_id,
         faker.number.float(),
         faker.date.anytime()
+      ]
+    );
+
+    await globalThis.db.query(
+      'INSERT INTO commissions (id, catalog_item_id, tax, tax_type, tenant_id) VALUES ($1, $2, $3, $4, $5)',
+      [
+        commission_id,
+        service_id,
+        faker.number.float(),
+        faker.helpers.enumValue(TaxTypes),
+        company_id,
       ]
     );
   });
@@ -403,8 +415,8 @@ describe('Company integration tests', () => {
 
       const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [employee_id]);
 
-      expect(result.rows[0].deactivated_at).toBeInstanceOf(Date);
       expect(result.rows[0].deactivated_at).not.toBeNull();
+      expect(result.rows[0].deactivated_at).toBeInstanceOf(Date);
     });
   });
 
@@ -600,5 +612,31 @@ describe('Company integration tests', () => {
 
   it.todo('PUT: /api/companies/:company_id/commissions/:commission_id');
 
-  it.todo('GET: /api/companies/:company_id/commissions/:commission_id');
+  describe('GET: /api/companies/:company_id/commissions/:commission_id', () => {
+    it("returns status code 404 if commission doesn't exist", async () => {
+      const response = await request
+        .get(`/api/companies/${company_id}/commissions/${faker.string.uuid()}`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send();
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Comissão não encontrada');
+    });
+
+    it("returns a commission", async () => {
+      const response = await request
+        .get(`/api/companies/${company_id}/commissions/${commission_id}`)
+        .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body.id).toEqual(commission_id);
+      expect(response.body).toHaveProperty('catalog_item_id');
+      expect(response.body).toHaveProperty('tax');
+      expect(response.body).toHaveProperty('tax_type');
+      expect(response.body).toHaveProperty('tenant_id');
+    });
+  });
 });

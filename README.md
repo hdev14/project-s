@@ -15,4 +15,6 @@
 - methodologies
   - domain driven design
   - test driven development
+- api docs
+- UI
 - technologies

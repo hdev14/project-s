@@ -5,7 +5,7 @@
 - architecture
   - clean arch
   - hexagonal arch
-  - domain model
+  - domain modeling
   - modular
   - structure
 - tests

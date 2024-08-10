@@ -69,7 +69,7 @@ export const update_company_bank_validation_schema: Schema = {
       errorMessage: 'validation.length',
     }
   },
-}
+};
 
 export const update_company_brand_validation_schema: Schema = {
   color: {
@@ -80,7 +80,7 @@ export const update_company_brand_validation_schema: Schema = {
     isURL: true,
     errorMessage: 'validation.url'
   },
-}
+};
 
 export const create_service_log_validation_schema: Schema = {
   employee_id: {
@@ -95,7 +95,7 @@ export const create_service_log_validation_schema: Schema = {
     isUUID: true,
     errorMessage: 'validation.id',
   },
-}
+};
 
 export const create_commission_validation_schema: Schema = {
   catalog_item_id: {
@@ -112,4 +112,17 @@ export const create_commission_validation_schema: Schema = {
       errorMessage: 'validation.tax_type'
     }
   },
-}
+};
+
+export const update_commission_validation_schema: Schema = {
+  tax: {
+    isFloat: true,
+    errorMessage: 'validation.number'
+  },
+  tax_type: {
+    isIn: {
+      options: [Object.values(TaxTypes)],
+      errorMessage: 'validation.tax_type'
+    }
+  },
+};

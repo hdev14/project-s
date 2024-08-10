@@ -610,7 +610,52 @@ describe('Company integration tests', () => {
     });
   });
 
-  it.todo('PUT: /api/companies/:company_id/commissions/:commission_id');
+  describe('PUT: /api/companies/:company_id/commissions/:commission_id', () => {
+    it("returns status code 404 if commission doesn't exist", async () => {
+      const response = await request
+        .put(`/api/companies/${company_id}/commissions/${faker.string.uuid()}`)
+        .set('Content-Type', 'application/json')
+        .send({
+          tax: faker.number.float(),
+          tax_type: faker.helpers.enumValue(TaxTypes),
+        });
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Comissão não encontrada')
+    });
+
+    it("updates a commission", async () => {
+      const data = {
+        tax: faker.number.float({ fractionDigits: 2 }),
+        tax_type: faker.helpers.enumValue(TaxTypes),
+      };
+
+      const response = await request
+        .put(`/api/companies/${company_id}/commissions/${commission_id}`)
+        .set('Content-Type', 'application/json')
+        .send(data);
+
+      expect(response.status).toEqual(204);
+
+      const result = await globalThis.db.query('SELECT * FROM commissions WHERE id = $1', [commission_id]);
+
+      expect(result.rows[0].tax).toEqual(data.tax);
+      expect(result.rows[0].tax_type).toEqual(data.tax_type);
+    });
+
+    it('returns status code 400 if data is invalid', async () => {
+      const response = await request
+        .put(`/api/companies/${company_id}/commissions/${commission_id}`)
+        .set('Content-Type', 'application/json')
+        .send({
+          tax: faker.string.sample(),
+          tax_type: faker.string.sample(),
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(2);
+    });
+  });
 
   describe('GET: /api/companies/:company_id/commissions/:commission_id', () => {
     it("returns status code 404 if commission doesn't exist", async () => {

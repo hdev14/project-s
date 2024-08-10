@@ -19,6 +19,7 @@ import {
 import {
   create_commission_validation_schema,
   create_service_log_validation_schema,
+  update_commission_validation_schema,
   update_company_address_validation_schema,
   update_company_bank_validation_schema,
   update_company_brand_validation_schema
@@ -197,7 +198,10 @@ export default class CompanyController extends BaseHttpController {
     return this.json(data, HttpStatusCodes.OK);
   }
 
-  @httpPost('/:company_id/commissions', requestValidator(create_commission_validation_schema))
+  @httpPost(
+    '/:company_id/commissions',
+    requestValidator(create_commission_validation_schema)
+  )
   async createCommission(@request() req: Request) {
     const { company_id } = req.params;
     const {
@@ -224,9 +228,25 @@ export default class CompanyController extends BaseHttpController {
     return this.json(data, HttpStatusCodes.CREATED);
   }
 
-  @httpPut('/:company_id/commissions/:commission_id')
-  async updateCommission() {
-    return this.ok();
+  @httpPut(
+    '/:company_id/commissions/:commission_id',
+    requestValidator(update_commission_validation_schema)
+  )
+  async updateCommission(@request() req: Request) {
+    const { commission_id } = req.params;
+    const { tax, tax_type } = req.body;
+
+    const [, error] = await this.company_service.updateCommission({
+      commission_id,
+      tax,
+      tax_type
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
   @httpGet('/:company_id/commissions/:commission_id')

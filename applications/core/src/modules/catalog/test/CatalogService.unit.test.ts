@@ -123,7 +123,7 @@ describe('CatalogService unit tests', () => {
   });
 
   describe('CatalogService.updateCatalogItem', () => {
-    it("should return a not found erro if catalog item doesn't exist", async () => {
+    it("should return a not found error if catalog item doesn't exist", async () => {
       catalog_repository_mock.getCatalogItemById.mockResolvedValueOnce(null);
 
       const params = {

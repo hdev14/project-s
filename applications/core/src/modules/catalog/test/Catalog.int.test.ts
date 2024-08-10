@@ -15,70 +15,74 @@ describe('Catalog integration tests', () => {
   const application = new Application({ modules: [new SharedModule(), new AuthModule(), new CatalogModule()] });
   const auth_token_manager = application.container.get<AuthTokenManager>(types.AuthTokenManager);
   const request = supertest(application.server);
-  const user = {
-    id: faker.string.uuid(),
-    email: faker.internet.email(),
-    password: faker.string.alphanumeric(10),
-    policies: Object.values(Policies),
-  };
-  const tenant_id = faker.string.uuid();
-  const catalog_item_id = faker.string.uuid();
-  const { token } = auth_token_manager.generateToken(user);
   const user_factory = new UserFactory();
   const catalog_item_factory = new CatalogItemFactory();
 
-  beforeEach(async () => {
-    await user_factory.createMany([
-      {
-        id: user.id,
-        email: user.email,
-        password: user.password,
-      },
-      {
-        id: tenant_id,
-        email: user.email,
-        password: user.password,
-      }
-    ]);
+  // beforeEach(async () => {
+  //   await user_factory.createMany([
+  //     {
+  //       id: user.id,
+  //       email: user.email,
+  //       password: user.password,
+  //     },
+  //     {
+  //       id: tenant_id,
+  //       email: user.email,
+  //       password: user.password,
+  //     }
+  //   ]);
 
-    await catalog_item_factory.createMany([
-      {
-        id: catalog_item_id,
-        name: faker.commerce.productName(),
-        description: faker.commerce.productDescription(),
-        attributes: [],
-        is_service: faker.datatype.boolean(),
-        picture_url: faker.internet.url(),
-        tenant_id: user.id,
-        amount: faker.number.float(),
-      },
-      {
-        id: faker.string.uuid(),
-        name: faker.commerce.productName(),
-        description: faker.commerce.productDescription(),
-        attributes: [],
-        is_service: faker.datatype.boolean(),
-        picture_url: faker.internet.url(),
-        tenant_id,
-        amount: faker.number.float(),
-      },
-      {
-        id: faker.string.uuid(),
-        name: faker.commerce.productName(),
-        description: faker.commerce.productDescription(),
-        attributes: [],
-        is_service: faker.datatype.boolean(),
-        picture_url: faker.internet.url(),
-        tenant_id,
-        amount: faker.number.float(),
-      },
-    ]);
-  });
+  //   await catalog_item_factory.createMany([
+  //     {
+  //       id: catalog_item_id,
+  //       name: faker.commerce.productName(),
+  //       description: faker.commerce.productDescription(),
+  //       attributes: [],
+  //       is_service: faker.datatype.boolean(),
+  //       picture_url: faker.internet.url(),
+  //       tenant_id: user.id,
+  //       amount: faker.number.float(),
+  //     },
+  //     {
+  //       id: faker.string.uuid(),
+  //       name: faker.commerce.productName(),
+  //       description: faker.commerce.productDescription(),
+  //       attributes: [],
+  //       is_service: faker.datatype.boolean(),
+  //       picture_url: faker.internet.url(),
+  //       tenant_id,
+  //       amount: faker.number.float(),
+  //     },
+  //     {
+  //       id: faker.string.uuid(),
+  //       name: faker.commerce.productName(),
+  //       description: faker.commerce.productDescription(),
+  //       attributes: [],
+  //       is_service: faker.datatype.boolean(),
+  //       picture_url: faker.internet.url(),
+  //       tenant_id,
+  //       amount: faker.number.float(),
+  //     },
+  //   ]);
+  // });
 
   afterEach(cleanUpDatabase);
 
   describe('POST: /api/catalogs/items', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.CREATE_CATALOG_ITEM],
+    });
+
     it('creates a new catalog item', async () => {
+      const tenant = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
       const response = await request
         .post('/api/catalogs/items')
         .set('Content-Type', 'application/json')
@@ -90,7 +94,7 @@ describe('Catalog integration tests', () => {
           attributes: [{ name: faker.commerce.productAdjective(), description: faker.lorem.lines() }],
           is_service: faker.datatype.boolean(),
           picture_url: faker.internet.url(),
-          tenant_id: user.id,
+          tenant_id: tenant.id,
         });
 
       expect(response.status).toEqual(201);
@@ -142,6 +146,12 @@ describe('Catalog integration tests', () => {
     });
 
     it("returns status code 400 if amount is negative", async () => {
+      const tenant = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
       const response = await request
         .post('/api/catalogs/items')
         .set('Content-Type', 'application/json')
@@ -153,7 +163,7 @@ describe('Catalog integration tests', () => {
           attributes: [{ name: faker.commerce.productAdjective(), description: faker.lorem.lines() }],
           is_service: faker.datatype.boolean(),
           picture_url: faker.internet.url(),
-          tenant_id: user.id,
+          tenant_id: tenant.id,
         });
 
       expect(response.status).toEqual(400);
@@ -162,7 +172,53 @@ describe('Catalog integration tests', () => {
   });
 
   describe('GET: /api/catalogs/items/:tenant_id?', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.LIST_CATALOG_ITEMS],
+    });
+
     it("should return all catalog items", async () => {
+      const tenant = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      await catalog_item_factory.createMany([
+        {
+          id: faker.string.uuid(),
+          name: faker.commerce.productName(),
+          description: faker.commerce.productDescription(),
+          attributes: [],
+          is_service: faker.datatype.boolean(),
+          picture_url: faker.internet.url(),
+          tenant_id: tenant.id!,
+          amount: faker.number.float(),
+        },
+        {
+          id: faker.string.uuid(),
+          name: faker.commerce.productName(),
+          description: faker.commerce.productDescription(),
+          attributes: [],
+          is_service: faker.datatype.boolean(),
+          picture_url: faker.internet.url(),
+          tenant_id: tenant.id!,
+          amount: faker.number.float(),
+        },
+        {
+          id: faker.string.uuid(),
+          name: faker.commerce.productName(),
+          description: faker.commerce.productDescription(),
+          attributes: [],
+          is_service: faker.datatype.boolean(),
+          picture_url: faker.internet.url(),
+          tenant_id: tenant.id!,
+          amount: faker.number.float(),
+        },
+      ]);
+
       const response = await request
         .get('/api/catalogs/items')
         .set('Content-Type', 'application/json')
@@ -174,10 +230,39 @@ describe('Catalog integration tests', () => {
     });
 
     it("should return all tenant's catalog items", async () => {
+      const tenant = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      await catalog_item_factory.createMany([
+        {
+          id: faker.string.uuid(),
+          name: faker.commerce.productName(),
+          description: faker.commerce.productDescription(),
+          attributes: [],
+          is_service: faker.datatype.boolean(),
+          picture_url: faker.internet.url(),
+          tenant_id: tenant.id!,
+          amount: faker.number.float(),
+        },
+        {
+          id: faker.string.uuid(),
+          name: faker.commerce.productName(),
+          description: faker.commerce.productDescription(),
+          attributes: [],
+          is_service: faker.datatype.boolean(),
+          picture_url: faker.internet.url(),
+          tenant_id: tenant.id!,
+          amount: faker.number.float(),
+        },
+      ]);
+
       const response = await request
         .get('/api/catalogs/items')
         .set('Content-Type', 'application/json')
-        .query({ tenant_id })
+        .query({ tenant_id: tenant.id })
         .auth(token, { type: 'bearer' })
         .send({});
 
@@ -186,6 +271,45 @@ describe('Catalog integration tests', () => {
     });
 
     it('should return users with pagination', async () => {
+      const tenant = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      await catalog_item_factory.createMany([
+        {
+          id: faker.string.uuid(),
+          name: faker.commerce.productName(),
+          description: faker.commerce.productDescription(),
+          attributes: [],
+          is_service: faker.datatype.boolean(),
+          picture_url: faker.internet.url(),
+          tenant_id: tenant.id!,
+          amount: faker.number.float(),
+        },
+        {
+          id: faker.string.uuid(),
+          name: faker.commerce.productName(),
+          description: faker.commerce.productDescription(),
+          attributes: [],
+          is_service: faker.datatype.boolean(),
+          picture_url: faker.internet.url(),
+          tenant_id: tenant.id!,
+          amount: faker.number.float(),
+        },
+        {
+          id: faker.string.uuid(),
+          name: faker.commerce.productName(),
+          description: faker.commerce.productDescription(),
+          attributes: [],
+          is_service: faker.datatype.boolean(),
+          picture_url: faker.internet.url(),
+          tenant_id: tenant.id!,
+          amount: faker.number.float(),
+        },
+      ]);
+
       let response = await request
         .get('/api/catalogs/items')
         .query({ page: 1, limit: 1 })
@@ -225,7 +349,31 @@ describe('Catalog integration tests', () => {
   });
 
   describe('PUT: /api/catalogs/items/:id', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.UPDATE_CATALOG_ITEM],
+    });
+
     it('updates a catalog item', async () => {
+      const tenant = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      const catalog_item = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [],
+        is_service: faker.datatype.boolean(),
+        picture_url: faker.internet.url(),
+        tenant_id: tenant.id!,
+        amount: faker.number.float(),
+      });
+
       const data = {
         name: faker.commerce.productName(),
         description: faker.commerce.productDescription(),
@@ -234,13 +382,13 @@ describe('Catalog integration tests', () => {
       };
 
       const response = await request
-        .put(`/api/catalogs/items/${catalog_item_id}`)
+        .put(`/api/catalogs/items/${catalog_item.id}`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send(data);
 
       expect(response.status).toEqual(204);
-      const result = await globalThis.db.query('SELECT * FROM catalog_items WHERE id=$1', [catalog_item_id]);
+      const result = await globalThis.db.query('SELECT * FROM catalog_items WHERE id=$1', [catalog_item.id]);
       expect(result.rows[0].name).toEqual(data.name);
       expect(result.rows[0].description).toEqual(data.description);
       expect(result.rows[0].attributes[0].name).toEqual(data.attributes[0].name);
@@ -264,8 +412,25 @@ describe('Catalog integration tests', () => {
     });
 
     it('returns status code 400 if data is invalid', async () => {
+      const tenant = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      const catalog_item = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [],
+        is_service: faker.datatype.boolean(),
+        picture_url: faker.internet.url(),
+        tenant_id: tenant.id!,
+        amount: faker.number.float(),
+      });
+
       const response = await request
-        .put(`/api/catalogs/items/${catalog_item_id}`)
+        .put(`/api/catalogs/items/${catalog_item.id}`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({

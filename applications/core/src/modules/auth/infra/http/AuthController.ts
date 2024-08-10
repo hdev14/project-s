@@ -69,13 +69,19 @@ export default class AuthController extends BaseHttpController {
     }
 
     const { page, limit, tenant_id } = req.query;
-    const params = (page && limit) ? ({
-      tenant_id: tenant_id as string,
-      page_options: {
+
+    const params: Record<string, any> = {};
+
+    if (page && limit) {
+      params['page_options'] = {
         limit: parseInt(limit.toString(), 10),
         page: parseInt(page.toString(), 10)
       }
-    }) : ({ tenant_id: tenant_id as string });
+    }
+
+    if (tenant_id) {
+      params['tenant_id'] = tenant_id;
+    }
 
     const [data] = await this.auth_service.getUsers(params);
 
@@ -219,7 +225,7 @@ export default class AuthController extends BaseHttpController {
 
   @httpGet('/access_plans', types.AuthMiddleware)
   async getAccessPlans() {
-    if (!await this.httpContext.user.isInRole(Policies.UPDATE_ACCESS_PLAN)) {
+    if (!await this.httpContext.user.isInRole(Policies.LIST_ACCESS_PLANS)) {
       return this.statusCode(HttpStatusCodes.FORBIDDEN);
     }
 

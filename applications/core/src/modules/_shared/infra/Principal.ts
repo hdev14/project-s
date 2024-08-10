@@ -10,6 +10,7 @@ export enum Policies {
   CHANGE_ACCESS_PLAN = 'change_access_plan',
   CREATE_ACCESS_PLAN = 'create_access_plan',
   UPDATE_ACCESS_PLAN = 'update_access_plan',
+  LIST_ACCESS_PLANS = 'list_access_plan',
   LIST_POLICIES = 'list_policies',
   /* catalog */
   UPDATE_CATALOG_ITEM = 'update_catalog_item',

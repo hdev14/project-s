@@ -32,97 +32,21 @@ describe('Auth integration tests', () => {
   const encryptor = application.container.get<Encryptor>(types.Encryptor);
   const auth_token_manager = application.container.get<AuthTokenManager>(types.AuthTokenManager);
   const request = supertest(application.server);
-  const active_access_plan_id = faker.string.uuid();
-  const not_active_access_plan_id = faker.string.uuid();
-  const policy_slug = faker.word.verb();
-  const user = {
-    id: faker.string.uuid(),
-    email: faker.internet.email(),
-    password: faker.string.alphanumeric(10),
-    policies: Object.values(Policies),
-  };
-  const tenant_id = faker.string.uuid();
-  const { token } = auth_token_manager.generateToken(user);
-  const verification_code = faker.string.numeric(4);
-  const expired_verification_code = faker.string.numeric(4);
   const user_factory = new UserFactory();
   const access_plan_factory = new AccessPlanFactory();
   const policy_factory = new PolicyFactory();
   const verification_code_factory = new VerificationCodeFactory();
 
-  beforeEach(async () => {
-    await user_factory.createMany([
-      {
-        id: user.id,
-        email: user.email,
-        password: encryptor.createHash(user.password),
-      },
-      {
-        id: tenant_id,
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(10),
-      },
-      {
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(10),
-        tenant_id,
-      },
-      {
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(10),
-        tenant_id,
-      },
-    ]);
-
-    await access_plan_factory.createMany([
-      {
-        id: active_access_plan_id,
-        active: true,
-        amount: faker.number.float(),
-        type: AccessPlanTypes.ANNUALLY,
-        description: faker.lorem.lines(1)
-      },
-      {
-        id: not_active_access_plan_id,
-        active: false,
-        amount: faker.number.float(),
-        type: AccessPlanTypes.ANNUALLY,
-        description: faker.lorem.lines(1)
-      }
-    ]);
-
-    policy_factory.createMany([
-      {
-        id: faker.string.uuid(),
-        slug: policy_slug,
-      },
-      {
-        id: faker.string.uuid(),
-        slug: faker.helpers.slugify(faker.word.words(2)),
-      },
-    ]);
-
-    await verification_code_factory.createMany([
-      {
-        id: faker.string.uuid(),
-        code: verification_code,
-        user_id: user.id,
-        expired_at: faker.date.future(),
-      },
-      {
-        id: faker.string.uuid(),
-        code: expired_verification_code,
-        user_id: user.id,
-        expired_at: faker.date.past(),
-      },
-    ]);
-  });
-
   afterEach(cleanUpDatabase);
 
   describe('POST: /api/auth/users', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.CREATE_TENANT_USER],
+    });
+
     it('creates a new user', async () => {
       const response = await request
         .post('/api/auth/users')
@@ -140,6 +64,12 @@ describe('Auth integration tests', () => {
     });
 
     it("creates a new tenant's user", async () => {
+      const tenant = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10)
+      });
+
       const response = await request
         .post('/api/auth/users')
         .set('Content-Type', 'application/json')
@@ -147,7 +77,7 @@ describe('Auth integration tests', () => {
         .send({
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
-          tenant_id: user.id,
+          tenant_id: tenant.id,
         });
 
       expect(response.status).toEqual(201);
@@ -155,7 +85,7 @@ describe('Auth integration tests', () => {
       expect(response.body).toHaveProperty('email');
       expect(response.body).toHaveProperty('password');
       expect(response.body).not.toHaveProperty('access_plan_id');
-      expect(response.body.tenant_id).toEqual(user.id);
+      expect(response.body.tenant_id).toEqual(tenant.id);
     });
 
     it("returns status code 404 if tenant doesn't exist", async () => {
@@ -188,13 +118,21 @@ describe('Auth integration tests', () => {
     });
 
     it("creates an user with access plan", async () => {
+      const access_plan = await access_plan_factory.createOne({
+        id: faker.string.uuid(),
+        active: true,
+        amount: faker.number.float(),
+        type: AccessPlanTypes.ANNUALLY,
+        description: faker.lorem.lines(1)
+      });
+
       const response = await request
         .post('/api/auth/users')
         .set('Content-Type', 'application/json')
         .send({
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
-          access_plan_id: active_access_plan_id,
+          access_plan_id: access_plan.id,
         });
 
       expect(response.status).toEqual(201);
@@ -205,13 +143,21 @@ describe('Auth integration tests', () => {
     });
 
     it("returns status code 422 if access plan is not active", async () => {
+      const access_plan = await access_plan_factory.createOne({
+        id: faker.string.uuid(),
+        active: false,
+        amount: faker.number.float(),
+        type: AccessPlanTypes.ANNUALLY,
+        description: faker.lorem.lines(1)
+      });
+
       const response = await request
         .post('/api/auth/users')
         .set('Content-Type', 'application/json')
         .send({
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
-          access_plan_id: not_active_access_plan_id,
+          access_plan_id: access_plan.id,
         });
 
       expect(response.status).toEqual(422);
@@ -248,7 +194,20 @@ describe('Auth integration tests', () => {
   });
 
   describe('PUT: /api/auth/users/:id', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.UPDATE_USER],
+    });
+
     it('updates an user', async () => {
+      const user = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10)
+      });
+
       const data = {
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
@@ -282,6 +241,12 @@ describe('Auth integration tests', () => {
     });
 
     it("returns status code 400 if data is invalid", async () => {
+      const user = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10)
+      });
+
       let response = await request
         .put(`/api/auth/users/${user.id}`)
         .set('Content-Type', 'application/json')
@@ -312,12 +277,20 @@ describe('Auth integration tests', () => {
 
   describe('POST: /api/auth/login', () => {
     it('should make a login', async () => {
+      const password = faker.string.alphanumeric(10);
+
+      const user = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: encryptor.createHash(password)
+      });
+
       const response = await request
         .post('/api/auth/login')
         .set('Content-Type', 'application/json')
         .send({
           email: user.email,
-          password: user.password,
+          password,
         });
 
       const cookies = (response.headers['set-cookie'] ?? []) as unknown as Array<string>;
@@ -334,15 +307,20 @@ describe('Auth integration tests', () => {
         .set('Content-Type', 'application/json')
         .send({
           email: faker.internet.email(),
-          password: user.password,
+          password: faker.string.alphanumeric(10),
         });
-
 
       expect(response.status).toEqual(400);
       expect(response.body.message).toEqual('Credenciais Inválidas');
     });
 
     it("returns status code 400 if user's password is wrong", async () => {
+      const user = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
       const response = await request
         .post('/api/auth/login')
         .set('Content-Type', 'application/json')
@@ -350,7 +328,6 @@ describe('Auth integration tests', () => {
           email: user.email,
           password: faker.string.alphanumeric(10),
         });
-
 
       expect(response.status).toEqual(400);
       expect(response.body.message).toEqual('Credenciais Inválidas');
@@ -365,7 +342,6 @@ describe('Auth integration tests', () => {
           password: faker.string.alphanumeric(7), // less then 8 characters
         });
 
-
       expect(response.status).toEqual(400);
       expect(response.body.errors).toHaveLength(2);
       expect(response.body.errors[0].field).toEqual('email');
@@ -376,7 +352,40 @@ describe('Auth integration tests', () => {
   });
 
   describe('GET: /api/auth/users', () => {
+    const tenant_id = faker.string.uuid();
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.LIST_USERS],
+    });
+
     it('should return all users', async () => {
+      await user_factory.createMany([
+        {
+          id: tenant_id,
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+        },
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+        },
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+          tenant_id
+        },
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+          tenant_id
+        },
+      ]);
+
       const response = await request
         .get('/api/auth/users')
         .set('Content-Type', 'application/json')
@@ -389,6 +398,31 @@ describe('Auth integration tests', () => {
     });
 
     it('should return users with pagination', async () => {
+      await user_factory.createMany([
+        {
+          id: tenant_id,
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+        },
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+        },
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+          tenant_id
+        },
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+          tenant_id
+        },
+      ]);
+
       let response = await request
         .get('/api/auth/users')
         .query({ page: 1, limit: 1 })
@@ -427,6 +461,31 @@ describe('Auth integration tests', () => {
     });
 
     it('should return users filtered by tenant_id', async () => {
+      await user_factory.createMany([
+        {
+          id: tenant_id,
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+        },
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+        },
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+          tenant_id
+        },
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+          tenant_id
+        },
+      ]);
+
       const response = await request
         .get('/api/auth/users')
         .query({ tenant_id })
@@ -440,13 +499,31 @@ describe('Auth integration tests', () => {
   });
 
   describe('PATCH: /api/auth/users/:id/policies', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.UPDATE_USER_POLICIES],
+    });
+
     it("should update user's policies", async () => {
+      const user = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      const policy = await policy_factory.createOne({
+        id: faker.string.uuid(),
+        slug: faker.helpers.slugify(faker.word.words(2)),
+      });
+
       let response = await request
         .patch(`/api/auth/users/${user.id}/policies`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
-          policy_slugs: [policy_slug],
+          policy_slugs: [policy.slug],
           mode: 'attach'
         });
 
@@ -459,7 +536,7 @@ describe('Auth integration tests', () => {
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
-          policy_slugs: [policy_slug],
+          policy_slugs: [policy.slug],
           mode: 'dettach'
         });
 
@@ -474,7 +551,7 @@ describe('Auth integration tests', () => {
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
-          policy_slugs: [policy_slug],
+          policy_slugs: [faker.helpers.slugify(faker.word.words(2))],
           mode: 'attach'
         });
 
@@ -483,6 +560,12 @@ describe('Auth integration tests', () => {
     });
 
     it('returns status code 400 if data is invalid', async () => {
+      const user = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
       const response = await request
         .patch(`/api/auth/users/${user.id}/policies`)
         .set('Content-Type', 'application/json')
@@ -491,8 +574,6 @@ describe('Auth integration tests', () => {
           policy_slugs: [],
           mode: faker.word.verb(),
         });
-
-      response.headers
 
       expect(response.status).toEqual(400);
       expect(response.body.errors).toHaveLength(2);
@@ -504,6 +585,13 @@ describe('Auth integration tests', () => {
   });
 
   describe('POST: /api/auth/access_plans', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.CREATE_ACCESS_PLAN],
+    });
+
     it('creates a new access plan', async () => {
       const response = await request
         .post('/api/auth/access_plans')
@@ -555,7 +643,22 @@ describe('Auth integration tests', () => {
   });
 
   describe('PUT: /api/auth/access_plans/:id', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.UPDATE_ACCESS_PLAN],
+    });
+
     it('should update access plan', async () => {
+      const access_plan = await access_plan_factory.createOne({
+        id: faker.string.uuid(),
+        active: true,
+        amount: faker.number.float(),
+        type: AccessPlanTypes.ANNUALLY,
+        description: faker.lorem.lines(1)
+      });
+
       const data = {
         amount: faker.number.float({ fractionDigits: 5 }),
         type: faker.helpers.enumValue(AccessPlanTypes),
@@ -564,13 +667,13 @@ describe('Auth integration tests', () => {
       };
 
       const response = await request
-        .put(`/api/auth/access_plans/${active_access_plan_id}`)
+        .put(`/api/auth/access_plans/${access_plan.id}`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send(data);
 
       expect(response.status).toEqual(204);
-      const result = await globalThis.db.query('SELECT * FROM access_plans WHERE id = $1', [active_access_plan_id]);
+      const result = await globalThis.db.query('SELECT * FROM access_plans WHERE id = $1', [access_plan.id]);
       expect(result.rows[0].amount).toEqual(data.amount);
       expect(result.rows[0].type).toEqual(data.type);
       expect(result.rows[0].description).toEqual(data.description);
@@ -594,8 +697,16 @@ describe('Auth integration tests', () => {
     });
 
     it('returns status code 400 if data is invalid', async () => {
+      const access_plan = await access_plan_factory.createOne({
+        id: faker.string.uuid(),
+        active: true,
+        amount: faker.number.float(),
+        type: AccessPlanTypes.ANNUALLY,
+        description: faker.lorem.lines(1)
+      });
+
       const response = await request
-        .put(`/api/auth/access_plans/${active_access_plan_id}`)
+        .put(`/api/auth/access_plans/${access_plan.id}`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
@@ -611,6 +722,32 @@ describe('Auth integration tests', () => {
   });
 
   describe('GET: /api/auth/access_plans', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.LIST_ACCESS_PLANS],
+    });
+
+    beforeAll(async () => {
+      await access_plan_factory.createMany([
+        {
+          id: faker.string.uuid(),
+          active: true,
+          amount: faker.number.float(),
+          type: AccessPlanTypes.ANNUALLY,
+          description: faker.lorem.lines(1)
+        },
+        {
+          id: faker.string.uuid(),
+          active: true,
+          amount: faker.number.float(),
+          type: AccessPlanTypes.ANNUALLY,
+          description: faker.lorem.lines(1)
+        },
+      ]);
+    });
+
     it('returns an array of access plans', async () => {
       const response = await request
         .get('/api/auth/access_plans')
@@ -624,6 +761,26 @@ describe('Auth integration tests', () => {
   });
 
   describe('GET: /api/auth/policies', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.LIST_POLICIES],
+    });
+
+    beforeAll(async () => {
+      await policy_factory.createMany([
+        {
+          id: faker.string.uuid(),
+          slug: faker.word.adjective(),
+        },
+        {
+          id: faker.string.uuid(),
+          slug: faker.word.adjective(),
+        },
+      ]);
+    });
+
     it('returns an array of policies', async () => {
       const response = await request
         .get('/api/auth/policies')
@@ -658,6 +815,12 @@ describe('Auth integration tests', () => {
     });
 
     it('should create a new verification code', async () => {
+      const user = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
       const response = await request
         .post('/api/auth/passwords')
         .set('Content-Type', 'application/json')
@@ -684,11 +847,24 @@ describe('Auth integration tests', () => {
     });
 
     it('returns status code 400 if verification code has expired', async () => {
+      const user = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      const verification_code = await verification_code_factory.createOne({
+        id: faker.string.uuid(),
+        code: faker.string.numeric(4),
+        user_id: user.id!,
+        expired_at: faker.date.past(),
+      });
+
       const response = await request
         .patch('/api/auth/passwords')
         .set('Content-Type', 'application/json')
         .send({
-          code: expired_verification_code,
+          code: verification_code.code,
           password: faker.string.alphanumeric(10)
         });
 
@@ -710,11 +886,24 @@ describe('Auth integration tests', () => {
     });
 
     it('should has changed the user password', async () => {
+      const user = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      const verification_code = await verification_code_factory.createOne({
+        id: faker.string.uuid(),
+        code: faker.string.numeric(4),
+        user_id: user.id!,
+        expired_at: faker.date.future(),
+      });
+
       const response = await request
         .patch('/api/auth/passwords')
         .set('Content-Type', 'application/json')
         .send({
-          code: verification_code,
+          code: verification_code.code,
           password: faker.string.alphanumeric(10)
         });
 

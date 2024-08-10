@@ -10,6 +10,9 @@ import AccessPlanFactory from '@shared/infra/test_utils/factories/AccessPlanFact
 import PolicyFactory from '@shared/infra/test_utils/factories/PolicyFactory';
 import UserFactory from '@shared/infra/test_utils/factories/UserFactory';
 import VerificationCodeFactory from '@shared/infra/test_utils/factories/VerificationCodeFactory';
+import '@shared/infra/test_utils/matchers/toEqualInDatabase';
+import '@shared/infra/test_utils/matchers/toExistsInTable';
+import '@shared/infra/test_utils/matchers/toHasPoliciesInDatabase';
 import types from '@shared/infra/types';
 import Application from 'src/Application';
 import supertest from 'supertest';
@@ -220,10 +223,7 @@ describe('Auth integration tests', () => {
         .send(data);
 
       expect(response.status).toEqual(204);
-
-      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [user.id]);
-
-      expect(result.rows[0].email).toEqual(data.email);
+      await expect({ email: data.email }).toEqualInDatabase('users', user.id!);
     });
 
     it("returns status code 404 if user doesn't exist", async () => {
@@ -528,8 +528,7 @@ describe('Auth integration tests', () => {
         });
 
       expect(response.status).toEqual(204);
-      let result = await globalThis.db.query('SELECT count(*) as total FROM user_policies up JOIN policies p ON up.policy_id = p.id WHERE up.user_id = $1', [user.id]);
-      expect(result.rows[0].total).toEqual('1');
+      await expect(user.id).toHasPoliciesInDatabase();
 
       response = await request
         .patch(`/api/auth/users/${user.id}/policies`)
@@ -541,8 +540,7 @@ describe('Auth integration tests', () => {
         });
 
       expect(response.status).toEqual(204);
-      result = await globalThis.db.query('SELECT count(*) as total FROM user_policies JOIN policies ON policy_id = policy_id WHERE user_id = $1', [user.id]);
-      expect(result.rows[0].total).toEqual('0');
+      await expect(user.id).not.toHasPoliciesInDatabase();
     });
 
     it("returns status code 404 if user doesn't exist", async () => {
@@ -673,11 +671,7 @@ describe('Auth integration tests', () => {
         .send(data);
 
       expect(response.status).toEqual(204);
-      const result = await globalThis.db.query('SELECT * FROM access_plans WHERE id = $1', [access_plan.id]);
-      expect(result.rows[0].amount).toEqual(data.amount);
-      expect(result.rows[0].type).toEqual(data.type);
-      expect(result.rows[0].description).toEqual(data.description);
-      expect(result.rows[0].active).toEqual(data.active);
+      await expect(data).toEqualInDatabase('access_plans', access_plan.id!);
     });
 
     it("returns status code 404 if access plan doesn't exist", async () => {
@@ -827,8 +821,7 @@ describe('Auth integration tests', () => {
         .send({ email: user.email });
 
       expect(response.status).toEqual(204);
-      const result = await globalThis.db.query('SELECT * FROM verification_codes WHERE user_id = $1', [user.id]);
-      expect(result.rows[0]).toBeDefined();
+      await expect({ user_id: user.id }).toExistsInTable('verification_codes');
     });
   });
 
@@ -908,8 +901,7 @@ describe('Auth integration tests', () => {
         });
 
       expect(response.status).toEqual(204);
-      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [user.id]);
-      expect(result.rows[0].password).not.toEqual(user.password);
+      await expect({ password: user.password }).not.toEqualInDatabase('users', user.id!);
     });
   });
 });

@@ -7,6 +7,7 @@ import SharedModule from '@shared/infra/SharedModule';
 import cleanUpDatabase from '@shared/infra/test_utils/cleanUpDatabase';
 import CatalogItemFactory from '@shared/infra/test_utils/factories/CatalogItemFactory';
 import UserFactory from '@shared/infra/test_utils/factories/UserFactory';
+import '@shared/infra/test_utils/matchers/toEqualInDatabase';
 import types from '@shared/infra/types';
 import Application from 'src/Application';
 import supertest from 'supertest';
@@ -373,7 +374,6 @@ describe('Catalog integration tests', () => {
         tenant_id: tenant.id!,
         amount: faker.number.float(),
       });
-
       const data = {
         name: faker.commerce.productName(),
         description: faker.commerce.productDescription(),
@@ -388,11 +388,7 @@ describe('Catalog integration tests', () => {
         .send(data);
 
       expect(response.status).toEqual(204);
-      const result = await globalThis.db.query('SELECT * FROM catalog_items WHERE id=$1', [catalog_item.id]);
-      expect(result.rows[0].name).toEqual(data.name);
-      expect(result.rows[0].description).toEqual(data.description);
-      expect(result.rows[0].attributes[0].name).toEqual(data.attributes[0].name);
-      expect(result.rows[0].attributes[0].description).toEqual(data.attributes[0].description);
+      await expect(data).toEqualInDatabase('catalog_items', catalog_item.id!);
     });
 
     it("returns status code 404 if catalog item doesn't exist", async () => {

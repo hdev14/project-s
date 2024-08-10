@@ -10,6 +10,7 @@ import CatalogItemFactory from '@shared/infra/test_utils/factories/CatalogItemFa
 import CommissionFactory from '@shared/infra/test_utils/factories/CommissionFactory';
 import ServiceLogFactory from '@shared/infra/test_utils/factories/ServiceLogFactory';
 import UserFactory from '@shared/infra/test_utils/factories/UserFactory';
+import '@shared/infra/test_utils/matchers/toEqualInDatabase';
 import types from '@shared/infra/types';
 import Application from 'src/Application';
 import supertest from 'supertest';
@@ -260,15 +261,7 @@ describe('Company integration tests', () => {
         .send(data);
 
       expect(response.status).toEqual(204);
-
-      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [company.id]);
-      const row = result.rows[0];
-
-      expect(row.street).toEqual(data.street);
-      expect(row.district).toEqual(data.district);
-      expect(row.state).toEqual(data.state);
-      expect(row.number).toEqual(data.number);
-      expect(row.complement).toEqual(data.complement);
+      await expect(data).toEqualInDatabase('users', company.id!);
     });
   });
 
@@ -342,15 +335,7 @@ describe('Company integration tests', () => {
         .send(data);
 
       expect(response.status).toEqual(204);
-
-      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [company.id]);
-      const row = result.rows[0];
-
-      expect(row.account).toEqual(data.account);
-      expect(row.account_digit).toEqual(data.account_digit);
-      expect(row.agency).toEqual(data.agency);
-      expect(row.agency_digit).toEqual(data.agency_digit);
-      expect(row.bank_code).toEqual(data.bank_code);
+      await expect(data).toEqualInDatabase('users', company.id!);
     });
   });
 
@@ -415,12 +400,7 @@ describe('Company integration tests', () => {
         .send(data);
 
       expect(response.status).toEqual(204);
-
-      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [company.id]);
-      const row = result.rows[0];
-
-      expect(row.color).toEqual(data.color);
-      expect(row.logo_url).toEqual(data.logo_url);
+      await expect(data).toEqualInDatabase('users', company.id!);
     });
   });
 
@@ -471,7 +451,6 @@ describe('Company integration tests', () => {
         .send();
 
       expect(response.status).toEqual(204);
-
       const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [employee.id]);
 
       expect(result.rows[0].deactivated_at).not.toBeNull();
@@ -1015,11 +994,7 @@ describe('Company integration tests', () => {
         .send(data);
 
       expect(response.status).toEqual(204);
-
-      const result = await globalThis.db.query('SELECT * FROM commissions WHERE id = $1', [commission.id]);
-
-      expect(result.rows[0].tax).toEqual(data.tax);
-      expect(result.rows[0].tax_type).toEqual(data.tax_type);
+      await expect(data).toEqualInDatabase('commissions', commission.id!);
     });
 
     it('returns status code 400 if data is invalid', async () => {

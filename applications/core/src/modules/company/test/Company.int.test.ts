@@ -4,7 +4,6 @@ import CatalogModule from '@catalog/infra/CatalogModule';
 import { TaxTypes } from '@company/domain/Commission';
 import CompanyModule from '@company/infra/CompanyModule';
 import { faker } from '@faker-js/faker';
-import { Policies } from '@shared/infra/Principal';
 import SharedModule from '@shared/infra/SharedModule';
 import cleanUpDatabase from '@shared/infra/test_utils/cleanUpDatabase';
 import CatalogItemFactory from '@shared/infra/test_utils/factories/CatalogItemFactory';
@@ -26,118 +25,55 @@ describe('Company integration tests', () => {
   });
   const auth_token_manager = application.container.get<AuthTokenManager>(types.AuthTokenManager);
   const request = supertest(application.server);
-  const user = {
-    id: faker.string.uuid(),
-    email: faker.internet.email(),
-    password: faker.string.alphanumeric(10),
-    policies: Object.values(Policies),
-  };
-  const { token } = auth_token_manager.generateToken(user);
-  const company_id = faker.string.uuid();
-  const customer_id = faker.string.uuid();
-  const employee_id = faker.string.uuid();
-  const service_id = faker.string.uuid();
-  const commission_id = faker.string.uuid();
   const user_factory = new UserFactory();
   const catalog_item_factory = new CatalogItemFactory();
   const service_log_factory = new ServiceLogFactory();
   const commission_factory = new CommissionFactory();
-
-  beforeEach(async () => {
-    await user_factory.createMany([
-      {
-        id: company_id,
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(10),
-      },
-      {
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(10),
-      },
-      {
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(10),
-      },
-      {
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(10),
-      },
-      {
-        id: customer_id,
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(10),
-        tenant_id: company_id,
-      },
-      {
-        id: employee_id,
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(10),
-        tenant_id: company_id,
-      },
-    ]);
-
-    await catalog_item_factory.createOne({
-      id: service_id,
-      name: faker.commerce.productName(),
-      description: faker.commerce.productDescription(),
-      attributes: [],
-      is_service: true,
-      picture_url: faker.internet.url(),
-      tenant_id: company_id,
-      amount: faker.number.float(),
-    });
-
-    await service_log_factory.createMany([
-      {
-        id: faker.string.uuid(),
-        commission_amount: faker.number.float(),
-        employee_id,
-        service_id,
-        customer_id,
-        tenant_id: company_id,
-        paid_amount: faker.number.float(),
-        registed_at: faker.date.anytime()
-      },
-      {
-        id: faker.string.uuid(),
-        commission_amount: faker.number.float(),
-        employee_id,
-        service_id,
-        customer_id,
-        tenant_id: company_id,
-        paid_amount: faker.number.float(),
-        registed_at: faker.date.anytime()
-      },
-      {
-        id: faker.string.uuid(),
-        commission_amount: faker.number.float(),
-        employee_id,
-        service_id,
-        customer_id,
-        tenant_id: company_id,
-        paid_amount: faker.number.float(),
-        registed_at: faker.date.anytime()
-      },
-    ]);
-
-    await commission_factory.createOne({
-      id: commission_id,
-      catalog_item_id: service_id,
-      tax: faker.number.float(),
-      tax_type: faker.helpers.enumValue(TaxTypes),
-      tenant_id: company_id,
-    });
-  });
 
   afterEach(cleanUpDatabase);
 
   it.todo('POST: /api/companies');
 
   describe('GET: /api/companies', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [],
+    });
+
     it('should return all companies', async () => {
+      const company_id = faker.string.uuid();
+
+      await user_factory.createMany([
+        {
+          id: company_id,
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+        },
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+        },
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+        },
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+        },
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+          tenant_id: company_id, // customer or employee
+        },
+      ]);
+
       const response = await request
         .get('/api/companies/')
         .set('Content-Type', 'application/json')
@@ -150,6 +86,29 @@ describe('Company integration tests', () => {
     });
 
     it('should return companies with pagination', async () => {
+      await user_factory.createMany([
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+        },
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+        },
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+        },
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: faker.string.alphanumeric(10),
+        },
+      ]);
+
       let response = await request
         .get('/api/companies/')
         .query({ page: 1, limit: 1 })
@@ -189,6 +148,13 @@ describe('Company integration tests', () => {
   });
 
   describe('GET: /api/companies/:company_id', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [],
+    });
+
     it("returns status code 404 if company doesn't exist", async () => {
       const response = await request
         .get(`/api/companies/${faker.string.uuid()}`)
@@ -201,8 +167,14 @@ describe('Company integration tests', () => {
     });
 
     it("returns company", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
       const response = await request
-        .get(`/api/companies/${company_id}`)
+        .get(`/api/companies/${company.id}`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send();
@@ -219,6 +191,13 @@ describe('Company integration tests', () => {
   });
 
   describe('PATCH: /api/companies/:company_id/addresses', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [],
+    });
+
     it("returns status code 404 if company doesn't exist", async () => {
       const response = await request
         .patch(`/api/companies/${faker.string.uuid()}/addresses`)
@@ -237,8 +216,14 @@ describe('Company integration tests', () => {
     });
 
     it("returns status code 400 if data is invalid", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
       const response = await request
-        .patch(`/api/companies/${company_id}/addresses`)
+        .patch(`/api/companies/${company.id}/addresses`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
@@ -254,6 +239,12 @@ describe('Company integration tests', () => {
     });
 
     it("updates company's address", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
       const data = {
         street: faker.location.street(),
         district: faker.location.secondaryAddress(),
@@ -263,25 +254,32 @@ describe('Company integration tests', () => {
       };
 
       const response = await request
-        .patch(`/api/companies/${company_id}/addresses`)
+        .patch(`/api/companies/${company.id}/addresses`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send(data);
 
       expect(response.status).toEqual(204);
 
-      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [company_id]);
-      const company = result.rows[0];
+      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [company.id]);
+      const row = result.rows[0];
 
-      expect(company.street).toEqual(data.street);
-      expect(company.district).toEqual(data.district);
-      expect(company.state).toEqual(data.state);
-      expect(company.number).toEqual(data.number);
-      expect(company.complement).toEqual(data.complement);
+      expect(row.street).toEqual(data.street);
+      expect(row.district).toEqual(data.district);
+      expect(row.state).toEqual(data.state);
+      expect(row.number).toEqual(data.number);
+      expect(row.complement).toEqual(data.complement);
     });
   });
 
   describe('PATCH: /api/companies/:company_id/banks', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [],
+    });
+
     it("returns status code 404 if company doesn't exist", async () => {
       const response = await request
         .patch(`/api/companies/${faker.string.uuid()}/banks`)
@@ -300,8 +298,14 @@ describe('Company integration tests', () => {
     });
 
     it("returns status code 400 if data is invalid", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
       const response = await request
-        .patch(`/api/companies/${company_id}/banks`)
+        .patch(`/api/companies/${company.id}/banks`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
@@ -317,6 +321,12 @@ describe('Company integration tests', () => {
     });
 
     it("updates company's bank", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
       const data = {
         account: faker.string.numeric(5),
         account_digit: faker.string.numeric(2),
@@ -326,25 +336,32 @@ describe('Company integration tests', () => {
       };
 
       const response = await request
-        .patch(`/api/companies/${company_id}/banks`)
+        .patch(`/api/companies/${company.id}/banks`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send(data);
 
       expect(response.status).toEqual(204);
 
-      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [company_id]);
-      const company = result.rows[0];
+      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [company.id]);
+      const row = result.rows[0];
 
-      expect(company.account).toEqual(data.account);
-      expect(company.account_digit).toEqual(data.account_digit);
-      expect(company.agency).toEqual(data.agency);
-      expect(company.agency_digit).toEqual(data.agency_digit);
-      expect(company.bank_code).toEqual(data.bank_code);
+      expect(row.account).toEqual(data.account);
+      expect(row.account_digit).toEqual(data.account_digit);
+      expect(row.agency).toEqual(data.agency);
+      expect(row.agency_digit).toEqual(data.agency_digit);
+      expect(row.bank_code).toEqual(data.bank_code);
     });
   });
 
   describe('PATCH: /api/companies/:company_id/brands', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [],
+    });
+
     it("returns status code 404 if company doesn't exist", async () => {
       const response = await request
         .patch(`/api/companies/${faker.string.uuid()}/brands`)
@@ -360,8 +377,14 @@ describe('Company integration tests', () => {
     });
 
     it("returns status code 400 if data is invalid", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
       const response = await request
-        .patch(`/api/companies/${company_id}/brands`)
+        .patch(`/api/companies/${company.id}/brands`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
@@ -374,34 +397,54 @@ describe('Company integration tests', () => {
     });
 
     it("updates company's brand", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
       const data = {
         color: faker.color.rgb(),
         logo_url: faker.internet.url(),
       };
 
       const response = await request
-        .patch(`/api/companies/${company_id}/brands`)
+        .patch(`/api/companies/${company.id}/brands`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send(data);
 
       expect(response.status).toEqual(204);
 
-      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [company_id]);
-      const company = result.rows[0];
+      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [company.id]);
+      const row = result.rows[0];
 
-      expect(company.color).toEqual(data.color);
-      expect(company.logo_url).toEqual(data.logo_url);
+      expect(row.color).toEqual(data.color);
+      expect(row.logo_url).toEqual(data.logo_url);
     });
   });
 
   it.todo('POST: /api/companies/:company_id/employees');
 
   describe('DELETE: /api/companies/:company_id/employees/:employee_id', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [],
+    });
+
     it("returns status code 404 if employee doesn't exist", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
       const response = await request
-        .delete(`/api/companies/${company_id}/employees/${faker.string.uuid()}`)
+        .delete(`/api/companies/${company.id}/employees/${faker.string.uuid()}`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send();
 
       expect(response.status).toEqual(404);
@@ -409,14 +452,27 @@ describe('Company integration tests', () => {
     });
 
     it("should deactivate the employee", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      const employee = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        tenant_id: company.id,
+      });
+
       const response = await request
-        .delete(`/api/companies/${company_id}/employees/${employee_id}`)
+        .delete(`/api/companies/${company.id}/employees/${employee.id}`)
         .set('Content-Type', 'application/json')
         .send();
 
       expect(response.status).toEqual(204);
 
-      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [employee_id]);
+      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [employee.id]);
 
       expect(result.rows[0].deactivated_at).not.toBeNull();
       expect(result.rows[0].deactivated_at).toBeInstanceOf(Date);
@@ -424,15 +480,46 @@ describe('Company integration tests', () => {
   });
 
   describe('POST: /api/companies/:company_id/service-logs', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [],
+    });
+
     it("returns status code 404 if employee doesn't exist", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      const customer = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        tenant_id: company.id,
+      });
+
+      const service = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [],
+        is_service: true,
+        picture_url: faker.internet.url(),
+        tenant_id: company.id!,
+        amount: faker.number.float(),
+      });
+
       const response = await request
-        .post(`/api/companies/${company_id}/service-logs`)
+        .post(`/api/companies/${company.id}/service-logs`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
           employee_id: faker.string.uuid(),
-          customer_id,
-          service_id,
+          customer_id: customer.id,
+          service_id: service.id,
         });
 
       expect(response.status).toEqual(404);
@@ -440,14 +527,38 @@ describe('Company integration tests', () => {
     });
 
     it("returns status code 404 if customer doesn't exist", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      const employee = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        tenant_id: company.id,
+      });
+
+      const service = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [],
+        is_service: true,
+        picture_url: faker.internet.url(),
+        tenant_id: company.id!,
+        amount: faker.number.float(),
+      });
+
       const response = await request
-        .post(`/api/companies/${company_id}/service-logs`)
+        .post(`/api/companies/${company.id}/service-logs`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
-          employee_id,
+          employee_id: employee.id,
           customer_id: faker.string.uuid(),
-          service_id,
+          service_id: service.id,
         });
 
       expect(response.status).toEqual(404);
@@ -455,8 +566,14 @@ describe('Company integration tests', () => {
     });
 
     it('returns status code 400 if data is invalid', async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
       const response = await request
-        .post(`/api/companies/${company_id}/service-logs`)
+        .post(`/api/companies/${company.id}/service-logs`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
@@ -471,14 +588,45 @@ describe('Company integration tests', () => {
 
 
     it("should register a new service log", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      const employee = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        tenant_id: company.id,
+      });
+
+      const customer = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        tenant_id: company.id,
+      });
+
+      const service = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [],
+        is_service: true,
+        picture_url: faker.internet.url(),
+        tenant_id: company.id!,
+        amount: faker.number.float(),
+      });
+
       const response = await request
-        .post(`/api/companies/${company_id}/service-logs`)
+        .post(`/api/companies/${company.id}/service-logs`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
-          employee_id,
-          customer_id,
-          service_id,
+          employee_id: employee.id,
+          customer_id: customer.id,
+          service_id: service.id,
         });
 
       expect(response.status).toEqual(201);
@@ -486,17 +634,88 @@ describe('Company integration tests', () => {
       expect(response.body).toHaveProperty('commission_amount');
       expect(response.body).toHaveProperty('paid_amount');
       expect(response.body).toHaveProperty('registed_at');
-      expect(response.body.employee_id).toEqual(employee_id);
-      expect(response.body.service_id).toEqual(service_id);
-      expect(response.body.customer_id).toEqual(customer_id);
-      expect(response.body.tenant_id).toEqual(company_id);
+      expect(response.body.employee_id).toEqual(employee.id);
+      expect(response.body.service_id).toEqual(service.id);
+      expect(response.body.customer_id).toEqual(customer.id);
+      expect(response.body.tenant_id).toEqual(company.id);
     });
   });
 
   describe('GET: /api/companies/:company_id/service-logs', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [],
+    });
+
     it('should return all service logs', async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      const employee = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        tenant_id: company.id,
+      });
+
+      const customer = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        tenant_id: company.id,
+      });
+
+      const service = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [],
+        is_service: true,
+        picture_url: faker.internet.url(),
+        tenant_id: company.id!,
+        amount: faker.number.float(),
+      });
+
+      await service_log_factory.createMany([
+        {
+          id: faker.string.uuid(),
+          commission_amount: faker.number.float(),
+          employee_id: employee.id!,
+          service_id: service.id!,
+          customer_id: customer.id!,
+          tenant_id: company.id!,
+          paid_amount: faker.number.float(),
+          registed_at: faker.date.anytime()
+        },
+        {
+          id: faker.string.uuid(),
+          commission_amount: faker.number.float(),
+          employee_id: employee.id!,
+          service_id: service.id!,
+          customer_id: customer.id!,
+          tenant_id: company.id!,
+          paid_amount: faker.number.float(),
+          registed_at: faker.date.anytime()
+        },
+        {
+          id: faker.string.uuid(),
+          commission_amount: faker.number.float(),
+          employee_id: employee.id!,
+          service_id: service.id!,
+          customer_id: customer.id!,
+          tenant_id: company.id!,
+          paid_amount: faker.number.float(),
+          registed_at: faker.date.anytime()
+        },
+      ]);
+
       const response = await request
-        .get(`/api/companies/${company_id}/service-logs`)
+        .get(`/api/companies/${company.id}/service-logs`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send();
@@ -507,8 +726,72 @@ describe('Company integration tests', () => {
     });
 
     it('should return service logs with pagination', async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      const employee = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        tenant_id: company.id,
+      });
+
+      const customer = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        tenant_id: company.id,
+      });
+
+      const service = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [],
+        is_service: true,
+        picture_url: faker.internet.url(),
+        tenant_id: company.id!,
+        amount: faker.number.float(),
+      });
+
+      await service_log_factory.createMany([
+        {
+          id: faker.string.uuid(),
+          commission_amount: faker.number.float(),
+          employee_id: employee.id!,
+          service_id: service.id!,
+          customer_id: customer.id!,
+          tenant_id: company.id!,
+          paid_amount: faker.number.float(),
+          registed_at: faker.date.anytime()
+        },
+        {
+          id: faker.string.uuid(),
+          commission_amount: faker.number.float(),
+          employee_id: employee.id!,
+          service_id: service.id!,
+          customer_id: customer.id!,
+          tenant_id: company.id!,
+          paid_amount: faker.number.float(),
+          registed_at: faker.date.anytime()
+        },
+        {
+          id: faker.string.uuid(),
+          commission_amount: faker.number.float(),
+          employee_id: employee.id!,
+          service_id: service.id!,
+          customer_id: customer.id!,
+          tenant_id: company.id!,
+          paid_amount: faker.number.float(),
+          registed_at: faker.date.anytime()
+        },
+      ]);
+
       let response = await request
-        .get(`/api/companies/${company_id}/service-logs`)
+        .get(`/api/companies/${company.id}/service-logs`)
         .query({ page: 1, limit: 1 })
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
@@ -520,7 +803,7 @@ describe('Company integration tests', () => {
       expect(response.body.page_result.total_of_pages).toEqual(3);
 
       response = await request
-        .get(`/api/companies/${company_id}/service-logs`)
+        .get(`/api/companies/${company.id}/service-logs`)
         .query({ page: 1, limit: 2 })
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
@@ -532,7 +815,7 @@ describe('Company integration tests', () => {
       expect(response.body.page_result.total_of_pages).toEqual(2);
 
       response = await request
-        .get(`/api/companies/${company_id}/service-logs`)
+        .get(`/api/companies/${company.id}/service-logs`)
         .query({ page: 2, limit: 2 })
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
@@ -546,9 +829,22 @@ describe('Company integration tests', () => {
   });
 
   describe('POST: /api/companies/:company_id/commissions', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [],
+    });
+
     it("returns status code 404 if service doesn't exist", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
       const response = await request
-        .post(`/api/companies/${company_id}/commissions`)
+        .post(`/api/companies/${company.id}/commissions`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
@@ -562,8 +858,14 @@ describe('Company integration tests', () => {
     });
 
     it("returns status code 400 if data is invalid", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
       const response = await request
-        .post(`/api/companies/${company_id}/commissions`)
+        .post(`/api/companies/${company.id}/commissions`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
@@ -577,33 +879,67 @@ describe('Company integration tests', () => {
     });
 
     it("creates a new commission", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      const service = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [],
+        is_service: true,
+        picture_url: faker.internet.url(),
+        tenant_id: company.id!,
+        amount: faker.number.float(),
+      });
+
       const data = {
-        catalog_item_id: service_id,
+        catalog_item_id: service.id,
         tax: faker.number.float(),
         tax_type: faker.helpers.enumValue(TaxTypes),
       };
 
       const response = await request
-        .post(`/api/companies/${company_id}/commissions`)
+        .post(`/api/companies/${company.id}/commissions`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send(data);
 
       expect(response.status).toEqual(201);
       expect(response.body).toHaveProperty('id');
-      expect(response.body.catalog_item_id).toEqual(service_id);
+      expect(response.body.catalog_item_id).toEqual(service.id);
       expect(response.body.tax).toEqual(data.tax);
       expect(response.body.tax_type).toEqual(data.tax_type);
-      expect(response.body.tenant_id).toEqual(company_id);
+      expect(response.body.tenant_id).toEqual(company.id);
     });
 
     it("returns status code 400 if tax type is percentage and are greater than 1", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      const service = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [],
+        is_service: true,
+        picture_url: faker.internet.url(),
+        tenant_id: company.id!,
+        amount: faker.number.float(),
+      });
+
       const response = await request
-        .post(`/api/companies/${company_id}/commissions`)
+        .post(`/api/companies/${company.id}/commissions`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send({
-          catalog_item_id: service_id,
+          catalog_item_id: service.id,
           tax: faker.number.float({ min: 1.1, max: 100 }),
           tax_type: TaxTypes.PERCENTAGE,
         });
@@ -614,10 +950,24 @@ describe('Company integration tests', () => {
   });
 
   describe('PUT: /api/companies/:company_id/commissions/:commission_id', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [],
+    });
+
     it("returns status code 404 if commission doesn't exist", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
       const response = await request
-        .put(`/api/companies/${company_id}/commissions/${faker.string.uuid()}`)
+        .put(`/api/companies/${company.id}/commissions/${faker.string.uuid()}`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({
           tax: faker.number.float(),
           tax_type: faker.helpers.enumValue(TaxTypes),
@@ -628,28 +978,80 @@ describe('Company integration tests', () => {
     });
 
     it("updates a commission", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      const service = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [],
+        is_service: true,
+        picture_url: faker.internet.url(),
+        tenant_id: company.id!,
+        amount: faker.number.float(),
+      });
+
+      const commission = await commission_factory.createOne({
+        id: faker.string.uuid(),
+        catalog_item_id: service.id!,
+        tax: faker.number.float(),
+        tax_type: faker.helpers.enumValue(TaxTypes),
+        tenant_id: company.id!,
+      });
+
       const data = {
         tax: faker.number.float({ fractionDigits: 2 }),
         tax_type: faker.helpers.enumValue(TaxTypes),
       };
 
       const response = await request
-        .put(`/api/companies/${company_id}/commissions/${commission_id}`)
+        .put(`/api/companies/${company.id}/commissions/${commission.id}`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send(data);
 
       expect(response.status).toEqual(204);
 
-      const result = await globalThis.db.query('SELECT * FROM commissions WHERE id = $1', [commission_id]);
+      const result = await globalThis.db.query('SELECT * FROM commissions WHERE id = $1', [commission.id]);
 
       expect(result.rows[0].tax).toEqual(data.tax);
       expect(result.rows[0].tax_type).toEqual(data.tax_type);
     });
 
     it('returns status code 400 if data is invalid', async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      const service = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [],
+        is_service: true,
+        picture_url: faker.internet.url(),
+        tenant_id: company.id!,
+        amount: faker.number.float(),
+      });
+
+      const commission = await commission_factory.createOne({
+        id: faker.string.uuid(),
+        catalog_item_id: service.id!,
+        tax: faker.number.float(),
+        tax_type: faker.helpers.enumValue(TaxTypes),
+        tenant_id: company.id!,
+      });
+
       const response = await request
-        .put(`/api/companies/${company_id}/commissions/${commission_id}`)
+        .put(`/api/companies/${company.id}/commissions/${commission.id}`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({
           tax: faker.string.sample(),
           tax_type: faker.string.sample(),
@@ -661,9 +1063,22 @@ describe('Company integration tests', () => {
   });
 
   describe('GET: /api/companies/:company_id/commissions/:commission_id', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [],
+    });
+
     it("returns status code 404 if commission doesn't exist", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
       const response = await request
-        .get(`/api/companies/${company_id}/commissions/${faker.string.uuid()}`)
+        .get(`/api/companies/${company.id}/commissions/${faker.string.uuid()}`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send();
@@ -673,14 +1088,39 @@ describe('Company integration tests', () => {
     });
 
     it("returns a commission", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      const service = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [],
+        is_service: true,
+        picture_url: faker.internet.url(),
+        tenant_id: company.id!,
+        amount: faker.number.float(),
+      });
+
+      const commission = await commission_factory.createOne({
+        id: faker.string.uuid(),
+        catalog_item_id: service.id!,
+        tax: faker.number.float(),
+        tax_type: faker.helpers.enumValue(TaxTypes),
+        tenant_id: company.id!,
+      });
+
       const response = await request
-        .get(`/api/companies/${company_id}/commissions/${commission_id}`)
+        .get(`/api/companies/${company.id}/commissions/${commission.id}`)
         .set('Content-Type', 'application/json')
         .auth(token, { type: 'bearer' })
         .send();
 
       expect(response.status).toEqual(200);
-      expect(response.body.id).toEqual(commission_id);
+      expect(response.body.id).toEqual(commission.id);
       expect(response.body).toHaveProperty('catalog_item_id');
       expect(response.body).toHaveProperty('tax');
       expect(response.body).toHaveProperty('tax_type');

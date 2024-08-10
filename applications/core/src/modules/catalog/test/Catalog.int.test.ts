@@ -4,6 +4,9 @@ import CatalogModule from '@catalog/infra/CatalogModule';
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import { Policies } from '@shared/infra/Principal';
 import SharedModule from '@shared/infra/SharedModule';
+import cleanUpDatabase from '@shared/infra/test_utils/cleanUpDatabase';
+import CatalogItemFactory from '@shared/infra/test_utils/factories/CatalogItemFactory';
+import UserFactory from '@shared/infra/test_utils/factories/UserFactory';
 import types from '@shared/infra/types';
 import Application from 'src/Application';
 import supertest from 'supertest';
@@ -21,61 +24,58 @@ describe('Catalog integration tests', () => {
   const tenant_id = faker.string.uuid();
   const catalog_item_id = faker.string.uuid();
   const { token } = auth_token_manager.generateToken(user);
+  const user_factory = new UserFactory();
+  const catalog_item_factory = new CatalogItemFactory();
 
   beforeEach(async () => {
-    await globalThis.db.query(
-      'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
-      [user.id, user.email, user.password]
-    );
-    await globalThis.db.query(
-      'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
-      [tenant_id, user.email, user.password]
-    );
-    await globalThis.db.query(
-      'INSERT INTO catalog_items (id, name, description, attributes, is_service, picture_url, tenant_id, amount) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-      [
-        catalog_item_id,
-        faker.commerce.productName(),
-        faker.commerce.productDescription(),
-        JSON.stringify([]),
-        faker.datatype.boolean(),
-        faker.internet.url(),
-        user.id,
-        faker.number.float(),
-      ]
-    );
-    await globalThis.db.query(
-      'INSERT INTO catalog_items (id, name, description, attributes, is_service, picture_url, tenant_id, amount) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-      [
-        faker.string.uuid(),
-        faker.commerce.productName(),
-        faker.commerce.productDescription(),
-        JSON.stringify([]),
-        faker.datatype.boolean(),
-        faker.internet.url(),
+    await user_factory.createMany([
+      {
+        id: user.id,
+        email: user.email,
+        password: user.password,
+      },
+      {
+        id: tenant_id,
+        email: user.email,
+        password: user.password,
+      }
+    ]);
+
+    await catalog_item_factory.createMany([
+      {
+        id: catalog_item_id,
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [],
+        is_service: faker.datatype.boolean(),
+        picture_url: faker.internet.url(),
+        tenant_id: user.id,
+        amount: faker.number.float(),
+      },
+      {
+        id: faker.string.uuid(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [],
+        is_service: faker.datatype.boolean(),
+        picture_url: faker.internet.url(),
         tenant_id,
-        faker.number.float(),
-      ]
-    );
-    await globalThis.db.query(
-      'INSERT INTO catalog_items (id, name, description, attributes, is_service, picture_url, tenant_id, amount) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-      [
-        faker.string.uuid(),
-        faker.commerce.productName(),
-        faker.commerce.productDescription(),
-        JSON.stringify([]),
-        faker.datatype.boolean(),
-        faker.internet.url(),
+        amount: faker.number.float(),
+      },
+      {
+        id: faker.string.uuid(),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        attributes: [],
+        is_service: faker.datatype.boolean(),
+        picture_url: faker.internet.url(),
         tenant_id,
-        faker.number.float(),
-      ]
-    );
+        amount: faker.number.float(),
+      },
+    ]);
   });
 
-  afterEach(async () => {
-    await globalThis.db.query('DELETE FROM catalog_items');
-    await globalThis.db.query('DELETE FROM users');
-  });
+  afterEach(cleanUpDatabase);
 
   describe('POST: /api/catalogs/items', () => {
     it('creates a new catalog item', async () => {

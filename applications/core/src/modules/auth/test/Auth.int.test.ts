@@ -5,17 +5,14 @@ import AuthModule from '@auth/infra/AuthModule';
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import { Policies } from '@shared/infra/Principal';
 import SharedModule from '@shared/infra/SharedModule';
+import cleanUpDatabase from '@shared/infra/test_utils/cleanUpDatabase';
+import AccessPlanFactory from '@shared/infra/test_utils/factories/AccessPlanFactory';
+import PolicyFactory from '@shared/infra/test_utils/factories/PolicyFactory';
+import UserFactory from '@shared/infra/test_utils/factories/UserFactory';
+import VerificationCodeFactory from '@shared/infra/test_utils/factories/VerificationCodeFactory';
 import types from '@shared/infra/types';
 import Application from 'src/Application';
 import supertest from 'supertest';
-
-async function deleteAuthData() {
-  await globalThis.db.query('DELETE FROM user_policies');
-  await globalThis.db.query('DELETE FROM policies');
-  await globalThis.db.query('DELETE FROM verification_codes');
-  await globalThis.db.query('DELETE FROM users');
-  await globalThis.db.query('DELETE FROM access_plans');
-}
 
 function cookieExists(cookies: Array<string>) {
   let exists = false;
@@ -48,53 +45,82 @@ describe('Auth integration tests', () => {
   const { token } = auth_token_manager.generateToken(user);
   const verification_code = faker.string.numeric(4);
   const expired_verification_code = faker.string.numeric(4);
+  const user_factory = new UserFactory();
+  const access_plan_factory = new AccessPlanFactory();
+  const policy_factory = new PolicyFactory();
+  const verification_code_factory = new VerificationCodeFactory();
 
   beforeEach(async () => {
-    await globalThis.db.query(
-      'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
-      [user.id, user.email, encryptor.createHash(user.password)]
-    );
-    await globalThis.db.query(
-      'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
-      [tenant_id, faker.internet.email(), faker.string.alphanumeric(10)]
-    );
-    await globalThis.db.query(
-      'INSERT INTO users (id, email, password, tenant_id) VALUES ($1, $2, $3, $4)',
-      [faker.string.uuid(), faker.internet.email(), faker.string.alphanumeric(10), tenant_id]
-    );
-    await globalThis.db.query(
-      'INSERT INTO users (id, email, password, tenant_id) VALUES ($1, $2, $3, $4)',
-      [faker.string.uuid(), faker.internet.email(), faker.string.alphanumeric(10), tenant_id]
-    );
-    await globalThis.db.query(
-      'INSERT INTO access_plans(id, active, amount, type, description) VALUES($1, $2, $3, $4, $5)',
-      [active_access_plan_id, true, faker.number.float(), AccessPlanTypes.ANNUALLY, faker.lorem.lines(1)]
-    );
-    await globalThis.db.query(
-      'INSERT INTO access_plans(id, active, amount, type, description) VALUES($1, $2, $3, $4, $5)',
-      [not_active_access_plan_id, false, faker.number.float(), AccessPlanTypes.ANNUALLY, faker.lorem.lines(1)]
-    );
-    await globalThis.db.query(
-      'INSERT INTO policies(id, slug, description) VALUES($1, $2, $3)',
-      [faker.string.uuid(), policy_slug, faker.lorem.lines(1)]
-    );
-    await globalThis.db.query(
-      'INSERT INTO policies(id, slug, description) VALUES($1, $2, $3)',
-      [faker.string.uuid(), faker.helpers.slugify(faker.word.words(2)), faker.lorem.lines(1)]
-    );
-    await globalThis.db.query(
-      'INSERT INTO verification_codes(id, code, user_id, expired_at) VALUES($1, $2, $3, $4)',
-      [faker.string.uuid(), verification_code, user.id, faker.date.future()]
-    );
-    await globalThis.db.query(
-      'INSERT INTO verification_codes(id, code, user_id, expired_at) VALUES($1, $2, $3, $4)',
-      [faker.string.uuid(), expired_verification_code, user.id, faker.date.past()]
-    );
+    await user_factory.createMany([
+      {
+        id: user.id,
+        email: user.email,
+        password: encryptor.createHash(user.password),
+      },
+      {
+        id: tenant_id,
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      },
+      {
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        tenant_id,
+      },
+      {
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        tenant_id,
+      },
+    ]);
+
+    await access_plan_factory.createMany([
+      {
+        id: active_access_plan_id,
+        active: true,
+        amount: faker.number.float(),
+        type: AccessPlanTypes.ANNUALLY,
+        description: faker.lorem.lines(1)
+      },
+      {
+        id: not_active_access_plan_id,
+        active: false,
+        amount: faker.number.float(),
+        type: AccessPlanTypes.ANNUALLY,
+        description: faker.lorem.lines(1)
+      }
+    ]);
+
+    policy_factory.createMany([
+      {
+        id: faker.string.uuid(),
+        slug: policy_slug,
+      },
+      {
+        id: faker.string.uuid(),
+        slug: faker.helpers.slugify(faker.word.words(2)),
+      },
+    ]);
+
+    await verification_code_factory.createMany([
+      {
+        id: faker.string.uuid(),
+        code: verification_code,
+        user_id: user.id,
+        expired_at: faker.date.future(),
+      },
+      {
+        id: faker.string.uuid(),
+        code: expired_verification_code,
+        user_id: user.id,
+        expired_at: faker.date.past(),
+      },
+    ]);
   });
 
-  afterEach(async () => {
-    await deleteAuthData();
-  });
+  afterEach(cleanUpDatabase);
 
   describe('POST: /api/auth/users', () => {
     it('creates a new user', async () => {

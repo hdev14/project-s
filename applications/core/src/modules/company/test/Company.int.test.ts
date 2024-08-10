@@ -6,6 +6,11 @@ import CompanyModule from '@company/infra/CompanyModule';
 import { faker } from '@faker-js/faker';
 import { Policies } from '@shared/infra/Principal';
 import SharedModule from '@shared/infra/SharedModule';
+import cleanUpDatabase from '@shared/infra/test_utils/cleanUpDatabase';
+import CatalogItemFactory from '@shared/infra/test_utils/factories/CatalogItemFactory';
+import CommissionFactory from '@shared/infra/test_utils/factories/CommissionFactory';
+import ServiceLogFactory from '@shared/infra/test_utils/factories/ServiceLogFactory';
+import UserFactory from '@shared/infra/test_utils/factories/UserFactory';
 import types from '@shared/infra/types';
 import Application from 'src/Application';
 import supertest from 'supertest';
@@ -33,103 +38,101 @@ describe('Company integration tests', () => {
   const employee_id = faker.string.uuid();
   const service_id = faker.string.uuid();
   const commission_id = faker.string.uuid();
+  const user_factory = new UserFactory();
+  const catalog_item_factory = new CatalogItemFactory();
+  const service_log_factory = new ServiceLogFactory();
+  const commission_factory = new CommissionFactory();
 
   beforeEach(async () => {
-    await globalThis.db.query(
-      'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
-      [company_id, faker.internet.email(), faker.string.alphanumeric(10)]
-    );
-    await globalThis.db.query(
-      'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
-      [faker.string.uuid(), faker.internet.email(), faker.string.alphanumeric(10)]
-    );
-    await globalThis.db.query(
-      'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
-      [faker.string.uuid(), faker.internet.email(), faker.string.alphanumeric(10)]
-    );
-    await globalThis.db.query(
-      'INSERT INTO users (id, email, password) VALUES ($1, $2, $3)',
-      [faker.string.uuid(), faker.internet.email(), faker.string.alphanumeric(10)]
-    );
-    await globalThis.db.query(
-      'INSERT INTO users (id, email, password, tenant_id) VALUES ($1, $2, $3, $4)',
-      [customer_id, faker.internet.email(), faker.string.alphanumeric(10), company_id]
-    );
-    await globalThis.db.query(
-      'INSERT INTO users (id, email, password, tenant_id) VALUES ($1, $2, $3, $4)',
-      [employee_id, faker.internet.email(), faker.string.alphanumeric(10), company_id]
-    );
-    await globalThis.db.query(
-      'INSERT INTO catalog_items (id, name, description, attributes, is_service, picture_url, tenant_id, amount) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-      [
-        service_id,
-        faker.commerce.productName(),
-        faker.commerce.productDescription(),
-        JSON.stringify([]),
-        true,
-        faker.internet.url(),
-        company_id,
-        faker.number.float(),
-      ]
-    );
-    await globalThis.db.query(
-      'INSERT INTO service_logs (id, commission_amount, employee_id, service_id, customer_id, tenant_id, paid_amount, registed_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-      [
-        faker.string.uuid(),
-        faker.number.float(),
-        employee_id,
-        service_id,
-        customer_id,
-        company_id,
-        faker.number.float(),
-        faker.date.anytime()
-      ]
-    );
-    await globalThis.db.query(
-      'INSERT INTO service_logs (id, commission_amount, employee_id, service_id, customer_id, tenant_id, paid_amount, registed_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-      [
-        faker.string.uuid(),
-        faker.number.float(),
-        employee_id,
-        service_id,
-        customer_id,
-        company_id,
-        faker.number.float(),
-        faker.date.anytime()
-      ]
-    );
-    await globalThis.db.query(
-      'INSERT INTO service_logs (id, commission_amount, employee_id, service_id, customer_id, tenant_id, paid_amount, registed_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-      [
-        faker.string.uuid(),
-        faker.number.float(),
-        employee_id,
-        service_id,
-        customer_id,
-        company_id,
-        faker.number.float(),
-        faker.date.anytime()
-      ]
-    );
+    await user_factory.createMany([
+      {
+        id: company_id,
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      },
+      {
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      },
+      {
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      },
+      {
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      },
+      {
+        id: customer_id,
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        tenant_id: company_id,
+      },
+      {
+        id: employee_id,
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        tenant_id: company_id,
+      },
+    ]);
 
-    await globalThis.db.query(
-      'INSERT INTO commissions (id, catalog_item_id, tax, tax_type, tenant_id) VALUES ($1, $2, $3, $4, $5)',
-      [
-        commission_id,
+    await catalog_item_factory.createOne({
+      id: service_id,
+      name: faker.commerce.productName(),
+      description: faker.commerce.productDescription(),
+      attributes: [],
+      is_service: true,
+      picture_url: faker.internet.url(),
+      tenant_id: company_id,
+      amount: faker.number.float(),
+    });
+
+    await service_log_factory.createMany([
+      {
+        id: faker.string.uuid(),
+        commission_amount: faker.number.float(),
+        employee_id,
         service_id,
-        faker.number.float(),
-        faker.helpers.enumValue(TaxTypes),
-        company_id,
-      ]
-    );
+        customer_id,
+        tenant_id: company_id,
+        paid_amount: faker.number.float(),
+        registed_at: faker.date.anytime()
+      },
+      {
+        id: faker.string.uuid(),
+        commission_amount: faker.number.float(),
+        employee_id,
+        service_id,
+        customer_id,
+        tenant_id: company_id,
+        paid_amount: faker.number.float(),
+        registed_at: faker.date.anytime()
+      },
+      {
+        id: faker.string.uuid(),
+        commission_amount: faker.number.float(),
+        employee_id,
+        service_id,
+        customer_id,
+        tenant_id: company_id,
+        paid_amount: faker.number.float(),
+        registed_at: faker.date.anytime()
+      },
+    ]);
+
+    await commission_factory.createOne({
+      id: commission_id,
+      catalog_item_id: service_id,
+      tax: faker.number.float(),
+      tax_type: faker.helpers.enumValue(TaxTypes),
+      tenant_id: company_id,
+    });
   });
 
-  afterEach(async () => {
-    await globalThis.db.query('DELETE FROM commissions');
-    await globalThis.db.query('DELETE FROM service_logs');
-    await globalThis.db.query('DELETE FROM catalog_items');
-    await globalThis.db.query('DELETE FROM users');
-  });
+  afterEach(cleanUpDatabase);
 
   it.todo('POST: /api/companies');
 

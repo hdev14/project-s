@@ -1,8 +1,7 @@
-import User from "@auth/domain/User";
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import Database from "@shared/infra/Database";
-import { PageOptions } from "@shared/utils/Pagination";
 import { PaymentTypes } from "@subscriber/domain/PaymentMethod";
+import Subscriber from "@subscriber/domain/Subscriber";
 import DbSubscriberRepository from "./DbSubscriberRepository";
 
 const connect_spy = jest.spyOn(Database, 'connect');
@@ -56,19 +55,19 @@ describe('DbSubscriberRepository unit tests', () => {
       const subscriptions = [
         {
           id: faker.string.uuid(),
-          subcriber_id: subscribers[0].id,
+          subscriber_id: subscribers[0].id,
           amount: faker.number.float(),
           started_at: faker.date.anytime(),
         },
         {
           id: faker.string.uuid(),
-          subcriber_id: subscribers[0].id,
+          subscriber_id: subscribers[0].id,
           amount: faker.number.float(),
           started_at: faker.date.anytime(),
         },
         {
           id: faker.string.uuid(),
-          subcriber_id: subscribers[1].id,
+          subscriber_id: subscribers[1].id,
           amount: faker.number.float(),
           started_at: faker.date.anytime(),
         }
@@ -78,592 +77,159 @@ describe('DbSubscriberRepository unit tests', () => {
         .mockResolvedValueOnce({ rows: subscribers })
         .mockResolvedValueOnce({ rows: subscriptions });
 
-      const { results, page_result } = await repository.getSubscribers({});
+      const tenant_id = faker.string.uuid();
+      const { results, page_result } = await repository.getSubscribers({ tenant_id });
 
-      expect(results[0]).toBeInstanceOf(User);
+      expect(results[0]).toBeInstanceOf(Subscriber);
       expect(results).toHaveLength(2);
       const first_subscriber = results[0].toObject();
       const second_subscriber = results[1].toObject();
       expect(first_subscriber.subscriptions).toHaveLength(2);
       expect(second_subscriber.subscriptions).toHaveLength(1);
       expect(page_result).toBeUndefined();
-      expect(query_mock).toHaveBeenCalledWith(
-        'SELECT <WIP> FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id'
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        'SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_id,tenant_id FROM users WHERE type=$1 AND tenant_id=$2',
+        ['customer', tenant_id]
+      );
+      expect(query_mock).toHaveBeenNthCalledWith(
+        2,
+        'SELECT * FROM subscriptions WHERE subscriber_id IN ($1,$2)',
+        [subscribers[0].id, subscribers[1].id]
       );
     });
 
-    it('returns a list of users when the limit of pagination is 1 and the page is 1', async () => {
-      const data = [
+    it('returns a list of subscribers when the limit of pagination is 1 and the page is 1', async () => {
+      const subscribers = [
         {
           id: faker.string.uuid(),
           email: faker.internet.email(),
-          password: faker.string.alphanumeric(),
-          access_plan_id: faker.string.uuid(),
+          document: faker.string.numeric(11),
+          phone_number: faker.string.numeric(),
+          street: faker.location.street(),
+          district: faker.location.streetAddress(),
+          state: faker.location.state({ abbreviated: true }),
+          number: faker.string.numeric(2),
+          complement: faker.string.sample(),
+          payment_type: faker.helpers.enumValue(PaymentTypes),
+          credit_card_id: faker.string.uuid(),
+          tenant_id: faker.string.uuid(),
+        },
+      ];
+
+      const subscriptions = [
+        {
+          id: faker.string.uuid(),
+          subcriber_id: subscribers[0].id,
+          amount: faker.number.float(),
+          started_at: faker.date.anytime(),
         },
         {
           id: faker.string.uuid(),
-          email: faker.internet.email(),
-          password: faker.string.alphanumeric(),
-          access_plan_id: faker.string.uuid(),
+          subcriber_id: subscribers[0].id,
+          amount: faker.number.float(),
+          started_at: faker.date.anytime(),
         }
       ];
 
       query_mock
         .mockResolvedValueOnce({ rows: [{ total: 2 }] })
-        .mockResolvedValueOnce({
-          rows: [
-            {
-              id: data[0].id,
-              email: data[0].email,
-              password: data[0].password,
-              access_plan_id: data[0].access_plan_id,
-              slug: faker.word.verb(),
-            },
-            {
-              id: data[0].id,
-              email: data[0].email,
-              password: data[0].password,
-              access_plan_id: data[0].access_plan_id,
-              slug: faker.word.verb(),
-            },
-          ]
-        });
+        .mockResolvedValueOnce({ rows: subscribers })
+        .mockResolvedValueOnce({ rows: subscriptions });
 
-      const page_options: PageOptions = {
+      const tenant_id = faker.string.uuid();
+      const page_options = {
         limit: 1,
         page: 1,
       };
 
-      const { results, page_result } = await repository.getUsers({ page_options });
+      const { results, page_result } = await repository.getSubscribers({ tenant_id, page_options });
 
-      expect(results[0]).toBeInstanceOf(User);
+      expect(results[0]).toBeInstanceOf(Subscriber);
       expect(results).toHaveLength(1);
       expect(page_result!.next_page).toEqual(2);
       expect(page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'SELECT DISTINCT count(u.id) as total FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id',
-        []
+        'SELECT count(id) as total FROM users WHERE type=$1 AND tenant_id=$2',
+        ['customer', tenant_id]
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
-        [page_options.limit, 0],
+        'SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_id,tenant_id FROM users WHERE type=$1 AND tenant_id=$2 LIMIT $3 OFFSET $4',
+        ['customer', tenant_id, page_options.limit, 0]
+      );
+      expect(query_mock).toHaveBeenNthCalledWith(
+        3,
+        'SELECT * FROM subscriptions WHERE subscriber_id IN ($1)',
+        [subscribers[0].id]
       );
     });
 
-    it('returns a list of users when the limit of pagination is 1 and the page is 2', async () => {
-      const data = [
+    it.only('returns a list of subscribers when the limit of pagination is 1 and the page is 2', async () => {
+      const subscribers = [
         {
           id: faker.string.uuid(),
           email: faker.internet.email(),
-          password: faker.string.alphanumeric(),
-          access_plan_id: faker.string.uuid(),
+          document: faker.string.numeric(11),
+          phone_number: faker.string.numeric(),
+          street: faker.location.street(),
+          district: faker.location.streetAddress(),
+          state: faker.location.state({ abbreviated: true }),
+          number: faker.string.numeric(2),
+          complement: faker.string.sample(),
+          payment_type: faker.helpers.enumValue(PaymentTypes),
+          credit_card_id: faker.string.uuid(),
+          tenant_id: faker.string.uuid(),
+        },
+      ];
+
+      const subscriptions = [
+        {
+          id: faker.string.uuid(),
+          subcriber_id: subscribers[0].id,
+          amount: faker.number.float(),
+          started_at: faker.date.anytime(),
         },
         {
           id: faker.string.uuid(),
-          email: faker.internet.email(),
-          password: faker.string.alphanumeric(),
-          access_plan_id: faker.string.uuid(),
+          subcriber_id: subscribers[0].id,
+          amount: faker.number.float(),
+          started_at: faker.date.anytime(),
         }
       ];
 
       query_mock
         .mockResolvedValueOnce({ rows: [{ total: 2 }] })
-        .mockResolvedValueOnce({
-          rows: [
-            {
-              id: data[0].id,
-              email: data[0].email,
-              password: data[0].password,
-              access_plan_id: data[0].access_plan_id,
-              slug: faker.word.verb(),
-            },
-            {
-              id: data[0].id,
-              email: data[0].email,
-              password: data[0].password,
-              access_plan_id: data[0].access_plan_id,
-              slug: faker.word.verb(),
-            },
-          ]
-        });
+        .mockResolvedValueOnce({ rows: subscribers })
+        .mockResolvedValueOnce({ rows: subscriptions });
 
-      const page_options: PageOptions = {
+      const tenant_id = faker.string.uuid();
+      const page_options = {
         limit: 1,
         page: 2,
       };
 
-      const { results, page_result } = await repository.getUsers({ page_options });
+      const { results, page_result } = await repository.getSubscribers({ tenant_id, page_options });
 
-      expect(results[0]).toBeInstanceOf(User);
+      expect(results[0]).toBeInstanceOf(Subscriber);
       expect(results).toHaveLength(1);
       expect(page_result!.next_page).toEqual(-1);
       expect(page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'SELECT DISTINCT count(u.id) as total FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id',
-        []
+        'SELECT count(id) as total FROM users WHERE type=$1 AND tenant_id=$2',
+        ['customer', tenant_id]
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
-        [page_options.limit, 1],
-      );
-    });
-
-    it('returns a list of users filtered by tenant_id', async () => {
-      const data = [
-        {
-          id: faker.string.uuid(),
-          email: faker.internet.email(),
-          password: faker.string.alphanumeric(),
-          access_plan_id: faker.string.uuid(),
-        },
-        {
-          id: faker.string.uuid(),
-          email: faker.internet.email(),
-          password: faker.string.alphanumeric(),
-          access_plan_id: faker.string.uuid(),
-        }
-      ];
-      query_mock.mockResolvedValueOnce({
-        rows: [
-          {
-            id: data[0].id,
-            email: data[0].email,
-            password: data[0].password,
-            access_plan_id: data[0].access_plan_id,
-            slug: faker.word.verb(),
-          },
-          {
-            id: data[0].id,
-            email: data[0].email,
-            password: data[0].password,
-            access_plan_id: data[0].access_plan_id,
-            slug: faker.word.verb(),
-          },
-          {
-            id: data[1].id,
-            email: data[1].email,
-            password: data[1].password,
-            access_plan_id: data[1].access_plan_id,
-            slug: faker.word.verb(),
-          },
-        ]
-      });
-
-      const tenant_id = faker.string.uuid();
-      const { results, page_result } = await repository.getUsers({ tenant_id });
-
-      expect(results[0]).toBeInstanceOf(User);
-      expect(results).toHaveLength(2);
-      expect(page_result).toBeUndefined();
-      expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.tenant_id=$1',
-        [tenant_id]
-      );
-    });
-
-    it('returns a list of users when the limit of pagination is 1, the page is 2 and is filtered by tenant_id', async () => {
-      const data = [
-        {
-          id: faker.string.uuid(),
-          email: faker.internet.email(),
-          password: faker.string.alphanumeric(),
-          access_plan_id: faker.string.uuid(),
-        },
-        {
-          id: faker.string.uuid(),
-          email: faker.internet.email(),
-          password: faker.string.alphanumeric(),
-          access_plan_id: faker.string.uuid(),
-        }
-      ];
-
-      query_mock
-        .mockResolvedValueOnce({ rows: [{ total: 2 }] })
-        .mockResolvedValueOnce({
-          rows: [
-            {
-              id: data[0].id,
-              email: data[0].email,
-              password: data[0].password,
-              access_plan_id: data[0].access_plan_id,
-              slug: faker.word.verb(),
-            },
-            {
-              id: data[0].id,
-              email: data[0].email,
-              password: data[0].password,
-              access_plan_id: data[0].access_plan_id,
-              slug: faker.word.verb(),
-            },
-          ]
-        });
-
-      const tenant_id = faker.string.uuid();
-      const page_options: PageOptions = {
-        limit: 1,
-        page: 2,
-      };
-
-      const { results, page_result } = await repository.getUsers({ tenant_id, page_options });
-
-      expect(results[0]).toBeInstanceOf(User);
-      expect(results).toHaveLength(1);
-      expect(page_result!.next_page).toEqual(-1);
-      expect(page_result!.total_of_pages).toEqual(2);
-      expect(query_mock).toHaveBeenNthCalledWith(
-        1,
-        'SELECT DISTINCT count(u.id) as total FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.tenant_id=$1',
-        [tenant_id]
-      );
-      expect(query_mock).toHaveBeenNthCalledWith(
-        2,
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.tenant_id=$1 LIMIT $2 OFFSET $3',
-        [tenant_id, page_options.limit, 1],
-      );
-    });
-  });
-
-  describe('DbSubscriberRepository.getUserById', () => {
-    it('returns an user by id', async () => {
-      const data = {
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(),
-        access_plan_id: faker.string.uuid(),
-      };
-      query_mock.mockResolvedValueOnce({
-        rows: [
-          {
-            id: data.id,
-            email: data.email,
-            password: data.password,
-            access_plan_id: data.access_plan_id,
-            slug: faker.word.verb(),
-          },
-          {
-            id: data.id,
-            email: data.email,
-            password: data.password,
-            access_plan_id: data.access_plan_id,
-            slug: faker.word.verb(),
-          },
-        ]
-      });
-
-
-      const user = await repository.getUserById(data.id);
-
-      expect(user).toBeInstanceOf(User);
-      expect(user?.toObject().policies).toHaveLength(2);
-      expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.id = $1',
-        [data.id]
-      );
-    });
-
-    it("returns NULL if user doesn't exist", async () => {
-      query_mock.mockResolvedValueOnce({
-        rows: []
-      });
-
-      const user_id = faker.string.uuid();
-      const user = await repository.getUserById(user_id);
-
-      expect(user).toBeNull()
-      expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.id = $1',
-        [user_id]
-      );
-    });
-  });
-
-  describe('DbSubscriberRepository.getUserByEmail', () => {
-    it('returns an user by email', async () => {
-      const data = {
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(),
-        access_plan_id: faker.string.uuid(),
-      };
-      query_mock.mockResolvedValueOnce({
-        rows: [
-          {
-            id: data.id,
-            email: data.email,
-            password: data.password,
-            access_plan_id: data.access_plan_id,
-            slug: faker.word.verb(),
-          },
-          {
-            id: data.id,
-            email: data.email,
-            password: data.password,
-            access_plan_id: data.access_plan_id,
-            slug: faker.word.verb(),
-          },
-        ]
-      });
-
-      const user = await repository.getUserByEmail(data.email);
-
-      expect(user).toBeInstanceOf(User);
-      expect(user?.toObject().policies).toHaveLength(2);
-      expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE email = $1',
-        [data.email]
-      );
-    });
-
-    it("returns NULL if user doesn't exist", async () => {
-      query_mock.mockResolvedValueOnce({
-        rows: []
-      });
-
-      const user_email = faker.internet.email();
-      const user = await repository.getUserByEmail(user_email);
-
-      expect(user).toBeNull()
-      expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE email = $1',
-        [user_email]
-      );
-    });
-  });
-
-  describe('DbSubscriberRepository.createUser', () => {
-    it('creates an user', async () => {
-      const policies = [faker.word.verb(), faker.word.verb()];
-      const rows = [
-        {
-          id: faker.string.uuid(),
-        },
-        {
-          id: faker.string.uuid(),
-        }
-      ];
-
-      query_mock
-        .mockResolvedValueOnce({})
-        .mockResolvedValueOnce({ rows });
-
-      const user_obj = {
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(),
-        policies,
-        access_plan_id: faker.string.uuid(),
-        tenant_id: faker.string.uuid()
-      };
-
-      const user = new User(user_obj);
-
-      await repository.createUser(user);
-
-      expect(query_mock).toHaveBeenCalledTimes(3);
-      expect(query_mock).toHaveBeenNthCalledWith(
-        1,
-        'INSERT INTO users (id,email,password,access_plan_id,tenant_id) VALUES ($1,$2,$3,$4,$5)',
-        [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id, user_obj.tenant_id],
-      );
-      expect(query_mock).toHaveBeenNthCalledWith(
-        2,
-        `SELECT id FROM policies WHERE slug IN ($1,$2)`,
-        policies,
+        'SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_id,tenant_id FROM users WHERE type=$1 AND tenant_id=$2 LIMIT $3 OFFSET $4',
+        ['customer', tenant_id, page_options.limit, 1]
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         3,
-        'INSERT INTO user_policies (user_id, policy_id) VALUES ($1, $2), ($1, $3)',
-        [user_obj.id, rows[0].id, rows[1].id],
-      );
-    });
-
-    it("doesn't insert policies if user doesn't have any policy attached", async () => {
-      query_mock
-        .mockResolvedValueOnce({});
-
-      const user_obj = {
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(),
-        policies: [],
-        access_plan_id: faker.string.uuid(),
-      };
-
-      const user = new User(user_obj);
-
-      await repository.createUser(user);
-
-      expect(query_mock).toHaveBeenCalledTimes(1);
-      expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO users (id,email,password,access_plan_id) VALUES ($1,$2,$3,$4)',
-        [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id],
-      );
-    });
-
-    it("should ignore the access_plan_id when it is passed as undefined", async () => {
-      query_mock
-        .mockResolvedValueOnce({});
-
-      const user_obj = {
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(),
-        policies: [],
-        tenant_id: faker.string.uuid()
-      };
-
-      const user = new User(user_obj);
-
-      await repository.createUser(user);
-
-      expect(query_mock).toHaveBeenCalledTimes(1);
-      expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO users (id,email,password,tenant_id) VALUES ($1,$2,$3,$4)',
-        [user_obj.id, user_obj.email, user_obj.password, user_obj.tenant_id],
-      );
-    });
-
-    it("should ignore the tenant_id when it is passed as undefined", async () => {
-      query_mock
-        .mockResolvedValueOnce({});
-
-      const user_obj = {
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(),
-        policies: [],
-        access_plan_id: faker.string.uuid(),
-      };
-
-      const user = new User(user_obj);
-
-      await repository.createUser(user);
-
-      expect(query_mock).toHaveBeenCalledTimes(1);
-      expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO users (id,email,password,access_plan_id) VALUES ($1,$2,$3,$4)',
-        [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id],
-      );
-    });
-
-    it("should ignore both tenant_id and access_plan_id", async () => {
-      query_mock
-        .mockResolvedValueOnce({});
-
-      const user_obj = {
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(),
-        policies: [],
-      };
-
-      const user = new User(user_obj);
-
-      await repository.createUser(user);
-
-      expect(query_mock).toHaveBeenCalledTimes(1);
-      expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO users (id,email,password) VALUES ($1,$2,$3)',
-        [user_obj.id, user_obj.email, user_obj.password],
-      );
-    });
-  });
-
-  describe('DbSubscriberRepository.updateUser', () => {
-    it("updates an user", async () => {
-      query_mock
-        .mockResolvedValueOnce({});
-
-      const user_obj = {
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(),
-        access_plan_id: faker.string.uuid(),
-        policies: [],
-      };
-
-      const user = new User(user_obj);
-
-      await repository.updateUser(user);
-
-      expect(query_mock).toHaveBeenCalledWith(
-        'UPDATE users SET email=$2,password=$3,access_plan_id=$4 WHERE id = $1',
-        [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id],
-      );
-    });
-
-    it("updates an user without access_plan_id", async () => {
-      query_mock
-        .mockResolvedValueOnce({});
-
-      const user_obj = {
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(),
-        policies: [],
-      };
-
-      const user = new User(user_obj);
-
-      await repository.updateUser(user);
-
-      expect(query_mock).toHaveBeenCalledWith(
-        'UPDATE users SET email=$2,password=$3 WHERE id = $1',
-        [user_obj.id, user_obj.email, user_obj.password],
-      );
-    });
-
-    it("updates an user with policies", async () => {
-      const policies = [faker.word.verb(), faker.word.verb()];
-      const rows = [
-        {
-          id: faker.string.uuid(),
-        },
-        {
-          id: faker.string.uuid(),
-        }
-      ];
-      query_mock
-        .mockResolvedValueOnce({})
-        .mockResolvedValueOnce({})
-        .mockResolvedValueOnce({ rows })
-        .mockResolvedValueOnce({});
-
-
-      const user_obj = {
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.string.alphanumeric(),
-        policies,
-      };
-
-      const user = new User(user_obj);
-
-      await repository.updateUser(user);
-
-      expect(query_mock).toHaveBeenNthCalledWith(
-        1,
-        'UPDATE users SET email=$2,password=$3 WHERE id = $1',
-        [user_obj.id, user_obj.email, user_obj.password],
-      );
-      expect(query_mock).toHaveBeenNthCalledWith(
-        2,
-        'DELETE FROM user_policies WHERE user_id = $1',
-        [user_obj.id],
-      );
-      expect(query_mock).toHaveBeenNthCalledWith(
-        3,
-        'SELECT id FROM policies WHERE slug IN ($1,$2)',
-        policies,
-      );
-      expect(query_mock).toHaveBeenNthCalledWith(
-        4,
-        'INSERT INTO user_policies (user_id, policy_id) VALUES ($1, $2), ($1, $3)',
-        [user_obj.id, rows[0].id, rows[1].id],
+        'SELECT * FROM subscriptions WHERE subscriber_id IN ($1)',
+        [subscribers[0].id]
       );
     });
   });

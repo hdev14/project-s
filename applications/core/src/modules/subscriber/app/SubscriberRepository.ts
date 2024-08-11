@@ -3,7 +3,7 @@ import Subscriber from "@subscriber/domain/Subscriber";
 
 export type SubscribersFilter = {
   tenant_id: string;
-  page_options: PageOptions;
+  page_options?: PageOptions;
 }
 
 export default interface SubscriberRepository {

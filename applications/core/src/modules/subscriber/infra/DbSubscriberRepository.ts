@@ -1,11 +1,117 @@
-import { PaginatedResult } from "@shared/utils/Pagination";
+import Database from "@shared/infra/Database";
+import Collection from "@shared/utils/Collection";
+import DbUtils from "@shared/utils/DbUtils";
+import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
 import SubscriberRepository, { SubscribersFilter } from "@subscriber/app/SubscriberRepository";
 import Subscriber from "@subscriber/domain/Subscriber";
+import { SubscriptionObject } from "@subscriber/domain/Subscription";
+import { Pool } from "pg";
 
 export default class DbSubscriberRepository implements SubscriberRepository {
-  getSubscribers(filter: SubscribersFilter): Promise<PaginatedResult<Subscriber>> {
-    throw new Error("Method not implemented.");
+  #db: Pool;
+
+  constructor() {
+    this.#db = Database.connect();
   }
+
+  async getSubscribers(filter: SubscribersFilter): Promise<PaginatedResult<Subscriber>> {
+    const { rows, page_result } = await this.selectSubscribers(filter);
+
+    const subscriber_ids = [];
+
+    for (let idx = 0; idx < rows.length; idx++) {
+      subscriber_ids.push(rows[idx].id);
+    }
+
+    const { rows: subscription_rows } = await this.#db.query(
+      `SELECT * FROM subscriptions WHERE subscriber_id ${DbUtils.inOperator(subscriber_ids)}`,
+      subscriber_ids
+    );
+
+    const subscribers: Subscriber[] = [];
+
+    for (let idx = 0; idx < rows.length; idx++) {
+      const subscriber_row = rows[idx];
+      const subscriptions: SubscriptionObject[] = [];
+
+      for (let h = 0; h < subscription_rows.length; h++) {
+        const subscription_row = subscription_rows[h];
+        if (subscription_row.subscriber_id === subscriber_row.id) {
+          subscriptions.push({
+            id: subscription_row.id,
+            amount: subscription_row.amount,
+            started_at: subscription_row.started_at,
+          });
+        }
+      }
+
+      subscribers.push(new Subscriber({
+        id: subscriber_row.id,
+        email: subscriber_row.email,
+        document: subscriber_row.document,
+        phone_number: subscriber_row.phone_number,
+        tenant_id: subscriber_row.tenant_id,
+        address: {
+          street: subscriber_row.street,
+          district: subscriber_row.district,
+          number: subscriber_row.number,
+          state: subscriber_row.state,
+          complement: subscriber_row.state,
+        },
+        payment_method: {
+          payment_type: subscriber_row.payment_type,
+          credit_card_id: subscriber_row.credit_card_id,
+        },
+        subscriptions,
+      }));
+    }
+
+    return { results: new Collection(subscribers), page_result };
+  }
+
+  private async selectSubscribers(filter: SubscribersFilter) {
+    const columns = [
+      'id',
+      'email',
+      'document',
+      'phone_number',
+      'street',
+      'district',
+      'state',
+      'number',
+      'complement',
+      'payment_type',
+      'credit_card_id',
+      'tenant_id',
+    ].toString();
+    const where_obj = { type: 'customer', tenant_id: filter.tenant_id };
+    const query = `SELECT ${columns} FROM users WHERE ${DbUtils.andOperator(where_obj)}`;
+    const values: unknown[] = Object.values(where_obj);
+
+    if (filter.page_options) {
+      const offset = Pagination.calculateOffset(filter.page_options);
+      const count_query = `SELECT count(id) as total FROM users WHERE ${DbUtils.andOperator(where_obj)}`;
+      const count_result = await this.#db.query(count_query, DbUtils.sanitizeValues(values));
+
+      const paginated_query = query + ' LIMIT $3 OFFSET $4';
+
+      const { rows } = await this.#db.query(
+        paginated_query,
+        DbUtils.sanitizeValues(values.concat([filter.page_options.limit, offset]))
+      );
+
+      const page_result = (count_result.rows[0].total !== undefined && count_result.rows[0].total > 0)
+        ? Pagination.calculatePageResult(count_result.rows[0].total, filter!.page_options!)
+        : undefined;
+
+      return { rows, page_result };
+    }
+
+    const { rows } = await this.#db.query(query, DbUtils.sanitizeValues(values));
+
+    return { rows };
+  }
+
   createSubscriber(subscriber: Subscriber): Promise<void> {
     throw new Error("Method not implemented.");
   }

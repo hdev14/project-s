@@ -6,7 +6,11 @@ export default class SubscriberService {
     return Either.left(new Error());
   }
 
-  async updateSubscriber(params: {}): Promise<Either<SubscriberObject>> {
+  async updateSubscriber(params: {}): Promise<Either<void>> {
+    return Either.left(new Error());
+  }
+
+  async updatePaymentMethod(params: {}): Promise<Either<void>> {
     return Either.left(new Error());
   }
 }

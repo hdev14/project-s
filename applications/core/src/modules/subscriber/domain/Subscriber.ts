@@ -5,7 +5,9 @@ import Subscription, { SubscriptionObject } from "./Subscription";
 
 export type SubscriberObject = {
   id?: string;
+  email: string;
   document: string;
+  phone_number: string;
   address: AddressValue;
   subscriptions: Array<SubscriptionObject>;
   payment_method: PaymentMethodValue;
@@ -13,6 +15,8 @@ export type SubscriberObject = {
 
 export default class Subscriber extends Aggregate<SubscriberObject> implements AggregateRoot {
   #document: string;
+  #email: string;
+  #phone_number: string;
   #address: Address;
   #subscriptions: Array<Subscription> = [];
   #payment_method: PaymentMethod
@@ -20,6 +24,8 @@ export default class Subscriber extends Aggregate<SubscriberObject> implements A
   constructor(obj: SubscriberObject) {
     super(obj.id);
     this.#document = obj.document;
+    this.#email = obj.email;
+    this.#phone_number = obj.phone_number;
     this.#address = new Address(
       obj.address.state,
       obj.address.street,
@@ -43,6 +49,8 @@ export default class Subscriber extends Aggregate<SubscriberObject> implements A
     return {
       id: this.id,
       document: this.#document,
+      email: this.#email,
+      phone_number: this.#phone_number,
       address: this.#address,
       payment_method: this.#payment_method,
       subscriptions,

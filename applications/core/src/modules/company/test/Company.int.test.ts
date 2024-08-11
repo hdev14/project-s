@@ -4,12 +4,15 @@ import CatalogModule from '@catalog/infra/CatalogModule';
 import { TaxTypes } from '@company/domain/Commission';
 import CompanyModule from '@company/infra/CompanyModule';
 import { faker } from '@faker-js/faker';
+import { Policies } from '@shared/infra/Principal';
 import SharedModule from '@shared/infra/SharedModule';
 import cleanUpDatabase from '@shared/infra/test_utils/cleanUpDatabase';
 import CatalogItemFactory from '@shared/infra/test_utils/factories/CatalogItemFactory';
 import CommissionFactory from '@shared/infra/test_utils/factories/CommissionFactory';
+import PolicyFactory from '@shared/infra/test_utils/factories/PolicyFactory';
 import ServiceLogFactory from '@shared/infra/test_utils/factories/ServiceLogFactory';
 import UserFactory from '@shared/infra/test_utils/factories/UserFactory';
+import '@shared/infra/test_utils/matchers/toBeNullInDatabase';
 import '@shared/infra/test_utils/matchers/toEqualInDatabase';
 import types from '@shared/infra/types';
 import Application from 'src/Application';
@@ -30,6 +33,7 @@ describe('Company integration tests', () => {
   const catalog_item_factory = new CatalogItemFactory();
   const service_log_factory = new ServiceLogFactory();
   const commission_factory = new CommissionFactory();
+  const policy_facotry = new PolicyFactory();
 
   afterEach(cleanUpDatabase);
 
@@ -404,7 +408,80 @@ describe('Company integration tests', () => {
     });
   });
 
-  it.todo('POST: /api/companies/:company_id/employees');
+  describe('POST: /api/companies/:company_id/employees', () => {
+    it("should return status code 404 if tenant doesn't exist", async () => {
+      const response = await request
+        .post(`/api/companies/${faker.string.uuid()}/employees`)
+        .set('Content-Type', 'application/json')
+        .send({
+          name: faker.person.fullName(),
+          email: faker.internet.email(),
+          document: faker.string.numeric(11),
+          policies: []
+        });
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Empresa não encontrada');
+    });
+
+    it("should return status code 400 data is invalid", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      const response = await request
+        .post(`/api/companies/${company.id}/employees`)
+        .set('Content-Type', 'application/json')
+        .send({
+          name: faker.number.float(),
+          email: faker.string.sample(),
+          document: faker.string.numeric(5),
+          policies: faker.string.sample(),
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(4);
+    });
+
+    it("creates a new employee", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+      });
+
+      await policy_facotry.createOne({
+        id: faker.string.uuid(),
+        slug: Policies.LIST_USERS,
+        description: Policies.LIST_USERS,
+      });
+
+      const data = {
+        name: faker.person.fullName(),
+        email: faker.internet.email(),
+        document: faker.string.numeric(11),
+        policies: [Policies.LIST_USERS]
+      };
+
+      const response = await request
+        .post(`/api/companies/${company.id}/employees`)
+        .set('Content-Type', 'application/json')
+        .send(data);
+
+      expect(response.status).toEqual(201);
+      expect(response.body).toHaveProperty('id');
+      expect(response.body).toHaveProperty('email');
+      expect(response.body).toHaveProperty('document');
+      await expect({
+        name: data.name,
+        email: data.email,
+        document: data.document,
+        tenant_id: company.id,
+      }).toEqualInDatabase('users', response.body.id);
+    });
+  });
 
   describe('DELETE: /api/companies/:company_id/employees/:employee_id', () => {
     const { token } = auth_token_manager.generateToken({
@@ -451,10 +528,7 @@ describe('Company integration tests', () => {
         .send();
 
       expect(response.status).toEqual(204);
-      const result = await globalThis.db.query('SELECT * FROM users WHERE id = $1', [employee.id]);
-
-      expect(result.rows[0].deactivated_at).not.toBeNull();
-      expect(result.rows[0].deactivated_at).toBeInstanceOf(Date);
+      await expect('deactivated_at').not.toBeNullInDatabase('users', employee.id!);
     });
   });
 

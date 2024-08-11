@@ -18,6 +18,7 @@ import {
 } from "inversify-express-utils";
 import {
   create_commission_validation_schema,
+  create_employee_validation_schema,
   create_service_log_validation_schema,
   update_commission_validation_schema,
   update_company_address_validation_schema,
@@ -138,9 +139,32 @@ export default class CompanyController extends BaseHttpController {
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
-  @httpPost('/:company_id/employees')
-  async createEmployee() {
-    return this.ok();
+  @httpPost(
+    '/:company_id/employees',
+    requestValidator(create_employee_validation_schema)
+  )
+  async createEmployee(@request() req: Request) {
+    const { company_id } = req.params;
+    const {
+      document,
+      email,
+      name,
+      policies,
+    } = req.body;
+
+    const [data, error] = await this.company_service.createEmployee({
+      document,
+      email,
+      name,
+      policies,
+      tenant_id: company_id,
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    return this.json(data, HttpStatusCodes.CREATED);
   }
 
   @httpDelete('/:company_id/employees/:employee_id')

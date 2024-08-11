@@ -126,3 +126,26 @@ export const update_commission_validation_schema: Schema = {
     }
   },
 };
+
+export const create_employee_validation_schema: Schema = {
+  name: {
+    isString: true,
+    errorMessage: 'validation.text',
+  },
+  email: {
+    isEmail: true,
+    errorMessage: 'validation.email'
+  },
+  document: {
+    isString: true,
+    errorMessage: 'validation.text',
+    isLength: {
+      options: { min: 11 },
+      errorMessage: 'validation.length',
+    }
+  },
+  policies: {
+    isArray: true,
+    errorMessage: 'validation.array'
+  },
+};

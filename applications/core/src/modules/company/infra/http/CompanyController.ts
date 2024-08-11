@@ -1,4 +1,5 @@
 import CompanyService from "@company/app/CompanyService";
+import AlreadyRegisteredError from "@shared/errors/AlreadyRegisteredError";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
@@ -18,6 +19,7 @@ import {
 } from "inversify-express-utils";
 import {
   create_commission_validation_schema,
+  create_company_validation_schema,
   create_employee_validation_schema,
   create_service_log_validation_schema,
   update_commission_validation_schema,
@@ -32,9 +34,36 @@ export default class CompanyController extends BaseHttpController {
     super();
   }
 
-  @httpPost('/')
+  @httpPost('/', requestValidator(create_company_validation_schema))
   async createCompany(@request() req: Request) {
-    return this.ok();
+    const {
+      access_plan_id,
+      address,
+      bank,
+      document,
+      email,
+      name,
+    } = req.body;
+
+    const [data, error] = await this.company_service.createCompany({
+      access_plan_id,
+      address,
+      bank,
+      document,
+      email,
+      name,
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    if (error instanceof AlreadyRegisteredError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.CONFLICT);
+    }
+
+
+    return this.json(data, HttpStatusCodes.CREATED);
   }
 
   @httpGet('/')

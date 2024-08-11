@@ -49,7 +49,7 @@ export default class DbCompanyRepository implements CompanyRepository {
   async documentExists(document: string): Promise<boolean> {
     const result = await this.#db.query(`${this.#count_query} AND document = $1`, [document]);
 
-    return !!result.rows[0].total;
+    return Boolean(parseInt(result.rows[0].total));
   }
 
   async getCompanies(filter?: CompaniesFilter): Promise<PaginatedResult<Company>> {

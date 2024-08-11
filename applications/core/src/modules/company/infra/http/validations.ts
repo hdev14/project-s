@@ -149,3 +149,91 @@ export const create_employee_validation_schema: Schema = {
     errorMessage: 'validation.array'
   },
 };
+
+export const create_company_validation_schema: Schema = {
+  name: {
+    isString: true,
+    errorMessage: 'validation.text',
+  },
+  email: {
+    isEmail: true,
+    errorMessage: 'validation.email'
+  },
+  document: {
+    isNumeric: true,
+    errorMessage: 'validation.number',
+    isLength: {
+      options: { min: 14 },
+      errorMessage: 'validation.length',
+    }
+  },
+  access_plan_id: {
+    isUUID: true,
+    errorMessage: 'validation.id',
+  },
+  'address.street': {
+    isString: true,
+    errorMessage: 'validation.text',
+  },
+  'address.district': {
+    isString: true,
+    errorMessage: 'validation.text',
+  },
+  'address.state': {
+    isString: true,
+    errorMessage: 'validation.text',
+    isLength: {
+      options: { max: 2 },
+      errorMessage: 'validation.state'
+    }
+  },
+  'address.number': {
+    isString: true,
+    errorMessage: 'validation.text',
+  },
+  'address.complement': {
+    optional: true,
+    isString: true,
+    errorMessage: 'validation.text',
+  },
+  'bank.account': {
+    isNumeric: true,
+    errorMessage: 'validation.number',
+    isLength: {
+      options: { max: 10 },
+      errorMessage: 'validation.length',
+    }
+  },
+  'bank.account_digit': {
+    isNumeric: true,
+    errorMessage: 'validation.number',
+    isLength: {
+      options: { max: 2 },
+      errorMessage: 'validation.length',
+    }
+  },
+  'bank.agency': {
+    isNumeric: true,
+    errorMessage: 'validation.number',
+    isLength: {
+      options: { max: 6 },
+      errorMessage: 'validation.length',
+    }
+  },
+  'bank.agency_digit': {
+    isNumeric: true,
+    errorMessage: 'validation.number',
+    isLength: {
+      options: { max: 2 },
+      errorMessage: 'validation.length',
+    }
+  },
+  'bank.bank_code': {
+    isNumeric: true,
+    errorMessage: 'validation.number',
+    isLength: {
+      options: { max: 4 },
+      errorMessage: 'validation.length',
+    }
+  },
+};

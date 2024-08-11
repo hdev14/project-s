@@ -169,7 +169,11 @@ export default class CompanyService {
 
       return Either.right(company.toObject());
     } catch (error: any) {
-      return Either.left(error);
+      if (error instanceof NotFoundError) {
+        return Either.left(error);
+      }
+
+      throw error;
     }
   }
 

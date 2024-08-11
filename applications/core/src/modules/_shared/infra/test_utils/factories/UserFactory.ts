@@ -1,8 +1,9 @@
 import { UserObject } from "@auth/domain/User";
+import { CompanyObject } from "@company/domain/Company";
 import DbUtils from "@shared/utils/DbUtils";
 import Factory from "./Factory";
 
-export type UserData = Omit<UserObject, 'policies'>;
+export type UserData = Omit<UserObject, 'policies'> & Partial<CompanyObject>;
 
 export default class UserFactory implements Factory<UserData> {
   async createOne(item: UserData): Promise<UserData> {

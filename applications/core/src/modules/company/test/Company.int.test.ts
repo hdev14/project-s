@@ -1,4 +1,6 @@
 import AuthTokenManager from '@auth/app/AuthTokenManager';
+import { AccessPlanTypes } from '@auth/domain/AccessPlan';
+import { PolicyObject } from '@auth/domain/Policy';
 import AuthModule from '@auth/infra/AuthModule';
 import CatalogModule from '@catalog/infra/CatalogModule';
 import { TaxTypes } from '@company/domain/Commission';
@@ -7,6 +9,7 @@ import { faker } from '@faker-js/faker';
 import { Policies } from '@shared/infra/Principal';
 import SharedModule from '@shared/infra/SharedModule';
 import cleanUpDatabase from '@shared/infra/test_utils/cleanUpDatabase';
+import AccessPlanFactory from '@shared/infra/test_utils/factories/AccessPlanFactory';
 import CatalogItemFactory from '@shared/infra/test_utils/factories/CatalogItemFactory';
 import CommissionFactory from '@shared/infra/test_utils/factories/CommissionFactory';
 import PolicyFactory from '@shared/infra/test_utils/factories/PolicyFactory';
@@ -34,10 +37,184 @@ describe('Company integration tests', () => {
   const service_log_factory = new ServiceLogFactory();
   const commission_factory = new CommissionFactory();
   const policy_facotry = new PolicyFactory();
+  const access_plan_factory = new AccessPlanFactory();
 
   afterEach(cleanUpDatabase);
 
-  it.todo('POST: /api/companies');
+  describe('POST: /api/companies', () => {
+    it("returns status code 409 if company's document already exists", async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        document: faker.string.numeric(14),
+      });
+
+      const response = await request
+        .post('/api/companies')
+        .set('Content-Type', 'application/json')
+        .send({
+          name: faker.company.name(),
+          email: faker.internet.email(),
+          document: company.document,
+          bank: {
+            account: faker.string.numeric(5),
+            account_digit: faker.string.numeric(1),
+            agency: faker.string.numeric(5),
+            agency_digit: faker.string.numeric(1),
+            bank_code: faker.string.numeric(3),
+          },
+          address: {
+            street: faker.location.street(),
+            district: faker.location.streetAddress(),
+            state: faker.location.state({ abbreviated: true }),
+            number: faker.location.buildingNumber(),
+            complement: faker.string.sample(),
+          },
+          access_plan_id: faker.string.uuid(),
+        });
+
+      expect(response.status).toEqual(409);
+      expect(response.body.message).toEqual('CNPJ já cadastrado');
+    });
+
+    it("returns status code 400 if data is invalid", async () => {
+      const response = await request
+        .post('/api/companies')
+        .set('Content-Type', 'application/json')
+        .send({
+          name: faker.number.int(),
+          email: faker.string.sample(),
+          document: faker.string.numeric(10),
+          bank: {
+            account: faker.number.float(),
+            account_digit: faker.number.float(),
+            agency: faker.number.float(),
+            agency_digit: faker.number.float(),
+            bank_code: faker.number.float(),
+          },
+          address: {
+            street: faker.number.float(),
+            district: faker.number.float(),
+            state: faker.number.float(),
+            number: faker.number.float(),
+            complement: faker.number.float(),
+          },
+          access_plan_id: faker.string.sample(),
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(15);
+    });
+
+    it('creates a new company', async () => {
+      const policies: PolicyObject[] = [];
+      const slugs = Object.values(Policies);
+
+      for (let idx = 0; idx < slugs.length; idx++) {
+        policies.push({
+          id: faker.string.uuid(),
+          slug: slugs[idx],
+        });
+      }
+
+      await policy_facotry.createMany(policies);
+      const access_plan = await access_plan_factory.createOne({
+        id: faker.string.uuid(),
+        active: true,
+        amount: faker.number.float(),
+        type: faker.helpers.enumValue(AccessPlanTypes),
+      });
+
+      const data = {
+        name: faker.company.name(),
+        email: faker.internet.email(),
+        document: faker.string.numeric(14),
+        bank: {
+          account: faker.string.numeric(5),
+          account_digit: faker.string.numeric(1),
+          agency: faker.string.numeric(5),
+          agency_digit: faker.string.numeric(1),
+          bank_code: faker.string.numeric(3),
+        },
+        address: {
+          street: faker.location.street(),
+          district: faker.location.streetAddress(),
+          state: faker.location.state({ abbreviated: true }),
+          number: faker.location.buildingNumber(),
+          complement: faker.string.sample(),
+        },
+        access_plan_id: access_plan.id
+      };
+
+      const response = await request
+        .post('/api/companies')
+        .set('Content-Type', 'application/json')
+        .send(data);
+
+      expect(response.status).toEqual(201);
+      expect(response.body).toHaveProperty('id');
+      await expect({
+        name: data.name,
+        email: data.email,
+        document: data.document,
+        account: data.bank.account,
+        account_digit: data.bank.account_digit,
+        agency: data.bank.agency,
+        agency_digit: data.bank.agency_digit,
+        bank_code: data.bank.bank_code,
+        street: data.address.street,
+        district: data.address.district,
+        state: data.address.state,
+        number: data.address.number,
+        complement: data.address.complement,
+        access_plan_id: data.access_plan_id,
+      }).toEqualInDatabase('users', response.body.id);
+    });
+
+    it("returns status code 404 if access plan doesn't exist", async () => {
+      const policies: PolicyObject[] = [];
+      const slugs = Object.values(Policies);
+
+      for (let idx = 0; idx < slugs.length; idx++) {
+        policies.push({
+          id: faker.string.uuid(),
+          slug: slugs[idx],
+        });
+      }
+
+      await policy_facotry.createMany(policies);
+
+      const data = {
+        name: faker.company.name(),
+        email: faker.internet.email(),
+        document: faker.string.numeric(14),
+        bank: {
+          account: faker.string.numeric(5),
+          account_digit: faker.string.numeric(1),
+          agency: faker.string.numeric(5),
+          agency_digit: faker.string.numeric(1),
+          bank_code: faker.string.numeric(3),
+        },
+        address: {
+          street: faker.location.street(),
+          district: faker.location.streetAddress(),
+          state: faker.location.state({ abbreviated: true }),
+          number: faker.location.buildingNumber(),
+          complement: faker.string.sample(),
+        },
+        access_plan_id: faker.string.uuid(),
+      };
+
+      const response = await request
+        .post('/api/companies')
+        .set('Content-Type', 'application/json')
+        .send(data);
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Plano de acesso não encontrado');
+    });
+  });
 
   describe('GET: /api/companies', () => {
     const { token } = auth_token_manager.generateToken({

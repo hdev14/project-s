@@ -1,9 +1,9 @@
-import PaginationOptions from "@shared/PaginationOptions";
-import SubscriberRepository from "@subscriber/app/SubscriberRepository";
+import { PaginatedResult } from "@shared/utils/Pagination";
+import SubscriberRepository, { SubscribersFilter } from "@subscriber/app/SubscriberRepository";
 import Subscriber from "@subscriber/domain/Subscriber";
 
 export default class DbSubscriberRepository implements SubscriberRepository {
-  getSubscribers(pagination: PaginationOptions): Promise<Subscriber[]> {
+  getSubscribers(filter: SubscribersFilter): Promise<PaginatedResult<Subscriber>> {
     throw new Error("Method not implemented.");
   }
   createSubscriber(subscriber: Subscriber): Promise<void> {

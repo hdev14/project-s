@@ -70,4 +70,4 @@ This is an idea of SaaS to manage service and product subscriptions. The project
 
 ## Technologies
 
-[typescript](), [nodej](), [nextjs](), [react](), [exress](), [inversify](), [jest](), [pg](), etc.
+[typescript](), [nodej](), [nextjs](), [react](), [express](), [inversify](), [jest](), [pg](), etc.

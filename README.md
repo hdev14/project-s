@@ -1,4 +1,4 @@
-# Project S
+# Project S [Build in Public]
 This is an idea of SaaS to manage service and product subscriptions. The project is design to support mult-tenant users and it is being implemented with the best software's practices, such as DDD, TDD, Hexagonal Architecutre, Clean Architecture and Modular Architecture.
 
 1. [Setup](#setup)

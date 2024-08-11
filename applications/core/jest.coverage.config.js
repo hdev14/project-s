@@ -11,7 +11,7 @@ module.exports = {
       '!**/__mocks__/**'
     ],
     clearMocks: true,
-    setupFilesAfterEnv: ["<rootDir>/src/__tests__/setup.ts"],
+    setupFilesAfterEnv: ["<rootDir>/src/test_setup.ts"],
     testMatch: [
       "**/*.int.test.ts",
       "**/*.unit.test.ts"

@@ -16,7 +16,7 @@ This is an idea of SaaS to manage service and product subscriptions. The project
 - setup
 - docker compose
 
-### Migration
+### Database Migration
 - setup
 
 ## Architecture & Code Design

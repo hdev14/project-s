@@ -166,7 +166,7 @@ describe('DbSubscriberRepository unit tests', () => {
       );
     });
 
-    it.only('returns a list of subscribers when the limit of pagination is 1 and the page is 2', async () => {
+    it('returns a list of subscribers when the limit of pagination is 1 and the page is 2', async () => {
       const subscribers = [
         {
           id: faker.string.uuid(),
@@ -230,6 +230,77 @@ describe('DbSubscriberRepository unit tests', () => {
         3,
         'SELECT * FROM subscriptions WHERE subscriber_id IN ($1)',
         [subscribers[0].id]
+      );
+    });
+  });
+
+  describe('DbSubscriberRepository.getSubscriberById', () => {
+    it('returns a subscriber by id', async () => {
+      const subscribers = [
+        {
+          id: faker.string.uuid(),
+          email: faker.internet.email(),
+          document: faker.string.numeric(11),
+          phone_number: faker.string.numeric(),
+          street: faker.location.street(),
+          district: faker.location.streetAddress(),
+          state: faker.location.state({ abbreviated: true }),
+          number: faker.string.numeric(2),
+          complement: faker.string.sample(),
+          payment_type: faker.helpers.enumValue(PaymentTypes),
+          credit_card_id: faker.string.uuid(),
+          tenant_id: faker.string.uuid(),
+        },
+      ];
+
+      const subscriptions = [
+        {
+          id: faker.string.uuid(),
+          subscriber_id: subscribers[0].id,
+          amount: faker.number.float(),
+          started_at: faker.date.anytime(),
+        },
+        {
+          id: faker.string.uuid(),
+          subscriber_id: subscribers[0].id,
+          amount: faker.number.float(),
+          started_at: faker.date.anytime(),
+        },
+      ];
+
+      query_mock
+        .mockResolvedValueOnce({ rows: subscribers })
+        .mockResolvedValueOnce({ rows: subscriptions });
+
+      const subscriber_id = faker.string.uuid();
+      const subscriber = await repository.getSubcriberById(subscriber_id);
+
+      expect(subscriber).toBeInstanceOf(Subscriber);
+      expect(subscriber!.toObject().subscriptions).toHaveLength(2);
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        'SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_id,tenant_id FROM users WHERE id = $1',
+        [subscriber_id]
+      );
+      expect(query_mock).toHaveBeenNthCalledWith(
+        2,
+        'SELECT * FROM subscriptions WHERE subscriber_id = $1',
+        [subscribers[0].id]
+      );
+    });
+
+    it("returns NULL if subscriber doesn't exist", async () => {
+      query_mock
+        .mockResolvedValueOnce({ rows: [] });
+
+      const subscriber_id = faker.string.uuid();
+      const subscriber = await repository.getSubcriberById(subscriber_id);
+
+      expect(subscriber).toBeNull()
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        'SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_id,tenant_id FROM users WHERE id = $1',
+        [subscriber_id]
       );
     });
   });

@@ -9,6 +9,20 @@ import { Pool } from "pg";
 
 export default class DbSubscriberRepository implements SubscriberRepository {
   #db: Pool;
+  static #subscriber_columns = [
+    'id',
+    'email',
+    'document',
+    'phone_number',
+    'street',
+    'district',
+    'state',
+    'number',
+    'complement',
+    'payment_type',
+    'credit_card_id',
+    'tenant_id',
+  ];
 
   constructor() {
     this.#db = Database.connect();
@@ -32,18 +46,6 @@ export default class DbSubscriberRepository implements SubscriberRepository {
 
     for (let idx = 0; idx < rows.length; idx++) {
       const subscriber_row = rows[idx];
-      const subscriptions: SubscriptionObject[] = [];
-
-      for (let h = 0; h < subscription_rows.length; h++) {
-        const subscription_row = subscription_rows[h];
-        if (subscription_row.subscriber_id === subscriber_row.id) {
-          subscriptions.push({
-            id: subscription_row.id,
-            amount: subscription_row.amount,
-            started_at: subscription_row.started_at,
-          });
-        }
-      }
 
       subscribers.push(new Subscriber({
         id: subscriber_row.id,
@@ -62,30 +64,33 @@ export default class DbSubscriberRepository implements SubscriberRepository {
           payment_type: subscriber_row.payment_type,
           credit_card_id: subscriber_row.credit_card_id,
         },
-        subscriptions,
+        subscriptions: this.mapSubscriptions(subscription_rows, subscriber_row.id),
       }));
     }
 
     return { results: new Collection(subscribers), page_result };
   }
 
+  private mapSubscriptions(subscription_rows: any[], subscriber_id: string) {
+    const subscriptions: SubscriptionObject[] = [];
+
+    for (let h = 0; h < subscription_rows.length; h++) {
+      const subscription_row = subscription_rows[h];
+      if (subscription_row.subscriber_id === subscriber_id) {
+        subscriptions.push({
+          id: subscription_row.id,
+          amount: subscription_row.amount,
+          started_at: subscription_row.started_at,
+        });
+      }
+    }
+
+    return subscriptions;
+  }
+
   private async selectSubscribers(filter: SubscribersFilter) {
-    const columns = [
-      'id',
-      'email',
-      'document',
-      'phone_number',
-      'street',
-      'district',
-      'state',
-      'number',
-      'complement',
-      'payment_type',
-      'credit_card_id',
-      'tenant_id',
-    ].toString();
     const where_obj = { type: 'customer', tenant_id: filter.tenant_id };
-    const query = `SELECT ${columns} FROM users WHERE ${DbUtils.andOperator(where_obj)}`;
+    const query = `SELECT ${DbSubscriberRepository.#subscriber_columns.toString()} FROM users WHERE ${DbUtils.andOperator(where_obj)}`;
     const values: unknown[] = Object.values(where_obj);
 
     if (filter.page_options) {
@@ -115,10 +120,46 @@ export default class DbSubscriberRepository implements SubscriberRepository {
   createSubscriber(subscriber: Subscriber): Promise<void> {
     throw new Error("Method not implemented.");
   }
+
   updateSubscriber(subscriber: Subscriber): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  getSubcriberById(id: string): Promise<Subscriber | null> {
-    throw new Error("Method not implemented.");
+
+  async getSubcriberById(id: string): Promise<Subscriber | null> {
+    const subscriber_result = await this.#db.query(
+      `SELECT ${DbSubscriberRepository.#subscriber_columns.toString()} FROM users WHERE id = $1`,
+      [id]
+    );
+
+    if (subscriber_result.rows.length === 0) {
+      return null;
+    }
+
+    const subscriber_row = subscriber_result.rows[0];
+
+    const subscriptions_result = await this.#db.query(
+      'SELECT * FROM subscriptions WHERE subscriber_id = $1',
+      [subscriber_row.id]
+    );
+
+    return new Subscriber({
+      id: subscriber_row.id,
+      email: subscriber_row.email,
+      document: subscriber_row.document,
+      phone_number: subscriber_row.phone_number,
+      tenant_id: subscriber_row.tenant_id,
+      address: {
+        street: subscriber_row.street,
+        district: subscriber_row.district,
+        number: subscriber_row.number,
+        state: subscriber_row.state,
+        complement: subscriber_row.state,
+      },
+      payment_method: {
+        payment_type: subscriber_row.payment_type,
+        credit_card_id: subscriber_row.credit_card_id,
+      },
+      subscriptions: this.mapSubscriptions(subscriptions_result.rows, subscriber_row.id),
+    });
   }
 }

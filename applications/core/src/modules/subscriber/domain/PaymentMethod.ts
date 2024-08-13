@@ -8,7 +8,7 @@ export enum PaymentTypes {
 
 export type PaymentMethodValue = {
   payment_type: PaymentTypes;
-  credit_card_id?: string;
+  credit_card_external_id?: string;
 }
 
 export default class PaymentMethod implements ValueObject<PaymentMethodValue> {

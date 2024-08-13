@@ -33,8 +33,7 @@ describe('DbSubscriberRepository unit tests', () => {
           number: faker.string.numeric(2),
           complement: faker.string.sample(),
           payment_type: faker.helpers.enumValue(PaymentTypes),
-          credit_card_id: faker.string.uuid(),
-          tenant_id: faker.string.uuid(),
+          credit_card_external_id: faker.string.uuid(),
         },
         {
           id: faker.string.uuid(),
@@ -47,8 +46,7 @@ describe('DbSubscriberRepository unit tests', () => {
           number: faker.string.numeric(2),
           complement: faker.string.sample(),
           payment_type: faker.helpers.enumValue(PaymentTypes),
-          credit_card_id: faker.string.uuid(),
-          tenant_id: faker.string.uuid(),
+          credit_card_external_id: faker.string.uuid(),
         }
       ];
 
@@ -77,8 +75,7 @@ describe('DbSubscriberRepository unit tests', () => {
         .mockResolvedValueOnce({ rows: subscribers })
         .mockResolvedValueOnce({ rows: subscriptions });
 
-      const tenant_id = faker.string.uuid();
-      const { results, page_result } = await repository.getSubscribers({ tenant_id });
+      const { results, page_result } = await repository.getSubscribers();
 
       expect(results[0]).toBeInstanceOf(Subscriber);
       expect(results).toHaveLength(2);
@@ -89,8 +86,7 @@ describe('DbSubscriberRepository unit tests', () => {
       expect(page_result).toBeUndefined();
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_id,tenant_id FROM users WHERE type=$1 AND tenant_id=$2',
-        ['customer', tenant_id]
+        'SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_external_id FROM users WHERE type="customer"',
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
@@ -112,8 +108,7 @@ describe('DbSubscriberRepository unit tests', () => {
           number: faker.string.numeric(2),
           complement: faker.string.sample(),
           payment_type: faker.helpers.enumValue(PaymentTypes),
-          credit_card_id: faker.string.uuid(),
-          tenant_id: faker.string.uuid(),
+          credit_card_external_id: faker.string.uuid(),
         },
       ];
 
@@ -137,13 +132,12 @@ describe('DbSubscriberRepository unit tests', () => {
         .mockResolvedValueOnce({ rows: subscribers })
         .mockResolvedValueOnce({ rows: subscriptions });
 
-      const tenant_id = faker.string.uuid();
       const page_options = {
         limit: 1,
         page: 1,
       };
 
-      const { results, page_result } = await repository.getSubscribers({ tenant_id, page_options });
+      const { results, page_result } = await repository.getSubscribers({ page_options });
 
       expect(results[0]).toBeInstanceOf(Subscriber);
       expect(results).toHaveLength(1);
@@ -151,13 +145,12 @@ describe('DbSubscriberRepository unit tests', () => {
       expect(page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'SELECT count(id) as total FROM users WHERE type=$1 AND tenant_id=$2',
-        ['customer', tenant_id]
+        'SELECT count(id) as total FROM users WHERE type="customer"',
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_id,tenant_id FROM users WHERE type=$1 AND tenant_id=$2 LIMIT $3 OFFSET $4',
-        ['customer', tenant_id, page_options.limit, 0]
+        'SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_external_id FROM users WHERE type="customer" LIMIT $1 OFFSET $2',
+        [page_options.limit, 0]
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         3,
@@ -179,8 +172,7 @@ describe('DbSubscriberRepository unit tests', () => {
           number: faker.string.numeric(2),
           complement: faker.string.sample(),
           payment_type: faker.helpers.enumValue(PaymentTypes),
-          credit_card_id: faker.string.uuid(),
-          tenant_id: faker.string.uuid(),
+          credit_card_external_id: faker.string.uuid(),
         },
       ];
 
@@ -204,13 +196,12 @@ describe('DbSubscriberRepository unit tests', () => {
         .mockResolvedValueOnce({ rows: subscribers })
         .mockResolvedValueOnce({ rows: subscriptions });
 
-      const tenant_id = faker.string.uuid();
       const page_options = {
         limit: 1,
         page: 2,
       };
 
-      const { results, page_result } = await repository.getSubscribers({ tenant_id, page_options });
+      const { results, page_result } = await repository.getSubscribers({ page_options });
 
       expect(results[0]).toBeInstanceOf(Subscriber);
       expect(results).toHaveLength(1);
@@ -218,13 +209,12 @@ describe('DbSubscriberRepository unit tests', () => {
       expect(page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'SELECT count(id) as total FROM users WHERE type=$1 AND tenant_id=$2',
-        ['customer', tenant_id]
+        'SELECT count(id) as total FROM users WHERE type="customer"',
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_id,tenant_id FROM users WHERE type=$1 AND tenant_id=$2 LIMIT $3 OFFSET $4',
-        ['customer', tenant_id, page_options.limit, 1]
+        'SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_external_id FROM users WHERE type="customer" LIMIT $1 OFFSET $2',
+        [page_options.limit, 1]
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         3,
@@ -248,8 +238,7 @@ describe('DbSubscriberRepository unit tests', () => {
           number: faker.string.numeric(2),
           complement: faker.string.sample(),
           payment_type: faker.helpers.enumValue(PaymentTypes),
-          credit_card_id: faker.string.uuid(),
-          tenant_id: faker.string.uuid(),
+          credit_card_external_id: faker.string.uuid(),
         },
       ];
 
@@ -279,12 +268,12 @@ describe('DbSubscriberRepository unit tests', () => {
       expect(subscriber!.toObject().subscriptions).toHaveLength(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_id,tenant_id FROM users WHERE id = $1',
+        'SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_external_id FROM users WHERE type="customer" AND id=$1',
         [subscriber_id]
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT * FROM subscriptions WHERE subscriber_id = $1',
+        'SELECT * FROM subscriptions WHERE subscriber_id=$1',
         [subscribers[0].id]
       );
     });
@@ -299,8 +288,98 @@ describe('DbSubscriberRepository unit tests', () => {
       expect(subscriber).toBeNull()
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_id,tenant_id FROM users WHERE id = $1',
+        'SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_external_id FROM users WHERE type="customer" AND id=$1',
         [subscriber_id]
+      );
+    });
+  });
+
+  describe('DbSubscriberRepository.updateSubscriber', () => {
+    it("updates a subscriber", async () => {
+      query_mock
+        .mockResolvedValueOnce({});
+
+      const subscriber_obj = {
+        id: faker.string.uuid(),
+        address: {
+          street: faker.location.street(),
+          district: faker.string.sample(),
+          number: faker.location.buildingNumber(),
+          state: faker.location.state({ abbreviated: true }),
+          complement: faker.string.sample(),
+        },
+        document: faker.string.numeric(11),
+        email: faker.internet.email(),
+        payment_method: {
+          payment_type: faker.helpers.enumValue(PaymentTypes),
+          credit_card_external_id: faker.string.uuid(),
+        },
+        phone_number: faker.string.numeric(11),
+        subscriptions: [],
+      };
+
+      const subscriber = new Subscriber(subscriber_obj);
+
+      await repository.updateSubscriber(subscriber);
+
+      expect(query_mock).toHaveBeenCalledWith(
+        'UPDATE users SET document=$2,email=$3,phone_number=$4,street=$5,district=$6,state=$7,number=$8,complement=$9,payment_type=$10,credit_card_external_id=$11 WHERE type="customer" AND id=$1',
+        [
+          subscriber_obj.id,
+          subscriber_obj.document,
+          subscriber_obj.email,
+          subscriber_obj.phone_number,
+          subscriber_obj.address.street,
+          subscriber_obj.address.district,
+          subscriber_obj.address.state,
+          subscriber_obj.address.number,
+          subscriber_obj.address.complement,
+          subscriber_obj.payment_method.payment_type,
+          subscriber_obj.payment_method.credit_card_external_id,
+        ],
+      );
+    });
+
+    it("updates a subscriber without credit_card_external_id", async () => {
+      query_mock
+        .mockResolvedValueOnce({});
+
+      const subscriber_obj = {
+        id: faker.string.uuid(),
+        address: {
+          street: faker.location.street(),
+          district: faker.string.sample(),
+          number: faker.location.buildingNumber(),
+          state: faker.location.state({ abbreviated: true }),
+          complement: faker.string.sample(),
+        },
+        document: faker.string.numeric(11),
+        email: faker.internet.email(),
+        payment_method: {
+          payment_type: faker.helpers.enumValue(PaymentTypes),
+        },
+        phone_number: faker.string.numeric(11),
+        subscriptions: [],
+      };
+
+      const subscriber = new Subscriber(subscriber_obj);
+
+      await repository.updateSubscriber(subscriber);
+
+      expect(query_mock).toHaveBeenCalledWith(
+        'UPDATE users SET document=$2,email=$3,phone_number=$4,street=$5,district=$6,state=$7,number=$8,complement=$9,payment_type=$10 WHERE type="customer" AND id=$1',
+        [
+          subscriber_obj.id,
+          subscriber_obj.document,
+          subscriber_obj.email,
+          subscriber_obj.phone_number,
+          subscriber_obj.address.street,
+          subscriber_obj.address.district,
+          subscriber_obj.address.state,
+          subscriber_obj.address.number,
+          subscriber_obj.address.complement,
+          subscriber_obj.payment_method.payment_type,
+        ],
       );
     });
   });

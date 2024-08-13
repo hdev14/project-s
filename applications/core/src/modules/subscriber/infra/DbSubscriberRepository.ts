@@ -20,15 +20,51 @@ export default class DbSubscriberRepository implements SubscriberRepository {
     'number',
     'complement',
     'payment_type',
-    'credit_card_id',
-    'tenant_id',
+    'credit_card_external_id',
   ];
 
   constructor() {
     this.#db = Database.connect();
   }
 
-  async getSubscribers(filter: SubscribersFilter): Promise<PaginatedResult<Subscriber>> {
+  async getSubcriberById(id: string): Promise<Subscriber | null> {
+    const subscriber_result = await this.#db.query(
+      `SELECT ${DbSubscriberRepository.#subscriber_columns.toString()} FROM users WHERE type="customer" AND id=$1`,
+      [id]
+    );
+
+    if (subscriber_result.rows.length === 0) {
+      return null;
+    }
+
+    const subscriber_row = subscriber_result.rows[0];
+
+    const subscriptions_result = await this.#db.query(
+      'SELECT * FROM subscriptions WHERE subscriber_id=$1',
+      [subscriber_row.id]
+    );
+
+    return new Subscriber({
+      id: subscriber_row.id,
+      email: subscriber_row.email,
+      document: subscriber_row.document,
+      phone_number: subscriber_row.phone_number,
+      address: {
+        street: subscriber_row.street,
+        district: subscriber_row.district,
+        number: subscriber_row.number,
+        state: subscriber_row.state,
+        complement: subscriber_row.state,
+      },
+      payment_method: {
+        payment_type: subscriber_row.payment_type,
+        credit_card_external_id: subscriber_row.credit_card_external_id,
+      },
+      subscriptions: this.mapSubscriptions(subscriptions_result.rows, subscriber_row.id),
+    });
+  }
+
+  async getSubscribers(filter?: SubscribersFilter): Promise<PaginatedResult<Subscriber>> {
     const { rows, page_result } = await this.selectSubscribers(filter);
 
     const subscriber_ids = [];
@@ -52,7 +88,6 @@ export default class DbSubscriberRepository implements SubscriberRepository {
         email: subscriber_row.email,
         document: subscriber_row.document,
         phone_number: subscriber_row.phone_number,
-        tenant_id: subscriber_row.tenant_id,
         address: {
           street: subscriber_row.street,
           district: subscriber_row.district,
@@ -62,7 +97,7 @@ export default class DbSubscriberRepository implements SubscriberRepository {
         },
         payment_method: {
           payment_type: subscriber_row.payment_type,
-          credit_card_id: subscriber_row.credit_card_id,
+          credit_card_external_id: subscriber_row.credit_card_external_id,
         },
         subscriptions: this.mapSubscriptions(subscription_rows, subscriber_row.id),
       }));
@@ -88,21 +123,19 @@ export default class DbSubscriberRepository implements SubscriberRepository {
     return subscriptions;
   }
 
-  private async selectSubscribers(filter: SubscribersFilter) {
-    const where_obj = { type: 'customer', tenant_id: filter.tenant_id };
-    const query = `SELECT ${DbSubscriberRepository.#subscriber_columns.toString()} FROM users WHERE ${DbUtils.andOperator(where_obj)}`;
-    const values: unknown[] = Object.values(where_obj);
+  private async selectSubscribers(filter?: SubscribersFilter) {
+    const query = `SELECT ${DbSubscriberRepository.#subscriber_columns.toString()} FROM users WHERE type="customer"`;
 
-    if (filter.page_options) {
+    if (filter && filter.page_options) {
       const offset = Pagination.calculateOffset(filter.page_options);
-      const count_query = `SELECT count(id) as total FROM users WHERE ${DbUtils.andOperator(where_obj)}`;
-      const count_result = await this.#db.query(count_query, DbUtils.sanitizeValues(values));
+      const count_query = 'SELECT count(id) as total FROM users WHERE type="customer"';
+      const count_result = await this.#db.query(count_query);
 
-      const paginated_query = query + ' LIMIT $3 OFFSET $4';
+      const paginated_query = query + ' LIMIT $1 OFFSET $2';
 
       const { rows } = await this.#db.query(
         paginated_query,
-        DbUtils.sanitizeValues(values.concat([filter.page_options.limit, offset]))
+        DbUtils.sanitizeValues([filter.page_options.limit, offset])
       );
 
       const page_result = (count_result.rows[0].total !== undefined && count_result.rows[0].total > 0)
@@ -112,7 +145,7 @@ export default class DbSubscriberRepository implements SubscriberRepository {
       return { rows, page_result };
     }
 
-    const { rows } = await this.#db.query(query, DbUtils.sanitizeValues(values));
+    const { rows } = await this.#db.query(query);
 
     return { rows };
   }
@@ -121,45 +154,13 @@ export default class DbSubscriberRepository implements SubscriberRepository {
     throw new Error("Method not implemented.");
   }
 
-  updateSubscriber(subscriber: Subscriber): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
+  async updateSubscriber(subscriber: Subscriber): Promise<void> {
+    const { id, document, email, phone_number, address, payment_method } = subscriber.toObject();
+    const data = Object.assign({}, { id, document, email, phone_number }, address, payment_method);
 
-  async getSubcriberById(id: string): Promise<Subscriber | null> {
-    const subscriber_result = await this.#db.query(
-      `SELECT ${DbSubscriberRepository.#subscriber_columns.toString()} FROM users WHERE id = $1`,
-      [id]
+    await this.#db.query(
+      `UPDATE users SET ${DbUtils.setColumns(data)} WHERE type="customer" AND id=$1`,
+      DbUtils.sanitizeValues(Object.values(data))
     );
-
-    if (subscriber_result.rows.length === 0) {
-      return null;
-    }
-
-    const subscriber_row = subscriber_result.rows[0];
-
-    const subscriptions_result = await this.#db.query(
-      'SELECT * FROM subscriptions WHERE subscriber_id = $1',
-      [subscriber_row.id]
-    );
-
-    return new Subscriber({
-      id: subscriber_row.id,
-      email: subscriber_row.email,
-      document: subscriber_row.document,
-      phone_number: subscriber_row.phone_number,
-      tenant_id: subscriber_row.tenant_id,
-      address: {
-        street: subscriber_row.street,
-        district: subscriber_row.district,
-        number: subscriber_row.number,
-        state: subscriber_row.state,
-        complement: subscriber_row.state,
-      },
-      payment_method: {
-        payment_type: subscriber_row.payment_type,
-        credit_card_id: subscriber_row.credit_card_id,
-      },
-      subscriptions: this.mapSubscriptions(subscriptions_result.rows, subscriber_row.id),
-    });
   }
 }

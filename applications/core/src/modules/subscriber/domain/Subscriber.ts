@@ -11,7 +11,6 @@ export type SubscriberObject = {
   address: AddressValue;
   subscriptions: Array<SubscriptionObject>;
   payment_method: PaymentMethodValue;
-  tenant_id: string;
 };
 
 export default class Subscriber extends Aggregate<SubscriberObject> implements AggregateRoot {
@@ -21,22 +20,23 @@ export default class Subscriber extends Aggregate<SubscriberObject> implements A
   #address: Address;
   #subscriptions: Array<Subscription> = [];
   #payment_method: PaymentMethod;
-  #tenant_id: string;
 
   constructor(obj: SubscriberObject) {
     super(obj.id);
     this.#document = obj.document;
     this.#email = obj.email;
     this.#phone_number = obj.phone_number;
-    this.#tenant_id = obj.tenant_id;
     this.#address = new Address(
-      obj.address.state,
       obj.address.street,
       obj.address.district,
+      obj.address.state,
       obj.address.number,
       obj.address.complement
     );
-    this.#payment_method = new PaymentMethod(obj.payment_method.payment_type, obj.payment_method.credit_card_id);
+    this.#payment_method = new PaymentMethod(
+      obj.payment_method.payment_type,
+      obj.payment_method.credit_card_external_id
+    );
     for (let idx = 0; idx < obj.subscriptions.length; idx++) {
       this.#subscriptions.push(new Subscription(obj.subscriptions[idx]));
     }
@@ -57,7 +57,6 @@ export default class Subscriber extends Aggregate<SubscriberObject> implements A
       address: this.#address,
       payment_method: this.#payment_method,
       subscriptions,
-      tenant_id: this.#tenant_id,
     };
   }
 }

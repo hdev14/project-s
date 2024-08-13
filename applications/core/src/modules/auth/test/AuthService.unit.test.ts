@@ -7,7 +7,7 @@ import UserRepository from '@auth/app/UserRepository';
 import VerificationCodeRepository from '@auth/app/VerificationCodeRepository';
 import AccessPlan, { AccessPlanTypes } from '@auth/domain/AccessPlan';
 import Policy from '@auth/domain/Policy';
-import User from '@auth/domain/User';
+import User, { UserTypes } from '@auth/domain/User';
 import VerificationCode from '@auth/domain/VerificationCode';
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import CredentialError from '@shared/errors/CredentialError';
@@ -56,7 +56,8 @@ describe('AuthService unit tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
-        policies: []
+        policies: [],
+        type: faker.helpers.enumValue(UserTypes),
       }));
 
       encryptor_mock.compareHash.mockReturnValueOnce(false);
@@ -76,7 +77,8 @@ describe('AuthService unit tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
-        policies: []
+        policies: [],
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       user_repository_mock.getUserByEmail.mockResolvedValueOnce(user);
@@ -105,6 +107,7 @@ describe('AuthService unit tests', () => {
       const [data, error] = await auth_service.registerUser({
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       expect(error).toBeUndefined();
@@ -120,6 +123,7 @@ describe('AuthService unit tests', () => {
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         access_plan_id: faker.string.uuid(),
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       expect(data).toBeUndefined();
@@ -137,12 +141,14 @@ describe('AuthService unit tests', () => {
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         policies: [],
+        type: faker.helpers.enumValue(UserTypes),
       }));
 
       const [data, error] = await auth_service.registerUser({
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         tenant_id,
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       expect(error).toBeUndefined();
@@ -159,6 +165,7 @@ describe('AuthService unit tests', () => {
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         tenant_id: faker.string.uuid(),
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       expect(data).toBeUndefined();
@@ -187,7 +194,8 @@ describe('AuthService unit tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
-        policies: []
+        policies: [],
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       user_repository_mock.getUserById.mockResolvedValueOnce(user);
@@ -208,7 +216,8 @@ describe('AuthService unit tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
-        policies: []
+        policies: [],
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       user_repository_mock.getUserById.mockResolvedValueOnce(user);
@@ -232,7 +241,8 @@ describe('AuthService unit tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
-        policies: []
+        policies: [],
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       user_repository_mock.getUserById.mockResolvedValueOnce(user);
@@ -271,7 +281,8 @@ describe('AuthService unit tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
-        policies: []
+        policies: [],
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       const attach_policy_spy = jest.spyOn(user, 'attachPolicy');
@@ -307,7 +318,8 @@ describe('AuthService unit tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
-        policies: []
+        policies: [],
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       const dettach_policy_spy = jest.spyOn(user, 'dettachPolicy');
@@ -346,13 +358,15 @@ describe('AuthService unit tests', () => {
             id: faker.string.uuid(),
             email: faker.internet.email(),
             password: faker.string.alphanumeric(),
-            policies: []
+            policies: [],
+            type: faker.helpers.enumValue(UserTypes),
           }),
           new User({
             id: faker.string.uuid(),
             email: faker.internet.email(),
             password: faker.string.alphanumeric(),
-            policies: []
+            policies: [],
+            type: faker.helpers.enumValue(UserTypes),
           }),
         ]),
         page_result: {
@@ -422,6 +436,7 @@ describe('AuthService unit tests', () => {
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         policies: [],
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       const change_access_plan_spy = jest.spyOn(user, 'changeAccessPlan');
@@ -611,6 +626,7 @@ describe('AuthService unit tests', () => {
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
           policies: [],
+          type: faker.helpers.enumValue(UserTypes),
         })
       );
 
@@ -626,6 +642,7 @@ describe('AuthService unit tests', () => {
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
           policies: [],
+          type: faker.helpers.enumValue(UserTypes),
         })
       );
 
@@ -677,7 +694,8 @@ describe('AuthService unit tests', () => {
       const user = new User({
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
-        policies: []
+        policies: [],
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       user_repository_mock.getUserById.mockResolvedValueOnce(user);

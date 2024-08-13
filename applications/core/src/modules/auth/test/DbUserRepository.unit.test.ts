@@ -1,4 +1,4 @@
-import User from "@auth/domain/User";
+import User, { UserTypes } from "@auth/domain/User";
 import DbUserRepository from "@auth/infra/persistence/DbUserRepository";
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import Database from "@shared/infra/Database";
@@ -67,7 +67,7 @@ describe('DbUserRepository unit tests', () => {
       expect(results).toHaveLength(2);
       expect(page_result).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id'
+        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id'
       );
     });
 
@@ -126,7 +126,7 @@ describe('DbUserRepository unit tests', () => {
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
+        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
         [page_options.limit, 0],
       );
     });
@@ -186,7 +186,7 @@ describe('DbUserRepository unit tests', () => {
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
+        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
         [page_options.limit, 1],
       );
     });
@@ -239,7 +239,7 @@ describe('DbUserRepository unit tests', () => {
       expect(results).toHaveLength(2);
       expect(page_result).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.tenant_id=$1',
+        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.tenant_id=$1',
         [tenant_id]
       );
     });
@@ -300,7 +300,7 @@ describe('DbUserRepository unit tests', () => {
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.tenant_id=$1 LIMIT $2 OFFSET $3',
+        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.tenant_id=$1 LIMIT $2 OFFSET $3',
         [tenant_id, page_options.limit, 1],
       );
     });
@@ -339,7 +339,7 @@ describe('DbUserRepository unit tests', () => {
       expect(user).toBeInstanceOf(User);
       expect(user?.toObject().policies).toHaveLength(2);
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.id = $1',
+        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.id = $1',
         [data.id]
       );
     });
@@ -354,7 +354,7 @@ describe('DbUserRepository unit tests', () => {
 
       expect(user).toBeNull()
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.id = $1',
+        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.id = $1',
         [user_id]
       );
     });
@@ -392,7 +392,7 @@ describe('DbUserRepository unit tests', () => {
       expect(user).toBeInstanceOf(User);
       expect(user?.toObject().policies).toHaveLength(2);
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE email = $1',
+        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE email = $1',
         [data.email]
       );
     });
@@ -407,7 +407,7 @@ describe('DbUserRepository unit tests', () => {
 
       expect(user).toBeNull()
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE email = $1',
+        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE email = $1',
         [user_email]
       );
     });
@@ -435,7 +435,8 @@ describe('DbUserRepository unit tests', () => {
         password: faker.string.alphanumeric(),
         policies,
         access_plan_id: faker.string.uuid(),
-        tenant_id: faker.string.uuid()
+        tenant_id: faker.string.uuid(),
+        type: faker.helpers.enumValue(UserTypes),
       };
 
       const user = new User(user_obj);
@@ -470,6 +471,7 @@ describe('DbUserRepository unit tests', () => {
         password: faker.string.alphanumeric(),
         policies: [],
         access_plan_id: faker.string.uuid(),
+        type: faker.helpers.enumValue(UserTypes),
       };
 
       const user = new User(user_obj);
@@ -492,7 +494,8 @@ describe('DbUserRepository unit tests', () => {
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         policies: [],
-        tenant_id: faker.string.uuid()
+        tenant_id: faker.string.uuid(),
+        type: faker.helpers.enumValue(UserTypes),
       };
 
       const user = new User(user_obj);
@@ -516,6 +519,7 @@ describe('DbUserRepository unit tests', () => {
         password: faker.string.alphanumeric(),
         policies: [],
         access_plan_id: faker.string.uuid(),
+        type: faker.helpers.enumValue(UserTypes),
       };
 
       const user = new User(user_obj);
@@ -538,6 +542,7 @@ describe('DbUserRepository unit tests', () => {
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         policies: [],
+        type: faker.helpers.enumValue(UserTypes),
       };
 
       const user = new User(user_obj);
@@ -563,6 +568,7 @@ describe('DbUserRepository unit tests', () => {
         password: faker.string.alphanumeric(),
         access_plan_id: faker.string.uuid(),
         policies: [],
+        type: faker.helpers.enumValue(UserTypes),
       };
 
       const user = new User(user_obj);
@@ -570,8 +576,14 @@ describe('DbUserRepository unit tests', () => {
       await repository.updateUser(user);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'UPDATE users SET email=$2,password=$3,access_plan_id=$4 WHERE id = $1',
-        [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id],
+        'UPDATE users SET email=$2,password=$3,access_plan_id=$4,type=$5 WHERE id = $1',
+        [
+          user_obj.id,
+          user_obj.email,
+          user_obj.password,
+          user_obj.access_plan_id,
+          user_obj.type,
+        ],
       );
     });
 
@@ -584,6 +596,7 @@ describe('DbUserRepository unit tests', () => {
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         policies: [],
+        type: faker.helpers.enumValue(UserTypes),
       };
 
       const user = new User(user_obj);
@@ -591,8 +604,8 @@ describe('DbUserRepository unit tests', () => {
       await repository.updateUser(user);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'UPDATE users SET email=$2,password=$3 WHERE id = $1',
-        [user_obj.id, user_obj.email, user_obj.password],
+        'UPDATE users SET email=$2,password=$3,type=$4 WHERE id = $1',
+        [user_obj.id, user_obj.email, user_obj.password, user_obj.type],
       );
     });
 
@@ -618,6 +631,7 @@ describe('DbUserRepository unit tests', () => {
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         policies,
+        type: faker.helpers.enumValue(UserTypes),
       };
 
       const user = new User(user_obj);
@@ -626,8 +640,8 @@ describe('DbUserRepository unit tests', () => {
 
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'UPDATE users SET email=$2,password=$3 WHERE id = $1',
-        [user_obj.id, user_obj.email, user_obj.password],
+        'UPDATE users SET email=$2,password=$3,type=$4 WHERE id = $1',
+        [user_obj.id, user_obj.email, user_obj.password, user_obj.type],
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,

@@ -147,6 +147,7 @@ export default class CompanyService {
           Policies.CREATE_CATALOG_ITEM,
           Policies.LIST_CATALOG_ITEMS,
         ],
+        type: 'company',
       }));
 
       const company = new Company({
@@ -270,6 +271,7 @@ export default class CompanyService {
       email: params.email,
       temp_password: params.document.slice(0, 6),
       tenant_id: params.tenant_id,
+      type: 'employee',
     }));
 
     const employee = new Employee({

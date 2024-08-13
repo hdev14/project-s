@@ -3,6 +3,13 @@ import AccessPlan from "./AccessPlan";
 import Policy from "./Policy";
 
 
+export enum UserTypes {
+  ADMIN = 'admin',
+  COMPANY = 'company',
+  EMPLOYEE = 'employee',
+  CUSTOMER = 'customer'
+}
+
 export type UserObject = {
   id?: string;
   email: string;
@@ -10,7 +17,7 @@ export type UserObject = {
   policies: Array<string>; // slugs
   access_plan_id?: string;
   tenant_id?: string;
-  is_admin?: boolean;
+  type: UserTypes;
 }
 
 export default class User extends Aggregate<UserObject> implements AggregateRoot {
@@ -19,7 +26,7 @@ export default class User extends Aggregate<UserObject> implements AggregateRoot
   #policies: Array<string>;
   #access_plan_id?: string;
   #tenant_id?: string;
-  #is_admin?: boolean;
+  #type: UserTypes;
 
   constructor(obj: UserObject) {
     super(obj.id);
@@ -28,7 +35,7 @@ export default class User extends Aggregate<UserObject> implements AggregateRoot
     this.#policies = obj.policies;
     this.#access_plan_id = obj.access_plan_id;
     this.#tenant_id = obj.tenant_id;
-    this.#is_admin = obj.is_admin;
+    this.#type = obj.type;
   }
 
   set email(value: string) {
@@ -77,7 +84,7 @@ export default class User extends Aggregate<UserObject> implements AggregateRoot
       policies: this.#policies,
       access_plan_id: this.#access_plan_id,
       tenant_id: this.#tenant_id,
-      is_admin: this.#is_admin
+      type: this.#type,
     };
   }
 }

@@ -1,6 +1,6 @@
 import AccessPlan, { AccessPlanObject, AccessPlanTypes } from "@auth/domain/AccessPlan";
 import { PolicyObject } from "@auth/domain/Policy";
-import User, { UserObject } from "@auth/domain/User";
+import User, { UserObject, UserTypes } from "@auth/domain/User";
 import VerificationCode from "@auth/domain/VerificationCode";
 import CredentialError from "@shared/errors/CredentialError";
 import DomainError from "@shared/errors/DomainError";
@@ -35,6 +35,7 @@ export type LoginParams = UserParams;
 export type RegisterUserParams = UserParams & {
   access_plan_id?: string;
   tenant_id?: string;
+  type: UserTypes;
 };
 
 export type UpdateUserParams = Partial<UserParams> & { user_id: string };
@@ -152,6 +153,7 @@ export default class AuthService {
       policies: [],
       access_plan_id: params.access_plan_id,
       tenant_id: params.tenant_id,
+      type: params.type,
     });
 
     await this.#user_repository.createUser(user);

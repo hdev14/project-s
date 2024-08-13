@@ -1,6 +1,6 @@
 import AccessPlan, { AccessPlanTypes } from '@auth/domain/AccessPlan';
 import Policy from '@auth/domain/Policy';
-import User from '@auth/domain/User';
+import User, { UserTypes } from '@auth/domain/User';
 import { faker } from '@faker-js/faker/locale/pt_BR';
 
 
@@ -10,6 +10,7 @@ describe('User unit tests', () => {
       email: faker.internet.email(),
       password: faker.string.alphanumeric(),
       policies: [],
+      type: faker.helpers.enumValue(UserTypes),
     });
 
     const slug = faker.word.verb();
@@ -32,6 +33,7 @@ describe('User unit tests', () => {
       email: faker.internet.email(),
       password: faker.string.alphanumeric(),
       policies: [slug],
+      type: faker.helpers.enumValue(UserTypes),
     });
 
 
@@ -53,6 +55,7 @@ describe('User unit tests', () => {
       email: faker.internet.email(),
       password: faker.string.alphanumeric(),
       policies: [slug],
+      type: faker.helpers.enumValue(UserTypes),
     });
 
     const policy = new Policy({
@@ -71,6 +74,7 @@ describe('User unit tests', () => {
       email: faker.internet.email(),
       password: faker.string.alphanumeric(),
       policies: [],
+      type: faker.helpers.enumValue(UserTypes),
     });
 
     const access_plan = new AccessPlan({
@@ -91,6 +95,7 @@ describe('User unit tests', () => {
       email: faker.internet.email(),
       password: faker.string.alphanumeric(),
       policies: [],
+      type: faker.helpers.enumValue(UserTypes),
     });
 
     const new_password = faker.string.alphanumeric();
@@ -105,6 +110,7 @@ describe('User unit tests', () => {
       email: faker.internet.email(),
       password: faker.string.alphanumeric(),
       policies: [],
+      type: faker.helpers.enumValue(UserTypes),
     });
 
     const new_email = faker.internet.email();

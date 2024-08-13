@@ -11,7 +11,16 @@ import 'reflect-metadata';
 @injectable()
 export default class DbUserRepository implements UserRepository {
   #db: Pool;
-  #select_users_query = 'SELECT u.id, u.email, u.password, u.access_plan_id, p.slug, u.tenant_id FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id';
+  #columns = [
+    'u.id',
+    'u.email',
+    'u.password',
+    'u.access_plan_id',
+    'p.slug',
+    'u.tenant_id',
+    'u.type',
+  ];
+  #select_users_query = `SELECT ${this.#columns.toString()} FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id`;
   #count_select_users_query = 'SELECT DISTINCT count(u.id) as total FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id';
 
   constructor() {
@@ -44,6 +53,7 @@ export default class DbUserRepository implements UserRepository {
         access_plan_id: row.access_plan_id,
         policies,
         tenant_id: row.tenant_id,
+        type: row.type,
       });
     }
 
@@ -113,6 +123,7 @@ export default class DbUserRepository implements UserRepository {
       access_plan_id: result.rows[0].access_plan_id,
       policies,
       tenant_id: result.rows[0].tenant_id,
+      type: result.rows[0].type,
     });
   }
 
@@ -135,7 +146,8 @@ export default class DbUserRepository implements UserRepository {
       password: result.rows[0].password,
       access_plan_id: result.rows[0].access_plan_id,
       policies,
-      tenant_id: result.rows[0].tenant_id
+      tenant_id: result.rows[0].tenant_id,
+      type: result.rows[0].type
     });
   }
 

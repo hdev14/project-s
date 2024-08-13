@@ -3,7 +3,7 @@ import CreateUserCommandHandler from "@auth/app/CreateUserCommandHandler";
 import Encryptor from "@auth/app/Encryptor";
 import UserRepository from "@auth/app/UserRepository";
 import AccessPlan, { AccessPlanTypes } from "@auth/domain/AccessPlan";
-import User from "@auth/domain/User";
+import User, { UserTypes } from "@auth/domain/User";
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import CreateUserCommand from "@shared/commands/CreateUserCommand";
 import NotFoundError from "@shared/errors/NotFoundError";
@@ -38,6 +38,7 @@ describe('CreateUserCommandHandler unit tests', () => {
       default_policies: [Policies.LIST_USERS],
       email: faker.internet.email(),
       temp_password: faker.string.sample(),
+      type: faker.helpers.enumValue(UserTypes),
     });
 
     const tenant_id = await handler.handle(command);
@@ -52,6 +53,7 @@ describe('CreateUserCommandHandler unit tests', () => {
     expect(obj.password).toEqual('test');
     expect(obj.access_plan_id).toEqual(command.access_plan_id);
     expect(obj.policies).toEqual(command.default_policies);
+    expect(obj.type).toEqual(command.type);
   });
 
   it('should create a new regular user', async () => {
@@ -62,6 +64,7 @@ describe('CreateUserCommandHandler unit tests', () => {
       email: faker.internet.email(),
       temp_password: faker.string.sample(),
       tenant_id: faker.string.uuid(),
+      type: faker.helpers.enumValue(UserTypes),
     });
 
     const user_id = await handler.handle(command);
@@ -76,6 +79,7 @@ describe('CreateUserCommandHandler unit tests', () => {
     expect(obj.password).toEqual('test');
     expect(obj.tenant_id).toEqual(command.tenant_id);
     expect(obj.policies).toEqual(command.default_policies);
+    expect(obj.type).toEqual(command.type);
   });
 
   it("should throw a not found error if access plan doesn't exist", async () => {
@@ -86,6 +90,7 @@ describe('CreateUserCommandHandler unit tests', () => {
       default_policies: [Policies.LIST_USERS],
       email: faker.internet.email(),
       temp_password: faker.string.sample(),
+      type: faker.helpers.enumValue(UserTypes),
     });
 
     try {

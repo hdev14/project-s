@@ -1,4 +1,4 @@
-import User from "@auth/domain/User";
+import User, { UserTypes } from "@auth/domain/User";
 import Handler from "@shared/Handler";
 import CreateUserCommand from "@shared/commands/CreateUserCommand";
 import NotFoundError from "@shared/errors/NotFoundError";
@@ -7,7 +7,6 @@ import 'reflect-metadata';
 import AccessPlanRepository from "./AccessPlanRepository";
 import Encryptor from "./Encryptor";
 import UserRepository from "./UserRepository";
-
 
 @injectable()
 export default class CreateUserCommandHandler implements Handler<CreateUserCommand, string> {
@@ -39,7 +38,8 @@ export default class CreateUserCommandHandler implements Handler<CreateUserComma
       password: this.#encryptor.createHash(command.temp_password),
       policies: command.default_policies,
       access_plan_id: command.access_plan_id,
-      tenant_id: command.tenant_id
+      tenant_id: command.tenant_id,
+      type: command.type as UserTypes
     });
 
     await this.#user_repository.createUser(user);

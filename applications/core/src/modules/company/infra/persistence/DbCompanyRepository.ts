@@ -12,8 +12,8 @@ import Company, { CompanyObject } from "../../domain/Company";
 @injectable()
 export default class DbCompanyRepository implements CompanyRepository {
   #db: Pool;
-  #select_companies_query = 'SELECT * FROM users WHERE tenant_id IS NULL AND is_admin = false';
-  #count_query = 'SELECT count(id) as total FROM users WHERE tenant_id IS NULL AND is_admin = false';
+  #select_companies_query = "SELECT * FROM users WHERE type='company'";
+  #count_query = "SELECT count(id) as total FROM users WHERE type='company'";
 
   constructor() {
     this.#db = Database.connect();
@@ -21,7 +21,7 @@ export default class DbCompanyRepository implements CompanyRepository {
 
   async getEmployeeById(id: string): Promise<Employee | null> {
     const result = await this.#db.query(
-      'SELECT * FROM users WHERE tenant_id IS NOT NULL AND is_admin = false AND id = $1',
+      "SELECT * FROM users WHERE type='employee' AND id = $1",
       [id]
     );
 
@@ -41,7 +41,7 @@ export default class DbCompanyRepository implements CompanyRepository {
   async updateEmployee(employee: Employee): Promise<void> {
     const data = employee.toObject();
     await this.#db.query(
-      `UPDATE users SET ${DbUtils.setColumns(data)} WHERE id = $1`,
+      `UPDATE users SET ${DbUtils.setColumns(data)} WHERE type='employee' AND id = $1`,
       DbUtils.sanitizeValues(Object.values(data))
     );
   }
@@ -101,7 +101,7 @@ export default class DbCompanyRepository implements CompanyRepository {
     const data = Object.assign({}, { id, document, name, access_plan_id }, address, bank, brand);
 
     await this.#db.query(
-      `UPDATE users SET ${DbUtils.setColumns(data)} WHERE id = $1`,
+      `UPDATE users SET ${DbUtils.setColumns(data)} WHERE type='company' AND id = $1`,
       DbUtils.sanitizeValues(Object.values(data))
     );
   }

@@ -9,6 +9,7 @@ import CatalogItemFactory from '@shared/infra/test_utils/factories/CatalogItemFa
 import UserFactory from '@shared/infra/test_utils/factories/UserFactory';
 import '@shared/infra/test_utils/matchers/toEqualInDatabase';
 import types from '@shared/infra/types';
+import UserTypes from '@shared/UserTypes';
 import Application from 'src/Application';
 import supertest from 'supertest';
 
@@ -82,6 +83,7 @@ describe('Catalog integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY
       });
 
       const response = await request
@@ -151,6 +153,7 @@ describe('Catalog integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY
       });
 
       const response = await request
@@ -185,6 +188,7 @@ describe('Catalog integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY
       });
 
       await catalog_item_factory.createMany([
@@ -235,6 +239,7 @@ describe('Catalog integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY
       });
 
       await catalog_item_factory.createMany([
@@ -276,6 +281,7 @@ describe('Catalog integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY
       });
 
       await catalog_item_factory.createMany([
@@ -362,6 +368,7 @@ describe('Catalog integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY
       });
 
       const catalog_item = await catalog_item_factory.createOne({
@@ -412,6 +419,7 @@ describe('Catalog integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY
       });
 
       const catalog_item = await catalog_item_factory.createOne({

@@ -39,7 +39,7 @@ export default class CreateUserCommandHandler implements Handler<CreateUserComma
       policies: command.default_policies,
       access_plan_id: command.access_plan_id,
       tenant_id: command.tenant_id,
-      type: command.type as UserTypes
+      type: command.type,
     });
 
     await this.#user_repository.createUser(user);

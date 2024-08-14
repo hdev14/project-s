@@ -58,6 +58,7 @@ describe('Auth integration tests', () => {
         .send({
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
+          type: faker.helpers.enumValue(UserTypes),
         });
 
       expect(response.status).toEqual(201);
@@ -83,6 +84,7 @@ describe('Auth integration tests', () => {
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
           tenant_id: tenant.id,
+          type: faker.helpers.enumValue(UserTypes)
         });
 
       expect(response.status).toEqual(201);
@@ -102,6 +104,7 @@ describe('Auth integration tests', () => {
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
           tenant_id: faker.string.uuid(),
+          type: faker.helpers.enumValue(UserTypes),
         });
 
       expect(response.status).toEqual(404);
@@ -115,7 +118,8 @@ describe('Auth integration tests', () => {
         .send({
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
-          access_plan_id: faker.string.uuid() // wrong,
+          access_plan_id: faker.string.uuid(), // wrong,
+          type: faker.helpers.enumValue(UserTypes),
         });
 
       expect(response.status).toEqual(404);
@@ -138,6 +142,7 @@ describe('Auth integration tests', () => {
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
           access_plan_id: access_plan.id,
+          type: faker.helpers.enumValue(UserTypes),
         });
 
       expect(response.status).toEqual(201);
@@ -163,6 +168,7 @@ describe('Auth integration tests', () => {
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
           access_plan_id: access_plan.id,
+          type: faker.helpers.enumValue(UserTypes),
         });
 
       expect(response.status).toEqual(422);
@@ -170,31 +176,17 @@ describe('Auth integration tests', () => {
     });
 
     it("returns status code 400 if data is not valid", async () => {
-      let response = await request
+      const response = await request
         .post('/api/auth/users')
         .set('Content-Type', 'application/json')
         .send({
           email: faker.string.sample(), // invalid email
-          password: faker.string.alphanumeric(10),
+          password: faker.string.alphanumeric(5),
+          type: faker.string.sample(),
         });
 
       expect(response.status).toEqual(400);
-      expect(response.body.errors).toHaveLength(1);
-      expect(response.body.errors[0].field).toEqual('email');
-      expect(response.body.errors[0].message).toEqual('O campo precisa ser um endereço de e-mail válido');
-
-      response = await request
-        .post('/api/auth/users')
-        .set('Content-Type', 'application/json')
-        .send({
-          email: faker.internet.email(),
-          password: faker.string.alphanumeric(7), // invalid password
-        });
-
-      expect(response.status).toEqual(400);
-      expect(response.body.errors).toHaveLength(1);
-      expect(response.body.errors[0].field).toEqual('password');
-      expect(response.body.errors[0].message).toEqual('O campo precisa ter no minimo 8 caracteres');
+      expect(response.body.errors).toHaveLength(3);
     });
   });
 

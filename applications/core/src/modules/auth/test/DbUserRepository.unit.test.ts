@@ -447,8 +447,8 @@ describe('DbUserRepository unit tests', () => {
       expect(query_mock).toHaveBeenCalledTimes(3);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'INSERT INTO users (id,email,password,access_plan_id,tenant_id) VALUES ($1,$2,$3,$4,$5)',
-        [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id, user_obj.tenant_id],
+        'INSERT INTO users (id,email,password,access_plan_id,tenant_id,type) VALUES ($1,$2,$3,$4,$5,$6)',
+        [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id, user_obj.tenant_id, user_obj.type],
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
@@ -481,8 +481,8 @@ describe('DbUserRepository unit tests', () => {
 
       expect(query_mock).toHaveBeenCalledTimes(1);
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO users (id,email,password,access_plan_id) VALUES ($1,$2,$3,$4)',
-        [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id],
+        'INSERT INTO users (id,email,password,access_plan_id,type) VALUES ($1,$2,$3,$4,$5)',
+        [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id, user_obj.type],
       );
     });
 
@@ -505,8 +505,8 @@ describe('DbUserRepository unit tests', () => {
 
       expect(query_mock).toHaveBeenCalledTimes(1);
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO users (id,email,password,tenant_id) VALUES ($1,$2,$3,$4)',
-        [user_obj.id, user_obj.email, user_obj.password, user_obj.tenant_id],
+        'INSERT INTO users (id,email,password,tenant_id,type) VALUES ($1,$2,$3,$4,$5)',
+        [user_obj.id, user_obj.email, user_obj.password, user_obj.tenant_id, user_obj.type],
       );
     });
 
@@ -529,8 +529,8 @@ describe('DbUserRepository unit tests', () => {
 
       expect(query_mock).toHaveBeenCalledTimes(1);
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO users (id,email,password,access_plan_id) VALUES ($1,$2,$3,$4)',
-        [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id],
+        'INSERT INTO users (id,email,password,access_plan_id,type) VALUES ($1,$2,$3,$4,$5)',
+        [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id, user_obj.type],
       );
     });
 
@@ -552,8 +552,8 @@ describe('DbUserRepository unit tests', () => {
 
       expect(query_mock).toHaveBeenCalledTimes(1);
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO users (id,email,password) VALUES ($1,$2,$3)',
-        [user_obj.id, user_obj.email, user_obj.password],
+        'INSERT INTO users (id,email,password,type) VALUES ($1,$2,$3,$4)',
+        [user_obj.id, user_obj.email, user_obj.password, user_obj.type],
       );
     });
   });

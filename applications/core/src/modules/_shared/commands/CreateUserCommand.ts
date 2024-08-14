@@ -1,4 +1,5 @@
 import Command from "@shared/Command";
+import UserTypes from "@shared/UserTypes";
 
 type CreateUserCommandParams = {
   email: string;
@@ -6,7 +7,7 @@ type CreateUserCommandParams = {
   access_plan_id?: string;
   default_policies: string[];
   tenant_id?: string;
-  type: string;
+  type: UserTypes;
 };
 
 export default class CreateUserCommand extends Command {
@@ -15,7 +16,7 @@ export default class CreateUserCommand extends Command {
   readonly access_plan_id?: string;
   readonly default_policies: string[];
   readonly tenant_id?: string;
-  readonly type: string;
+  readonly type: UserTypes;
 
   constructor(params: CreateUserCommandParams) {
     super();

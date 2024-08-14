@@ -98,7 +98,7 @@ describe('DbCompanyRepository unit tests', () => {
       expect(page_result).toBeUndefined();
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'SELECT * FROM users WHERE tenant_id IS NULL AND is_admin = false'
+        "SELECT * FROM users WHERE type='company'"
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
@@ -165,11 +165,11 @@ describe('DbCompanyRepository unit tests', () => {
       expect(page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'SELECT count(id) as total FROM users WHERE tenant_id IS NULL AND is_admin = false',
+        "SELECT count(id) as total FROM users WHERE type='company'",
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT * FROM users WHERE tenant_id IS NULL AND is_admin = false LIMIT $1 OFFSET $2',
+        "SELECT * FROM users WHERE type='company' LIMIT $1 OFFSET $2",
         [page_options.limit, 0],
       );
       expect(query_mock).toHaveBeenNthCalledWith(
@@ -237,11 +237,11 @@ describe('DbCompanyRepository unit tests', () => {
       expect(page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'SELECT count(id) as total FROM users WHERE tenant_id IS NULL AND is_admin = false',
+        "SELECT count(id) as total FROM users WHERE type='company'",
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT * FROM users WHERE tenant_id IS NULL AND is_admin = false LIMIT $1 OFFSET $2',
+        "SELECT * FROM users WHERE type='company' LIMIT $1 OFFSET $2",
         [page_options.limit, 1],
       );
       expect(query_mock).toHaveBeenNthCalledWith(
@@ -288,7 +288,7 @@ describe('DbCompanyRepository unit tests', () => {
       await repository.updateCompany(company);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'UPDATE users SET document=$2,name=$3,access_plan_id=$4,street=$5,district=$6,state=$7,number=$8,complement=$9,account=$10,account_digit=$11,agency=$12,agency_digit=$13,bank_code=$14,color=$15,logo_url=$16 WHERE id = $1',
+        "UPDATE users SET document=$2,name=$3,access_plan_id=$4,street=$5,district=$6,state=$7,number=$8,complement=$9,account=$10,account_digit=$11,agency=$12,agency_digit=$13,bank_code=$14,color=$15,logo_url=$16 WHERE type='company' AND id = $1",
         [
           company_obj.id,
           company_obj.document,
@@ -361,7 +361,7 @@ describe('DbCompanyRepository unit tests', () => {
       expect(company!.toObject().employees).toHaveLength(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'SELECT * FROM users WHERE tenant_id IS NULL AND is_admin = false AND id = $1',
+        "SELECT * FROM users WHERE type='company' AND id = $1",
         [companies[0].id]
       );
       expect(query_mock).toHaveBeenNthCalledWith(
@@ -381,7 +381,7 @@ describe('DbCompanyRepository unit tests', () => {
 
       expect(company).toBeNull()
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT * FROM users WHERE tenant_id IS NULL AND is_admin = false AND id = $1',
+        "SELECT * FROM users WHERE type='company' AND id = $1",
         [company_id]
       );
     });
@@ -398,7 +398,7 @@ describe('DbCompanyRepository unit tests', () => {
 
       expect(result).toBeTruthy();
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT count(id) as total FROM users WHERE tenant_id IS NULL AND is_admin = false AND document = $1',
+        "SELECT count(id) as total FROM users WHERE type='company' AND document = $1",
         [document]
       );
     });
@@ -411,7 +411,7 @@ describe('DbCompanyRepository unit tests', () => {
 
       expect(result).toBeFalsy()
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT count(id) as total FROM users WHERE tenant_id IS NULL AND is_admin = false AND document = $1',
+        "SELECT count(id) as total FROM users WHERE type='company' AND document = $1",
         [document]
       );
     });
@@ -435,7 +435,7 @@ describe('DbCompanyRepository unit tests', () => {
       await repository.updateEmployee(employee);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'UPDATE users SET name=$2,document=$3,email=$4,deactivated_at=$5 WHERE id = $1',
+        "UPDATE users SET name=$2,document=$3,email=$4,deactivated_at=$5 WHERE type='employee' AND id = $1",
         [
           employee_obj.id,
           employee_obj.name,
@@ -468,7 +468,7 @@ describe('DbCompanyRepository unit tests', () => {
       expect(employee).toBeInstanceOf(Employee);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'SELECT * FROM users WHERE tenant_id IS NOT NULL AND is_admin = false AND id = $1',
+        "SELECT * FROM users WHERE type='employee' AND id = $1",
         [employee_id]
       );
     });
@@ -483,7 +483,7 @@ describe('DbCompanyRepository unit tests', () => {
 
       expect(employee).toBeNull()
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT * FROM users WHERE tenant_id IS NOT NULL AND is_admin = false AND id = $1',
+        "SELECT * FROM users WHERE type='employee' AND id = $1",
         [employee_id]
       );
     });

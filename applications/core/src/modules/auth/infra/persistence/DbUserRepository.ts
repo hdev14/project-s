@@ -158,7 +158,8 @@ export default class DbUserRepository implements UserRepository {
       email: user_obj.email,
       password: user_obj.password,
       access_plan_id: user_obj.access_plan_id,
-      tenant_id: user_obj.tenant_id
+      tenant_id: user_obj.tenant_id,
+      type: user_obj.type,
     };
 
     const values = Object.values(insert_obj)

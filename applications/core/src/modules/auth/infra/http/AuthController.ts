@@ -90,7 +90,7 @@ export default class AuthController extends BaseHttpController {
 
   @httpPost('/users', requestValidator(create_user_validation_schema))
   async registerUser(@request() req: Request) {
-    const { email, password, access_plan_id, tenant_id } = req.body;
+    const { email, password, access_plan_id, tenant_id, type } = req.body;
 
     if (tenant_id !== undefined && !await this.httpContext.user.isInRole(Policies.CREATE_TENANT_USER)) {
       return this.statusCode(HttpStatusCodes.FORBIDDEN);
@@ -101,6 +101,7 @@ export default class AuthController extends BaseHttpController {
       password,
       access_plan_id,
       tenant_id,
+      type,
     });
 
     if (error) {

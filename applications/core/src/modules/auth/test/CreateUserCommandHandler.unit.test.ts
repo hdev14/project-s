@@ -3,11 +3,12 @@ import CreateUserCommandHandler from "@auth/app/CreateUserCommandHandler";
 import Encryptor from "@auth/app/Encryptor";
 import UserRepository from "@auth/app/UserRepository";
 import AccessPlan, { AccessPlanTypes } from "@auth/domain/AccessPlan";
-import User, { UserTypes } from "@auth/domain/User";
+import User from "@auth/domain/User";
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import CreateUserCommand from "@shared/commands/CreateUserCommand";
 import NotFoundError from "@shared/errors/NotFoundError";
 import { Policies } from "@shared/infra/Principal";
+import UserTypes from "@shared/UserTypes";
 import { mock } from "jest-mock-extended";
 
 describe('CreateUserCommandHandler unit tests', () => {

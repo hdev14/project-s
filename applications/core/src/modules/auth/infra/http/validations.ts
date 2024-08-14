@@ -1,4 +1,5 @@
 import { AccessPlanTypes } from "@auth/domain/AccessPlan";
+import UserTypes from "@shared/UserTypes";
 import { Schema } from "express-validator";
 
 export const create_user_validation_schema: Schema = {
@@ -19,6 +20,12 @@ export const create_user_validation_schema: Schema = {
     isUUID: true,
     optional: true,
     errorMessage: 'validation.id'
+  },
+  type: {
+    isIn: {
+      options: [Object.values(UserTypes)],
+      errorMessage: 'validation.user_types'
+    }
   },
 };
 

@@ -1,14 +1,7 @@
 import Aggregate, { AggregateRoot, RequiredId } from "@shared/ddd/Aggregate";
 import AccessPlan from "./AccessPlan";
 import Policy from "./Policy";
-
-
-export enum UserTypes {
-  ADMIN = 'admin',
-  COMPANY = 'company',
-  EMPLOYEE = 'employee',
-  CUSTOMER = 'customer'
-}
+import UserTypes from "@shared/UserTypes";
 
 export type UserObject = {
   id?: string;

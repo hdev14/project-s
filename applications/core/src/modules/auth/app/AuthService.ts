@@ -1,6 +1,6 @@
 import AccessPlan, { AccessPlanObject, AccessPlanTypes } from "@auth/domain/AccessPlan";
 import { PolicyObject } from "@auth/domain/Policy";
-import User, { UserObject, UserTypes } from "@auth/domain/User";
+import User, { UserObject } from "@auth/domain/User";
 import VerificationCode from "@auth/domain/VerificationCode";
 import CredentialError from "@shared/errors/CredentialError";
 import DomainError from "@shared/errors/DomainError";
@@ -19,6 +19,7 @@ import Encryptor from "./Encryptor";
 import PolicyRepository from "./PolicyRepository";
 import UserRepository from "./UserRepository";
 import VerificationCodeRepository from "./VerificationCodeRepository";
+import UserTypes from "@shared/UserTypes";
 
 export type LoginResult = {
   user: UserObject;

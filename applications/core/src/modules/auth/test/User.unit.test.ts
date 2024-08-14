@@ -1,7 +1,8 @@
 import AccessPlan, { AccessPlanTypes } from '@auth/domain/AccessPlan';
 import Policy from '@auth/domain/Policy';
-import User, { UserTypes } from '@auth/domain/User';
+import User from '@auth/domain/User';
 import { faker } from '@faker-js/faker/locale/pt_BR';
+import UserTypes from '@shared/UserTypes';
 
 
 describe('User unit tests', () => {

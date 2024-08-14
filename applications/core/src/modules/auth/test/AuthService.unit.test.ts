@@ -7,7 +7,7 @@ import UserRepository from '@auth/app/UserRepository';
 import VerificationCodeRepository from '@auth/app/VerificationCodeRepository';
 import AccessPlan, { AccessPlanTypes } from '@auth/domain/AccessPlan';
 import Policy from '@auth/domain/Policy';
-import User, { UserTypes } from '@auth/domain/User';
+import User from '@auth/domain/User';
 import VerificationCode from '@auth/domain/VerificationCode';
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import CredentialError from '@shared/errors/CredentialError';
@@ -15,6 +15,7 @@ import DomainError from '@shared/errors/DomainError';
 import ExpiredCodeError from '@shared/errors/ExpiredCode';
 import NotFoundError from '@shared/errors/NotFoundError';
 import EmailService from '@shared/infra/EmailService';
+import UserTypes from '@shared/UserTypes';
 import Collection from '@shared/utils/Collection';
 import { mock } from 'jest-mock-extended';
 

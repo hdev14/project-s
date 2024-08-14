@@ -18,6 +18,7 @@ import UserFactory from '@shared/infra/test_utils/factories/UserFactory';
 import '@shared/infra/test_utils/matchers/toBeNullInDatabase';
 import '@shared/infra/test_utils/matchers/toEqualInDatabase';
 import types from '@shared/infra/types';
+import UserTypes from '@shared/UserTypes';
 import Application from 'src/Application';
 import supertest from 'supertest';
 
@@ -48,6 +49,7 @@ describe('Company integration tests', () => {
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
         document: faker.string.numeric(14),
+        type: UserTypes.COMPANY,
       });
 
       const response = await request
@@ -232,27 +234,32 @@ describe('Company integration tests', () => {
           id: company_id,
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
+          type: UserTypes.COMPANY,
         },
         {
           id: faker.string.uuid(),
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
+          type: UserTypes.COMPANY,
         },
         {
           id: faker.string.uuid(),
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
+          type: UserTypes.COMPANY,
         },
         {
           id: faker.string.uuid(),
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
+          type: UserTypes.COMPANY,
         },
         {
           id: faker.string.uuid(),
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
-          tenant_id: company_id, // customer or employee
+          tenant_id: company_id,
+          type: UserTypes.EMPLOYEE,
         },
       ]);
 
@@ -273,21 +280,25 @@ describe('Company integration tests', () => {
           id: faker.string.uuid(),
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
+          type: UserTypes.COMPANY,
         },
         {
           id: faker.string.uuid(),
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
+          type: UserTypes.COMPANY,
         },
         {
           id: faker.string.uuid(),
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
+          type: UserTypes.COMPANY,
         },
         {
           id: faker.string.uuid(),
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
+          type: UserTypes.COMPANY,
         },
       ]);
 
@@ -353,6 +364,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const response = await request
@@ -402,6 +414,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const response = await request
@@ -425,6 +438,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const data = {
@@ -476,6 +490,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const response = await request
@@ -499,6 +514,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const data = {
@@ -547,6 +563,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const response = await request
@@ -567,6 +584,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const data = {
@@ -606,6 +624,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const response = await request
@@ -627,6 +646,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       await policy_facotry.createOne({
@@ -673,6 +693,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const response = await request
@@ -690,6 +711,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const employee = await user_factory.createOne({
@@ -697,6 +719,7 @@ describe('Company integration tests', () => {
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
         tenant_id: company.id,
+        type: UserTypes.EMPLOYEE,
       });
 
       const response = await request
@@ -722,13 +745,14 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const customer = await user_factory.createOne({
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
-        tenant_id: company.id,
+        type: UserTypes.CUSTOMER,
       });
 
       const service = await catalog_item_factory.createOne({
@@ -761,6 +785,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const employee = await user_factory.createOne({
@@ -768,6 +793,7 @@ describe('Company integration tests', () => {
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
         tenant_id: company.id,
+        type: UserTypes.EMPLOYEE,
       });
 
       const service = await catalog_item_factory.createOne({
@@ -800,6 +826,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const response = await request
@@ -822,6 +849,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const employee = await user_factory.createOne({
@@ -829,13 +857,14 @@ describe('Company integration tests', () => {
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
         tenant_id: company.id,
+        type: UserTypes.EMPLOYEE,
       });
 
       const customer = await user_factory.createOne({
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
-        tenant_id: company.id,
+        type: UserTypes.CUSTOMER,
       });
 
       const service = await catalog_item_factory.createOne({
@@ -884,6 +913,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const employee = await user_factory.createOne({
@@ -891,13 +921,14 @@ describe('Company integration tests', () => {
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
         tenant_id: company.id,
+        type: UserTypes.EMPLOYEE,
       });
 
       const customer = await user_factory.createOne({
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
-        tenant_id: company.id,
+        type: UserTypes.CUSTOMER,
       });
 
       const service = await catalog_item_factory.createOne({
@@ -960,6 +991,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const employee = await user_factory.createOne({
@@ -967,13 +999,14 @@ describe('Company integration tests', () => {
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
         tenant_id: company.id,
+        type: UserTypes.EMPLOYEE,
       });
 
       const customer = await user_factory.createOne({
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
-        tenant_id: company.id,
+        type: UserTypes.CUSTOMER,
       });
 
       const service = await catalog_item_factory.createOne({
@@ -1071,6 +1104,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const response = await request
@@ -1092,6 +1126,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const response = await request
@@ -1113,6 +1148,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const service = await catalog_item_factory.createOne({
@@ -1151,6 +1187,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const service = await catalog_item_factory.createOne({
@@ -1192,6 +1229,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const response = await request
@@ -1212,6 +1250,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const service = await catalog_item_factory.createOne({
@@ -1253,6 +1292,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const service = await catalog_item_factory.createOne({
@@ -1301,6 +1341,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const response = await request
@@ -1318,6 +1359,7 @@ describe('Company integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
       });
 
       const service = await catalog_item_factory.createOne({

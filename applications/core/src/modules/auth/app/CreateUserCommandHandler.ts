@@ -1,4 +1,4 @@
-import User, { UserTypes } from "@auth/domain/User";
+import User from "@auth/domain/User";
 import Handler from "@shared/Handler";
 import CreateUserCommand from "@shared/commands/CreateUserCommand";
 import NotFoundError from "@shared/errors/NotFoundError";

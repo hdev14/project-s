@@ -14,6 +14,7 @@ import '@shared/infra/test_utils/matchers/toEqualInDatabase';
 import '@shared/infra/test_utils/matchers/toExistsInTable';
 import '@shared/infra/test_utils/matchers/toHasPoliciesInDatabase';
 import types from '@shared/infra/types';
+import UserTypes from '@shared/UserTypes';
 import Application from 'src/Application';
 import supertest from 'supertest';
 
@@ -70,7 +71,8 @@ describe('Auth integration tests', () => {
       const tenant = await user_factory.createOne({
         id: faker.string.uuid(),
         email: faker.internet.email(),
-        password: faker.string.alphanumeric(10)
+        password: faker.string.alphanumeric(10),
+        type: faker.helpers.enumValue(UserTypes)
       });
 
       const response = await request
@@ -208,7 +210,8 @@ describe('Auth integration tests', () => {
       const user = await user_factory.createOne({
         id: faker.string.uuid(),
         email: faker.internet.email(),
-        password: faker.string.alphanumeric(10)
+        password: faker.string.alphanumeric(10),
+        type: faker.helpers.enumValue(UserTypes)
       });
 
       const data = {
@@ -244,7 +247,8 @@ describe('Auth integration tests', () => {
       const user = await user_factory.createOne({
         id: faker.string.uuid(),
         email: faker.internet.email(),
-        password: faker.string.alphanumeric(10)
+        password: faker.string.alphanumeric(10),
+        type: faker.helpers.enumValue(UserTypes)
       });
 
       let response = await request
@@ -282,7 +286,8 @@ describe('Auth integration tests', () => {
       const user = await user_factory.createOne({
         id: faker.string.uuid(),
         email: faker.internet.email(),
-        password: encryptor.createHash(password)
+        password: encryptor.createHash(password),
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       const response = await request
@@ -319,6 +324,7 @@ describe('Auth integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       const response = await request
@@ -366,23 +372,27 @@ describe('Auth integration tests', () => {
           id: tenant_id,
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
+          type: faker.helpers.enumValue(UserTypes),
         },
         {
           id: faker.string.uuid(),
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
+          type: faker.helpers.enumValue(UserTypes),
         },
         {
           id: faker.string.uuid(),
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
-          tenant_id
+          tenant_id,
+          type: faker.helpers.enumValue(UserTypes),
         },
         {
           id: faker.string.uuid(),
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
-          tenant_id
+          tenant_id,
+          type: faker.helpers.enumValue(UserTypes),
         },
       ]);
 
@@ -403,23 +413,27 @@ describe('Auth integration tests', () => {
           id: tenant_id,
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
+          type: faker.helpers.enumValue(UserTypes),
         },
         {
           id: faker.string.uuid(),
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
+          type: faker.helpers.enumValue(UserTypes),
         },
         {
           id: faker.string.uuid(),
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
-          tenant_id
+          tenant_id,
+          type: faker.helpers.enumValue(UserTypes),
         },
         {
           id: faker.string.uuid(),
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
-          tenant_id
+          tenant_id,
+          type: faker.helpers.enumValue(UserTypes),
         },
       ]);
 
@@ -466,23 +480,27 @@ describe('Auth integration tests', () => {
           id: tenant_id,
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
+          type: faker.helpers.enumValue(UserTypes),
         },
         {
           id: faker.string.uuid(),
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
+          type: faker.helpers.enumValue(UserTypes),
         },
         {
           id: faker.string.uuid(),
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
-          tenant_id
+          tenant_id,
+          type: faker.helpers.enumValue(UserTypes),
         },
         {
           id: faker.string.uuid(),
           email: faker.internet.email(),
           password: faker.string.alphanumeric(10),
-          tenant_id
+          tenant_id,
+          type: faker.helpers.enumValue(UserTypes),
         },
       ]);
 
@@ -511,6 +529,7 @@ describe('Auth integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       const policy = await policy_factory.createOne({
@@ -562,6 +581,7 @@ describe('Auth integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       const response = await request
@@ -813,6 +833,7 @@ describe('Auth integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       const response = await request
@@ -844,6 +865,7 @@ describe('Auth integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       const verification_code = await verification_code_factory.createOne({
@@ -883,6 +905,7 @@ describe('Auth integration tests', () => {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
+        type: faker.helpers.enumValue(UserTypes),
       });
 
       const verification_code = await verification_code_factory.createOne({

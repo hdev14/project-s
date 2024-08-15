@@ -1,7 +1,9 @@
 import { AddressValue } from "@shared/Address";
+import NotFoundError from "@shared/errors/NotFoundError";
 import Either from "@shared/utils/Either";
 import { PaymentMethodValue } from "@subscriber/domain/PaymentMethod";
 import { SubscriberObject } from "@subscriber/domain/Subscriber";
+import SubscriberRepository from "./SubscriberRepository";
 
 export type GetSubscriberParams = {
   subscriber_id: string;
@@ -30,8 +32,20 @@ type UpdatePaymentMethod = {
 } & PaymentMethodValue;
 
 export default class SubscriberService {
+  #subscriber_repository: SubscriberRepository;
+
+  constructor(subscriber_repository: SubscriberRepository) {
+    this.#subscriber_repository = subscriber_repository;
+  }
+
   async getSubscriber(params: GetSubscriberParams): Promise<Either<SubscriberObject>> {
-    return Either.left(new Error());
+    const subscriber = await this.#subscriber_repository.getSubcriberById(params.subscriber_id);
+
+    if (!subscriber) {
+      return Either.left(new NotFoundError('notfound.subscriber'));
+    }
+
+    return Either.right(subscriber.toObject());
   }
 
   async createSubscriber(params: CreateSubscriberParams): Promise<Either<SubscriberObject>> {

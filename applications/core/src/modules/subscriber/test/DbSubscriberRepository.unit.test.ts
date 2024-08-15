@@ -356,7 +356,7 @@ describe('DbSubscriberRepository unit tests', () => {
         document: faker.string.numeric(11),
         email: faker.internet.email(),
         payment_method: {
-          payment_type: faker.helpers.enumValue(PaymentTypes),
+          payment_type: PaymentTypes.PIX,
         },
         phone_number: faker.string.numeric(11),
         subscriptions: [],

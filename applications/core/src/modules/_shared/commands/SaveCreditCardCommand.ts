@@ -6,7 +6,7 @@ type SaveCreditCardCommandParams = {
   email: string;
   document: string;
   address: AddressValue;
-  card_token: string;
+  credit_card_token: string;
 };
 
 export default class SaveCreditCardCommand extends Command {
@@ -14,7 +14,7 @@ export default class SaveCreditCardCommand extends Command {
   readonly email: string;
   readonly document: string;
   readonly address: AddressValue;
-  readonly card_token: string;
+  readonly credit_card_token: string;
 
   constructor(params: SaveCreditCardCommandParams) {
     super();
@@ -22,6 +22,6 @@ export default class SaveCreditCardCommand extends Command {
     this.customer_id = params.customer_id;
     this.document = params.document;
     this.address = params.address;
-    this.card_token = params.card_token;
+    this.credit_card_token = params.credit_card_token;
   }
 }

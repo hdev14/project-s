@@ -42,18 +42,18 @@ export default class Subscriber extends Aggregate<SubscriberObject> implements A
     }
   }
 
-  set personal_info(value: Pick<SubscriberObject, 'document' | 'email' | 'phone_number'>) {
-    this.#document = value.document;
-    this.#email = value.email;
-    this.#phone_number = value.phone_number;
+  changePersonalInfo(personal_info: Pick<SubscriberObject, 'document' | 'email' | 'phone_number'>) {
+    this.#document = personal_info.document;
+    this.#email = personal_info.email;
+    this.#phone_number = personal_info.phone_number;
   }
 
-  set address(value: Address) {
-    this.#address = value;
+  changeAddress(address: Address) {
+    this.#address = address;
   }
 
-  set payment_method(value: PaymentMethod) {
-    this.#payment_method = value;
+  changePaymentMethod(payment_method: PaymentMethod) {
+    this.#payment_method = payment_method;
   }
 
   toObject(): RequiredId<SubscriberObject> {

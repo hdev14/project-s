@@ -34,7 +34,7 @@ export default class Commission extends Aggregate<CommissionObject> implements A
 
   set tax(value: number) {
     if (this.#tax_type === TaxTypes.PERCENTAGE && value > 1) {
-      throw new DomainError(Commission.name, 'tax_percentage_error');
+      throw new DomainError('tax_percentage_error');
     }
     this.#tax = value;
   }

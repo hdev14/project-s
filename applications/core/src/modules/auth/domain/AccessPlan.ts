@@ -30,7 +30,7 @@ export default class AccessPlan extends Aggregate<AccessPlanObject> implements A
 
   set amount(value: number) {
     if (value < 0) {
-      throw new DomainError(AccessPlan.name, 'negative_access_plan_amount');
+      throw new DomainError('negative_access_plan_amount');
     }
     this.#amount = value;
   }

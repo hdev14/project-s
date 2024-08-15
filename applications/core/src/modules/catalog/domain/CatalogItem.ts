@@ -47,7 +47,7 @@ export default class CatalogItem extends Aggregate<CatalogItemObject> {
 
   set amount(value: number) {
     if (value <= 0) {
-      throw new DomainError(CatalogItem.name, 'catalog_item_negative_amount');
+      throw new DomainError('catalog_item_negative_amount');
     }
 
     this.#amount = value;

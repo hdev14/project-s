@@ -2,7 +2,9 @@ import { faker } from '@faker-js/faker/locale/pt_BR';
 import SaveCreditCardCommand from '@shared/commands/SaveCreditCardCommand';
 import CreditCardError from '@shared/errors/CreditCardError';
 import NotFoundError from '@shared/errors/NotFoundError';
+import EmailService from '@shared/infra/EmailService';
 import Mediator from '@shared/Mediator';
+import UserTypes from '@shared/UserTypes';
 import SubscriberRepository from "@subscriber/app/SubscriberRepository";
 import SubscriberService from "@subscriber/app/SubscriberService";
 import { PaymentTypes } from '@subscriber/domain/PaymentMethod';
@@ -12,7 +14,12 @@ import { mock } from "jest-mock-extended";
 describe('SubscriberService unit tests', () => {
   const subscriber_repository_mock = mock<SubscriberRepository>();
   const mediator_mock = mock<Mediator>();
-  const subscriber_service = new SubscriberService(subscriber_repository_mock, mediator_mock);
+  const email_service_mock = mock<EmailService>();
+  const subscriber_service = new SubscriberService(
+    subscriber_repository_mock,
+    mediator_mock,
+    email_service_mock
+  );
 
   describe('SubscriberService.getSubscriber', () => {
     it('returns a subscriber', async () => {
@@ -307,6 +314,90 @@ describe('SubscriberService unit tests', () => {
       const [, error] = await subscriber_service.updateSubscriberPaymentMethod(params);
 
       expect(error).toBeInstanceOf(CreditCardError);
+    });
+  });
+
+  describe('CompanyService.createSubscriber', () => {
+    it("should create a new user for the subscriber", async () => {
+      const user_id = faker.string.uuid();
+      mediator_mock.send.mockResolvedValueOnce(user_id);
+
+      const params = {
+        document: '12345678910',
+        email: faker.internet.email(),
+        phone_number: faker.string.numeric(11),
+        address: {
+          street: faker.location.street(),
+          district: faker.string.sample(),
+          number: faker.location.buildingNumber(),
+          state: faker.location.state({ abbreviated: true }),
+          complement: faker.string.sample(),
+        },
+      };
+
+      await subscriber_service.createSubscriber(params);
+
+      expect(mediator_mock.send).toHaveBeenCalledTimes(1);
+      const command = mediator_mock.send.mock.calls[0][0] as any;
+      expect(command.email).toEqual(params.email);
+      expect(command.temp_password).toEqual('123456');
+      expect(command.access_plan_id).toBeUndefined();
+      expect(command.default_policies).toEqual([]);
+      expect(command.tenant_id).toBeUndefined();
+      expect(command.type).toEqual(UserTypes.CUSTOMER);
+    });
+
+    it("should create a new subscriber", async () => {
+      const user_id = faker.string.uuid();
+      mediator_mock.send.mockResolvedValueOnce(user_id);
+
+      const params = {
+        document: '12345678910',
+        email: faker.internet.email(),
+        phone_number: faker.string.numeric(11),
+        address: {
+          street: faker.location.street(),
+          district: faker.string.sample(),
+          number: faker.location.buildingNumber(),
+          state: faker.location.state({ abbreviated: true }),
+          complement: faker.string.sample(),
+        },
+      };
+
+      const [data, error] = await subscriber_service.createSubscriber(params);
+
+      expect(subscriber_repository_mock.updateSubscriber).toHaveBeenCalled();
+      expect(error).toBeUndefined();
+      expect(data!.id).toEqual(user_id);
+      expect(data!.document).toEqual(params.document);
+      expect(data!.email).toEqual(params.email);
+      expect(data!.address).toEqual(params.address);
+      expect(data!.phone_number).toEqual(params.phone_number);
+    });
+
+    it("should send a welcome email to the subscriber's email", async () => {
+      mediator_mock.send.mockResolvedValueOnce(faker.string.uuid());
+
+      const params = {
+        document: '12345678910',
+        email: faker.internet.email(),
+        phone_number: faker.string.numeric(11),
+        address: {
+          street: faker.location.street(),
+          district: faker.string.sample(),
+          number: faker.location.buildingNumber(),
+          state: faker.location.state({ abbreviated: true }),
+          complement: faker.string.sample(),
+        },
+      };
+
+      await subscriber_service.createSubscriber(params);
+
+      expect(email_service_mock.send).toHaveBeenCalledWith({
+        email: params.email,
+        message: 'Para efetuar o primeiro acesso a plataforma utilize como senha os primeiros 6 digitos do CPF.',
+        title: 'Cliente cadastrado!'
+      });
     });
   });
 });

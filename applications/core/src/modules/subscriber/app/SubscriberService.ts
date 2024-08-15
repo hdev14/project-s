@@ -1,11 +1,14 @@
 import Address, { AddressValue } from "@shared/Address";
+import CreateUserCommand from "@shared/commands/CreateUserCommand";
 import SaveCreditCardCommand from "@shared/commands/SaveCreditCardCommand";
 import CreditCardError from "@shared/errors/CreditCardError";
 import NotFoundError from "@shared/errors/NotFoundError";
+import EmailService from "@shared/infra/EmailService";
 import Mediator from "@shared/Mediator";
+import UserTypes from "@shared/UserTypes";
 import Either from "@shared/utils/Either";
 import PaymentMethod, { PaymentTypes } from "@subscriber/domain/PaymentMethod";
-import { SubscriberObject } from "@subscriber/domain/Subscriber";
+import Subscriber, { SubscriberObject } from "@subscriber/domain/Subscriber";
 import SubscriberRepository from "./SubscriberRepository";
 
 export type GetSubscriberParams = {
@@ -39,10 +42,16 @@ type UpdateSubscriberPaymentMethod = {
 export default class SubscriberService {
   #subscriber_repository: SubscriberRepository;
   #mediator: Mediator;
+  #email_service: EmailService;
 
-  constructor(subscriber_repository: SubscriberRepository, mediator: Mediator) {
+  constructor(
+    subscriber_repository: SubscriberRepository,
+    mediator: Mediator,
+    email_service: EmailService,
+  ) {
     this.#subscriber_repository = subscriber_repository;
     this.#mediator = mediator;
+    this.#email_service = email_service;
   }
 
   async getSubscriber(params: GetSubscriberParams): Promise<Either<SubscriberObject>> {
@@ -56,7 +65,32 @@ export default class SubscriberService {
   }
 
   async createSubscriber(params: CreateSubscriberParams): Promise<Either<SubscriberObject>> {
-    return Either.left(new Error());
+    const user_id = await this.#mediator.send<string>(new CreateUserCommand({
+      default_policies: [],
+      email: params.email,
+      temp_password: params.document.slice(0, 6),
+      type: UserTypes.CUSTOMER,
+    }));
+
+    const subscriber = new Subscriber({
+      id: user_id,
+      document: params.document,
+      email: params.email,
+      phone_number: params.phone_number,
+      address: params.address,
+      payment_method: { payment_type: PaymentTypes.PIX },
+      subscriptions: []
+    });
+
+    await this.#subscriber_repository.updateSubscriber(subscriber);
+
+    await this.#email_service.send({
+      email: params.email,
+      message: 'Para efetuar o primeiro acesso a plataforma utilize como senha os primeiros 6 digitos do CPF.',
+      title: 'Cliente cadastrado!'
+    });
+
+    return Either.right(subscriber.toObject());
   }
 
   async updateSubscriberAddress(params: UpdateSubscriberAddressParams): Promise<Either<void>> {
@@ -100,7 +134,6 @@ export default class SubscriberService {
   }
 
   async updateSubscriberPaymentMethod(params: UpdateSubscriberPaymentMethod): Promise<Either<void>> {
-
     try {
       const subscriber = await this.#subscriber_repository.getSubcriberById(params.subscriber_id);
 

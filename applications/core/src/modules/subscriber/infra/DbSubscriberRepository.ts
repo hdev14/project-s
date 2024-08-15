@@ -150,10 +150,6 @@ export default class DbSubscriberRepository implements SubscriberRepository {
     return { rows };
   }
 
-  createSubscriber(subscriber: Subscriber): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-
   async updateSubscriber(subscriber: Subscriber): Promise<void> {
     const { id, document, email, phone_number, address, payment_method } = subscriber.toObject();
     const data = Object.assign({}, { id, document, email, phone_number }, address, payment_method);

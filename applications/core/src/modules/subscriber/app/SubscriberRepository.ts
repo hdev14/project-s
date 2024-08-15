@@ -6,7 +6,6 @@ export type SubscribersFilter = {
 }
 
 export default interface SubscriberRepository {
-  createSubscriber(subscriber: Subscriber): Promise<void>;
   updateSubscriber(subscriber: Subscriber): Promise<void>;
   getSubcriberById(id: string): Promise<Subscriber | null>;
   getSubscribers(filter?: SubscribersFilter): Promise<PaginatedResult<Subscriber>>;

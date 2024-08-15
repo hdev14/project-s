@@ -9,7 +9,7 @@ import { Pool } from "pg";
 
 export default class DbSubscriberRepository implements SubscriberRepository {
   #db: Pool;
-  static #subscriber_columns = [
+  #subscriber_columns = [
     'id',
     'email',
     'document',
@@ -29,7 +29,7 @@ export default class DbSubscriberRepository implements SubscriberRepository {
 
   async getSubcriberById(id: string): Promise<Subscriber | null> {
     const subscriber_result = await this.#db.query(
-      `SELECT ${DbSubscriberRepository.#subscriber_columns.toString()} FROM users WHERE type="customer" AND id=$1`,
+      `SELECT ${this.#subscriber_columns.toString()} FROM users WHERE type="customer" AND id=$1`,
       [id]
     );
 
@@ -124,7 +124,7 @@ export default class DbSubscriberRepository implements SubscriberRepository {
   }
 
   private async selectSubscribers(filter?: SubscribersFilter) {
-    const query = `SELECT ${DbSubscriberRepository.#subscriber_columns.toString()} FROM users WHERE type="customer"`;
+    const query = `SELECT ${this.#subscriber_columns.toString()} FROM users WHERE type="customer"`;
 
     if (filter && filter.page_options) {
       const offset = Pagination.calculateOffset(filter.page_options);

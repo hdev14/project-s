@@ -67,7 +67,6 @@ describe('DbCatalogRepository unit tests', () => {
 
       const { results } = await repository.getCatalogItems();
 
-      expect(results[0]).toBeInstanceOf(CatalogItem);
       expect(results).toHaveLength(3);
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT * FROM catalog_items WHERE deleted_at IS NULL',
@@ -102,7 +101,6 @@ describe('DbCatalogRepository unit tests', () => {
 
       const { results, page_result } = await repository.getCatalogItems({ page_options });
 
-      expect(results[0]).toBeInstanceOf(CatalogItem);
       expect(results).toHaveLength(1);
       expect(page_result!.next_page).toEqual(2);
       expect(page_result!.total_of_pages).toEqual(2);
@@ -146,7 +144,6 @@ describe('DbCatalogRepository unit tests', () => {
 
       const { results, page_result } = await repository.getCatalogItems({ page_options });
 
-      expect(results[0]).toBeInstanceOf(CatalogItem);
       expect(results).toHaveLength(1);
       expect(page_result!.next_page).toEqual(-1);
       expect(page_result!.total_of_pages).toEqual(2);
@@ -215,7 +212,6 @@ describe('DbCatalogRepository unit tests', () => {
         tenant_id
       });
 
-      expect(results[0]).toBeInstanceOf(CatalogItem);
       expect(results).toHaveLength(3);
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT * FROM catalog_items WHERE deleted_at IS NULL AND tenant_id=$1',
@@ -255,7 +251,6 @@ describe('DbCatalogRepository unit tests', () => {
         tenant_id,
       });
 
-      expect(results[0]).toBeInstanceOf(CatalogItem);
       expect(results).toHaveLength(1);
       expect(page_result!.next_page).toEqual(-1);
       expect(page_result!.total_of_pages).toEqual(2);

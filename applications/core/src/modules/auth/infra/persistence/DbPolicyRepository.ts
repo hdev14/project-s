@@ -1,7 +1,6 @@
 import PolicyRepository, { PolicyFilter } from "@auth/app/PolicyRepository";
-import Policy from "@auth/domain/Policy";
+import Policy, { PolicyObject } from "@auth/domain/Policy";
 import Database from "@shared/infra/Database";
-import Collection from "@shared/utils/Collection";
 import DbUtils from "@shared/utils/DbUtils";
 import { injectable } from "inversify";
 import { Pool } from "pg";
@@ -15,7 +14,7 @@ export default class DbPolicyRepository implements PolicyRepository {
     this.#db = Database.connect();
   }
 
-  async getPolicies(filter?: PolicyFilter): Promise<Collection<Policy>> {
+  async getPolicies(filter?: PolicyFilter): Promise<Array<PolicyObject>> {
     let query = 'SELECT * FROM policies';
     let values: unknown[] = [];
 
@@ -31,14 +30,14 @@ export default class DbPolicyRepository implements PolicyRepository {
 
     for (let idx = 0; idx < result.rows.length; idx++) {
       const data = result.rows[idx];
-      policies.push(new Policy({
+      policies.push({
         id: data.id,
         slug: data.slug,
         description: data.description,
-      }));
+      });
     }
 
-    return new Collection(policies);
+    return policies;
   }
 
   async getPolicyBySlug(slug: string): Promise<Policy | null> {

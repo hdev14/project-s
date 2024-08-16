@@ -1,7 +1,6 @@
 import UserRepository, { UsersFilter } from "@auth/app/UserRepository";
 import User, { UserObject } from "@auth/domain/User";
 import Database from "@shared/infra/Database";
-import Collection from "@shared/utils/Collection";
 import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
 import { injectable } from "inversify";
@@ -27,26 +26,23 @@ export default class DbUserRepository implements UserRepository {
     this.#db = Database.connect();
   }
 
-  async getUsers(filter?: UsersFilter): Promise<PaginatedResult<User>> {
+  async getUsers(filter?: UsersFilter): Promise<PaginatedResult<UserObject>> {
     const { rows, page_result } = await this.selectUsers(filter);
 
-    const objs = new Map<string, UserObject>();
+    const user_objs: Record<string, UserObject> = {};
 
     for (let idx = 0; idx < rows.length; idx++) {
       const row = rows[idx];
+      const user_obj = user_objs[row.id];
 
-      if (objs.has(row.id)) {
-        const existent_user = objs.get(row.id);
-        if (row.slug) {
-          existent_user!.policies.push(row.slug);
-        }
-        objs.set(row.id, existent_user!);
+      if (user_obj && row.slug) {
+        user_obj.policies.push(row.slug);
         continue;
       }
 
       const policies = row.slug ? [row.slug] : [];
 
-      objs.set(row.id, {
+      user_objs[row.id] = {
         id: row.id,
         email: row.email,
         password: row.password,
@@ -54,16 +50,10 @@ export default class DbUserRepository implements UserRepository {
         policies,
         tenant_id: row.tenant_id,
         type: row.type,
-      });
+      };
     }
 
-    const users = [];
-
-    for (const user_obj of objs.values()) {
-      users.push(new User(user_obj));
-    }
-
-    return { results: new Collection(users), page_result };
+    return { results: Object.values(user_objs), page_result };
   }
 
   private async selectUsers(filter?: UsersFilter) {

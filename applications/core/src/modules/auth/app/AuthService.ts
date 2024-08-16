@@ -1,5 +1,5 @@
 import AccessPlan, { AccessPlanObject, AccessPlanTypes } from "@auth/domain/AccessPlan";
-import { PolicyObject } from "@auth/domain/Policy";
+import Policy, { PolicyObject } from "@auth/domain/Policy";
 import User, { UserObject } from "@auth/domain/User";
 import VerificationCode from "@auth/domain/VerificationCode";
 import CredentialError from "@shared/errors/CredentialError";
@@ -7,6 +7,7 @@ import DomainError from "@shared/errors/DomainError";
 import ExpiredCodeError from "@shared/errors/ExpiredCode";
 import NotFoundError from "@shared/errors/NotFoundError";
 import types from "@shared/infra/types";
+import UserTypes from "@shared/UserTypes";
 import Either from "@shared/utils/Either";
 import { PageOptions, PageResult } from "@shared/utils/Pagination";
 import { randomInt } from "crypto";
@@ -19,7 +20,6 @@ import Encryptor from "./Encryptor";
 import PolicyRepository from "./PolicyRepository";
 import UserRepository from "./UserRepository";
 import VerificationCodeRepository from "./VerificationCodeRepository";
-import UserTypes from "@shared/UserTypes";
 
 export type LoginResult = {
   user: UserObject;
@@ -195,13 +195,13 @@ export default class AuthService {
 
     if (params.mode === 'attach') {
       for (let idx = 0; idx < policies.length; idx++) {
-        user.attachPolicy(policies[idx]);
+        user.attachPolicy(new Policy(policies[idx]));
       }
     }
 
     if (params.mode === 'dettach') {
       for (let idx = 0; idx < policies.length; idx++) {
-        user.dettachPolicy(policies[idx]);
+        user.dettachPolicy(new Policy(policies[idx]));
       }
     }
 
@@ -211,8 +211,7 @@ export default class AuthService {
   }
 
   async getUsers(params: GetUsersParams): Promise<Either<GetUsersResult>> {
-    const { results, page_result } = await this.#user_repository.getUsers(params);
-    return Either.right({ results: results.toObjectList(), page_result });
+    return Either.right(await this.#user_repository.getUsers(params));
   }
 
   async changeAccessPlan(params: ChangeAccessPlanParams): Promise<Either<void>> {
@@ -293,12 +292,12 @@ export default class AuthService {
 
   async getAccessPlans(): Promise<Either<Array<AccessPlanObject>>> {
     const access_plans = await this.#access_plan_repository.getAccessPlans();
-    return Either.right(access_plans.toObjectList());
+    return Either.right(access_plans);
   }
 
   async getPolicies(): Promise<Either<Array<PolicyObject>>> {
     const policies = await this.#policy_repository.getPolicies();
-    return Either.right(policies.toObjectList());
+    return Either.right(policies);
   }
 
   async forgotPassword(params: ForgotPasswordParams): Promise<Either<void>> {

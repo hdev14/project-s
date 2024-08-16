@@ -77,10 +77,9 @@ describe('DbSubscriberRepository unit tests', () => {
 
       const { results, page_result } = await repository.getSubscribers();
 
-      expect(results[0]).toBeInstanceOf(Subscriber);
       expect(results).toHaveLength(2);
-      const first_subscriber = results[0].toObject();
-      const second_subscriber = results[1].toObject();
+      const first_subscriber = results[0];
+      const second_subscriber = results[1];
       expect(first_subscriber.subscriptions).toHaveLength(2);
       expect(second_subscriber.subscriptions).toHaveLength(1);
       expect(page_result).toBeUndefined();
@@ -139,7 +138,6 @@ describe('DbSubscriberRepository unit tests', () => {
 
       const { results, page_result } = await repository.getSubscribers({ page_options });
 
-      expect(results[0]).toBeInstanceOf(Subscriber);
       expect(results).toHaveLength(1);
       expect(page_result!.next_page).toEqual(2);
       expect(page_result!.total_of_pages).toEqual(2);
@@ -203,7 +201,6 @@ describe('DbSubscriberRepository unit tests', () => {
 
       const { results, page_result } = await repository.getSubscribers({ page_options });
 
-      expect(results[0]).toBeInstanceOf(Subscriber);
       expect(results).toHaveLength(1);
       expect(page_result!.next_page).toEqual(-1);
       expect(page_result!.total_of_pages).toEqual(2);

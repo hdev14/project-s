@@ -180,9 +180,7 @@ export default class CompanyService {
   }
 
   async getCompanies(params: GetCompanisParams): Promise<Either<GetCompaniesResult>> {
-    const { results, page_result } = await this.#company_repository.getCompanies(params);
-
-    return Either.right({ results: results.toObjectList(), page_result });
+    return Either.right(await this.#company_repository.getCompanies(params));
   }
 
   async getCompany(params: GetCompanyParams): Promise<Either<CompanyObject>> {
@@ -346,9 +344,7 @@ export default class CompanyService {
   }
 
   async getServiceLogs(params: GetServiceLogsParams): Promise<Either<GetServiceLogsResult>> {
-    const { results, page_result } = await this.#service_log_repository.getServiceLogs(params);
-
-    return Either.right({ results: results.toObjectList(), page_result });
+    return Either.right(await this.#service_log_repository.getServiceLogs(params));
   }
 
   async createCommission(params: CreateCommissionParams): Promise<Either<CommissionObject>> {

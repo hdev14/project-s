@@ -14,7 +14,6 @@ import NotFoundError from "@shared/errors/NotFoundError";
 import EmailService from "@shared/infra/EmailService";
 import { Policies } from "@shared/infra/Principal";
 import Mediator from "@shared/Mediator";
-import Collection from "@shared/utils/Collection";
 import { mock } from 'jest-mock-extended';
 
 describe('CompanyService unit tests', () => {
@@ -229,8 +228,8 @@ describe('CompanyService unit tests', () => {
   describe('CompanyService.getCompanies', () => {
     it('returns a list of companies', async () => {
       company_repository_mock.getCompanies.mockResolvedValueOnce({
-        results: new Collection([
-          new Company({
+        results: [
+          {
             name: faker.company.name(),
             document: faker.string.numeric(14),
             access_plan_id: faker.string.uuid(),
@@ -249,8 +248,8 @@ describe('CompanyService unit tests', () => {
               bank_code: faker.string.numeric(3),
             },
             employees: [],
-          }),
-          new Company({
+          },
+          {
             name: faker.company.name(),
             document: faker.string.numeric(14),
             access_plan_id: faker.string.uuid(),
@@ -269,8 +268,8 @@ describe('CompanyService unit tests', () => {
               bank_code: faker.string.numeric(3),
             },
             employees: [],
-          }),
-        ]),
+          },
+        ],
         page_result: {
           next_page: 2,
           total_of_pages: 2,
@@ -532,8 +531,8 @@ describe('CompanyService unit tests', () => {
   describe('CompanyService.getServiceLogs', () => {
     it('returns a list of service logs', async () => {
       service_log_repository_mock.getServiceLogs.mockResolvedValueOnce({
-        results: new Collection([
-          new ServiceLog({
+        results: [
+          {
             commission_amount: faker.number.float(),
             customer_id: faker.string.uuid(),
             employee_id: faker.string.uuid(),
@@ -541,8 +540,8 @@ describe('CompanyService unit tests', () => {
             registed_at: faker.date.anytime(),
             service_id: faker.string.uuid(),
             tenant_id: faker.string.uuid(),
-          }),
-          new ServiceLog({
+          },
+          {
             commission_amount: faker.number.float(),
             customer_id: faker.string.uuid(),
             employee_id: faker.string.uuid(),
@@ -550,8 +549,8 @@ describe('CompanyService unit tests', () => {
             registed_at: faker.date.anytime(),
             service_id: faker.string.uuid(),
             tenant_id: faker.string.uuid(),
-          }),
-        ]),
+          },
+        ],
         page_result: {
           next_page: 2,
           total_of_pages: 2,

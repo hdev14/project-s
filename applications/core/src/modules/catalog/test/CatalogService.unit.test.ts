@@ -6,7 +6,6 @@ import UserExistsCommand from '@shared/commands/UserExistsCommand';
 import DomainError from '@shared/errors/DomainError';
 import NotFoundError from '@shared/errors/NotFoundError';
 import Mediator from '@shared/Mediator';
-import Collection from '@shared/utils/Collection';
 import { mock } from 'jest-mock-extended';
 
 describe('CatalogService unit tests', () => {
@@ -17,8 +16,8 @@ describe('CatalogService unit tests', () => {
   describe('CatalogService.getCatalogItems', () => {
     it('returns a list of catalog items', async () => {
       catalog_repository_mock.getCatalogItems.mockResolvedValueOnce({
-        results: new Collection([
-          new CatalogItem({
+        results: [
+          {
             id: faker.string.uuid(),
             name: faker.commerce.productName(),
             description: faker.commerce.productDescription(),
@@ -27,8 +26,8 @@ describe('CatalogService unit tests', () => {
             is_service: faker.datatype.boolean(),
             picture_url: faker.internet.url(),
             tenant_id: faker.string.uuid()
-          }),
-          new CatalogItem({
+          },
+          {
             id: faker.string.uuid(),
             name: faker.commerce.productName(),
             description: faker.commerce.productDescription(),
@@ -37,8 +36,8 @@ describe('CatalogService unit tests', () => {
             is_service: faker.datatype.boolean(),
             picture_url: faker.internet.url(),
             tenant_id: faker.string.uuid(),
-          }),
-        ]),
+          },
+        ],
         page_result: {
           next_page: 2,
           total_of_pages: 2,

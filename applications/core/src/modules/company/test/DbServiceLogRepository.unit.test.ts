@@ -60,7 +60,6 @@ describe('DbServiceLogRepository unit tests', () => {
 
       const { results, page_result } = await repository.getServiceLogs({ tenant_id });
 
-      expect(results[0]).toBeInstanceOf(ServiceLog);
       expect(results).toHaveLength(2);
       expect(page_result).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
@@ -100,7 +99,6 @@ describe('DbServiceLogRepository unit tests', () => {
       const { results, page_result } = await repository.getServiceLogs({ tenant_id, page_options });
 
       expect(results).toHaveLength(1);
-      expect(results[0]).toBeInstanceOf(ServiceLog);
       expect(page_result!.next_page).toEqual(2);
       expect(page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
@@ -146,7 +144,6 @@ describe('DbServiceLogRepository unit tests', () => {
       const { results, page_result } = await repository.getServiceLogs({ tenant_id, page_options });
 
       expect(results).toHaveLength(1);
-      expect(results[0]).toBeInstanceOf(ServiceLog);
       expect(page_result!.next_page).toEqual(-1);
       expect(page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(

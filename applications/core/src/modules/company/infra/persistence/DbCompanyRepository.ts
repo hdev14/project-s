@@ -1,6 +1,5 @@
 import Employee from "@company/domain/Employee";
 import Database from "@shared/infra/Database";
-import Collection from "@shared/utils/Collection";
 import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
 import { injectable } from "inversify";
@@ -52,7 +51,7 @@ export default class DbCompanyRepository implements CompanyRepository {
     return Boolean(parseInt(result.rows[0].total));
   }
 
-  async getCompanies(filter?: CompaniesFilter): Promise<PaginatedResult<Company>> {
+  async getCompanies(filter?: CompaniesFilter): Promise<PaginatedResult<CompanyObject>> {
     const { rows: company_rows, page_result } = await this.selectCompanies(filter);
 
     const company_ids = [];
@@ -66,13 +65,13 @@ export default class DbCompanyRepository implements CompanyRepository {
       company_ids
     );
 
-    const companies = [];
+    const results = [];
 
     for (let idx = 0; idx < company_rows.length; idx++) {
-      companies.push(this.mapCompany(company_rows[idx], employee_rows));
+      results.push(this.mapCompany(company_rows[idx], employee_rows));
     }
 
-    return { results: new Collection(companies), page_result };
+    return { results, page_result };
   }
 
   private async selectCompanies(filter?: CompaniesFilter) {
@@ -115,7 +114,7 @@ export default class DbCompanyRepository implements CompanyRepository {
 
     const { rows: employee_rows } = await this.#db.query(`SELECT * FROM users WHERE tenant_id = $1`, [id]);
 
-    return this.mapCompany(company_rows[0], employee_rows)
+    return new Company(this.mapCompany(company_rows[0], employee_rows));
   }
 
   private mapCompany(company: any, employee_rows: any[]) {
@@ -158,6 +157,6 @@ export default class DbCompanyRepository implements CompanyRepository {
       }
     }
 
-    return new Company(company_obj);
+    return company_obj;
   }
 }

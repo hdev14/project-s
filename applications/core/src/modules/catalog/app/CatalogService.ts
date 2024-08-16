@@ -50,8 +50,7 @@ export default class CatalogService {
   }
 
   async getCatalogItems(params: GetCatalogItemsParams): Promise<Either<GetCatalogItemsResult>> {
-    const { results, page_result } = await this.#catalog_repository.getCatalogItems(params);
-    return Either.right({ results: results.toObjectList(), page_result });
+    return Either.right(await this.#catalog_repository.getCatalogItems(params));
   }
 
   async createCatalogItem(params: CreateCatalogItemParams): Promise<Either<CatalogItemObject>> {

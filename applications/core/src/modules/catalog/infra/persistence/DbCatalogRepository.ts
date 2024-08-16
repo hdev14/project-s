@@ -1,7 +1,6 @@
 import CatalogRepository, { CatalogItemsFilter } from "@catalog/app/CatalogRepository";
-import CatalogItem from "@catalog/domain/CatalogItem";
+import CatalogItem, { CatalogItemObject } from "@catalog/domain/CatalogItem";
 import Database from "@shared/infra/Database";
-import Collection from "@shared/utils/Collection";
 import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
 import { injectable } from "inversify";
@@ -30,14 +29,14 @@ export default class DbCatalogRepository implements CatalogRepository {
     });
   }
 
-  async getCatalogItems(filter?: CatalogItemsFilter): Promise<PaginatedResult<CatalogItem>> {
+  async getCatalogItems(filter?: CatalogItemsFilter): Promise<PaginatedResult<CatalogItemObject>> {
     const { rows, page_result } = await this.selectCatalogItems(filter);
 
-    const catalog_items = [];
+    const results = [];
 
     for (let idx = 0; idx < rows.length; idx++) {
       const row = rows[idx];
-      catalog_items.push(new CatalogItem({
+      results.push({
         id: row.id,
         name: row.name,
         description: row.description,
@@ -46,10 +45,10 @@ export default class DbCatalogRepository implements CatalogRepository {
         attributes: row.attributes,
         picture_url: row.picture_url,
         tenant_id: row.tenant_id,
-      }));
+      });
     }
 
-    return { results: new Collection(catalog_items), page_result };
+    return { results, page_result };
   }
 
   private async selectCatalogItems(filter?: CatalogItemsFilter) {

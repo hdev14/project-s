@@ -64,7 +64,6 @@ describe('DbUserRepository unit tests', () => {
 
       const { results, page_result } = await repository.getUsers();
 
-      expect(results[0]).toBeInstanceOf(User);
       expect(results).toHaveLength(2);
       expect(page_result).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
@@ -116,7 +115,6 @@ describe('DbUserRepository unit tests', () => {
 
       const { results, page_result } = await repository.getUsers({ page_options });
 
-      expect(results[0]).toBeInstanceOf(User);
       expect(results).toHaveLength(1);
       expect(page_result!.next_page).toEqual(2);
       expect(page_result!.total_of_pages).toEqual(2);
@@ -176,7 +174,6 @@ describe('DbUserRepository unit tests', () => {
 
       const { results, page_result } = await repository.getUsers({ page_options });
 
-      expect(results[0]).toBeInstanceOf(User);
       expect(results).toHaveLength(1);
       expect(page_result!.next_page).toEqual(-1);
       expect(page_result!.total_of_pages).toEqual(2);
@@ -236,7 +233,6 @@ describe('DbUserRepository unit tests', () => {
       const tenant_id = faker.string.uuid();
       const { results, page_result } = await repository.getUsers({ tenant_id });
 
-      expect(results[0]).toBeInstanceOf(User);
       expect(results).toHaveLength(2);
       expect(page_result).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
@@ -290,7 +286,6 @@ describe('DbUserRepository unit tests', () => {
 
       const { results, page_result } = await repository.getUsers({ tenant_id, page_options });
 
-      expect(results[0]).toBeInstanceOf(User);
       expect(results).toHaveLength(1);
       expect(page_result!.next_page).toEqual(-1);
       expect(page_result!.total_of_pages).toEqual(2);

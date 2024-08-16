@@ -1,12 +1,11 @@
 import Database from "@shared/infra/Database";
-import Collection from "@shared/utils/Collection";
 import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
+import { injectable } from "inversify";
 import { Pool } from "pg";
 import 'reflect-metadata';
 import ServiceLogRepository, { ServiceLogsFilter } from "../../app/ServiceLogRepository";
-import ServiceLog from "../../domain/ServiceLog";
-import { injectable } from "inversify";
+import ServiceLog, { ServiceLogObject } from "../../domain/ServiceLog";
 
 @injectable()
 export default class DbServiceLogRepository implements ServiceLogRepository {
@@ -16,14 +15,14 @@ export default class DbServiceLogRepository implements ServiceLogRepository {
     this.#db = Database.connect();
   }
 
-  async getServiceLogs(filter: ServiceLogsFilter): Promise<PaginatedResult<ServiceLog>> {
+  async getServiceLogs(filter: ServiceLogsFilter): Promise<PaginatedResult<ServiceLogObject>> {
     const { rows, page_result } = await this.selectServiceLogs(filter);
 
-    const service_logs = [];
+    const results = [];
 
     for (let idx = 0; idx < rows.length; idx++) {
       const row = rows[idx];
-      service_logs.push(new ServiceLog({
+      results.push({
         id: row.id,
         customer_id: row.customer_id,
         paid_amount: row.paid_amount,
@@ -32,10 +31,10 @@ export default class DbServiceLogRepository implements ServiceLogRepository {
         commission_amount: row.commission_amount,
         employee_id: row.employee_id,
         service_id: row.service_id,
-      }))
+      });
     }
 
-    return { results: new Collection(service_logs), page_result };
+    return { results, page_result };
   }
 
   private async selectServiceLogs(filter: ServiceLogsFilter) {

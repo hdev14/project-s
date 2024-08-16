@@ -1,4 +1,4 @@
-import CatalogItem from "@catalog/domain/CatalogItem";
+import CatalogItem, { CatalogItemObject } from "@catalog/domain/CatalogItem";
 import { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
 
 export type CatalogItemsFilter = {
@@ -7,7 +7,7 @@ export type CatalogItemsFilter = {
 };
 
 export default interface CatalogRepository {
-  getCatalogItems(filter?: CatalogItemsFilter): Promise<PaginatedResult<CatalogItem>>;
+  getCatalogItems(filter?: CatalogItemsFilter): Promise<PaginatedResult<CatalogItemObject>>;
   createCatalogItem(catalog_item: CatalogItem): Promise<void>;
   updateCatalogItem(catalog_item: CatalogItem): Promise<void>;
   deleteCatalogItem(id: string): Promise<void>;

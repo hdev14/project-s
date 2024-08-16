@@ -42,7 +42,6 @@ describe('DbPolicyRepository unit tests', () => {
 
       const policies = await repository.getPolicies();
 
-      expect(policies[0]).toBeInstanceOf(Policy);
       expect(policies).toHaveLength(3);
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT * FROM policies',
@@ -76,7 +75,6 @@ describe('DbPolicyRepository unit tests', () => {
         slugs,
       });
 
-      expect(policies[0]).toBeInstanceOf(Policy);
       expect(policies).toHaveLength(3);
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT * FROM policies WHERE slug IN ($1,$2,$3)',

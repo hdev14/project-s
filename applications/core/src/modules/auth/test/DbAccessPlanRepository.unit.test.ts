@@ -48,7 +48,6 @@ describe('DbAccessPlanRepository unit tests', () => {
 
       const access_plans = await repository.getAccessPlans();
 
-      expect(access_plans[0]).toBeInstanceOf(AccessPlan);
       expect(access_plans).toHaveLength(3);
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT * FROM access_plans'

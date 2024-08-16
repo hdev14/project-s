@@ -91,10 +91,9 @@ describe('DbCompanyRepository unit tests', () => {
 
       const { results, page_result } = await repository.getCompanies();
 
-      expect(results[0]).toBeInstanceOf(Company);
       expect(results).toHaveLength(2);
-      expect(results[0].toObject().employees).toHaveLength(2);
-      expect(results[1].toObject().employees).toHaveLength(1);
+      expect(results[0].employees).toHaveLength(2);
+      expect(results[1].employees).toHaveLength(1);
       expect(page_result).toBeUndefined();
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
@@ -159,8 +158,7 @@ describe('DbCompanyRepository unit tests', () => {
       const { results, page_result } = await repository.getCompanies({ page_options });
 
       expect(results).toHaveLength(1);
-      expect(results[0]).toBeInstanceOf(Company);
-      expect(results[0].toObject().employees).toHaveLength(2);
+      expect(results[0].employees).toHaveLength(2);
       expect(page_result!.next_page).toEqual(2);
       expect(page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
@@ -231,8 +229,7 @@ describe('DbCompanyRepository unit tests', () => {
       const { results, page_result } = await repository.getCompanies({ page_options });
 
       expect(results).toHaveLength(1);
-      expect(results[0]).toBeInstanceOf(Company);
-      expect(results[0].toObject().employees).toHaveLength(2);
+      expect(results[0].employees).toHaveLength(2);
       expect(page_result!.next_page).toEqual(-1);
       expect(page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(

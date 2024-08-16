@@ -16,4 +16,6 @@ export default {
   CompanyRepository: Symbol.for('CompanyRepository'),
   ServiceLogRepository: Symbol.for('ServiceLogRepository'),
   CommissionRepository: Symbol.for('CommissionRepository'),
+  SubscriberService: Symbol.for('SubscriberService'),
+  SubscriberRepository: Symbol.for('SubscriberRepository'),
 };

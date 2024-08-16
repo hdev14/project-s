@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker/locale/pt_BR';
 import Database from "@shared/infra/Database";
 import { PaymentTypes } from "@subscriber/domain/PaymentMethod";
 import Subscriber from "@subscriber/domain/Subscriber";
-import DbSubscriberRepository from '@subscriber/infra/DbSubscriberRepository';
+import DbSubscriberRepository from '@subscriber/infra/persistencia/DbSubscriberRepository';
 
 const connect_spy = jest.spyOn(Database, 'connect');
 const query_mock = jest.fn();

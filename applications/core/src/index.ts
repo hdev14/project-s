@@ -3,6 +3,7 @@ import CatalogModule from "@catalog/infra/CatalogModule";
 import CompanyModule from "@company/infra/CompanyModule";
 import Database from "@shared/infra/Database";
 import SharedModule from "@shared/infra/SharedModule";
+import SubscriberModule from "@subscriber/infra/SubscriberModule";
 import Application from "./Application";
 
 (async function main() {
@@ -13,7 +14,8 @@ import Application from "./Application";
         new SharedModule(),
         new AuthModule(),
         new CatalogModule(),
-        new CompanyModule()
+        new CompanyModule(),
+        new SubscriberModule(),
       ]
     });
     application.server.listen(process.env.SERVER_PORT, () => {

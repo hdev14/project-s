@@ -40,7 +40,9 @@ export default class Application {
       app.use(express.urlencoded({ extended: true }));
       app.use(cookieParser());
       app.use(i18n.init);
-      // TODO: add helmet and cors
+      // TODO: https://expressjs.com/en/advanced/best-practice-security.html
+      // TODO: https://opentelemetry.io/docs/languages/js/getting-started/nodejs/
+      // TODO: https://expressjs.com/en/advanced/best-practice-performance.html
     });
 
     server.setErrorConfig((app) => {

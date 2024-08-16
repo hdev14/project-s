@@ -18,8 +18,16 @@ import Application from "./Application";
         new SubscriberModule(),
       ]
     });
-    application.server.listen(process.env.SERVER_PORT, () => {
+
+    const server_instance = application.server.listen(process.env.SERVER_PORT, () => {
       console.log('Server is running!');
+    });
+
+    process.on('SIGTERM', () => {
+      console.info('SIGTERM received');
+      server_instance.close(() => {
+        console.info('Http server closed!');
+      });
     });
   } catch (error) {
     console.error(error);

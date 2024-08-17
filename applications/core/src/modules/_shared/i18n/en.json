@@ -27,5 +27,6 @@
   "validation.tax_type": "The field must b a valid type of commission's tax",
   "tax_percentage_error": "Invalid commission's tax",
   "notfound.commission": "Commission not found",
-  "already_registered_company": "Company already registered"
+  "already_registered_company": "Company already registered",
+  "notfound.subscriber": "Subscriber not found"
 }

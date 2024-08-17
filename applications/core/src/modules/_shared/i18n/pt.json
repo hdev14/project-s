@@ -28,5 +28,6 @@
   "validation.tax_type": "O campo precisa ser um tipo válido de taxa de comissão",
   "tax_percentage_error": "Taxa de commissão inválida",
   "notfound.commission": "Comissão não encontrada",
-  "already_registered_company": "CNPJ já cadastrado"
+  "already_registered_company": "CNPJ já cadastrado",
+  "notfound.subscriber": "Assinante não encontrado"
 }

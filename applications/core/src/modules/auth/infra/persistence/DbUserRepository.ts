@@ -64,6 +64,7 @@ export default class DbUserRepository implements UserRepository {
 
       if (filter.page_options) {
         const offset = Pagination.calculateOffset(filter.page_options);
+
         const count_result = await this.#db.query(count_query, DbUtils.sanitizeValues(values));
 
         const paginated_query = filter.tenant_id ? query + ' LIMIT $2 OFFSET $3' : query + ' LIMIT $1 OFFSET $2';

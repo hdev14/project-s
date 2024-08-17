@@ -350,7 +350,6 @@ describe('Auth integration tests', () => {
   });
 
   describe('GET: /api/auth/users', () => {
-    const tenant_id = faker.string.uuid();
     const { token } = auth_token_manager.generateToken({
       id: faker.string.uuid(),
       email: faker.internet.email(),
@@ -359,6 +358,8 @@ describe('Auth integration tests', () => {
     });
 
     it('should return all users', async () => {
+      const tenant_id = faker.string.uuid();
+
       await user_factory.createMany([
         {
           id: tenant_id,
@@ -400,6 +401,8 @@ describe('Auth integration tests', () => {
     });
 
     it('should return users with pagination', async () => {
+      const tenant_id = faker.string.uuid();
+
       await user_factory.createMany([
         {
           id: tenant_id,
@@ -467,6 +470,8 @@ describe('Auth integration tests', () => {
     });
 
     it('should return users filtered by tenant_id', async () => {
+      const tenant_id = faker.string.uuid();
+
       await user_factory.createMany([
         {
           id: tenant_id,

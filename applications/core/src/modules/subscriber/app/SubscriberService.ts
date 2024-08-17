@@ -4,11 +4,14 @@ import SaveCreditCardCommand from "@shared/commands/SaveCreditCardCommand";
 import CreditCardError from "@shared/errors/CreditCardError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import EmailService from "@shared/infra/EmailService";
+import types from "@shared/infra/types";
 import Mediator from "@shared/Mediator";
 import UserTypes from "@shared/UserTypes";
 import Either from "@shared/utils/Either";
 import PaymentMethod, { PaymentTypes } from "@subscriber/domain/PaymentMethod";
 import Subscriber, { SubscriberObject } from "@subscriber/domain/Subscriber";
+import { inject, injectable } from "inversify";
+import 'reflect-metadata';
 import SubscriberRepository from "./SubscriberRepository";
 
 export type GetSubscriberParams = {
@@ -39,15 +42,16 @@ type UpdateSubscriberPaymentMethod = {
   credit_card_token?: string;
 };
 
+@injectable()
 export default class SubscriberService {
   #subscriber_repository: SubscriberRepository;
   #mediator: Mediator;
   #email_service: EmailService;
 
   constructor(
-    subscriber_repository: SubscriberRepository,
-    mediator: Mediator,
-    email_service: EmailService,
+    @inject(types.SubscriberRepository) subscriber_repository: SubscriberRepository,
+    @inject(types.Mediator) mediator: Mediator,
+    @inject(types.EmailService) email_service: EmailService,
   ) {
     this.#subscriber_repository = subscriber_repository;
     this.#mediator = mediator;

@@ -3,6 +3,7 @@ import types from "@shared/infra/types";
 import SubscriberRepository from "@subscriber/app/SubscriberRepository";
 import SubscriberService from "@subscriber/app/SubscriberService";
 import { ContainerModule } from "inversify";
+import './http/SubscriberController';
 import DbSubscriberRepository from "./persistencia/DbSubscriberRepository";
 
 export default class SubscriberModule implements Module {

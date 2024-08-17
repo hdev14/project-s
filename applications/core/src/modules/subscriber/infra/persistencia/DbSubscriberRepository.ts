@@ -4,8 +4,11 @@ import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
 import SubscriberRepository, { SubscribersFilter } from "@subscriber/app/SubscriberRepository";
 import Subscriber, { SubscriberObject } from "@subscriber/domain/Subscriber";
 import { SubscriptionObject } from "@subscriber/domain/Subscription";
+import { injectable } from "inversify";
 import { Pool } from "pg";
+import 'reflect-metadata';
 
+@injectable()
 export default class DbSubscriberRepository implements SubscriberRepository {
   #db: Pool;
   #subscriber_columns = [
@@ -28,7 +31,7 @@ export default class DbSubscriberRepository implements SubscriberRepository {
 
   async getSubcriberById(id: string): Promise<Subscriber | null> {
     const subscriber_result = await this.#db.query(
-      `SELECT ${this.#subscriber_columns.toString()} FROM users WHERE type="customer" AND id=$1`,
+      `SELECT ${this.#subscriber_columns.toString()} FROM users WHERE type='customer' AND id=$1`,
       [id]
     );
 
@@ -53,7 +56,7 @@ export default class DbSubscriberRepository implements SubscriberRepository {
         district: subscriber_row.district,
         number: subscriber_row.number,
         state: subscriber_row.state,
-        complement: subscriber_row.state,
+        complement: subscriber_row.complement,
       },
       payment_method: {
         payment_type: subscriber_row.payment_type,
@@ -123,11 +126,11 @@ export default class DbSubscriberRepository implements SubscriberRepository {
   }
 
   private async selectSubscribers(filter?: SubscribersFilter) {
-    const query = `SELECT ${this.#subscriber_columns.toString()} FROM users WHERE type="customer"`;
+    const query = `SELECT ${this.#subscriber_columns.toString()} FROM users WHERE type='customer'`;
 
     if (filter && filter.page_options) {
       const offset = Pagination.calculateOffset(filter.page_options);
-      const count_query = 'SELECT count(id) as total FROM users WHERE type="customer"';
+      const count_query = "SELECT count(id) as total FROM users WHERE type='customer'";
       const count_result = await this.#db.query(count_query);
 
       const paginated_query = query + ' LIMIT $1 OFFSET $2';
@@ -154,7 +157,7 @@ export default class DbSubscriberRepository implements SubscriberRepository {
     const data = Object.assign({}, { id, document, email, phone_number }, address, payment_method);
 
     await this.#db.query(
-      `UPDATE users SET ${DbUtils.setColumns(data)} WHERE type="customer" AND id=$1`,
+      `UPDATE users SET ${DbUtils.setColumns(data)} WHERE type='customer' AND id=$1`,
       DbUtils.sanitizeValues(Object.values(data))
     );
   }

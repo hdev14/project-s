@@ -1,3 +1,5 @@
+import NotFoundError from "@shared/errors/NotFoundError";
+import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
 import types from "@shared/infra/types";
 import SubscriberService from "@subscriber/app/SubscriberService";
 import { Request } from 'express';
@@ -24,7 +26,17 @@ export default class SubscriberController extends BaseHttpController {
 
   @httpGet('/:subscriber_id')
   async getSubscriber(@request() req: Request) {
-    return this.ok();
+    const { subscriber_id } = req.params;
+
+    const [data, error] = await this.subscriber_service.getSubscriber({
+      subscriber_id,
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    return this.json(data, HttpStatusCodes.OK);
   }
 
   @httpPatch('/:subscriber_id/addresses')

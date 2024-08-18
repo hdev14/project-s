@@ -13,60 +13,12 @@ import UserTypes from '@shared/UserTypes';
 import Application from 'src/Application';
 import supertest from 'supertest';
 
-describe('Catalog integration tests', () => {
+describe('Catalog E2E tests', () => {
   const application = new Application({ modules: [new SharedModule(), new AuthModule(), new CatalogModule()] });
   const auth_token_manager = application.container.get<AuthTokenManager>(types.AuthTokenManager);
   const request = supertest(application.server);
   const user_factory = new UserFactory();
   const catalog_item_factory = new CatalogItemFactory();
-
-  // beforeEach(async () => {
-  //   await user_factory.createMany([
-  //     {
-  //       id: user.id,
-  //       email: user.email,
-  //       password: user.password,
-  //     },
-  //     {
-  //       id: tenant_id,
-  //       email: user.email,
-  //       password: user.password,
-  //     }
-  //   ]);
-
-  //   await catalog_item_factory.createMany([
-  //     {
-  //       id: catalog_item_id,
-  //       name: faker.commerce.productName(),
-  //       description: faker.commerce.productDescription(),
-  //       attributes: [],
-  //       is_service: faker.datatype.boolean(),
-  //       picture_url: faker.internet.url(),
-  //       tenant_id: user.id,
-  //       amount: faker.number.float(),
-  //     },
-  //     {
-  //       id: faker.string.uuid(),
-  //       name: faker.commerce.productName(),
-  //       description: faker.commerce.productDescription(),
-  //       attributes: [],
-  //       is_service: faker.datatype.boolean(),
-  //       picture_url: faker.internet.url(),
-  //       tenant_id,
-  //       amount: faker.number.float(),
-  //     },
-  //     {
-  //       id: faker.string.uuid(),
-  //       name: faker.commerce.productName(),
-  //       description: faker.commerce.productDescription(),
-  //       attributes: [],
-  //       is_service: faker.datatype.boolean(),
-  //       picture_url: faker.internet.url(),
-  //       tenant_id,
-  //       amount: faker.number.float(),
-  //     },
-  //   ]);
-  // });
 
   afterEach(cleanUpDatabase);
 

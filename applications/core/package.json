@@ -7,7 +7,7 @@
   "scripts": {
     "start:dev": "npx dotenv -e .env -- npx ts-node -r tsconfig-paths/register  ./src/index.ts",
     "test:unit": "jest unit --passWithNoTests --watch --silent=false --config=jest.unit.config.js",
-    "test:int": "npx dotenv -e .env.test -- npx jest int --detectOpenHandles --passWithNoTests --watch --silent=false --config=jest.int.config.js",
+    "test:e2e": "npx dotenv -e .env.test -- npx jest e2e --detectOpenHandles --passWithNoTests --watch --silent=false --config=jest.e2e.config.js",
     "test:cov": "npx dotenv -e .env.test -- npx jest --coverage --detectOpenHandles --passWithNoTests --silent=false --config=jest.coverage.config.js",
     "test:arch": "npx jest arch --passWithNoTests --silent=false",
     "db:migrate": "node-pg-migrate --migration-file-language ts --migrations-dir ./src/migrations --envPath .env --tsconfig ./tsconfig.json --template-file-name ./migration-template.ts"

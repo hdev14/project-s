@@ -3,11 +3,11 @@ const rootConfig = require("./jest.config.js");
 module.exports = {
   ...rootConfig,
   ...{
-    displayName: "Integration Tests",
+    displayName: "E2E Tests",
     clearMocks: true,
     setupFilesAfterEnv: ["<rootDir>/src/test_setup.ts"],
     testMatch: [
-      "**/*.int.test.ts"
+      "**/*.e2e.test.ts"
     ]
   }
 }

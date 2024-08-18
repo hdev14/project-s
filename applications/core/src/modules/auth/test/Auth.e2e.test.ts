@@ -31,7 +31,7 @@ function cookieExists(cookies: Array<string>) {
   return exists;
 }
 
-describe('Auth integration tests', () => {
+describe('Auth E2E tests', () => {
   const application = new Application({ modules: [new SharedModule(), new AuthModule()] });
   const encryptor = application.container.get<Encryptor>(types.Encryptor);
   const auth_token_manager = application.container.get<AuthTokenManager>(types.AuthTokenManager);

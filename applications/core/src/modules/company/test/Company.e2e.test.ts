@@ -22,7 +22,7 @@ import UserTypes from '@shared/UserTypes';
 import Application from 'src/Application';
 import supertest from 'supertest';
 
-describe('Company integration tests', () => {
+describe('Company E2E tests', () => {
   const application = new Application({
     modules: [
       new SharedModule(),

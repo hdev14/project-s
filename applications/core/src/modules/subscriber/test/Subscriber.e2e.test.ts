@@ -249,5 +249,155 @@ describe('Subscriber E2E tests', () => {
     });
   });
 
-  it.todo('PATCH: /api/subscribers/:subscriber_id/payment_methods');
+  describe('PATCH: /api/subscribers/:subscriber_id/payment_methods', () => {
+    it("returns status code 404 if susbscriber doesn't exist", async () => {
+      const response = await request
+        .patch(`/api/subscribers/${faker.string.uuid()}/payment_methods`)
+        .set('Content-Type', 'application/json')
+        .send({
+          payment_type: faker.helpers.enumValue(PaymentTypes),
+          credit_card_token: faker.string.alphanumeric(),
+        });
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Assinante não encontrado');
+    });
+
+    it('returns status code 400 if data is invalid', async () => {
+      const subscriber = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        document: faker.string.numeric(11),
+        phone_number: faker.string.numeric(11),
+        type: UserTypes.CUSTOMER,
+        address: {
+          street: faker.location.street(),
+          district: faker.location.streetAddress(),
+          state: faker.location.state({ abbreviated: true }),
+          number: faker.string.numeric(2),
+          complement: faker.string.sample(),
+        },
+        payment_method: {
+          payment_type: faker.helpers.enumValue(PaymentTypes),
+          credit_card_external_id: faker.string.uuid(),
+        }
+      });
+
+      const response = await request
+        .patch(`/api/subscribers/${subscriber.id}/payment_methods`)
+        .set('Content-Type', 'application/json')
+        .send({
+          payment_type: faker.string.sample(),
+          credit_card_token: faker.number.int(),
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(2);
+    });
+
+    it("updates the subscriber personal info to pix method", async () => {
+      const subscriber = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        document: faker.string.numeric(11),
+        phone_number: faker.string.numeric(11),
+        type: UserTypes.CUSTOMER,
+        address: {
+          street: faker.location.street(),
+          district: faker.location.streetAddress(),
+          state: faker.location.state({ abbreviated: true }),
+          number: faker.string.numeric(2),
+          complement: faker.string.sample(),
+        },
+        payment_method: {
+          payment_type: faker.helpers.enumValue(PaymentTypes),
+          credit_card_external_id: faker.string.uuid(),
+        }
+      });
+
+      const data = {
+        payment_type: PaymentTypes.PIX,
+      };
+
+      const response = await request
+        .patch(`/api/subscribers/${subscriber.id}/payment_methods`)
+        .set('Content-Type', 'application/json')
+        .send(data);
+
+      expect(response.status).toEqual(204);
+      await expect(data).toEqualInDatabase('users', subscriber.id!);
+    });
+
+    it("updates the subscriber personal info to boleto method", async () => {
+      const subscriber = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        document: faker.string.numeric(11),
+        phone_number: faker.string.numeric(11),
+        type: UserTypes.CUSTOMER,
+        address: {
+          street: faker.location.street(),
+          district: faker.location.streetAddress(),
+          state: faker.location.state({ abbreviated: true }),
+          number: faker.string.numeric(2),
+          complement: faker.string.sample(),
+        },
+        payment_method: {
+          payment_type: faker.helpers.enumValue(PaymentTypes),
+          credit_card_external_id: faker.string.uuid(),
+        }
+      });
+
+      const data = {
+        payment_type: PaymentTypes.BOLETO,
+      };
+
+      const response = await request
+        .patch(`/api/subscribers/${subscriber.id}/payment_methods`)
+        .set('Content-Type', 'application/json')
+        .send(data);
+
+      expect(response.status).toEqual(204);
+      await expect(data).toEqualInDatabase('users', subscriber.id!);
+    });
+
+    // TODO: test credit card token
+    // it("updates the subscriber personal info to credit card method", async () => {
+    //   const subscriber = await user_factory.createOne({
+    //     id: faker.string.uuid(),
+    //     email: faker.internet.email(),
+    //     password: faker.string.alphanumeric(10),
+    //     document: faker.string.numeric(11),
+    //     phone_number: faker.string.numeric(11),
+    //     type: UserTypes.CUSTOMER,
+    //     address: {
+    //       street: faker.location.street(),
+    //       district: faker.location.streetAddress(),
+    //       state: faker.location.state({ abbreviated: true }),
+    //       number: faker.string.numeric(2),
+    //       complement: faker.string.sample(),
+    //     },
+    //     payment_method: {
+    //       payment_type: faker.helpers.enumValue(PaymentTypes),
+    //       credit_card_external_id: faker.string.uuid(),
+    //     }
+    //   });
+
+    //   const data = {
+    //     payment_type: PaymentTypes.CREDIT_CARD,
+    //     credit_card_token: faker.string.alphanumeric(),
+    //   };
+
+    //   const response = await request
+    //     .patch(`/api/subscribers/${subscriber.id}/infos`)
+    //     .set('Content-Type', 'application/json')
+    //     .send(data);
+
+    //   expect(response.status).toEqual(204);
+    //   await expect(data).toEqualInDatabase('users', subscriber.id!);
+    // });
+  });
 });

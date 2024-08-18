@@ -1,3 +1,4 @@
+import { PaymentTypes } from "@subscriber/domain/PaymentMethod";
 import { Schema } from "express-validator";
 
 export const update_subscriber_address_validation_schema: Schema = {
@@ -47,5 +48,19 @@ export const update_subscriber_perfonal_info_validation_schema: Schema = {
       options: { min: 11 },
       errorMessage: 'validation.length',
     }
+  },
+};
+
+export const update_subscriber_payment_method_validation_schema: Schema = {
+  payment_type: {
+    isIn: {
+      options: [Object.values(PaymentTypes)],
+      errorMessage: 'validation.payment_type'
+    }
+  },
+  credit_card_token: {
+    optional: true,
+    isString: true,
+    errorMessage: 'validation.text',
   },
 };

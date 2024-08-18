@@ -94,6 +94,7 @@ describe('Subscriber E2E tests', () => {
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
         document: faker.string.numeric(11),
+        phone_number: faker.string.numeric(11),
         type: UserTypes.CUSTOMER,
         address: {
           street: faker.location.street(),
@@ -129,6 +130,7 @@ describe('Subscriber E2E tests', () => {
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
         document: faker.string.numeric(11),
+        phone_number: faker.string.numeric(11),
         type: UserTypes.CUSTOMER,
         address: {
           street: faker.location.street(),
@@ -161,7 +163,91 @@ describe('Subscriber E2E tests', () => {
     });
   });
 
-  it.todo('PATCH: /api/subscribers/:subscriber_id/infos');
+  describe('PATCH: /api/subscribers/:subscriber_id/infos', () => {
+    it("returns status code 404 if susbscriber doesn't exist", async () => {
+      const response = await request
+        .patch(`/api/subscribers/${faker.string.uuid()}/infos`)
+        .set('Content-Type', 'application/json')
+        .send({
+          email: faker.internet.email(),
+          document: faker.string.numeric(11),
+          phone_number: faker.string.numeric(11),
+        });
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Assinante não encontrado');
+    });
+
+    it('returns status code 400 if data is invalid', async () => {
+      const subscriber = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        document: faker.string.numeric(11),
+        phone_number: faker.string.numeric(11),
+        type: UserTypes.CUSTOMER,
+        address: {
+          street: faker.location.street(),
+          district: faker.location.streetAddress(),
+          state: faker.location.state({ abbreviated: true }),
+          number: faker.string.numeric(2),
+          complement: faker.string.sample(),
+        },
+        payment_method: {
+          payment_type: faker.helpers.enumValue(PaymentTypes),
+          credit_card_external_id: faker.string.uuid(),
+        }
+      });
+
+      const response = await request
+        .patch(`/api/subscribers/${subscriber.id}/infos`)
+        .set('Content-Type', 'application/json')
+        .send({
+          email: faker.string.sample(),
+          document: faker.number.int(),
+          phone_number: faker.number.int(),
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(3);
+    });
+
+    it("updates the subscriber personal info", async () => {
+      const subscriber = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        document: faker.string.numeric(11),
+        phone_number: faker.string.numeric(11),
+        type: UserTypes.CUSTOMER,
+        address: {
+          street: faker.location.street(),
+          district: faker.location.streetAddress(),
+          state: faker.location.state({ abbreviated: true }),
+          number: faker.string.numeric(2),
+          complement: faker.string.sample(),
+        },
+        payment_method: {
+          payment_type: faker.helpers.enumValue(PaymentTypes),
+          credit_card_external_id: faker.string.uuid(),
+        }
+      });
+
+      const data = {
+        email: faker.internet.email(),
+        document: faker.string.numeric(11),
+        phone_number: faker.string.numeric(11),
+      };
+
+      const response = await request
+        .patch(`/api/subscribers/${subscriber.id}/infos`)
+        .set('Content-Type', 'application/json')
+        .send(data);
+
+      expect(response.status).toEqual(204);
+      await expect(data).toEqualInDatabase('users', subscriber.id!);
+    });
+  });
 
   it.todo('PATCH: /api/subscribers/:subscriber_id/payment_methods');
 });

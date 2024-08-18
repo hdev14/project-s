@@ -13,7 +13,7 @@ import {
   httpPost,
   request
 } from "inversify-express-utils";
-import { update_subscriber_validation_schema } from "./validations";
+import { update_subscriber_address_validation_schema, update_subscriber_perfonal_info_validation_schema } from "./validations";
 
 @controller('/api/subscribers')
 export default class SubscriberController extends BaseHttpController {
@@ -41,7 +41,7 @@ export default class SubscriberController extends BaseHttpController {
     return this.json(data, HttpStatusCodes.OK);
   }
 
-  @httpPatch('/:subscriber_id/addresses', requestValidator(update_subscriber_validation_schema))
+  @httpPatch('/:subscriber_id/addresses', requestValidator(update_subscriber_address_validation_schema))
   async updateSubscriberAddress(@request() req: Request) {
     const { subscriber_id } = req.params;
     const {
@@ -68,9 +68,27 @@ export default class SubscriberController extends BaseHttpController {
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
-  @httpPatch('/:subscriber_id/infos')
+  @httpPatch('/:subscriber_id/infos', requestValidator(update_subscriber_perfonal_info_validation_schema))
   async updateSubscriberPersonalInfo(@request() req: Request) {
-    return this.ok();
+    const { subscriber_id } = req.params;
+    const {
+      document,
+      email,
+      phone_number
+    } = req.body;
+
+    const [, error] = await this.subscriber_service.updateSubscriberPerfonalInfo({
+      subscriber_id,
+      document,
+      email,
+      phone_number
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
   @httpPatch('/:subscriber_id/payment_methods')

@@ -24,6 +24,7 @@ export const update_subscriber_address_validation_schema: Schema = {
   },
   complement: {
     isString: true,
+    optional: true,
     errorMessage: 'validation.text',
   },
 };
@@ -61,6 +62,54 @@ export const update_subscriber_payment_method_validation_schema: Schema = {
   credit_card_token: {
     optional: true,
     isString: true,
+    errorMessage: 'validation.text',
+  },
+};
+
+export const create_subscriber_validation_schema: Schema = {
+  email: {
+    isEmail: true,
+    errorMessage: 'validation.email'
+  },
+  document: {
+    isString: true,
+    errorMessage: 'validation.text',
+    isLength: {
+      options: { min: 11 },
+      errorMessage: 'validation.length',
+    }
+  },
+  phone_number: {
+    isString: true,
+    errorMessage: 'validation.text',
+    isLength: {
+      options: { min: 11 },
+      errorMessage: 'validation.length',
+    }
+  },
+  'address.street': {
+    isString: true,
+    errorMessage: 'validation.text',
+  },
+  'address.district': {
+    isString: true,
+    errorMessage: 'validation.text',
+  },
+  'address.state': {
+    isString: true,
+    errorMessage: 'validation.text',
+    isLength: {
+      options: { max: 2 },
+      errorMessage: 'validation.state'
+    }
+  },
+  'address.number': {
+    isString: true,
+    errorMessage: 'validation.text',
+  },
+  'address.complement': {
+    isString: true,
+    optional: true,
     errorMessage: 'validation.text',
   },
 };

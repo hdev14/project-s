@@ -14,6 +14,7 @@ import {
   request
 } from "inversify-express-utils";
 import {
+  create_subscriber_validation_schema,
   update_subscriber_address_validation_schema,
   update_subscriber_payment_method_validation_schema,
   update_subscriber_perfonal_info_validation_schema
@@ -25,9 +26,23 @@ export default class SubscriberController extends BaseHttpController {
     super();
   }
 
-  @httpPost('/')
+  @httpPost('/', requestValidator(create_subscriber_validation_schema))
   async createSubscriber(@request() req: Request) {
-    return this.ok();
+    const {
+      address,
+      document,
+      email,
+      phone_number,
+    } = req.body;
+
+    const [data,] = await this.subscriber_service.createSubscriber({
+      address,
+      document,
+      email,
+      phone_number,
+    });
+
+    return this.json(data, HttpStatusCodes.CREATED);
   }
 
   @httpGet('/:subscriber_id')

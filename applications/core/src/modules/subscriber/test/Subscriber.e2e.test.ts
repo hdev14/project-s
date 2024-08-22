@@ -25,7 +25,61 @@ describe('Subscriber E2E tests', () => {
 
   afterEach(cleanUpDatabase);
 
-  it.todo('POST: /api/subscribers');
+  describe('POST: /api/subscribers', () => {
+    it('returns status code 400 if data is invalid', async () => {
+      const response = await request
+        .post('/api/subscribers')
+        .set('Content-Type', 'application/json')
+        .send({
+          email: faker.number.float(),
+          document: faker.number.int(),
+          phone_number: faker.number.float(),
+          address: {
+            street: faker.number.float(),
+            district: faker.number.float(),
+            state: faker.number.float(),
+            number: faker.number.float(),
+            complement: faker.number.float(),
+          }
+        });
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(9);
+    });
+
+    it('creates a new subscriber', async () => {
+      const data = {
+        email: faker.internet.email(),
+        document: faker.string.numeric(11),
+        phone_number: faker.string.numeric(11),
+        address: {
+          street: faker.location.street(),
+          district: faker.string.sample(),
+          state: faker.location.state({ abbreviated: true }),
+          number: faker.location.buildingNumber(),
+          complement: faker.string.sample(),
+        }
+      };
+
+      const response = await request
+        .post('/api/subscribers')
+        .set('Content-Type', 'application/json')
+        .send(data);
+
+      expect(response.status).toEqual(201);
+      expect(response.body).toHaveProperty('id');
+      await expect({
+        email: data.email,
+        document: data.document,
+        phone_number: data.phone_number,
+        street: data.address.street,
+        district: data.address.district,
+        state: data.address.state,
+        number: data.address.number,
+        complement: data.address.complement,
+      }).toEqualInDatabase('users', response.body.id);
+    });
+  });
 
   describe('GET: /api/subscribers/:subscriber_id', () => {
     it("returns status code 404 if subscriber doesn't exist", async () => {

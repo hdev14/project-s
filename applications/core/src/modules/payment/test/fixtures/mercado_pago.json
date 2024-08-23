@@ -1,4 +1,15 @@
 {
+  "bad_request_response": {
+    "message": "test",
+    "error": "bad_request",
+    "status": 400,
+    "cause": [
+      {
+        "code": 123,
+        "description": "test"
+      }
+    ]
+  },
   "auth_response": {
     "access_token": "APP_USR-4934588586838432-XXXXXXXX-241983636",
     "token_type": "bearer",

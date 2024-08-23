@@ -32,6 +32,8 @@ type CustomerResponseData = {
 export default class MercadoPago implements PaymentGateway {
   #base_url: string;
   #client_id: string;
+  #access_token: string | null = null;
+  #token_expired_at: Date = new Date();
 
   constructor() {
     this.#base_url = process.env.MP_BASE_URL!;
@@ -43,27 +45,13 @@ export default class MercadoPago implements PaymentGateway {
   }
 
   async registerCustomer(customer: Customer): Promise<RegisterCustomerResult> {
-    const auth_response = await fetch(`${this.#base_url}/oauth/token`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        client_id: this.#client_id,
-        client_secret: 'client_secret',
-        grant_type: 'client_credentials',
-      }),
-    });
-
-    if (auth_response.status >= 400) {
-      throw new Error();
-    }
-
-    const auth_data = await auth_response.json() as AuthResponseData;
+    const access_token = await this.auth();
 
     const customer_response = await fetch(`${this.#base_url}/v1/customers`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${auth_data.access_token}`,
+        Authorization: `Bearer ${access_token}`,
       },
       body: JSON.stringify({
         email: customer.email,
@@ -85,6 +73,34 @@ export default class MercadoPago implements PaymentGateway {
       document: customer.document,
       email: customer.email,
     };
+  }
+
+  private async auth() {
+    if (this.#access_token === null || this.#token_expired_at <= new Date()) {
+      const auth_response = await fetch(`${this.#base_url}/oauth/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_id: this.#client_id,
+          client_secret: 'client_secret',
+          grant_type: 'client_credentials',
+        }),
+      });
+
+      if (auth_response.status >= 400) {
+        throw new Error();
+      }
+
+      const auth_data = await auth_response.json() as AuthResponseData;
+
+      this.#token_expired_at = new Date();
+      this.#token_expired_at.setSeconds(this.#token_expired_at.getSeconds() + auth_data.expires_in);
+      this.#access_token = auth_data.access_token;
+
+      return this.#access_token;
+    }
+
+    return this.#access_token;
   }
 
   updateCustomer(customer: Partial<Customer>): Promise<void> {

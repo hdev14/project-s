@@ -1,5 +1,5 @@
 import Handler from "@shared/Handler";
-import SaveCreditCardCommand from "@shared/commands/CreateCreditCardCommand";
+import SaveCreditCardCommand from "@shared/commands/SaveCreditCardCommand";
 
 export default class SaveCreditCardCommandHandler implements Handler<SaveCreditCardCommand, string> {
   handle(command: SaveCreditCardCommand): Promise<string> {

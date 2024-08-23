@@ -3,7 +3,7 @@ import Aggregate, { RequiredId } from "@shared/ddd/Aggregate";
 export type PaymentLogObject = {
   id?: string;
   external_id: string;
-  payload: string;
+  payload: string; // JSON
 }
 
 export default class PaymentLog extends Aggregate<PaymentLogObject> {

@@ -12,6 +12,7 @@
     "lib": [
       "ES6"
     ],
+    "resolveJsonModule": true,
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,

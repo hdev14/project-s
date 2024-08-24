@@ -20,7 +20,7 @@
     "public_key": "APP_USR-d0a26210-XXXXXXXX-479f0400869e",
     "live_mode": true
   },
-  "create_customer_response_200": {
+  "create_customer_response": {
     "id": "000000001-sT93QZFAsfxU9P5",
     "email": "jhon@doe.com",
     "first_name": "Bruce",
@@ -51,5 +51,139 @@
       {}
     ],
     "live_mode": true
+  },
+  "save_credit_card_response": {
+    "id": 1562188766852,
+    "expiration_month": 6,
+    "expiration_year": 2023,
+    "first_six_digits": 423564,
+    "last_four_digits": 5682,
+    "payment_method": {
+      "id": "visa",
+      "name": "visa",
+      "payment_type_id": "credit_card",
+      "thumbnail": "http://img.mlstatic.com/org-img/MP3/API/logos/visa.gif",
+      "secure_thumbnail": "https://www.mercadopago.com/org-img/MP3/API/logos/visa.gif"
+    },
+    "security_code": {
+      "length": 3,
+      "card_location": "back"
+    },
+    "issuer": {
+      "id": 25,
+      "name": "Visa"
+    },
+    "cardholder": {
+      "name": "APRO",
+      "identification": {
+        "number": 19119119100,
+        "type": "CPF"
+      }
+    },
+    "date_created": "2019-07-03T21:15:35.000Z",
+    "date_last_updated": "2019-07-03T21:19:18.000Z",
+    "customer_id": "448870796-7ZjwhKGxILixxN",
+    "user_id": 448870796,
+    "live_mode": true
+  },
+  "payment_response": {
+    "id": 20359978,
+    "date_created": "2019-07-10T14:47:58.000Z",
+    "date_approved": "2019-07-10T14:47:58.000Z",
+    "date_last_updated": "2019-07-10T14:47:58.000Z",
+    "money_release_date": "2019-07-24T14:47:58.000Z",
+    "issuer_id": 25,
+    "payment_method_id": "visa",
+    "payment_type_id": "credit_card",
+    "status": "approved",
+    "status_detail": "accredited",
+    "currency_id": "BRL",
+    "description": "Point Mini a maquininha que dá o dinheiro de suas vendas na hora.",
+    "taxes_amount": 0,
+    "shipping_amount": 0,
+    "collector_id": 448876418,
+    "payer": {
+      "id": 123,
+      "email": "test_user_80507629@testuser.com",
+      "identification": {
+        "number": 19119119100,
+        "type": "CPF"
+      },
+      "type": "customer"
+    },
+    "metadata": {},
+    "additional_info": {
+      "items": [
+        {
+          "id": "PR0001",
+          "title": "Point Mini",
+          "description": "Producto Point para cobros con tarjetas mediante bluetooth",
+          "picture_url": "https://http2.mlstatic.com/resources/frontend/statics/growth-sellers-landings/device-mlb-point-i_medium2x.png",
+          "category_id": "electronics",
+          "quantity": 1,
+          "unit_price": 58.8
+        }
+      ],
+      "payer": {
+        "registration_date": "2019-01-01T15:01:01.000Z"
+      },
+      "shipments": {
+        "receiver_address": {
+          "street_name": "Av das Nacoes Unidas",
+          "street_number": 3003,
+          "zip_code": 6233200,
+          "city_name": "Buzios",
+          "state_name": "Rio de Janeiro"
+        }
+      }
+    },
+    "external_reference": "MP0001",
+    "transaction_amount": 58.8,
+    "transaction_amount_refunded": 0,
+    "coupon_amount": 0,
+    "transaction_details": {
+      "net_received_amount": 56.16,
+      "total_paid_amount": 58.8,
+      "overpaid_amount": 0,
+      "installment_amount": 58.8
+    },
+    "fee_details": [
+      {
+        "type": "coupon_fee",
+        "amount": 2.64,
+        "fee_payer": "payer"
+      }
+    ],
+    "statement_descriptor": "MercadoPago",
+    "installments": 1,
+    "card": {
+      "first_six_digits": 423564,
+      "last_four_digits": 5682,
+      "expiration_month": 6,
+      "expiration_year": 2023,
+      "date_created": "2019-07-10T14:47:58.000Z",
+      "date_last_updated": "2019-07-10T14:47:58.000Z",
+      "cardholder": {
+        "name": "APRO",
+        "identification": {
+          "number": 19119119100,
+          "type": "CPF"
+        }
+      }
+    },
+    "notification_url": "https://www.suaurl.com/notificacoes/",
+    "processing_mode": "aggregator",
+    "point_of_interaction": {
+      "type": "PIX",
+      "application_data": {
+        "name": "NAME_SDK",
+        "version": "VERSION_NUMBER"
+      },
+      "transaction_data": {
+        "qr_code_base64": "iVBORw0KGgoAAAANSUhEUgAABRQAAAUUCAYAAACu5p7oAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAIABJREFUeJzs2luO3LiWQNFmI+Y/Zd6vRt36KGNXi7ZOBtcagHD4kNLeiLX33v8DAAAAABD879sDAAAAAAA/h6AIAAAAAGSCIgAAAACQCYoAAAAAQCYoAgAAAACZoAgAAAAAZIIiAAAAAJAJigAAAABAJigCAAAAAJmgCAAAAABkgiIAAAAAkAmKAAAAAEAmKAIAAAAAmaAIAAAAAGSCIgAAAACQCYoAAAAAQCYoAgAAAACZoAgAAAAAZIIiAAAAAJAJigAAAABAJigCA...",
+        "qr_code": "00020126600014br.gov.bcb.pix0117test@testuser.com0217dados adicionais520400005303986540510.005802BR5913Maria Silva6008Brasilia62070503***6304E2CA",
+        "ticket_url": "https://www.mercadopago.com.br/payments/123456789/ticket?caller_id=123456&hash=123e4567-e89b-12d3-a456-426655440000"
+      }
+    }
   }
 }

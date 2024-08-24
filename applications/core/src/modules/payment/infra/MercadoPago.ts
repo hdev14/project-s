@@ -1,5 +1,7 @@
-import PaymentGateway, { Customer, RegisterCreditCardResult, RegisterCustomerResult, TransactionParams } from "@payment/app/PaymentGateway";
+import PaymentGateway, { Customer, RegisterCreditCardResult, RegisterCustomerResult } from "@payment/app/PaymentGateway";
+import Payment from "@payment/domain/Payment";
 import PaymentLog from "@payment/domain/PaymentLog";
+import PaymentError from "@shared/errors/PaymentError";
 
 type AuthResponseData = {
   access_token: string;
@@ -29,25 +31,113 @@ type CustomerResponseData = {
   live_mode: boolean;
 }
 
+type CreditCardResponseData = {
+  id: string;
+  expiration_month: string;
+  expiration_year: string;
+  first_six_digits: string;
+  last_four_digits: string;
+  payment_method: Record<string, any>;
+  security_code: Record<string, any>;
+  issuer: Record<string, any>;
+  cardholder: Record<string, any>;
+  date_created: string;
+  date_last_updated: string;
+  customer_id: string;
+  user_id: string;
+  live_mode: boolean;
+}
+
+type PaymentResponseData = {
+  id: string;
+  date_created: string;
+  date_approved: string;
+  date_last_updated: string;
+  money_release_date: string;
+  issuer_id: string;
+  payment_method_id: string;
+  payment_type_id: string;
+  status: string;
+  status_detail: string;
+  currency_id: string;
+  description: string;
+  taxes_amount: number;
+  shipping_amount: number;
+  collector_id: string;
+  payer: Record<string, any>;
+  metadata: Record<string, any>;
+  additional_info: Record<string, any>;
+  external_reference: string;
+  transaction_amount: number;
+  transaction_amount_refunded: number;
+  coupon_amount: number;
+  transaction_details: Record<string, any>;
+  fee_details: Array<Record<string, any>>;
+  statement_descriptor: string;
+  installments: number;
+  card: Record<string, any>;
+  notification_url: string;
+  processing_mode: string;
+  point_of_interaction: Record<string, any>;
+}
 export default class MercadoPago implements PaymentGateway {
   #base_url: string;
   #client_id: string;
   #access_token: string | null = null;
   #token_expired_at: Date = new Date();
+  #webhook_url: string;
 
   constructor() {
     this.#base_url = process.env.MP_BASE_URL!;
     this.#client_id = process.env.MP_CLIENT_ID!;
+    this.#webhook_url = `${process.env.WEBHOOK_PAYMENT_BASE_URL}/mp`;
   }
 
-  makeTransaction(params: TransactionParams): Promise<PaymentLog> {
-    throw new Error("Method not implemented.");
+  async makeTransaction(payment: Payment): Promise<PaymentLog> {
+    const access_token = await this.auth();
+    const payment_obj = payment.toObject();
+    const response = await fetch(`${this.#base_url}/v1/payments`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${access_token}`,
+      },
+      body: JSON.stringify({
+        external_reference: payment_obj.id,
+        transaction_amount: payment_obj.amount,
+        statement_descriptor: 'PROJECT_S',
+        description: "Pagamento de assinatura",
+        installments: 1,
+        token: payment_obj.customer.credit_card_external_id,
+        metadata: payment_obj,
+        callback_url: `${this.#webhook_url}/${payment_obj.id}`,
+        binary_mode: true,
+        payer: {
+          email: payment_obj.customer.email,
+          identification: {
+            type: 'CPF',
+            number: payment_obj.customer.documnt,
+          }
+        }
+      })
+    });
+
+    if (response.status >= 400) {
+      throw new Error();
+    }
+
+    const payment_data: any = await response.json() as PaymentResponseData;
+
+    return new PaymentLog({
+      external_id: payment_data.id,
+      payload: JSON.stringify(payment_data),
+    });
   }
 
   async registerCustomer(customer: Customer): Promise<RegisterCustomerResult> {
     const access_token = await this.auth();
 
-    const customer_response = await fetch(`${this.#base_url}/v1/customers`, {
+    const response = await fetch(`${this.#base_url}/v1/customers`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -62,17 +152,40 @@ export default class MercadoPago implements PaymentGateway {
       }),
     });
 
-    if (customer_response.status >= 400) {
-      throw new Error();
+    if (response.status >= 400) {
+      const data: any = await response.json();
+      throw new PaymentError('Create customer error', data);
     }
 
-    const customer_data = await customer_response.json() as CustomerResponseData;
+    const customer_data = await response.json() as CustomerResponseData;
 
     return {
       id: customer_data.id,
       document: customer.document,
       email: customer.email,
     };
+  }
+
+  async registerCreditCard(external_customer_id: string, card_token: string): Promise<RegisterCreditCardResult> {
+    const access_token = await this.auth();
+
+    const response = await fetch(`${this.#base_url}/v1/customers/${external_customer_id}/cards`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${access_token}`,
+      },
+      body: JSON.stringify({ token: card_token }),
+    });
+
+    if (response.status >= 400) {
+      const data: any = await response.json();
+      throw new PaymentError('Credit card error', data);
+    }
+
+    const credit_card_data = await response.json() as CreditCardResponseData;
+
+    return { credit_card_id: credit_card_data.id };
   }
 
   private async auth() {
@@ -101,13 +214,5 @@ export default class MercadoPago implements PaymentGateway {
     }
 
     return this.#access_token;
-  }
-
-  updateCustomer(customer: Partial<Customer>): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-
-  registerCreditCard(customer_id: string, card_token: string): Promise<RegisterCreditCardResult> {
-    throw new Error("Method not implemented.");
   }
 }

@@ -199,5 +199,38 @@ describe('MercadoPago unit tests', () => {
         }
       );
     });
+
+    it('throws a PaymentError if the endpoint response with 400 status code', async () => {
+      expect.assertions(2);
+
+      const payment_response_mock = mock<Response>({
+        status: 400,
+        json: jest.fn(() => Promise.resolve(mercado_pago_fixtures.bad_request_response))
+      });
+
+      fetch_spy.mockResolvedValueOnce(payment_response_mock);
+
+      try {
+        await mercado_pago.makeTransaction(
+          new Payment({
+            id: faker.string.uuid(),
+            amount: faker.number.float(),
+            status: faker.helpers.enumValue(PaymentStatus),
+            subscription_id: faker.string.uuid(),
+            tax: faker.number.float(),
+            logs: [],
+            customer: {
+              id: faker.string.uuid(),
+              email: faker.internet.email(),
+              credit_card_external_id: faker.string.uuid(),
+              documnt: faker.string.numeric(11),
+            }
+          })
+        );
+      } catch (e: any) {
+        expect(e).toBeInstanceOf(PaymentError);
+        expect(e.payload).toEqual(mercado_pago_fixtures.bad_request_response);
+      }
+    });
   });
 });

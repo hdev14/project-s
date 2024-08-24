@@ -123,7 +123,8 @@ export default class MercadoPago implements PaymentGateway {
     });
 
     if (response.status >= 400) {
-      throw new Error();
+      const data: any = await response.json();
+      throw new PaymentError('Transaction error', data);
     }
 
     const payment_data: any = await response.json() as PaymentResponseData;

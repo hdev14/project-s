@@ -11,7 +11,7 @@ import MercadoPago from "./external/MercadoPago";
 export default class PaymentModule implements Module {
   init(): ContainerModule {
     const module = new ContainerModule((bind, _unbind, _isBound, _rebind, _unbindAsync, onActivation) => {
-      const payment_gateway = process.env.NODE_ENV !== 'test'
+      const payment_gateway = process.env.NODE_ENV !== 'test' || process.env.ENABLE_PAYMENT_GATEWAY === 'true'
         ? new MercadoPago()
         : new FakePaymentGateway();
       bind<PaymentGateway>(types.PaymentGateway).toConstantValue(payment_gateway);

@@ -1,5 +1,6 @@
 import AuthModule from '@auth/infra/AuthModule';
 import { faker } from '@faker-js/faker/locale/pt_BR';
+import PaymentModule from '@payment/infra/PaymentModule';
 import SharedModule from '@shared/infra/SharedModule';
 import cleanUpDatabase from '@shared/infra/test_utils/cleanUpDatabase';
 import UserFactory from '@shared/infra/test_utils/factories/UserFactory';
@@ -17,6 +18,7 @@ describe('Subscriber E2E tests', () => {
       new SharedModule(),
       new AuthModule(),
       new SubscriberModule(),
+      new PaymentModule(),
     ]
   });
   // const auth_token_manager = application.container.get<AuthTokenManager>(types.AuthTokenManager);
@@ -350,7 +352,7 @@ describe('Subscriber E2E tests', () => {
       expect(response.body.errors).toHaveLength(2);
     });
 
-    it("updates the subscriber personal info to pix method", async () => {
+    it("updates the subscriber's payemnt method to pix", async () => {
       const subscriber = await user_factory.createOne({
         id: faker.string.uuid(),
         email: faker.internet.email(),
@@ -384,7 +386,7 @@ describe('Subscriber E2E tests', () => {
       await expect(data).toEqualInDatabase('users', subscriber.id!);
     });
 
-    it("updates the subscriber personal info to boleto method", async () => {
+    it("updates the subscriber's payment method to boleto", async () => {
       const subscriber = await user_factory.createOne({
         id: faker.string.uuid(),
         email: faker.internet.email(),
@@ -418,40 +420,40 @@ describe('Subscriber E2E tests', () => {
       await expect(data).toEqualInDatabase('users', subscriber.id!);
     });
 
-    // TODO: test credit card token
-    // it("updates the subscriber personal info to credit card method", async () => {
-    //   const subscriber = await user_factory.createOne({
-    //     id: faker.string.uuid(),
-    //     email: faker.internet.email(),
-    //     password: faker.string.alphanumeric(10),
-    //     document: faker.string.numeric(11),
-    //     phone_number: faker.string.numeric(11),
-    //     type: UserTypes.CUSTOMER,
-    //     address: {
-    //       street: faker.location.street(),
-    //       district: faker.location.streetAddress(),
-    //       state: faker.location.state({ abbreviated: true }),
-    //       number: faker.string.numeric(2),
-    //       complement: faker.string.sample(),
-    //     },
-    //     payment_method: {
-    //       payment_type: faker.helpers.enumValue(PaymentTypes),
-    //       credit_card_external_id: faker.string.uuid(),
-    //     }
-    //   });
+    it("updates the subscriber's payment method to credit card", async () => {
+      const subscriber = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        document: faker.string.numeric(11),
+        phone_number: faker.string.numeric(11),
+        type: UserTypes.CUSTOMER,
+        address: {
+          street: faker.location.street(),
+          district: faker.location.streetAddress(),
+          state: faker.location.state({ abbreviated: true }),
+          number: faker.string.numeric(2),
+          complement: faker.string.sample(),
+        },
+        payment_method: {
+          payment_type: faker.helpers.enumValue(PaymentTypes),
+          credit_card_external_id: faker.string.uuid(),
+        }
+      });
 
-    //   const data = {
-    //     payment_type: PaymentTypes.CREDIT_CARD,
-    //     credit_card_token: faker.string.alphanumeric(),
-    //   };
+      const data = {
+        payment_type: PaymentTypes.CREDIT_CARD,
+        credit_card_token: faker.string.alphanumeric(),
+      };
 
-    //   const response = await request
-    //     .patch(`/api/subscribers/${subscriber.id}/infos`)
-    //     .set('Content-Type', 'application/json')
-    //     .send(data);
+      const response = await request
+        .patch(`/api/subscribers/${subscriber.id}/payment_methods`)
+        .set('Content-Type', 'application/json')
+        .send(data);
 
-    //   expect(response.status).toEqual(204);
-    //   await expect(data).toEqualInDatabase('users', subscriber.id!);
-    // });
+      expect(response.status).toEqual(204);
+      await expect({ payment_type: PaymentTypes.CREDIT_CARD }).toEqualInDatabase('users', subscriber.id!);
+      await expect('credit_card_external_id').not.toBeNullInDatabase('users', subscriber.id!);
+    });
   });
 });

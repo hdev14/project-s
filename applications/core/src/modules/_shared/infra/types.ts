@@ -18,4 +18,5 @@ export default {
   CommissionRepository: Symbol.for('CommissionRepository'),
   SubscriberService: Symbol.for('SubscriberService'),
   SubscriberRepository: Symbol.for('SubscriberRepository'),
+  PaymentGateway: Symbol.for('PaymentGateway'),
 };

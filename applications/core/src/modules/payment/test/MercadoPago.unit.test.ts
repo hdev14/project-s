@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker/locale/pt_BR';
 import PaymentGateway from '@payment/app/PaymentGateway';
 import Payment, { PaymentStatus } from '@payment/domain/Payment';
 import PaymentLog from '@payment/domain/PaymentLog';
-import MercadoPago from "@payment/infra/MercadoPago";
+import MercadoPago from "@payment/infra/external/MercadoPago";
 import PaymentError from '@shared/errors/PaymentError';
 import { mock } from 'jest-mock-extended';
 import mercado_pago_fixtures from './fixtures/mercado_pago.json';

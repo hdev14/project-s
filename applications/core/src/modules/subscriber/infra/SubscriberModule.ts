@@ -4,7 +4,7 @@ import SubscriberRepository from "@subscriber/app/SubscriberRepository";
 import SubscriberService from "@subscriber/app/SubscriberService";
 import { ContainerModule } from "inversify";
 import './http/SubscriberController';
-import DbSubscriberRepository from "./persistencia/DbSubscriberRepository";
+import DbSubscriberRepository from "./persistence/DbSubscriberRepository";
 
 export default class SubscriberModule implements Module {
   init(): ContainerModule {

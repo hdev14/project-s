@@ -150,13 +150,14 @@ export default class SubscriberService {
       const subscriber_obj = subscriber.toObject();
 
       if (params.payment_type === PaymentTypes.CREDIT_CARD) {
-        credit_card_external_id = await this.#mediator.send<string>(new SaveCreditCardCommand({
-          customer_id: subscriber_obj.id,
-          document: subscriber_obj.document,
-          email: subscriber_obj.email,
-          address: subscriber_obj.address,
-          credit_card_token: params.credit_card_token!,
-        }));
+        credit_card_external_id = await this.#mediator.send<string>(
+          new SaveCreditCardCommand({
+            customer_id: subscriber_obj.id,
+            document: subscriber_obj.document,
+            email: subscriber_obj.email,
+            credit_card_token: params.credit_card_token!,
+          })
+        );
       }
 
       subscriber.changePaymentMethod(

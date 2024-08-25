@@ -1,6 +1,7 @@
 import AuthModule from "@auth/infra/AuthModule";
 import CatalogModule from "@catalog/infra/CatalogModule";
 import CompanyModule from "@company/infra/CompanyModule";
+import PaymentModule from "@payment/infra/PaymentModule";
 import Database from "@shared/infra/Database";
 import SharedModule from "@shared/infra/SharedModule";
 import SubscriberModule from "@subscriber/infra/SubscriberModule";
@@ -16,6 +17,7 @@ import Application from "./Application";
         new CatalogModule(),
         new CompanyModule(),
         new SubscriberModule(),
+        new PaymentModule(),
       ]
     });
 

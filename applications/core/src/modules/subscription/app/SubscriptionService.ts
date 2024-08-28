@@ -30,4 +30,9 @@ export default class SubscriptionService {
   async getSubscriptions(params: {}): Promise<Either<Array<SubscriptionObject>>> {
     return Either.left(new Error());
   }
+
+  async updateSubscriptionTerm(params: {}): Promise<Either<void>> {
+    // TODO: update term and send emails
+    return Either.left(new Error());
+  }
 }

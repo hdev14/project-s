@@ -80,6 +80,7 @@ type PaymentResponseData = {
   processing_mode: string;
   point_of_interaction: Record<string, any>;
 }
+
 export default class MercadoPago implements PaymentGateway {
   #base_url: string;
   #client_id: string;
@@ -127,11 +128,11 @@ export default class MercadoPago implements PaymentGateway {
       throw new PaymentError('Transaction error', data);
     }
 
-    const payment_data: any = await response.json() as PaymentResponseData;
+    const data: any = await response.json() as PaymentResponseData;
 
     return new PaymentLog({
-      external_id: payment_data.id,
-      payload: JSON.stringify(payment_data),
+      external_id: data.id,
+      payload: JSON.stringify(data),
     });
   }
 
@@ -158,10 +159,10 @@ export default class MercadoPago implements PaymentGateway {
       throw new PaymentError('Create customer error', data);
     }
 
-    const customer_data = await response.json() as CustomerResponseData;
+    const data = await response.json() as CustomerResponseData;
 
     return {
-      id: customer_data.id,
+      id: data.id,
       document: customer.document,
       email: customer.email,
     };
@@ -184,14 +185,14 @@ export default class MercadoPago implements PaymentGateway {
       throw new PaymentError('Credit card error', data);
     }
 
-    const credit_card_data = await response.json() as CreditCardResponseData;
+    const data = await response.json() as CreditCardResponseData;
 
-    return { credit_card_id: credit_card_data.id };
+    return { credit_card_id: data.id };
   }
 
   private async auth() {
     if (this.#access_token === null || this.#token_expired_at <= new Date()) {
-      const auth_response = await fetch(`${this.#base_url}/oauth/token`, {
+      const response = await fetch(`${this.#base_url}/oauth/token`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -201,15 +202,15 @@ export default class MercadoPago implements PaymentGateway {
         }),
       });
 
-      if (auth_response.status >= 400) {
+      if (response.status >= 400) {
         throw new Error();
       }
 
-      const auth_data = await auth_response.json() as AuthResponseData;
+      const data = await response.json() as AuthResponseData;
 
       this.#token_expired_at = new Date();
-      this.#token_expired_at.setSeconds(this.#token_expired_at.getSeconds() + auth_data.expires_in);
-      this.#access_token = auth_data.access_token;
+      this.#token_expired_at.setSeconds(this.#token_expired_at.getSeconds() + data.expires_in);
+      this.#access_token = data.access_token;
 
       return this.#access_token;
     }

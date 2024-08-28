@@ -2,7 +2,10 @@ import PaymentGateway, { Customer, RegisterCreditCardResult, RegisterCustomerRes
 import Payment from "@payment/domain/Payment";
 import PaymentLog from "@payment/domain/PaymentLog";
 import { randomUUID } from "crypto";
+import { injectable } from "inversify";
+import 'reflect-metadata';
 
+@injectable()
 export default class FakePaymentGateway implements PaymentGateway {
   #customer_results: RegisterCustomerResult[] = [];
   #credit_card_datas: { id: string, customer_id: string, card_token: string }[] = [];

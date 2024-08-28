@@ -1,4 +1,4 @@
-import Aggregate, { RequiredId } from "@shared/ddd/Aggregate";
+import Aggregate, { AggregateRoot, RequiredId } from "@shared/ddd/Aggregate";
 import Item, { ItemObject } from "./Item";
 
 export enum RecurrenceTypes {
@@ -11,24 +11,31 @@ export type SubscriptionPlanObject = {
   items: Array<ItemObject>;
   amount: number;
   recurrence_type: RecurrenceTypes;
-  contract_url: string | undefined;
+  term_url: string | undefined;
+  tenant_id: string;
 };
 
-export default class SubscriptionPlan extends Aggregate<SubscriptionPlanObject> {
+export default class SubscriptionPlan extends Aggregate<SubscriptionPlanObject> implements AggregateRoot {
   #items: Array<Item> = [];
   #amount: number;
   #recurrence_type: RecurrenceTypes;
-  #contract_url?: string;
+  #term_url?: string;
+  #tenant_id: string;
 
   constructor(obj: SubscriptionPlanObject) {
     super(obj.id);
     this.#amount = obj.amount;
     this.#recurrence_type = obj.recurrence_type;
-    this.#contract_url = obj.contract_url;
+    this.#term_url = obj.term_url;
+    this.#tenant_id = obj.tenant_id;
     for (let idx = 0; idx < obj.items.length; idx++) {
       this.#items.push(new Item(obj.items[idx]));
     }
   }
+
+  // TODO
+  // addCombo
+  // withCombo
 
   toObject(): RequiredId<SubscriptionPlanObject> {
     const items = [];
@@ -40,8 +47,9 @@ export default class SubscriptionPlan extends Aggregate<SubscriptionPlanObject> 
       id: this.id,
       amount: this.#amount,
       recurrence_type: this.#recurrence_type,
-      contract_url: this.#contract_url,
+      term_url: this.#term_url,
       items,
+      tenant_id: this.#tenant_id
     };
   }
 }

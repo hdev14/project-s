@@ -35,7 +35,7 @@ export default class CatalogController extends BaseHttpController {
       attributes,
       is_service = false,
       tenant_id,
-      picture_url,
+      picture_url, // TODO: change this to receive a file
       amount,
     } = req.body;
 

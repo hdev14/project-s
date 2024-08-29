@@ -1,7 +1,7 @@
 
 import Database from "@shared/infra/Database";
 import DbUtils from "@shared/utils/DbUtils";
-import { PaginatedResult } from "@shared/utils/Pagination";
+import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
 import { SubscriptionPlanRepository, SubscriptionPlansFilter } from "@subscription/app/SubscriptionPlanRepository";
 import { ItemObject } from "@subscription/domain/Item";
 import SubscriptionPlan, { SubscriptionPlanObject } from "@subscription/domain/SubscriptionPlan";
@@ -25,7 +25,7 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
   }
 
   async getSubscriptionPlans(filter: SubscriptionPlansFilter): Promise<PaginatedResult<SubscriptionPlanObject>> {
-    const { rows = [] } = await this.selectSubscriptionPlans(filter);
+    const { rows = [], page_result } = await this.selectSubscriptionPlans(filter);
 
     const subscription_plan_objs: Record<string, SubscriptionPlanObject> = {};
 
@@ -56,7 +56,7 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
       };
     }
 
-    return { results: Object.values(subscription_plan_objs) };
+    return { results: Object.values(subscription_plan_objs), page_result };
   }
 
   private async selectSubscriptionPlans(filter: SubscriptionPlansFilter) {
@@ -64,22 +64,23 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
     const values: unknown[] = [filter.tenant_id];
 
     if (filter.page_options) {
-      // const offset = Pagination.calculateOffset(filter.page_options);
+      const count_query = 'SELECT COUNT(id) as total FROM subscription_plans WHERE tenant_id=$1';
+      const offset = Pagination.calculateOffset(filter.page_options);
 
-      // const count_result = await this.#db.query(count_query, DbUtils.sanitizeValues(values));
+      const count_result = await this.#db.query(count_query, DbUtils.sanitizeValues(values));
 
-      // const paginated_query = filter.tenant_id ? query + ' LIMIT $2 OFFSET $3' : query + ' LIMIT $1 OFFSET $2';
+      const paginated_query = query + ' LIMIT $2 OFFSET $3';
 
-      // const { rows } = await this.#db.query(
-      //   paginated_query,
-      //   DbUtils.sanitizeValues(values.concat([filter.page_options.limit, offset]))
-      // );
+      const { rows } = await this.#db.query(
+        paginated_query,
+        DbUtils.sanitizeValues(values.concat([filter.page_options.limit, offset]))
+      );
 
-      // const page_result = (count_result.rows[0].total !== undefined && count_result.rows[0].total > 0)
-      //   ? Pagination.calculatePageResult(count_result.rows[0].total, filter!.page_options!)
-      //   : undefined;
+      const page_result = (count_result.rows[0].total !== undefined && count_result.rows[0].total > 0)
+        ? Pagination.calculatePageResult(count_result.rows[0].total, filter!.page_options!)
+        : undefined;
 
-      // return { rows, page_result };
+      return { rows, page_result };
     }
 
     const { rows } = await this.#db.query(query, DbUtils.sanitizeValues(values));

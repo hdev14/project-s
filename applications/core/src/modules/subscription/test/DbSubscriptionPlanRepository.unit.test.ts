@@ -69,91 +69,107 @@ describe('DbSubscriptionPlanRepository unit tests', () => {
       );
     });
 
-    // it.skip('returns a list of subscription plans when the limit of pagination is 1 and the page is 1', async () => {
-    //   query_mock
-    //     .mockResolvedValueOnce({ rows: [{ total: 2 }] })
-    //     .mockResolvedValueOnce({
-    //       rows: [
-    //         {
-    //           id: faker.string.uuid(),
-    //           name: faker.commerce.productName(),
-    //           description: faker.commerce.productDescription(),
-    //           attributes: JSON.stringify([
-    //             {
-    //               name: faker.commerce.productAdjective(),
-    //               description: faker.lorem.lines()
-    //             }
-    //           ]),
-    //           is_service: faker.datatype.boolean(),
-    //           picture_url: faker.internet.url(),
-    //         },
-    //       ]
-    //     });
+    it('returns a list of subscription plans when the limit of pagination is 1 and the page is 1', async () => {
+      query_mock
+        .mockResolvedValueOnce({ rows: [{ total: 2 }] })
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              id: unique_subscription_plan_id,
+              amount: faker.number.float(),
+              recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+              term_url: faker.internet.url(),
+              tenant_id: faker.string.uuid(),
+              item_id: faker.string.uuid(),
+              name: faker.commerce.product(),
+            },
+            {
+              id: unique_subscription_plan_id,
+              amount: faker.number.float(),
+              recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+              term_url: faker.internet.url(),
+              tenant_id: faker.string.uuid(),
+              item_id: faker.string.uuid(),
+              name: faker.commerce.product(),
+            },
+          ]
+        });
 
-    //   const page_options: PageOptions = {
-    //     limit: 1,
-    //     page: 1,
-    //   };
+      const filter = {
+        tenant_id: faker.string.uuid(),
+        page_options: {
+          limit: 1,
+          page: 1,
+        }
+      };
 
-    //   const { results, page_result } = await repository.getCatalogItems({ page_options });
+      const { results, page_result } = await repository.getSubscriptionPlans(filter);
 
-    //   expect(results).toHaveLength(1);
-    //   expect(page_result!.next_page).toEqual(2);
-    //   expect(page_result!.total_of_pages).toEqual(2);
-    //   expect(query_mock).toHaveBeenNthCalledWith(
-    //     1,
-    //     'SELECT count(id) as total FROM catalog_items WHERE deleted_at IS NULL',
-    //     []
-    //   );
-    //   expect(query_mock).toHaveBeenNthCalledWith(
-    //     2,
-    //     'SELECT * FROM catalog_items WHERE deleted_at IS NULL LIMIT $1 OFFSET $2',
-    //     [page_options.limit, 0],
-    //   );
-    // });
+      expect(results).toHaveLength(1);
+      expect(page_result!.next_page).toEqual(2);
+      expect(page_result!.total_of_pages).toEqual(2);
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        'SELECT COUNT(id) as total FROM subscription_plans WHERE tenant_id=$1',
+        [filter.tenant_id]
+      );
+      expect(query_mock).toHaveBeenNthCalledWith(
+        2,
+        'SELECT sp.id,sp.amount,sp.recurrence_type,sp.term_url,sp.tenant_id,ci.id as item_id,ci.name as item_name FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id WHERE sp.tenant_id=$1 LIMIT $2 OFFSET $3',
+        [filter.tenant_id, filter.page_options.limit, 0],
+      );
+    });
 
-    // it.skip('returns a list of subscription plans when the limit of pagination is 1 and the page is 2', async () => {
-    //   query_mock
-    //     .mockResolvedValueOnce({ rows: [{ total: 2 }] })
-    //     .mockResolvedValueOnce({
-    //       rows: [
-    //         {
-    //           id: faker.string.uuid(),
-    //           name: faker.commerce.productName(),
-    //           description: faker.commerce.productDescription(),
-    //           attributes: JSON.stringify([
-    //             {
-    //               name: faker.commerce.productAdjective(),
-    //               description: faker.lorem.lines()
-    //             }
-    //           ]),
-    //           is_service: faker.datatype.boolean(),
-    //           picture_url: faker.internet.url(),
-    //         },
-    //       ]
-    //     });
+    it('returns a list of subscription plans when the limit of pagination is 1 and the page is 2', async () => {
+      query_mock
+        .mockResolvedValueOnce({ rows: [{ total: 2 }] })
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              id: unique_subscription_plan_id,
+              amount: faker.number.float(),
+              recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+              term_url: faker.internet.url(),
+              tenant_id: faker.string.uuid(),
+              item_id: faker.string.uuid(),
+              name: faker.commerce.product(),
+            },
+            {
+              id: unique_subscription_plan_id,
+              amount: faker.number.float(),
+              recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+              term_url: faker.internet.url(),
+              tenant_id: faker.string.uuid(),
+              item_id: faker.string.uuid(),
+              name: faker.commerce.product(),
+            },
+          ]
+        });
 
-    //   const page_options: PageOptions = {
-    //     limit: 1,
-    //     page: 2,
-    //   };
+      const filter = {
+        tenant_id: faker.string.uuid(),
+        page_options: {
+          limit: 1,
+          page: 2,
+        }
+      };
 
-    //   const { results, page_result } = await repository.getCatalogItems({ page_options });
+      const { results, page_result } = await repository.getSubscriptionPlans(filter);
 
-    //   expect(results).toHaveLength(1);
-    //   expect(page_result!.next_page).toEqual(-1);
-    //   expect(page_result!.total_of_pages).toEqual(2);
-    //   expect(query_mock).toHaveBeenNthCalledWith(
-    //     1,
-    //     'SELECT count(id) as total FROM catalog_items WHERE deleted_at IS NULL',
-    //     []
-    //   );
-    //   expect(query_mock).toHaveBeenNthCalledWith(
-    //     2,
-    //     'SELECT * FROM catalog_items WHERE deleted_at IS NULL LIMIT $1 OFFSET $2',
-    //     [page_options.limit, 1],
-    //   );
-    // });
+      expect(results).toHaveLength(1);
+      expect(page_result!.next_page).toEqual(-1);
+      expect(page_result!.total_of_pages).toEqual(2);
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        'SELECT COUNT(id) as total FROM subscription_plans WHERE tenant_id=$1',
+        [filter.tenant_id]
+      );
+      expect(query_mock).toHaveBeenNthCalledWith(
+        2,
+        'SELECT sp.id,sp.amount,sp.recurrence_type,sp.term_url,sp.tenant_id,ci.id as item_id,ci.name as item_name FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id WHERE sp.tenant_id=$1 LIMIT $2 OFFSET $3',
+        [filter.tenant_id, filter.page_options.limit, 1],
+      );
+    });
   });
 
   describe('DbSubscriptionPlanRepository.getSubscriptionPlanById', () => {

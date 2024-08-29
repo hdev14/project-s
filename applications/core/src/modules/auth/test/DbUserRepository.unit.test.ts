@@ -120,7 +120,7 @@ describe('DbUserRepository unit tests', () => {
       expect(page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'SELECT DISTINCT count(u.id) as total FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id',
+        'SELECT count(id) as total FROM users',
         []
       );
       expect(query_mock).toHaveBeenNthCalledWith(
@@ -179,7 +179,7 @@ describe('DbUserRepository unit tests', () => {
       expect(page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'SELECT DISTINCT count(u.id) as total FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id',
+        'SELECT count(id) as total FROM users',
         []
       );
       expect(query_mock).toHaveBeenNthCalledWith(
@@ -291,7 +291,7 @@ describe('DbUserRepository unit tests', () => {
       expect(page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'SELECT DISTINCT count(u.id) as total FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.tenant_id=$1',
+        'SELECT count(id) as total FROM users WHERE tenant_id=$1',
         [tenant_id]
       );
       expect(query_mock).toHaveBeenNthCalledWith(

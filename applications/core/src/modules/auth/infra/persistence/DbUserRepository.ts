@@ -20,7 +20,7 @@ export default class DbUserRepository implements UserRepository {
     'u.type',
   ];
   #select_users_query = `SELECT ${this.#columns.toString()} FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id`;
-  #count_select_users_query = 'SELECT DISTINCT count(u.id) as total FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id';
+  #count_select_users_query = 'SELECT count(id) as total FROM users';
 
   constructor() {
     this.#db = Database.connect();
@@ -58,7 +58,7 @@ export default class DbUserRepository implements UserRepository {
 
   private async selectUsers(filter?: UsersFilter) {
     if (filter) {
-      const count_query = filter.tenant_id ? this.#count_select_users_query + ' WHERE u.tenant_id=$1' : this.#count_select_users_query;
+      const count_query = filter.tenant_id ? this.#count_select_users_query + ' WHERE tenant_id=$1' : this.#count_select_users_query;
       const query = filter.tenant_id ? this.#select_users_query + ' WHERE u.tenant_id=$1' : this.#select_users_query;
       const values: unknown[] = [filter.tenant_id];
 

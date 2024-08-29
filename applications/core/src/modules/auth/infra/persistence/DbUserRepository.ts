@@ -103,7 +103,7 @@ export default class DbUserRepository implements UserRepository {
     for (let idx = 0; idx < result.rows.length; idx++) {
       const row = result.rows[idx];
       if (row.slug) {
-        policies.push(result.rows[idx].slug);
+        policies.push(row.slug);
       }
     }
 

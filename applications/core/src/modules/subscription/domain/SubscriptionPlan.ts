@@ -28,6 +28,7 @@ export default class SubscriptionPlan extends Aggregate<SubscriptionPlanObject> 
     this.#recurrence_type = obj.recurrence_type;
     this.#term_url = obj.term_url;
     this.#tenant_id = obj.tenant_id;
+    // TODO: must have an item
     for (let idx = 0; idx < obj.items.length; idx++) {
       this.#items.push(new Item(obj.items[idx]));
     }

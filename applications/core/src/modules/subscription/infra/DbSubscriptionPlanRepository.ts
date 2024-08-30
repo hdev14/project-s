@@ -90,7 +90,10 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
   }
 
   async getSubscriptionPlanById(id: string): Promise<SubscriptionPlan | null> {
-    const { rows: subscription_plan_rows = [] } = await this.#db.query('SELECT * FROM subscription_plans WHERE id=$1', [id]);
+    const { rows: subscription_plan_rows = [] } = await this.#db.query(
+      'SELECT * FROM subscription_plans WHERE id=$1',
+      [id]
+    );
 
     if (subscription_plan_rows.length === 0) {
       return null;
@@ -123,7 +126,34 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
     });
   }
 
-  createSubscriptionPlan(subscription_plan: SubscriptionPlan): Promise<void> {
-    throw new Error("Method not implemented.");
+  async createSubscriptionPlan(subscription_plan: SubscriptionPlan): Promise<void> {
+    const { id, amount, tenant_id, recurrence_type, term_url, items } = subscription_plan.toObject();
+
+    const data = { id, amount, tenant_id, recurrence_type, term_url };
+    const values = Object.values(data);
+
+    await this.#db.query(
+      `INSERT INTO subscription_plans ${DbUtils.columns(data)} VALUES ${DbUtils.values(values)}`,
+      DbUtils.sanitizeValues(values),
+    );
+
+    const item_ids = [];
+    let subscription_items = '';
+
+    for (let idx = 0; idx < items.length; idx++) {
+      item_ids.push(items[idx].id!);
+
+      if (idx !== items.length - 1) {
+        subscription_items += `($1,$${idx + 2}), `;
+        continue;
+      }
+
+      subscription_items += `($1,$${idx + 2})`;
+    }
+
+    await this.#db.query(
+      `INSERT INTO subscription_plan_items (subscription_plan_id, item_id) VALUES ${subscription_items}`,
+      [id].concat(item_ids),
+    );
   }
 }

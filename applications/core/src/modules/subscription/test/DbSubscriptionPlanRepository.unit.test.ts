@@ -236,5 +236,46 @@ describe('DbSubscriptionPlanRepository unit tests', () => {
     });
   });
 
-  it.todo('DbSubscriptionPlanRepository.createSubscriptionPlan');
+  describe('DbSubscriptionPlanRepository.createSubscriptionPlan', () => {
+    it('should create a new subscription plan', async () => {
+      const items = [
+        { id: faker.string.uuid(), name: faker.commerce.product() },
+        { id: faker.string.uuid(), name: faker.commerce.product() }
+      ];
+
+      const subscription_plan_obj = {
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        tenant_id: faker.string.uuid(),
+        items,
+        recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+        term_url: faker.internet.url(),
+      };
+
+      const subscription_plan = new SubscriptionPlan(subscription_plan_obj);
+
+      await repository.createSubscriptionPlan(subscription_plan);
+
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        'INSERT INTO subscription_plans (id,amount,tenant_id,recurrence_type,term_url) VALUES ($1,$2,$3,$4,$5)',
+        [
+          subscription_plan_obj.id,
+          subscription_plan_obj.amount,
+          subscription_plan_obj.tenant_id,
+          subscription_plan_obj.recurrence_type,
+          subscription_plan_obj.term_url,
+        ]
+      );;
+      expect(query_mock).toHaveBeenNthCalledWith(
+        2,
+        'INSERT INTO subscription_plan_items (subscription_plan_id, item_id) VALUES ($1,$2), ($1,$3)',
+        [
+          subscription_plan_obj.id,
+          items[0].id,
+          items[1].id,
+        ]
+      );
+    });
+  });
 });

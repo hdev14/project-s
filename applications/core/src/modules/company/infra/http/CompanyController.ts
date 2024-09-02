@@ -3,6 +3,7 @@ import AlreadyRegisteredError from "@shared/errors/AlreadyRegisteredError";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
+import Logger from "@shared/infra/Logger";
 import { requestValidator } from "@shared/infra/middlewares";
 import types from "@shared/infra/types";
 import { Request } from 'express';
@@ -30,8 +31,12 @@ import {
 
 @controller('/api/companies')
 export default class CompanyController extends BaseHttpController {
-  constructor(@inject(types.CompanyService) readonly company_service: CompanyService) {
+  constructor(
+    @inject(types.CompanyService) readonly company_service: CompanyService,
+    @inject(types.Logger) readonly logger: Logger
+  ) {
     super();
+    this.logger.info("Company's APIs enabled");
   }
 
   @httpPost('/', requestValidator(create_company_validation_schema))

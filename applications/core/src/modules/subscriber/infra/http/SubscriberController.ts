@@ -1,5 +1,6 @@
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
+import Logger from "@shared/infra/Logger";
 import { requestValidator } from "@shared/infra/middlewares";
 import types from "@shared/infra/types";
 import SubscriberService from "@subscriber/app/SubscriberService";
@@ -22,8 +23,12 @@ import {
 
 @controller('/api/subscribers')
 export default class SubscriberController extends BaseHttpController {
-  constructor(@inject(types.SubscriberService) readonly subscriber_service: SubscriberService) {
+  constructor(
+    @inject(types.SubscriberService) readonly subscriber_service: SubscriberService,
+    @inject(types.Logger) readonly logger: Logger
+  ) {
     super();
+    this.logger.info("Subscriber's APIs enabled");
   }
 
   @httpPost('/', requestValidator(create_subscriber_validation_schema))

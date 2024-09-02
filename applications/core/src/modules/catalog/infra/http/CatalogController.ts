@@ -2,6 +2,7 @@ import CatalogService from "@catalog/app/CatalogService";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
+import Logger from "@shared/infra/Logger";
 import { Policies } from "@shared/infra/Principal";
 import { requestValidator } from "@shared/infra/middlewares";
 import types from "@shared/infra/types";
@@ -19,8 +20,12 @@ import { create_catalog_item_validation_schema, update_catalog_item_validation_s
 
 @controller('/api/catalogs', types.AuthMiddleware)
 export default class CatalogController extends BaseHttpController {
-  constructor(@inject(types.CatalogService) readonly catalog_service: CatalogService) {
+  constructor(
+    @inject(types.CatalogService) readonly catalog_service: CatalogService,
+    @inject(types.Logger) readonly logger: Logger,
+  ) {
     super();
+    this.logger.info("Catalog's APIs enabled");
   }
 
   @httpPost('/items', requestValidator(create_catalog_item_validation_schema))

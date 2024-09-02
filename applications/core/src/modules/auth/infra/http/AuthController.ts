@@ -4,6 +4,7 @@ import DomainError from "@shared/errors/DomainError";
 import ExpiredCodeError from "@shared/errors/ExpiredCode";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
+import Logger from "@shared/infra/Logger";
 import { Policies } from "@shared/infra/Principal";
 import { requestValidator } from "@shared/infra/middlewares";
 import types from "@shared/infra/types";
@@ -32,8 +33,12 @@ import {
 
 @controller('/api/auth')
 export default class AuthController extends BaseHttpController {
-  constructor(@inject(types.AuthService) readonly auth_service: AuthService) {
+  constructor(
+    @inject(types.AuthService) readonly auth_service: AuthService,
+    @inject(types.Logger) readonly logger: Logger,
+  ) {
     super();
+    this.logger.info("Auth's APIs enabled");
   }
 
   @httpPost('/login', requestValidator(login_validation_schema))

@@ -1,6 +1,17 @@
 import { NextFunction, Request, Response } from 'express';
 import { Schema, checkSchema } from 'express-validator';
 import HttpStatusCodes from './HttpStatusCodes';
+import Logger from './Logger';
+
+export function createErrorHandlerWithLogger(logger: Logger) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  return (error: Error, _req: Request, res: Response, _next: NextFunction) => {
+    logger.error(error);
+    return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Internal Server Error'
+    });
+  }
+}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function errorHandler(error: Error, _req: Request, res: Response, _next: NextFunction) {

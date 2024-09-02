@@ -1,6 +1,8 @@
 import AuthProvider from '@shared/infra/AuthProvider';
+import Logger from '@shared/infra/Logger';
 import Module from '@shared/infra/Module';
-import { errorHandler } from '@shared/infra/middlewares';
+import { createErrorHandlerWithLogger, errorHandler } from '@shared/infra/middlewares';
+import types from '@shared/infra/types';
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import { I18n } from 'i18n';
@@ -47,7 +49,11 @@ export default class Application {
     });
 
     server.setErrorConfig((app) => {
-      app.use(errorHandler);
+      if (process.env.NODE_ENV !== 'test') {
+        app.use(createErrorHandlerWithLogger(this.#container.get<Logger>(types.Logger)));
+      } else {
+        app.use(errorHandler);
+      }
     });
 
     this.#server = server.build();

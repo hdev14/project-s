@@ -200,5 +200,111 @@ describe('SubscriptionService unit tests', () => {
       expect(error!.message).toEqual('subscription_finished');
     });
   });
+
+  describe('SubscriptionService.pauseSubscription', () => {
+    it("returns a not found error if subscription doesn't exist", async () => {
+      subscription_repository_mock.getSubscriptionById.mockResolvedValueOnce(null);
+
+      const [error, data] = await subscription_service.pauseSubscription({
+        subscription_id: faker.string.uuid(),
+      });
+
+      expect(data).toBeUndefined();
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error!.message).toEqual('notfound.subscription');
+    });
+
+    it('updates status of subscription to paused', async () => {
+      subscription_repository_mock.getSubscriptionById.mockResolvedValueOnce(
+        new Subscription({
+          status: SubscriptionStatus.ACTIVE,
+          subscriber_id: faker.string.uuid(),
+          subscription_plan_id: faker.string.uuid(),
+          tenant_id: faker.string.uuid(),
+        })
+      );
+
+      const [error] = await subscription_service.pauseSubscription({
+        subscription_id: faker.string.uuid(),
+      });
+
+      expect(error).toBeUndefined();
+      expect(subscription_repository_mock.updateSubscription).toHaveBeenCalled();
+      const param = subscription_repository_mock.updateSubscription.mock.calls[0][0].toObject();
+      expect(param.status).toEqual(SubscriptionStatus.PAUSED);
+    });
+
+    it('returns a domain error when trying to pause a subscription that is paused', async () => {
+      subscription_repository_mock.getSubscriptionById.mockResolvedValueOnce(
+        new Subscription({
+          status: SubscriptionStatus.PAUSED,
+          subscriber_id: faker.string.uuid(),
+          subscription_plan_id: faker.string.uuid(),
+          tenant_id: faker.string.uuid(),
+        })
+      );
+
+      const [error] = await subscription_service.pauseSubscription({
+        subscription_id: faker.string.uuid(),
+      });
+
+      expect(error).toBeInstanceOf(DomainError);
+      expect(error!.message).toEqual('subscription_paused');
+    });
+
+    it('returns a domain error when trying to pause a subscription that is pending', async () => {
+      subscription_repository_mock.getSubscriptionById.mockResolvedValueOnce(
+        new Subscription({
+          status: SubscriptionStatus.PENDING,
+          subscriber_id: faker.string.uuid(),
+          subscription_plan_id: faker.string.uuid(),
+          tenant_id: faker.string.uuid(),
+        })
+      );
+
+      const [error] = await subscription_service.pauseSubscription({
+        subscription_id: faker.string.uuid(),
+      });
+
+      expect(error).toBeInstanceOf(DomainError);
+      expect(error!.message).toEqual('subscription_pending');
+    });
+
+    it('returns a domain error when trying to pause a subscription that is canceled', async () => {
+      subscription_repository_mock.getSubscriptionById.mockResolvedValueOnce(
+        new Subscription({
+          status: SubscriptionStatus.CANCELED,
+          subscriber_id: faker.string.uuid(),
+          subscription_plan_id: faker.string.uuid(),
+          tenant_id: faker.string.uuid(),
+        })
+      );
+
+      const [error] = await subscription_service.pauseSubscription({
+        subscription_id: faker.string.uuid(),
+      });
+
+      expect(error).toBeInstanceOf(DomainError);
+      expect(error!.message).toEqual('subscription_canceled');
+    });
+
+    it('returns a domain error when trying to pause a subscription that is finished', async () => {
+      subscription_repository_mock.getSubscriptionById.mockResolvedValueOnce(
+        new Subscription({
+          status: SubscriptionStatus.FINISHED,
+          subscriber_id: faker.string.uuid(),
+          subscription_plan_id: faker.string.uuid(),
+          tenant_id: faker.string.uuid(),
+        })
+      );
+
+      const [error] = await subscription_service.pauseSubscription({
+        subscription_id: faker.string.uuid(),
+      });
+
+      expect(error).toBeInstanceOf(DomainError);
+      expect(error!.message).toEqual('subscription_finished');
+    });
+  });
 });
 

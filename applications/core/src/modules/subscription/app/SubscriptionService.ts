@@ -19,6 +19,10 @@ export type ActiveSubscriptionParams = {
   subscription_id: string;
 };
 
+export type PauseSubscriptionParams = {
+  subscription_id: string;
+};
+
 export default class SubscriptionService {
   #mediator: Mediator;
   #subscription_plan_repository: SubscriptionPlanRepository;
@@ -86,8 +90,26 @@ export default class SubscriptionService {
     }
   }
 
-  async pauseSubscription(params: {}): Promise<Either<void>> {
-    return Either.left(new Error());
+  async pauseSubscription(params: PauseSubscriptionParams): Promise<Either<void>> {
+    try {
+      const subscription = await this.#subscription_repository.getSubscriptionById(params.subscription_id);
+
+      if (!subscription) {
+        return Either.left(new NotFoundError('notfound.subscription'));
+      }
+
+      subscription.pause();
+
+      await this.#subscription_repository.updateSubscription(subscription);
+
+      return Either.right();
+    } catch (error) {
+      if (error instanceof DomainError) {
+        return Either.left(error);
+      }
+
+      throw error;
+    }
   }
 
   async cancelSubscription(params: {}): Promise<Either<void>> {

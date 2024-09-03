@@ -60,6 +60,26 @@ export default class Subscription extends Aggregate<SubscriptionObject> implemen
     this.#started_at = new Date();
   }
 
+  pause() {
+    if (this.#status === SubscriptionStatus.PENDING) {
+      throw new DomainError('subscription_pending');
+    }
+
+    if (this.#status === SubscriptionStatus.CANCELED) {
+      throw new DomainError('subscription_canceled');
+    }
+
+    if (this.#status === SubscriptionStatus.FINISHED) {
+      throw new DomainError('subscription_finished');
+    }
+
+    if (this.#status === SubscriptionStatus.PAUSED) {
+      throw new DomainError('subscription_paused');
+    }
+
+    this.#status = SubscriptionStatus.PAUSED;
+  }
+
   toObject(): RequiredId<SubscriptionObject> {
     return {
       id: this.id,

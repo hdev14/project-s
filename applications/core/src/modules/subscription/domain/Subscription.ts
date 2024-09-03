@@ -80,6 +80,18 @@ export default class Subscription extends Aggregate<SubscriptionObject> implemen
     this.#status = SubscriptionStatus.PAUSED;
   }
 
+  cancel() {
+    if (this.#status === SubscriptionStatus.CANCELED) {
+      throw new DomainError('subscription_canceled');
+    }
+
+    if (this.#status === SubscriptionStatus.FINISHED) {
+      throw new DomainError('subscription_finished');
+    }
+
+    this.#status = SubscriptionStatus.CANCELED;
+  }
+
   toObject(): RequiredId<SubscriptionObject> {
     return {
       id: this.id,

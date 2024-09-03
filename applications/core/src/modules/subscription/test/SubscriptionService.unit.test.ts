@@ -306,5 +306,75 @@ describe('SubscriptionService unit tests', () => {
       expect(error!.message).toEqual('subscription_finished');
     });
   });
+
+  describe('SubscriptionService.cancelSubscription', () => {
+    it("returns a not found error if subscription doesn't exist", async () => {
+      subscription_repository_mock.getSubscriptionById.mockResolvedValueOnce(null);
+
+      const [error, data] = await subscription_service.cancelSubscription({
+        subscription_id: faker.string.uuid(),
+      });
+
+      expect(data).toBeUndefined();
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error!.message).toEqual('notfound.subscription');
+    });
+
+    it('updates status of subscription to canceled', async () => {
+      subscription_repository_mock.getSubscriptionById.mockResolvedValueOnce(
+        new Subscription({
+          status: SubscriptionStatus.ACTIVE,
+          subscriber_id: faker.string.uuid(),
+          subscription_plan_id: faker.string.uuid(),
+          tenant_id: faker.string.uuid(),
+        })
+      );
+
+      const [error] = await subscription_service.cancelSubscription({
+        subscription_id: faker.string.uuid(),
+      });
+
+      expect(error).toBeUndefined();
+      expect(subscription_repository_mock.updateSubscription).toHaveBeenCalled();
+      const param = subscription_repository_mock.updateSubscription.mock.calls[0][0].toObject();
+      expect(param.status).toEqual(SubscriptionStatus.CANCELED);
+    });
+
+    it('returns a domain error when trying to cancel a subscription that is finished', async () => {
+      subscription_repository_mock.getSubscriptionById.mockResolvedValueOnce(
+        new Subscription({
+          status: SubscriptionStatus.FINISHED,
+          subscriber_id: faker.string.uuid(),
+          subscription_plan_id: faker.string.uuid(),
+          tenant_id: faker.string.uuid(),
+        })
+      );
+
+      const [error] = await subscription_service.cancelSubscription({
+        subscription_id: faker.string.uuid(),
+      });
+
+      expect(error).toBeInstanceOf(DomainError);
+      expect(error!.message).toEqual('subscription_finished');
+    });
+
+    it('returns a domain error when trying to cancel a subscription that is already canceled', async () => {
+      subscription_repository_mock.getSubscriptionById.mockResolvedValueOnce(
+        new Subscription({
+          status: SubscriptionStatus.CANCELED,
+          subscriber_id: faker.string.uuid(),
+          subscription_plan_id: faker.string.uuid(),
+          tenant_id: faker.string.uuid(),
+        })
+      );
+
+      const [error] = await subscription_service.cancelSubscription({
+        subscription_id: faker.string.uuid(),
+      });
+
+      expect(error).toBeInstanceOf(DomainError);
+      expect(error!.message).toEqual('subscription_canceled');
+    });
+  });
 });
 

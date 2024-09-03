@@ -1,4 +1,5 @@
 import Aggregate, { AggregateRoot, RequiredId } from "@shared/ddd/Aggregate";
+import DomainError from "@shared/errors/DomainError";
 
 export enum SubscriptionStatus {
   PENDING = 'pending',
@@ -40,6 +41,23 @@ export default class Subscription extends Aggregate<SubscriptionObject> implemen
       tenant_id: params.tenant_id,
       status: SubscriptionStatus.PENDING,
     });
+  }
+
+  active() {
+    if (this.#status === SubscriptionStatus.ACTIVE) {
+      throw new DomainError('subscription_actived');
+    }
+
+    if (this.#status === SubscriptionStatus.CANCELED) {
+      throw new DomainError('subscription_canceled');
+    }
+
+    if (this.#status === SubscriptionStatus.FINISHED) {
+      throw new DomainError('subscription_finished');
+    }
+
+    this.#status = SubscriptionStatus.ACTIVE;
+    this.#started_at = new Date();
   }
 
   toObject(): RequiredId<SubscriptionObject> {

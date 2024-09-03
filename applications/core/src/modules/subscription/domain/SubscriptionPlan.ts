@@ -11,7 +11,7 @@ export type SubscriptionPlanObject = {
   items: Array<ItemObject>;
   amount: number;
   recurrence_type: RecurrenceTypes;
-  term_url: string | undefined;
+  term_url?: string;
   tenant_id: string;
 };
 

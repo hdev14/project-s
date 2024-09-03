@@ -47,7 +47,7 @@ describe('SubscriberService unit tests', () => {
 
       const subscriber_id = faker.string.uuid();
 
-      const [data, error] = await subscriber_service.getSubscriber({ subscriber_id });
+      const [error, data] = await subscriber_service.getSubscriber({ subscriber_id });
 
       expect(error).toBeUndefined();
       expect(data).toEqual(subscriber_obj);
@@ -58,7 +58,7 @@ describe('SubscriberService unit tests', () => {
 
       const subscriber_id = faker.string.uuid();
 
-      const [data, error] = await subscriber_service.getSubscriber({ subscriber_id });
+      const [error, data] = await subscriber_service.getSubscriber({ subscriber_id });
 
       expect(data).toBeUndefined();
       expect(error).toBeInstanceOf(NotFoundError);
@@ -78,7 +78,7 @@ describe('SubscriberService unit tests', () => {
         complement: faker.string.sample(),
       };
 
-      const [, error] = await subscriber_service.updateSubscriberAddress(params);
+      const [error] = await subscriber_service.updateSubscriberAddress(params);
 
       expect(error).toBeInstanceOf(NotFoundError);
     });
@@ -114,7 +114,7 @@ describe('SubscriberService unit tests', () => {
         complement: faker.string.sample(),
       };
 
-      const [, error] = await subscriber_service.updateSubscriberAddress(params);
+      const [error] = await subscriber_service.updateSubscriberAddress(params);
 
       expect(error).toBeUndefined();
       expect(subscriber_repository_mock.getSubcriberById).toHaveBeenCalledTimes(1);
@@ -140,7 +140,7 @@ describe('SubscriberService unit tests', () => {
         phone_number: faker.string.numeric(11),
       };
 
-      const [, error] = await subscriber_service.updateSubscriberPerfonalInfo(params);
+      const [error] = await subscriber_service.updateSubscriberPerfonalInfo(params);
 
       expect(error).toBeInstanceOf(NotFoundError);
     });
@@ -174,7 +174,7 @@ describe('SubscriberService unit tests', () => {
         phone_number: faker.string.numeric(11),
       };
 
-      const [, error] = await subscriber_service.updateSubscriberPerfonalInfo(params);
+      const [error] = await subscriber_service.updateSubscriberPerfonalInfo(params);
 
       expect(error).toBeUndefined();
       expect(subscriber_repository_mock.getSubcriberById).toHaveBeenCalledTimes(1);
@@ -194,7 +194,7 @@ describe('SubscriberService unit tests', () => {
         payment_type: faker.helpers.enumValue(PaymentTypes),
       };
 
-      const [, error] = await subscriber_service.updateSubscriberPaymentMethod(params);
+      const [error] = await subscriber_service.updateSubscriberPaymentMethod(params);
 
       expect(error).toBeInstanceOf(NotFoundError);
     });
@@ -226,7 +226,7 @@ describe('SubscriberService unit tests', () => {
         payment_type: PaymentTypes.PIX,
       };
 
-      const [, error] = await subscriber_service.updateSubscriberPaymentMethod(params);
+      const [error] = await subscriber_service.updateSubscriberPaymentMethod(params);
 
       expect(error).toBeUndefined();
       expect(subscriber_repository_mock.getSubcriberById).toHaveBeenCalledTimes(1);
@@ -268,7 +268,7 @@ describe('SubscriberService unit tests', () => {
         credit_card_token: faker.string.uuid(),
       };
 
-      const [, error] = await subscriber_service.updateSubscriberPaymentMethod(params);
+      const [error] = await subscriber_service.updateSubscriberPaymentMethod(params);
 
       expect(error).toBeUndefined();
       expect(subscriber_repository_mock.getSubcriberById).toHaveBeenCalledTimes(1);
@@ -311,7 +311,7 @@ describe('SubscriberService unit tests', () => {
         credit_card_token: faker.string.uuid(),
       };
 
-      const [, error] = await subscriber_service.updateSubscriberPaymentMethod(params);
+      const [error] = await subscriber_service.updateSubscriberPaymentMethod(params);
 
       expect(error).toBeInstanceOf(CreditCardError);
     });
@@ -364,7 +364,7 @@ describe('SubscriberService unit tests', () => {
         },
       };
 
-      const [data, error] = await subscriber_service.createSubscriber(params);
+      const [error, data] = await subscriber_service.createSubscriber(params);
 
       expect(subscriber_repository_mock.updateSubscriber).toHaveBeenCalled();
       expect(error).toBeUndefined();

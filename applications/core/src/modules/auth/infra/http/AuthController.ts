@@ -45,7 +45,7 @@ export default class AuthController extends BaseHttpController {
   async login(@request() req: Request, @response() res: Response) {
     const { email, password } = req.body;
 
-    const [data, error] = await this.auth_service.login({
+    const [error, data] = await this.auth_service.login({
       email,
       password,
     });
@@ -88,7 +88,7 @@ export default class AuthController extends BaseHttpController {
       params['tenant_id'] = tenant_id;
     }
 
-    const [data] = await this.auth_service.getUsers(params);
+    const [, data] = await this.auth_service.getUsers(params);
 
     return this.json(data, HttpStatusCodes.OK);
   }
@@ -101,7 +101,7 @@ export default class AuthController extends BaseHttpController {
       return this.statusCode(HttpStatusCodes.FORBIDDEN);
     }
 
-    const [data, error] = await this.auth_service.registerUser({
+    const [error, data] = await this.auth_service.registerUser({
       email,
       password,
       access_plan_id,
@@ -132,7 +132,7 @@ export default class AuthController extends BaseHttpController {
 
     const { email, password } = req.body;
 
-    const [, error] = await this.auth_service.updateUser({
+    const [error] = await this.auth_service.updateUser({
       user_id: req.params.id,
       email,
       password,
@@ -158,7 +158,7 @@ export default class AuthController extends BaseHttpController {
     const { id } = req.params;
     const { policy_slugs, mode } = req.body;
 
-    const [, error] = await this.auth_service.updatePolicies({
+    const [error] = await this.auth_service.updatePolicies({
       mode,
       policy_slugs,
       user_id: id,
@@ -183,7 +183,7 @@ export default class AuthController extends BaseHttpController {
 
     const { amount, type, description } = req.body;
 
-    const [data, error] = await this.auth_service.createAccessPlan({
+    const [error, data] = await this.auth_service.createAccessPlan({
       amount,
       type,
       description,
@@ -214,7 +214,7 @@ export default class AuthController extends BaseHttpController {
       type
     } = req.body;
 
-    const [, error] = await this.auth_service.updateAccessPlan({
+    const [error] = await this.auth_service.updateAccessPlan({
       access_plan_id,
       active,
       amount,
@@ -235,7 +235,7 @@ export default class AuthController extends BaseHttpController {
       return this.statusCode(HttpStatusCodes.FORBIDDEN);
     }
 
-    const [data] = await this.auth_service.getAccessPlans();
+    const [, data] = await this.auth_service.getAccessPlans();
 
     return this.json(data, HttpStatusCodes.OK);
   }
@@ -246,7 +246,7 @@ export default class AuthController extends BaseHttpController {
       return this.statusCode(HttpStatusCodes.FORBIDDEN);
     }
 
-    const [data] = await this.auth_service.getPolicies();
+    const [, data] = await this.auth_service.getPolicies();
 
     return this.json(data, HttpStatusCodes.OK);
   }
@@ -256,7 +256,7 @@ export default class AuthController extends BaseHttpController {
     const { email } = req.body;
 
 
-    const [, error] = await this.auth_service.forgotPassword({ email });
+    const [error] = await this.auth_service.forgotPassword({ email });
 
     if (error instanceof NotFoundError) {
       return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
@@ -268,7 +268,7 @@ export default class AuthController extends BaseHttpController {
   @httpPatch('/passwords', requestValidator(reset_password_validation_schema))
   async resetPassword(@request() req: Request) {
     const { code, password } = req.body;
-    const [, error] = await this.auth_service.resetPassword({
+    const [error] = await this.auth_service.resetPassword({
       code,
       password,
     });

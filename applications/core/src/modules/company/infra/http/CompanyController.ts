@@ -50,7 +50,7 @@ export default class CompanyController extends BaseHttpController {
       name,
     } = req.body;
 
-    const [data, error] = await this.company_service.createCompany({
+    const [error, data] = await this.company_service.createCompany({
       access_plan_id,
       address,
       bank,
@@ -81,7 +81,7 @@ export default class CompanyController extends BaseHttpController {
       }
     }) : {};
 
-    const [data] = await this.company_service.getCompanies(params);
+    const [, data] = await this.company_service.getCompanies(params);
 
     return this.json(data, HttpStatusCodes.OK);
   }
@@ -90,7 +90,7 @@ export default class CompanyController extends BaseHttpController {
   async getCompany(@request() req: Request) {
     const { company_id } = req.params;
 
-    const [data, error] = await this.company_service.getCompany({
+    const [error, data] = await this.company_service.getCompany({
       company_id,
     });
 
@@ -112,7 +112,7 @@ export default class CompanyController extends BaseHttpController {
       complement,
     } = req.body;
 
-    const [, error] = await this.company_service.updateCompanyAddress({
+    const [error] = await this.company_service.updateCompanyAddress({
       company_id,
       street,
       district,
@@ -139,7 +139,7 @@ export default class CompanyController extends BaseHttpController {
       bank_code,
     } = req.body;
 
-    const [, error] = await this.company_service.updateCompanyBank({
+    const [error] = await this.company_service.updateCompanyBank({
       company_id,
       account,
       account_digit,
@@ -160,7 +160,7 @@ export default class CompanyController extends BaseHttpController {
     const { company_id } = req.params;
     const { color, logo_url } = req.body;
 
-    const [, error] = await this.company_service.updateCompanyBrand({
+    const [error] = await this.company_service.updateCompanyBrand({
       company_id,
       color,
       logo_url,
@@ -186,7 +186,7 @@ export default class CompanyController extends BaseHttpController {
       policies,
     } = req.body;
 
-    const [data, error] = await this.company_service.createEmployee({
+    const [error, data] = await this.company_service.createEmployee({
       document,
       email,
       name,
@@ -205,7 +205,7 @@ export default class CompanyController extends BaseHttpController {
   async deactivateEmployee(@request() req: Request) {
     const { employee_id } = req.params;
 
-    const [, error] = await this.company_service.deactivateEmployee({
+    const [error] = await this.company_service.deactivateEmployee({
       employee_id
     });
 
@@ -225,7 +225,7 @@ export default class CompanyController extends BaseHttpController {
       service_id,
     } = req.body;
 
-    const [data, error] = await this.company_service.createServiceLog({
+    const [error, data] = await this.company_service.createServiceLog({
       customer_id,
       employee_id,
       service_id,
@@ -251,7 +251,7 @@ export default class CompanyController extends BaseHttpController {
       }
     }) : { tenant_id: company_id };
 
-    const [data,] = await this.company_service.getServiceLogs(params);
+    const [, data] = await this.company_service.getServiceLogs(params);
 
     return this.json(data, HttpStatusCodes.OK);
   }
@@ -268,7 +268,7 @@ export default class CompanyController extends BaseHttpController {
       tax_type,
     } = req.body;
 
-    const [data, error] = await this.company_service.createCommission({
+    const [error, data] = await this.company_service.createCommission({
       catalog_item_id,
       tax,
       tax_type,
@@ -294,7 +294,7 @@ export default class CompanyController extends BaseHttpController {
     const { commission_id } = req.params;
     const { tax, tax_type } = req.body;
 
-    const [, error] = await this.company_service.updateCommission({
+    const [error] = await this.company_service.updateCommission({
       commission_id,
       tax,
       tax_type
@@ -311,7 +311,7 @@ export default class CompanyController extends BaseHttpController {
   async getCommission(@request() req: Request) {
     const { commission_id } = req.params;
 
-    const [data, error] = await this.company_service.getCommission({
+    const [error, data] = await this.company_service.getCommission({
       commission_id
     });
 

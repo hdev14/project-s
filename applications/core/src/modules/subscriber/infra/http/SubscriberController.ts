@@ -40,7 +40,7 @@ export default class SubscriberController extends BaseHttpController {
       phone_number,
     } = req.body;
 
-    const [data,] = await this.subscriber_service.createSubscriber({
+    const [, data] = await this.subscriber_service.createSubscriber({
       address,
       document,
       email,
@@ -54,7 +54,7 @@ export default class SubscriberController extends BaseHttpController {
   async getSubscriber(@request() req: Request) {
     const { subscriber_id } = req.params;
 
-    const [data, error] = await this.subscriber_service.getSubscriber({
+    const [error, data] = await this.subscriber_service.getSubscriber({
       subscriber_id,
     });
 
@@ -79,7 +79,7 @@ export default class SubscriberController extends BaseHttpController {
       complement,
     } = req.body;
 
-    const [, error] = await this.subscriber_service.updateSubscriberAddress({
+    const [error] = await this.subscriber_service.updateSubscriberAddress({
       subscriber_id,
       district,
       number,
@@ -107,7 +107,7 @@ export default class SubscriberController extends BaseHttpController {
       phone_number
     } = req.body;
 
-    const [, error] = await this.subscriber_service.updateSubscriberPerfonalInfo({
+    const [error] = await this.subscriber_service.updateSubscriberPerfonalInfo({
       subscriber_id,
       document,
       email,
@@ -129,7 +129,7 @@ export default class SubscriberController extends BaseHttpController {
     const { subscriber_id } = req.params;
     const { payment_type, credit_card_token } = req.body;
 
-    const [, error] = await this.subscriber_service.updateSubscriberPaymentMethod({
+    const [error] = await this.subscriber_service.updateSubscriberPaymentMethod({
       subscriber_id,
       payment_type,
       credit_card_token,

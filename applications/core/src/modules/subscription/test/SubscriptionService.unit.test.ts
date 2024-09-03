@@ -25,7 +25,7 @@ describe('SubscriptionService unit tests', () => {
     it("throws a not found error if subscriber doesn't exist", async () => {
       mediator_mock.send.mockResolvedValueOnce(null);
 
-      const [data, error] = await subscription_service.createSubscription({
+      const [error, data] = await subscription_service.createSubscription({
         subscriber_id: faker.string.uuid(),
         subscription_plan_id: faker.string.uuid(),
         tenant_id: faker.string.uuid(),
@@ -43,7 +43,7 @@ describe('SubscriptionService unit tests', () => {
         .mockResolvedValueOnce({ id: faker.string.uuid() })
         .mockResolvedValueOnce(false);
 
-      const [data, error] = await subscription_service.createSubscription({
+      const [error, data] = await subscription_service.createSubscription({
         subscriber_id: faker.string.uuid(),
         subscription_plan_id: faker.string.uuid(),
         tenant_id: faker.string.uuid(),
@@ -68,7 +68,7 @@ describe('SubscriptionService unit tests', () => {
         subscription_plan_id: faker.string.uuid(),
         tenant_id: faker.string.uuid(),
       };
-      const [data, error] = await subscription_service.createSubscription(params);
+      const [error, data] = await subscription_service.createSubscription(params);
 
       expect(data).toBeUndefined();
       expect(error).toBeInstanceOf(NotFoundError);
@@ -100,7 +100,7 @@ describe('SubscriptionService unit tests', () => {
         tenant_id: faker.string.uuid(),
       };
 
-      const [data, error] = await subscription_service.createSubscription(params);
+      const [error, data] = await subscription_service.createSubscription(params);
 
       expect(error).toBeUndefined();
       expect(data).toHaveProperty('id');
@@ -116,7 +116,7 @@ describe('SubscriptionService unit tests', () => {
     it("returns a not found error if subscription doesn't exist", async () => {
       subscription_repository_mock.getSubscriptionById.mockResolvedValueOnce(null);
 
-      const [data, error] = await subscription_service.activeSubscription({
+      const [error, data] = await subscription_service.activeSubscription({
         subscription_id: faker.string.uuid(),
       });
 
@@ -135,7 +135,7 @@ describe('SubscriptionService unit tests', () => {
         })
       );
 
-      const [, error] = await subscription_service.activeSubscription({
+      const [error] = await subscription_service.activeSubscription({
         subscription_id: faker.string.uuid(),
       });
 
@@ -156,7 +156,7 @@ describe('SubscriptionService unit tests', () => {
         })
       );
 
-      const [, error] = await subscription_service.activeSubscription({
+      const [error] = await subscription_service.activeSubscription({
         subscription_id: faker.string.uuid(),
       });
 
@@ -174,7 +174,7 @@ describe('SubscriptionService unit tests', () => {
         })
       );
 
-      const [, error] = await subscription_service.activeSubscription({
+      const [error] = await subscription_service.activeSubscription({
         subscription_id: faker.string.uuid(),
       });
 
@@ -192,7 +192,7 @@ describe('SubscriptionService unit tests', () => {
         })
       );
 
-      const [, error] = await subscription_service.activeSubscription({
+      const [error] = await subscription_service.activeSubscription({
         subscription_id: faker.string.uuid(),
       });
 

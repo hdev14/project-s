@@ -1,11 +1,11 @@
 export default class Either<T = unknown> extends Array {
-  0?: T;
-  1?: Error;
+  0?: Error;
+  1?: T;
 
-  private constructor(params: { data?: T, error?: Error }) {
+  private constructor(params: { error?: Error, data?: T, }) {
     super(2);
-    this[0] = params.data;
-    this[1] = params.error;
+    this[0] = params.error;
+    this[1] = params.data;
   }
 
   static right<T>(data?: T) {

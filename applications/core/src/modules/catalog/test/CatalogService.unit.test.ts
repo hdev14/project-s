@@ -44,7 +44,7 @@ describe('CatalogService unit tests', () => {
         }
       });
 
-      const [data, error] = await catalog_service.getCatalogItems({});
+      const [error, data] = await catalog_service.getCatalogItems({});
 
       expect(error).toBeUndefined();
       expect(data!.results[0]).not.toBeInstanceOf(CatalogItem);
@@ -69,7 +69,7 @@ describe('CatalogService unit tests', () => {
         tenant_id: faker.string.uuid(),
       };
 
-      const [data, error] = await catalog_service.createCatalogItem(params);
+      const [error, data] = await catalog_service.createCatalogItem(params);
 
       expect(error).toBeUndefined();
       expect(data!.id).toBeDefined();
@@ -94,7 +94,7 @@ describe('CatalogService unit tests', () => {
         tenant_id: faker.string.uuid(),
       };
 
-      const [data, error] = await catalog_service.createCatalogItem(params);
+      const [error, data] = await catalog_service.createCatalogItem(params);
 
       expect(data).toBeUndefined();
       expect(error).toBeInstanceOf(NotFoundError);
@@ -114,7 +114,7 @@ describe('CatalogService unit tests', () => {
         tenant_id: faker.string.uuid(),
       };
 
-      const [data, error] = await catalog_service.createCatalogItem(params);
+      const [error, data] = await catalog_service.createCatalogItem(params);
 
       expect(data).toBeUndefined();
       expect(error).toBeInstanceOf(DomainError);
@@ -134,7 +134,7 @@ describe('CatalogService unit tests', () => {
         tenant_id: faker.string.uuid(),
       };
 
-      const [, error] = await catalog_service.updateCatalogItem(params);
+      const [error] = await catalog_service.updateCatalogItem(params);
 
       expect(error).toBeInstanceOf(NotFoundError);
       expect(error!.message).toEqual('notfound.catalog_item');
@@ -164,7 +164,7 @@ describe('CatalogService unit tests', () => {
         picture_url: faker.internet.url(),
       };
 
-      const [, error] = await catalog_service.updateCatalogItem(params);
+      const [error] = await catalog_service.updateCatalogItem(params);
 
       expect(error).toBeUndefined();
       expect(catalog_repository_mock.updateCatalogItem).toHaveBeenCalledTimes(1);

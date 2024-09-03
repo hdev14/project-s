@@ -40,7 +40,7 @@ describe('AuthService unit tests', () => {
     it("returns a credential error if user doesn't exist", async () => {
       user_repository_mock.getUserByEmail.mockResolvedValueOnce(null);
 
-      const [data, error] = await auth_service.login({
+      const [error, data] = await auth_service.login({
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
       });
@@ -61,7 +61,7 @@ describe('AuthService unit tests', () => {
 
       encryptor_mock.compareHash.mockReturnValueOnce(false);
 
-      const [data, error] = await auth_service.login({
+      const [error, data] = await auth_service.login({
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
       });
@@ -87,7 +87,7 @@ describe('AuthService unit tests', () => {
         expired_at: new Date(),
       });
 
-      const [data, error] = await auth_service.login({
+      const [error, data] = await auth_service.login({
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
       });
@@ -103,7 +103,7 @@ describe('AuthService unit tests', () => {
     it('should register a new user', async () => {
       encryptor_mock.createHash.mockReturnValueOnce('test');
 
-      const [data, error] = await auth_service.registerUser({
+      const [error, data] = await auth_service.registerUser({
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         type: faker.helpers.enumValue(UserTypes),
@@ -118,7 +118,7 @@ describe('AuthService unit tests', () => {
     it("returns a not found error when access_plan_id is passed and access plan doesn't exist", async () => {
       access_plan_repository_mock.getAccessPlanById.mockResolvedValueOnce(null);
 
-      const [data, error] = await auth_service.registerUser({
+      const [error, data] = await auth_service.registerUser({
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         access_plan_id: faker.string.uuid(),
@@ -143,7 +143,7 @@ describe('AuthService unit tests', () => {
         type: faker.helpers.enumValue(UserTypes),
       }));
 
-      const [data, error] = await auth_service.registerUser({
+      const [error, data] = await auth_service.registerUser({
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         tenant_id,
@@ -160,7 +160,7 @@ describe('AuthService unit tests', () => {
     it("return a not found erro when tenant doesn't exist", async () => {
       encryptor_mock.createHash.mockReturnValueOnce('test');
 
-      const [data, error] = await auth_service.registerUser({
+      const [error, data] = await auth_service.registerUser({
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         tenant_id: faker.string.uuid(),
@@ -177,7 +177,7 @@ describe('AuthService unit tests', () => {
     it("returns a not found error if user doesn't exist", async () => {
       user_repository_mock.getUserById.mockResolvedValueOnce(null);
 
-      const [data, error] = await auth_service.updateUser({
+      const [error, data] = await auth_service.updateUser({
         user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
@@ -200,7 +200,7 @@ describe('AuthService unit tests', () => {
       user_repository_mock.getUserById.mockResolvedValueOnce(user);
       encryptor_mock.createHash.mockReturnValueOnce('test');
 
-      const [, error] = await auth_service.updateUser({
+      const [error] = await auth_service.updateUser({
         user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
@@ -222,7 +222,7 @@ describe('AuthService unit tests', () => {
       user_repository_mock.getUserById.mockResolvedValueOnce(user);
 
       const email = faker.internet.email();
-      const [, error] = await auth_service.updateUser({
+      const [error] = await auth_service.updateUser({
         user_id: faker.string.uuid(),
         email,
       });
@@ -247,7 +247,7 @@ describe('AuthService unit tests', () => {
       user_repository_mock.getUserById.mockResolvedValueOnce(user);
       encryptor_mock.createHash.mockReturnValueOnce('test');
 
-      const [, error] = await auth_service.updateUser({
+      const [error] = await auth_service.updateUser({
         user_id: faker.string.uuid(),
         password: faker.string.alphanumeric(),
       });
@@ -264,7 +264,7 @@ describe('AuthService unit tests', () => {
     it("returns a not found error if user doesn't exist", async () => {
       user_repository_mock.getUserById.mockResolvedValueOnce(null);
 
-      const [data, error] = await auth_service.updatePolicies({
+      const [error, data] = await auth_service.updatePolicies({
         user_id: faker.string.uuid(),
         policy_slugs: [],
         mode: 'attach',
@@ -298,7 +298,7 @@ describe('AuthService unit tests', () => {
       ]);
       user_repository_mock.getUserById.mockResolvedValueOnce(user);
 
-      const [, error] = await auth_service.updatePolicies({
+      const [error] = await auth_service.updatePolicies({
         user_id: faker.string.uuid(),
         policy_slugs: [faker.word.verb(), faker.word.verb()],
         mode: 'attach'
@@ -332,7 +332,7 @@ describe('AuthService unit tests', () => {
       ]);
       user_repository_mock.getUserById.mockResolvedValueOnce(user);
 
-      const [, error] = await auth_service.updatePolicies({
+      const [error] = await auth_service.updatePolicies({
         user_id: faker.string.uuid(),
         policy_slugs: [faker.word.verb(), faker.word.verb()],
         mode: 'dettach'
@@ -369,7 +369,7 @@ describe('AuthService unit tests', () => {
         }
       });
 
-      const [data, error] = await auth_service.getUsers({});
+      const [error, data] = await auth_service.getUsers({});
 
       expect(error).toBeUndefined();
       expect(data!.results[0]).not.toBeInstanceOf(User);
@@ -385,7 +385,7 @@ describe('AuthService unit tests', () => {
     it("returns a not found error if access plan doesn't exist", async () => {
       access_plan_repository_mock.getAccessPlanById.mockResolvedValueOnce(null);
 
-      const [data, error] = await auth_service.changeAccessPlan({
+      const [error, data] = await auth_service.changeAccessPlan({
         user_id: faker.string.uuid(),
         access_plan_id: faker.string.uuid(),
       });
@@ -405,7 +405,7 @@ describe('AuthService unit tests', () => {
 
       user_repository_mock.getUserById.mockResolvedValueOnce(null);
 
-      const [data, error] = await auth_service.changeAccessPlan({
+      const [error, data] = await auth_service.changeAccessPlan({
         user_id: faker.string.uuid(),
         access_plan_id: faker.string.uuid(),
       });
@@ -437,7 +437,7 @@ describe('AuthService unit tests', () => {
 
       user_repository_mock.getUserById.mockResolvedValueOnce(user);
 
-      const [, error] = await auth_service.changeAccessPlan({
+      const [error] = await auth_service.changeAccessPlan({
         user_id: faker.string.uuid(),
         access_plan_id: faker.string.uuid(),
       });
@@ -456,7 +456,7 @@ describe('AuthService unit tests', () => {
         description: faker.lorem.lines(),
       };
 
-      const [data, error] = await auth_service.createAccessPlan(params);
+      const [error, data] = await auth_service.createAccessPlan(params);
 
       expect(error).toBeUndefined();
       expect(data!.id).toBeDefined();
@@ -474,7 +474,7 @@ describe('AuthService unit tests', () => {
         description: faker.lorem.lines(),
       };
 
-      const [data, error] = await auth_service.createAccessPlan(params);
+      const [error, data] = await auth_service.createAccessPlan(params);
 
       expect(data).toBeUndefined();
       expect(error).toBeInstanceOf(DomainError);
@@ -493,7 +493,7 @@ describe('AuthService unit tests', () => {
         active: faker.datatype.boolean(),
       };
 
-      const [, error] = await auth_service.updateAccessPlan(params);
+      const [error] = await auth_service.updateAccessPlan(params);
 
       expect(error).toBeInstanceOf(NotFoundError);
       expect(error!.message).toEqual('notfound.access_plan');
@@ -519,7 +519,7 @@ describe('AuthService unit tests', () => {
         active: faker.datatype.boolean(),
       };
 
-      const [, error] = await auth_service.updateAccessPlan(params);
+      const [error] = await auth_service.updateAccessPlan(params);
 
       expect(error).toBeUndefined();
       expect(access_plan_repository_mock.updateAccessPlan).toHaveBeenCalled();
@@ -549,7 +549,7 @@ describe('AuthService unit tests', () => {
         active: faker.datatype.boolean(),
       };
 
-      const [, error] = await auth_service.updateAccessPlan(params);
+      const [error] = await auth_service.updateAccessPlan(params);
 
       expect(error).toBeInstanceOf(DomainError);
     });
@@ -572,7 +572,7 @@ describe('AuthService unit tests', () => {
         }
       ]);
 
-      const [data, error] = await auth_service.getAccessPlans();
+      const [error, data] = await auth_service.getAccessPlans();
 
       expect(data).toHaveLength(2);
       expect(error).toBeUndefined();
@@ -594,7 +594,7 @@ describe('AuthService unit tests', () => {
         },
       ]);
 
-      const [data, error] = await auth_service.getPolicies();
+      const [error, data] = await auth_service.getPolicies();
 
       expect(data).toHaveLength(2);
       expect(error).toBeUndefined();
@@ -605,7 +605,7 @@ describe('AuthService unit tests', () => {
     it("should return not found error if user doesn't exist", async () => {
       user_repository_mock.getUserByEmail.mockResolvedValueOnce(null);
 
-      const [, error] = await auth_service.forgotPassword({ email: faker.internet.email() });
+      const [error] = await auth_service.forgotPassword({ email: faker.internet.email() });
 
       expect(error).toBeInstanceOf(NotFoundError);
     });
@@ -620,7 +620,7 @@ describe('AuthService unit tests', () => {
         })
       );
 
-      const [, error] = await auth_service.forgotPassword({ email: faker.internet.email() });
+      const [error] = await auth_service.forgotPassword({ email: faker.internet.email() });
 
       expect(error).toBeUndefined();
       expect(verification_code_mock.createVerificationCode).toHaveBeenCalled();
@@ -636,7 +636,7 @@ describe('AuthService unit tests', () => {
         })
       );
 
-      const [, error] = await auth_service.forgotPassword({ email: faker.internet.email() });
+      const [error] = await auth_service.forgotPassword({ email: faker.internet.email() });
 
       expect(error).toBeUndefined();
       expect(email_service_mock.send).toHaveBeenCalled();
@@ -647,7 +647,7 @@ describe('AuthService unit tests', () => {
     it("should return not found error if verification code doesn't exsit", async () => {
       verification_code_mock.getVerificationCodeByCode.mockResolvedValueOnce(null);
 
-      const [, error] = await auth_service.resetPassword({
+      const [error] = await auth_service.resetPassword({
         code: faker.string.numeric(4),
         password: faker.string.alphanumeric()
       });
@@ -664,7 +664,7 @@ describe('AuthService unit tests', () => {
         })
       );
 
-      const [, error] = await auth_service.resetPassword({
+      const [error] = await auth_service.resetPassword({
         code: faker.string.numeric(4),
         password: faker.string.alphanumeric()
       });
@@ -692,7 +692,7 @@ describe('AuthService unit tests', () => {
 
       encryptor_mock.createHash.mockReturnValueOnce('test');
 
-      const [, error] = await auth_service.resetPassword({
+      const [error] = await auth_service.resetPassword({
         code: faker.string.numeric(4),
         password: faker.string.alphanumeric()
       });

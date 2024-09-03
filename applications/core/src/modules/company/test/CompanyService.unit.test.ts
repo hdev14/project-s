@@ -54,7 +54,7 @@ describe('CompanyService unit tests', () => {
         }
       };
 
-      const [data, error] = await company_service.createCompany(params);
+      const [error, data] = await company_service.createCompany(params);
 
       expect(error).toBeUndefined();
       expect(data).toHaveProperty('id');
@@ -93,7 +93,7 @@ describe('CompanyService unit tests', () => {
         }
       };
 
-      const [data, error] = await company_service.createCompany(params);
+      const [error, data] = await company_service.createCompany(params);
 
       expect(data).toBeUndefined();
       expect(error).toBeInstanceOf(NotFoundError);
@@ -218,7 +218,7 @@ describe('CompanyService unit tests', () => {
         }
       };
 
-      const [data, error] = await company_service.createCompany(params);
+      const [error, data] = await company_service.createCompany(params);
 
       expect(data).toBeUndefined()
       expect(error).toBeInstanceOf(AlreadyRegisteredError);
@@ -276,7 +276,7 @@ describe('CompanyService unit tests', () => {
         }
       });
 
-      const [data, error] = await company_service.getCompanies({});
+      const [error, data] = await company_service.getCompanies({});
 
       expect(error).toBeUndefined();
       expect(data!.results[0]).not.toBeInstanceOf(Company);
@@ -318,7 +318,7 @@ describe('CompanyService unit tests', () => {
 
       const company_id = faker.string.uuid();
 
-      const [data, error] = await company_service.getCompany({ company_id });
+      const [error, data] = await company_service.getCompany({ company_id });
 
       expect(error).toBeUndefined();
       expect(data).toEqual(company_obj);
@@ -329,7 +329,7 @@ describe('CompanyService unit tests', () => {
 
       const company_id = faker.string.uuid();
 
-      const [data, error] = await company_service.getCompany({ company_id });
+      const [error, data] = await company_service.getCompany({ company_id });
 
       expect(data).toBeUndefined();
       expect(error).toBeInstanceOf(NotFoundError);
@@ -349,7 +349,7 @@ describe('CompanyService unit tests', () => {
         complement: faker.string.sample(),
       };
 
-      const [, error] = await company_service.updateCompanyAddress(params);
+      const [error] = await company_service.updateCompanyAddress(params);
 
       expect(error).toBeInstanceOf(NotFoundError);
     });
@@ -388,7 +388,7 @@ describe('CompanyService unit tests', () => {
         complement: faker.string.sample(),
       };
 
-      const [, error] = await company_service.updateCompanyAddress(params);
+      const [error] = await company_service.updateCompanyAddress(params);
 
       expect(error).toBeUndefined();
       expect(company_repository_mock.updateCompany).toHaveBeenCalledTimes(1);
@@ -416,7 +416,7 @@ describe('CompanyService unit tests', () => {
         bank_code: faker.string.numeric(3),
       };
 
-      const [, error] = await company_service.updateCompanyBank(params);
+      const [error] = await company_service.updateCompanyBank(params);
 
       expect(error).toBeInstanceOf(NotFoundError);
     });
@@ -455,7 +455,7 @@ describe('CompanyService unit tests', () => {
         bank_code: faker.string.numeric(3),
       };
 
-      const [, error] = await company_service.updateCompanyBank(params);
+      const [error] = await company_service.updateCompanyBank(params);
 
       expect(error).toBeUndefined();
       expect(company_repository_mock.updateCompany).toHaveBeenCalledTimes(1);
@@ -480,7 +480,7 @@ describe('CompanyService unit tests', () => {
         logo_url: faker.internet.url(),
       };
 
-      const [, error] = await company_service.updateCompanyBrand(params);
+      const [error] = await company_service.updateCompanyBrand(params);
 
       expect(error).toBeInstanceOf(NotFoundError);
     });
@@ -516,7 +516,7 @@ describe('CompanyService unit tests', () => {
         logo_url: faker.internet.url(),
       };
 
-      const [, error] = await company_service.updateCompanyBrand(params);
+      const [error] = await company_service.updateCompanyBrand(params);
 
       expect(error).toBeUndefined();
       expect(company_repository_mock.updateCompany).toHaveBeenCalledTimes(1);
@@ -557,7 +557,7 @@ describe('CompanyService unit tests', () => {
         }
       });
 
-      const [data, error] = await company_service.getServiceLogs({
+      const [error, data] = await company_service.getServiceLogs({
         tenant_id: faker.string.uuid(),
       });
 
@@ -575,7 +575,7 @@ describe('CompanyService unit tests', () => {
     it("should return not found error if employee doesn't exist", async () => {
       mediator_mock.send.mockResolvedValueOnce(false);
 
-      const [data, error] = await company_service.createServiceLog({
+      const [error, data] = await company_service.createServiceLog({
         customer_id: faker.string.uuid(),
         employee_id: faker.string.uuid(),
         service_id: faker.string.uuid(),
@@ -592,7 +592,7 @@ describe('CompanyService unit tests', () => {
         .mockResolvedValueOnce(true)
         .mockResolvedValueOnce(false);
 
-      const [data, error] = await company_service.createServiceLog({
+      const [error, data] = await company_service.createServiceLog({
         customer_id: faker.string.uuid(),
         employee_id: faker.string.uuid(),
         service_id: faker.string.uuid(),
@@ -610,7 +610,7 @@ describe('CompanyService unit tests', () => {
         .mockResolvedValueOnce(true)
         .mockRejectedValueOnce(new NotFoundError('notfound.catalog_item'));
 
-      const [data, error] = await company_service.createServiceLog({
+      const [error, data] = await company_service.createServiceLog({
         customer_id: faker.string.uuid(),
         employee_id: faker.string.uuid(),
         service_id: faker.string.uuid(),
@@ -642,7 +642,7 @@ describe('CompanyService unit tests', () => {
         tenant_id: faker.string.uuid(),
       };
 
-      const [data, error] = await company_service.createServiceLog(params);
+      const [error, data] = await company_service.createServiceLog(params);
 
       expect(error).toBeUndefined();
       expect(data!.id).toBeDefined();
@@ -680,7 +680,7 @@ describe('CompanyService unit tests', () => {
         tenant_id: faker.string.uuid(),
       };
 
-      const [data, error] = await company_service.createServiceLog(params);
+      const [error, data] = await company_service.createServiceLog(params);
 
       expect(error).toBeUndefined();
       expect(data!.id).toBeDefined();
@@ -697,7 +697,7 @@ describe('CompanyService unit tests', () => {
     it("should return not found error if catalog item doesn't exist", async () => {
       mediator_mock.send.mockRejectedValueOnce(new NotFoundError('test'));
 
-      const [data, error] = await company_service.createCommission({
+      const [error, data] = await company_service.createCommission({
         catalog_item_id: faker.string.uuid(),
         tax: faker.number.float(),
         tax_type: TaxTypes.PERCENTAGE,
@@ -711,7 +711,7 @@ describe('CompanyService unit tests', () => {
     it('should return a domain error if tax type is "percentage" and the amount is greater than 1', async () => {
       mediator_mock.send.mockResolvedValueOnce({ id: faker.string.uuid() });
 
-      const [data, error] = await company_service.createCommission({
+      const [error, data] = await company_service.createCommission({
         catalog_item_id: faker.string.uuid(),
         tax: faker.number.int({ min: 2 }),
         tax_type: TaxTypes.PERCENTAGE,
@@ -733,7 +733,7 @@ describe('CompanyService unit tests', () => {
         tenant_id: faker.string.uuid(),
       };
 
-      const [data, error] = await company_service.createCommission(params);
+      const [error, data] = await company_service.createCommission(params);
 
       expect(commission_repository_mock.createCommission).toHaveBeenCalledTimes(1);
       expect(error).toBeUndefined();
@@ -754,7 +754,7 @@ describe('CompanyService unit tests', () => {
         tax_type: TaxTypes.RAW,
       };
 
-      const [, error] = await company_service.updateCommission(params);
+      const [error] = await company_service.updateCommission(params);
 
       expect(error).toBeInstanceOf(NotFoundError);
       expect(error!.message).toEqual('notfound.commission');
@@ -778,7 +778,7 @@ describe('CompanyService unit tests', () => {
         tax_type: TaxTypes.RAW,
       };
 
-      const [, error] = await company_service.updateCommission(params);
+      const [error] = await company_service.updateCommission(params);
 
       expect(error).toBeUndefined();
       expect(commission_repository_mock.updateCommission).toHaveBeenCalledTimes(1);
@@ -792,7 +792,7 @@ describe('CompanyService unit tests', () => {
     it("returns a not found error if tenant doesn't exist", async () => {
       mediator_mock.send.mockResolvedValueOnce(false);
 
-      const [data, error] = await company_service.createEmployee({
+      const [error, data] = await company_service.createEmployee({
         document: faker.string.numeric(11),
         email: faker.internet.email(),
         name: faker.person.fullName(),
@@ -842,7 +842,7 @@ describe('CompanyService unit tests', () => {
         policies: [faker.helpers.enumValue(Policies)]
       };
 
-      const [data, error] = await company_service.createEmployee(params);
+      const [error, data] = await company_service.createEmployee(params);
 
       expect(company_repository_mock.updateEmployee).toHaveBeenCalled();
       expect(error).toBeUndefined();
@@ -878,7 +878,7 @@ describe('CompanyService unit tests', () => {
     it("returns a not found error if employee doesn't exist", async () => {
       company_repository_mock.getEmployeeById.mockResolvedValueOnce(null);
 
-      const [, error] = await company_service.deactivateEmployee({
+      const [error] = await company_service.deactivateEmployee({
         employee_id: faker.string.uuid(),
       });
 
@@ -895,7 +895,7 @@ describe('CompanyService unit tests', () => {
         }),
       )
 
-      const [, error] = await company_service.deactivateEmployee({
+      const [error] = await company_service.deactivateEmployee({
         employee_id: faker.string.uuid(),
       });
 
@@ -922,7 +922,7 @@ describe('CompanyService unit tests', () => {
 
       const commission_id = faker.string.uuid();
 
-      const [data, error] = await company_service.getCommission({ commission_id });
+      const [error, data] = await company_service.getCommission({ commission_id });
 
       expect(error).toBeUndefined();
       expect(data).toEqual(commission_obj);
@@ -933,7 +933,7 @@ describe('CompanyService unit tests', () => {
 
       const commission_id = faker.string.uuid();
 
-      const [data, error] = await company_service.getCommission({ commission_id });
+      const [error, data] = await company_service.getCommission({ commission_id });
 
       expect(data).toBeUndefined();
       expect(error).toBeInstanceOf(NotFoundError);

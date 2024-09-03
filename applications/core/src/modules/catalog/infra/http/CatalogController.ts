@@ -44,7 +44,7 @@ export default class CatalogController extends BaseHttpController {
       amount,
     } = req.body;
 
-    const [data, error] = await this.catalog_service.createCatalogItem({
+    const [error, data] = await this.catalog_service.createCatalogItem({
       name,
       description,
       attributes,
@@ -79,7 +79,7 @@ export default class CatalogController extends BaseHttpController {
       picture_url,
     } = req.body;
 
-    const [, error] = await this.catalog_service.updateCatalogItem({
+    const [error] = await this.catalog_service.updateCatalogItem({
       catalog_item_id,
       name,
       attributes,
@@ -109,7 +109,7 @@ export default class CatalogController extends BaseHttpController {
       }
     }) : ({ tenant_id: tenant_id as string });
 
-    const [data] = await this.catalog_service.getCatalogItems(params);
+    const [, data] = await this.catalog_service.getCatalogItems(params);
 
     return this.json(data, HttpStatusCodes.OK);
   }

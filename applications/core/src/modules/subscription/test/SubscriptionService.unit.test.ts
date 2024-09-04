@@ -376,5 +376,78 @@ describe('SubscriptionService unit tests', () => {
       expect(error!.message).toEqual('subscription_canceled');
     });
   });
+
+  describe('SubscriptionService.createSubcriptionPlan', () => {
+    it("returns a not found error if some of the items doesn't exist", async () => {
+      mediator_mock.send
+        .mockResolvedValueOnce({ id: faker.string.uuid() })
+        .mockRejectedValueOnce(new NotFoundError('notfound.catalog_item'));
+
+      const [error, data] = await subscription_service.createSubscriptionPlan({
+        item_ids: [faker.string.uuid(), faker.string.uuid()],
+        recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+        tenant_id: faker.string.uuid(),
+      });
+
+      expect(data).toBeUndefined();
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error!.message).toEqual('notfound.catalog_item');
+    });
+
+    it("returns a not found error if tenant doesn't exist", async () => {
+      mediator_mock.send
+        .mockResolvedValueOnce({ id: faker.string.uuid() })
+        .mockResolvedValueOnce(false);
+
+      const [error, data] = await subscription_service.createSubscriptionPlan({
+        item_ids: [faker.string.uuid()],
+        recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+        tenant_id: faker.string.uuid(),
+      });
+
+      expect(data).toBeUndefined();
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error!.message).toEqual('notfound.company');
+    });
+
+    it('creates a new subscription plan', async () => {
+      const catalog_item_1 = {
+        id: faker.string.uuid(),
+        name: faker.commerce.product(),
+        amount: faker.number.float()
+      };
+
+      const catalog_item_2 = {
+        id: faker.string.uuid(),
+        name: faker.commerce.product(),
+        amount: faker.number.float()
+      };
+
+      mediator_mock.send
+        .mockResolvedValueOnce(catalog_item_1)
+        .mockResolvedValueOnce(catalog_item_2)
+        .mockResolvedValueOnce(true);
+
+      const params = {
+        item_ids: [faker.string.uuid(), faker.string.uuid()],
+        recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+        tenant_id: faker.string.uuid(),
+      };
+
+      const [error, data] = await subscription_service.createSubscriptionPlan(params);
+
+      expect(error).toBeUndefined();
+      expect(data).toHaveProperty('id');
+      expect(data!.amount).toEqual(catalog_item_1.amount + catalog_item_2.amount);
+      expect(data!.tenant_id).toEqual(params.tenant_id);
+      expect(data!.recurrence_type).toEqual(params.recurrence_type);
+      expect(data!.term_url).toBeUndefined();
+      expect(data!.items).toEqual([
+        { id: catalog_item_1.id, name: catalog_item_1.name },
+        { id: catalog_item_2.id, name: catalog_item_2.name }
+      ]);
+      expect(subscription_plan_repository_mock.createSubscriptionPlan).toHaveBeenCalledTimes(1);
+    });
+  });
 });
 

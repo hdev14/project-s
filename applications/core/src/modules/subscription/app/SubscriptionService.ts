@@ -1,11 +1,13 @@
+import GetCatalogItemCommand from "@shared/commands/GetCatalogItemCommand";
 import GetSubscriberCommand from "@shared/commands/GetSubscriberCommand";
 import UserExistsCommand from "@shared/commands/UserExistsCommand";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import Mediator from "@shared/Mediator";
 import Either from "@shared/utils/Either";
+import { ItemObject } from "@subscription/domain/Item";
 import Subscription, { SubscriptionObject } from "@subscription/domain/Subscription";
-import { SubscriptionPlanObject } from "@subscription/domain/SubscriptionPlan";
+import SubscriptionPlan, { RecurrenceTypes, SubscriptionPlanObject } from "@subscription/domain/SubscriptionPlan";
 import SubscriptionRepository from "./SubcriptionRepository";
 import { SubscriptionPlanRepository } from "./SubscriptionPlanRepository";
 
@@ -25,6 +27,13 @@ export type PauseSubscriptionParams = {
 
 export type CancelSubscriptionParams = {
   subscription_id: string;
+};
+
+export type CreateSubscriptionPlanParams = {
+  item_ids: string[];
+  recurrence_type: RecurrenceTypes;
+  tenant_id: string;
+  term_file?: File;
 };
 
 export default class SubscriptionService {
@@ -138,8 +147,51 @@ export default class SubscriptionService {
     }
   }
 
-  async createSubscriptionPlan(params: {}): Promise<Either<SubscriptionPlanObject>> {
-    return Either.left(new Error());
+  async createSubscriptionPlan(params: CreateSubscriptionPlanParams): Promise<Either<SubscriptionPlanObject>> {
+    try {
+      const promises = [];
+
+      for (let idx = 0; idx < params.item_ids.length; idx++) {
+        promises.push(this.#mediator.send<any>(new GetCatalogItemCommand(params.item_ids[idx])));
+      }
+
+      const catalog_items = await Promise.all(promises);
+
+      const tenant_exists = await this.#mediator.send<boolean>(new UserExistsCommand(params.tenant_id));
+
+      if (!tenant_exists) {
+        return Either.left(new NotFoundError('notfound.company'));
+      }
+
+      let amount = 0;
+      const items: ItemObject[] = [];
+
+      for (let idx = 0; idx < catalog_items.length; idx++) {
+        const catalog_item = catalog_items[idx];
+        amount += catalog_item.amount;
+        items.push({
+          id: catalog_item.id,
+          name: catalog_item.name,
+        });
+      }
+
+      const subscription_plan = new SubscriptionPlan({
+        amount,
+        items,
+        recurrence_type: params.recurrence_type,
+        tenant_id: params.tenant_id,
+      });
+
+      await this.#subscription_plan_repository.createSubscriptionPlan(subscription_plan);
+
+      return Either.right(subscription_plan.toObject());
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        return Either.left(error);
+      }
+
+      throw error;
+    }
   }
 
   async getSubscriptionPlans(params: {}): Promise<Either<Array<SubscriptionPlanObject>>> {

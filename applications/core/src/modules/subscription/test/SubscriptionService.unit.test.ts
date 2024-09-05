@@ -3,6 +3,7 @@ import GetSubscriberCommand from '@shared/commands/GetSubscriberCommand';
 import UserExistsCommand from '@shared/commands/UserExistsCommand';
 import DomainError from '@shared/errors/DomainError';
 import NotFoundError from '@shared/errors/NotFoundError';
+import FileStorage from '@shared/infra/FileStorage';
 import Mediator from '@shared/Mediator';
 import SubscriptionRepository from '@subscription/app/SubcriptionRepository';
 import { SubscriptionPlanRepository } from '@subscription/app/SubscriptionPlanRepository';
@@ -15,10 +16,12 @@ describe('SubscriptionService unit tests', () => {
   const mediator_mock = mock<Mediator>();
   const subscription_plan_repository_mock = mock<SubscriptionPlanRepository>();
   const subscription_repository_mock = mock<SubscriptionRepository>();
+  const file_storage_mock = mock<FileStorage>();
   const subscription_service = new SubscriptionService(
     mediator_mock,
     subscription_plan_repository_mock,
-    subscription_repository_mock
+    subscription_repository_mock,
+    file_storage_mock,
   );
 
   describe('SubscriptionService.createSubscription', () => {
@@ -447,6 +450,58 @@ describe('SubscriptionService unit tests', () => {
         { id: catalog_item_2.id, name: catalog_item_2.name }
       ]);
       expect(subscription_plan_repository_mock.createSubscriptionPlan).toHaveBeenCalledTimes(1);
+    });
+
+    it('creates a new subscription plan with a term', async () => {
+      const catalog_item_1 = {
+        id: faker.string.uuid(),
+        name: faker.commerce.product(),
+        amount: faker.number.float()
+      };
+
+      const catalog_item_2 = {
+        id: faker.string.uuid(),
+        name: faker.commerce.product(),
+        amount: faker.number.float()
+      };
+
+      mediator_mock.send
+        .mockResolvedValueOnce(catalog_item_1)
+        .mockResolvedValueOnce(catalog_item_2)
+        .mockResolvedValueOnce(true);
+
+      const term_url = faker.internet.url();
+      file_storage_mock.storeFile.mockResolvedValueOnce(term_url);
+
+      const params = {
+        item_ids: [faker.string.uuid(), faker.string.uuid()],
+        recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+        tenant_id: faker.string.uuid(),
+        term_file: Buffer.from([1, 2, 3]),
+      };
+
+      const [error, data] = await subscription_service.createSubscriptionPlan(params);
+
+      expect(error).toBeUndefined();
+      expect(data).toHaveProperty('id');
+      expect(data!.amount).toEqual(catalog_item_1.amount + catalog_item_2.amount);
+      expect(data!.tenant_id).toEqual(params.tenant_id);
+      expect(data!.recurrence_type).toEqual(params.recurrence_type);
+      expect(data!.term_url).toEqual(term_url);
+      expect(data!.items).toEqual([
+        { id: catalog_item_1.id, name: catalog_item_1.name },
+        { id: catalog_item_2.id, name: catalog_item_2.name }
+      ]);
+
+      expect(subscription_plan_repository_mock.createSubscriptionPlan).toHaveBeenCalledTimes(1);
+      const subscription_plan = subscription_plan_repository_mock.createSubscriptionPlan.mock.calls[0][0];
+
+      expect(file_storage_mock.storeFile).toHaveBeenCalledWith({
+        bucket_name: `tenant_${params.tenant_id}`,
+        folder: 'subscription_terms',
+        name: `term_${subscription_plan.id}`,
+        file: params.term_file,
+      });
     });
   });
 });

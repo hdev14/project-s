@@ -1,19 +1,17 @@
-import FileStorage from "./FileStorage";
+import FileStorage, { GetFilePublicUrlParams, RemoveFileParams, StoreFileParams } from "./FileStorage";
 
+// TODO: https://min.io/docs/minio/linux/developers/javascript/API.html#javascript-client-api-reference
 export default class MinIOStorage implements FileStorage {
   createBucket(bucket_name: string): Promise<void> {
     throw new Error("Method not implemented.");
   }
-
-  storeFile(bucket_name: string, file: File | Buffer): Promise<string> {
+  storeFile(params: StoreFileParams): Promise<string> {
     throw new Error("Method not implemented.");
   }
-
-  getFilePublicUrl(bucket_name: string, private_file_url: string): Promise<string> {
+  getFilePublicUrl(params: GetFilePublicUrlParams): Promise<string> {
     throw new Error("Method not implemented.");
   }
-
-  removeFile(bucket_name: string, private_file_url: string): Promise<void> {
+  removeFile(params: RemoveFileParams): Promise<void> {
     throw new Error("Method not implemented.");
   }
 }

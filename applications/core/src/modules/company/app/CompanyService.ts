@@ -54,6 +54,7 @@ export type UpdateCompanyBankParams = {
   company_id: string;
 } & Partial<BankValue>;
 
+// TODO: change logo to input a file instead of a url
 export type UpdateCompanyBrandParams = {
   company_id: string;
 } & BrandValue;
@@ -126,6 +127,7 @@ export default class CompanyService {
     this.#commission_repository = commission_repository;
   }
 
+  // TODO: create a bucket for the company
   async createCompany(params: CreateCompanyParams): Promise<Either<CompanyObject>> {
     try {
       const exists = await this.#company_repository.documentExists(params.document);

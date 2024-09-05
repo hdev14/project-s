@@ -3,11 +3,13 @@ import GetSubscriberCommand from "@shared/commands/GetSubscriberCommand";
 import UserExistsCommand from "@shared/commands/UserExistsCommand";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
+import FileStorage from "@shared/infra/FileStorage";
 import Mediator from "@shared/Mediator";
 import Either from "@shared/utils/Either";
 import { ItemObject } from "@subscription/domain/Item";
 import Subscription, { SubscriptionObject } from "@subscription/domain/Subscription";
 import SubscriptionPlan, { RecurrenceTypes, SubscriptionPlanObject } from "@subscription/domain/SubscriptionPlan";
+import { randomUUID } from "crypto";
 import SubscriptionRepository from "./SubcriptionRepository";
 import { SubscriptionPlanRepository } from "./SubscriptionPlanRepository";
 
@@ -33,22 +35,25 @@ export type CreateSubscriptionPlanParams = {
   item_ids: string[];
   recurrence_type: RecurrenceTypes;
   tenant_id: string;
-  term_file?: File;
+  term_file?: File | Buffer;
 };
 
 export default class SubscriptionService {
   #mediator: Mediator;
   #subscription_plan_repository: SubscriptionPlanRepository;
   #subscription_repository: SubscriptionRepository;
+  #file_storage: FileStorage;
 
   constructor(
     mediator: Mediator,
     subscription_plan_repository: SubscriptionPlanRepository,
     subscription_repository: SubscriptionRepository,
+    file_storage: FileStorage,
   ) {
     this.#mediator = mediator;
     this.#subscription_plan_repository = subscription_plan_repository;
     this.#subscription_repository = subscription_repository;
+    this.#file_storage = file_storage;
   }
 
   async createSubscription(params: CreateSubscriptionParams): Promise<Either<SubscriptionObject>> {
@@ -152,7 +157,9 @@ export default class SubscriptionService {
       const promises = [];
 
       for (let idx = 0; idx < params.item_ids.length; idx++) {
-        promises.push(this.#mediator.send<any>(new GetCatalogItemCommand(params.item_ids[idx])));
+        promises.push(this.#mediator.send<{ id: string, name: string, amount: number }>(
+          new GetCatalogItemCommand(params.item_ids[idx]))
+        );
       }
 
       const catalog_items = await Promise.all(promises);
@@ -175,12 +182,24 @@ export default class SubscriptionService {
         });
       }
 
-      const subscription_plan = new SubscriptionPlan({
+      const subscription_plan_obj: SubscriptionPlanObject = {
+        id: randomUUID(),
         amount,
         items,
         recurrence_type: params.recurrence_type,
         tenant_id: params.tenant_id,
-      });
+      };
+
+      if (params.term_file) {
+        subscription_plan_obj.term_url = await this.#file_storage.storeFile({
+          bucket_name: `tenant_${params.tenant_id}`,
+          file: params.term_file,
+          folder: 'subscription_terms',
+          name: `term_${subscription_plan_obj.id}`,
+        });
+      }
+
+      const subscription_plan = new SubscriptionPlan(subscription_plan_obj);
 
       await this.#subscription_plan_repository.createSubscriptionPlan(subscription_plan);
 

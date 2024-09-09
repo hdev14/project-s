@@ -2,7 +2,7 @@ export type StoreFileParams = {
   bucket_name: string;
   name: string;
   folder?: string;
-  file: File | Buffer;
+  file: Buffer;
 }
 
 export type GetFilePublicUrlParams = {

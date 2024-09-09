@@ -58,6 +58,7 @@
     "inversify": "^6.0.2",
     "inversify-express-utils": "^6.4.6",
     "jsonwebtoken": "^9.0.2",
+    "minio": "^8.0.1",
     "nodemailer": "^6.9.14",
     "pg": "^8.12.0",
     "reflect-metadata": "^0.2.2",

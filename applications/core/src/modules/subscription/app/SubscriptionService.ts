@@ -36,7 +36,7 @@ export type CreateSubscriptionPlanParams = {
   item_ids: string[];
   recurrence_type: RecurrenceTypes;
   tenant_id: string;
-  term_file?: File | Buffer;
+  term_file?: Buffer;
 };
 
 export type GetSubscriptionPlansParams = {

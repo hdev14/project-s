@@ -6,12 +6,13 @@ import NotFoundError from "@shared/errors/NotFoundError";
 import FileStorage from "@shared/infra/FileStorage";
 import Mediator from "@shared/Mediator";
 import Either from "@shared/utils/Either";
+import { PageOptions, PageResult } from "@shared/utils/Pagination";
 import { ItemObject } from "@subscription/domain/Item";
 import Subscription, { SubscriptionObject } from "@subscription/domain/Subscription";
 import SubscriptionPlan, { RecurrenceTypes, SubscriptionPlanObject } from "@subscription/domain/SubscriptionPlan";
 import { randomUUID } from "crypto";
-import SubscriptionRepository from "./SubcriptionRepository";
 import { SubscriptionPlanRepository } from "./SubscriptionPlanRepository";
+import SubscriptionRepository from "./SubscriptionRepository";
 
 export type CreateSubscriptionParams = {
   subscriber_id: string;
@@ -37,6 +38,27 @@ export type CreateSubscriptionPlanParams = {
   tenant_id: string;
   term_file?: File | Buffer;
 };
+
+export type GetSubscriptionPlansParams = {
+  tenant_id: string;
+  page_options?: PageOptions;
+};
+
+export type GetSubscriptionPlansResult = {
+  results: Array<SubscriptionPlanObject>;
+  page_result?: PageResult;
+};
+
+export type GetSubscriptionsParams = {
+  tenant_id: string;
+  page_options?: PageOptions;
+};
+
+export type GetSubscriptionsResult = {
+  results: Array<SubscriptionObject>;
+  page_result?: PageResult;
+};
+
 
 export default class SubscriptionService {
   #mediator: Mediator;
@@ -213,12 +235,14 @@ export default class SubscriptionService {
     }
   }
 
-  async getSubscriptionPlans(params: {}): Promise<Either<Array<SubscriptionPlanObject>>> {
-    return Either.left(new Error());
+  async getSubscriptionPlans(params: GetSubscriptionPlansParams): Promise<Either<GetSubscriptionPlansResult>> {
+    const result = await this.#subscription_plan_repository.getSubscriptionPlans(params);
+    return Either.right(result);
   }
 
-  async getSubscriptions(params: {}): Promise<Either<Array<SubscriptionObject>>> {
-    return Either.left(new Error());
+  async getSubscriptions(params: GetSubscriptionsParams): Promise<Either<GetSubscriptionsResult>> {
+    const result = await this.#subscription_repository.getSubscriptions(params);
+    return Either.right(result);
   }
 
   async updateSubscriptionTerm(params: {}): Promise<Either<void>> {

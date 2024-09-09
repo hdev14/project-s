@@ -1,26 +1,18 @@
-import { PageOptions } from "@shared/utils/Pagination";
-import SubscriptionRepository from "@subscription/app/SubcriptionRepository";
-import Subscription from "@subscription/domain/Subscription";
-import SubscriptionPlan from "@subscription/domain/SubscriptionPlan";
+import { PaginatedResult } from "@shared/utils/Pagination";
+import SubscriptionRepository, { SubscriptionsFilter } from "@subscription/app/SubscriptionRepository";
+import Subscription, { SubscriptionObject } from "@subscription/domain/Subscription";
 
 export default class DbSubscriptionRepository implements SubscriptionRepository {
   createSubscription(subscription: Subscription): Promise<void> {
     throw new Error("Method not implemented.");
   }
-
   updateSubscription(subscription: Subscription): Promise<void> {
     throw new Error("Method not implemented.");
   }
-
-  createSubscriptionPlan(subscription_plan: SubscriptionPlan): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-
   getSubscriptionById(id: string): Promise<Subscription | null> {
     throw new Error("Method not implemented.");
   }
-
-  getSubscriptions(page_options: PageOptions): Promise<Subscription[]> {
+  getSubscriptions(filter: SubscriptionsFilter): Promise<PaginatedResult<SubscriptionObject>> {
     throw new Error("Method not implemented.");
   }
 }

@@ -5,8 +5,8 @@ import DomainError from '@shared/errors/DomainError';
 import NotFoundError from '@shared/errors/NotFoundError';
 import FileStorage from '@shared/infra/FileStorage';
 import Mediator from '@shared/Mediator';
-import SubscriptionRepository from '@subscription/app/SubcriptionRepository';
 import { SubscriptionPlanRepository } from '@subscription/app/SubscriptionPlanRepository';
+import SubscriptionRepository from '@subscription/app/SubscriptionRepository';
 import SubscriptionService from "@subscription/app/SubscriptionService";
 import Subscription, { SubscriptionStatus } from '@subscription/domain/Subscription';
 import SubscriptionPlan, { RecurrenceTypes } from '@subscription/domain/SubscriptionPlan';
@@ -502,6 +502,106 @@ describe('SubscriptionService unit tests', () => {
         name: `term_${subscription_plan.id}`,
         file: params.term_file,
       });
+    });
+  });
+
+  describe('SubscriptionService.getSubscriptionPlans', () => {
+    it('returns a list of subscription plans', async () => {
+      subscription_plan_repository_mock.getSubscriptionPlans.mockResolvedValueOnce({
+        results: [
+          {
+            id: faker.string.uuid(),
+            items: [{
+              id: faker.string.uuid(),
+              name: faker.commerce.product(),
+            }],
+            amount: faker.number.float(),
+            recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+            term_url: faker.internet.url(),
+            tenant_id: faker.string.uuid(),
+          },
+          {
+            id: faker.string.uuid(),
+            items: [{
+              id: faker.string.uuid(),
+              name: faker.commerce.product(),
+            }],
+            amount: faker.number.float(),
+            recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+            term_url: faker.internet.url(),
+            tenant_id: faker.string.uuid(),
+          }
+        ],
+        page_result: {
+          next_page: 2,
+          total_of_pages: 2,
+        }
+      });
+
+      const params = {
+        tenant_id: faker.string.uuid(),
+        page_options: {
+          limit: faker.number.int(),
+          page: faker.number.int(),
+        }
+      };
+
+      const [error, data] = await subscription_service.getSubscriptionPlans(params);
+
+      expect(error).toBeUndefined();
+      expect(data!.results[0]).not.toBeInstanceOf(SubscriptionPlan);
+      expect(data!.results).toHaveLength(2);
+      expect(data!.page_result).toEqual({
+        next_page: 2,
+        total_of_pages: 2
+      });
+      expect(subscription_plan_repository_mock.getSubscriptionPlans).toHaveBeenCalledWith(params);
+    });
+  });
+
+  describe('SubscriptionService.getSubscriptions', () => {
+    it('returns a list of subscriptions', async () => {
+      subscription_repository_mock.getSubscriptions.mockResolvedValueOnce({
+        results: [
+          {
+            id: faker.string.uuid(),
+            status: faker.helpers.enumValue(SubscriptionStatus),
+            subscriber_id: faker.string.uuid(),
+            subscription_plan_id: faker.string.uuid(),
+            tenant_id: faker.string.uuid(),
+          },
+          {
+            id: faker.string.uuid(),
+            status: faker.helpers.enumValue(SubscriptionStatus),
+            subscriber_id: faker.string.uuid(),
+            subscription_plan_id: faker.string.uuid(),
+            tenant_id: faker.string.uuid(),
+          },
+        ],
+        page_result: {
+          next_page: 2,
+          total_of_pages: 2,
+        }
+      });
+
+      const params = {
+        tenant_id: faker.string.uuid(),
+        page_options: {
+          limit: faker.number.int(),
+          page: faker.number.int(),
+        }
+      };
+
+      const [error, data] = await subscription_service.getSubscriptions(params);
+
+      expect(error).toBeUndefined();
+      expect(data!.results[0]).not.toBeInstanceOf(Subscription);
+      expect(data!.results).toHaveLength(2);
+      expect(data!.page_result).toEqual({
+        next_page: 2,
+        total_of_pages: 2
+      });
+      expect(subscription_repository_mock.getSubscriptions).toHaveBeenCalledWith(params);
     });
   });
 });

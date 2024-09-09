@@ -20,14 +20,14 @@ export default class WinstonLogger implements Logger {
   }
 
   error(error: string | Error, metadata?: Record<string, any>): void {
-    // if (process.env.NODE_ENV !== 'test') {
-    if (typeof error === 'string') {
-      this.#logger.log('error', error, { metadata });
-      return;
-    }
+    if (process.env.NODE_ENV !== 'test') {
+      if (typeof error === 'string') {
+        this.#logger.log('error', error, { metadata });
+        return;
+      }
 
-    this.#logger.error(error);
-    // }
+      this.#logger.error(error);
+    }
   }
 
   info(message: string, metadata?: Record<string, any>): void {

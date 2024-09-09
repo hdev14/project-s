@@ -1,7 +1,7 @@
 import VerificationCode from "@auth/domain/VerificationCode";
 import DbVerificationCodeRepository from "@auth/infra/persistence/DbVerificationCodeRepository";
 import { faker } from '@faker-js/faker/locale/pt_BR';
-import Database from "@shared/infra/Database";
+import Database from "@shared/Database";
 
 const connect_spy = jest.spyOn(Database, 'connect');
 const query_mock = jest.fn();

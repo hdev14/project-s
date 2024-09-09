@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
-import { Policies } from '../modules/_shared/infra/Principal';
+import { Policies } from '../modules/_shared/Principal';
 
 export const shorthands: ColumnDefinitions | undefined = undefined;
 

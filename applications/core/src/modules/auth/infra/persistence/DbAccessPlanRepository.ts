@@ -1,6 +1,6 @@
 import AccessPlanRepository from "@auth/app/AccessPlanRepository";
 import AccessPlan, { AccessPlanObject } from "@auth/domain/AccessPlan";
-import Database from "@shared/infra/Database";
+import Database from "@shared/Database";
 import { injectable } from "inversify";
 import { Pool } from "pg";
 import 'reflect-metadata';

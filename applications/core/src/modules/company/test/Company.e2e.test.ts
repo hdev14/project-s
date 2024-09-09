@@ -6,18 +6,18 @@ import CatalogModule from '@catalog/infra/CatalogModule';
 import { TaxTypes } from '@company/domain/Commission';
 import CompanyModule from '@company/infra/CompanyModule';
 import { faker } from '@faker-js/faker';
-import { Policies } from '@shared/infra/Principal';
-import SharedModule from '@shared/infra/SharedModule';
-import cleanUpDatabase from '@shared/infra/test_utils/cleanUpDatabase';
-import AccessPlanFactory from '@shared/infra/test_utils/factories/AccessPlanFactory';
-import CatalogItemFactory from '@shared/infra/test_utils/factories/CatalogItemFactory';
-import CommissionFactory from '@shared/infra/test_utils/factories/CommissionFactory';
-import PolicyFactory from '@shared/infra/test_utils/factories/PolicyFactory';
-import ServiceLogFactory from '@shared/infra/test_utils/factories/ServiceLogFactory';
-import UserFactory from '@shared/infra/test_utils/factories/UserFactory';
-import '@shared/infra/test_utils/matchers/toBeNullInDatabase';
-import '@shared/infra/test_utils/matchers/toEqualInDatabase';
-import types from '@shared/infra/types';
+import GlobalModule from '@global/infra/GlobalModule';
+import { Policies } from '@shared/Principal';
+import cleanUpDatabase from '@shared/test_utils/cleanUpDatabase';
+import AccessPlanFactory from '@shared/test_utils/factories/AccessPlanFactory';
+import CatalogItemFactory from '@shared/test_utils/factories/CatalogItemFactory';
+import CommissionFactory from '@shared/test_utils/factories/CommissionFactory';
+import PolicyFactory from '@shared/test_utils/factories/PolicyFactory';
+import ServiceLogFactory from '@shared/test_utils/factories/ServiceLogFactory';
+import UserFactory from '@shared/test_utils/factories/UserFactory';
+import '@shared/test_utils/matchers/toBeNullInDatabase';
+import '@shared/test_utils/matchers/toEqualInDatabase';
+import types from '@shared/types';
 import UserTypes from '@shared/UserTypes';
 import Application from 'src/Application';
 import supertest from 'supertest';
@@ -25,7 +25,7 @@ import supertest from 'supertest';
 describe('Company E2E tests', () => {
   const application = new Application({
     modules: [
-      new SharedModule(),
+      new GlobalModule(),
       new AuthModule(),
       new CatalogModule(),
       new CompanyModule(),

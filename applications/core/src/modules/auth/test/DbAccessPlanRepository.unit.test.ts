@@ -1,7 +1,7 @@
 import AccessPlan, { AccessPlanTypes } from "@auth/domain/AccessPlan";
 import DbAccessPlanRepository from "@auth/infra/persistence/DbAccessPlanRepository";
 import { faker } from '@faker-js/faker/locale/pt_BR';
-import Database from "@shared/infra/Database";
+import Database from "@shared/Database";
 
 const connect_spy = jest.spyOn(Database, 'connect');
 const query_mock = jest.fn();

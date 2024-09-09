@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { Schema, checkSchema } from 'express-validator';
+import Logger from '../global/app/Logger';
 import HttpStatusCodes from './HttpStatusCodes';
-import Logger from './Logger';
 
 export function createErrorHandlerWithLogger(logger: Logger) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

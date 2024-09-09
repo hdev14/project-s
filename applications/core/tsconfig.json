@@ -37,6 +37,9 @@
       ],
       "@payment/*": [
         "src/modules/payment/*"
+      ],
+      "@global/*": [
+        "src/modules/global/*"
       ]
     },
     "esModuleInterop": true,

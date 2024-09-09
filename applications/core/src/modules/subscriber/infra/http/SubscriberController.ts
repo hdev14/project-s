@@ -1,8 +1,8 @@
+import Logger from "@global/app/Logger";
 import NotFoundError from "@shared/errors/NotFoundError";
-import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
-import Logger from "@shared/infra/Logger";
-import { requestValidator } from "@shared/infra/middlewares";
-import types from "@shared/infra/types";
+import HttpStatusCodes from "@shared/HttpStatusCodes";
+import { requestValidator } from "@shared/middlewares";
+import types from "@shared/types";
 import SubscriberService from "@subscriber/app/SubscriberService";
 import { Request } from 'express';
 import { inject } from "inversify";

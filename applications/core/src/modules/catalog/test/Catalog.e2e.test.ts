@@ -2,19 +2,19 @@ import AuthTokenManager from '@auth/app/AuthTokenManager';
 import AuthModule from '@auth/infra/AuthModule';
 import CatalogModule from '@catalog/infra/CatalogModule';
 import { faker } from '@faker-js/faker/locale/pt_BR';
-import { Policies } from '@shared/infra/Principal';
-import SharedModule from '@shared/infra/SharedModule';
-import cleanUpDatabase from '@shared/infra/test_utils/cleanUpDatabase';
-import CatalogItemFactory from '@shared/infra/test_utils/factories/CatalogItemFactory';
-import UserFactory from '@shared/infra/test_utils/factories/UserFactory';
-import '@shared/infra/test_utils/matchers/toEqualInDatabase';
-import types from '@shared/infra/types';
+import GlobalModule from '@global/infra/GlobalModule';
+import { Policies } from '@shared/Principal';
+import cleanUpDatabase from '@shared/test_utils/cleanUpDatabase';
+import CatalogItemFactory from '@shared/test_utils/factories/CatalogItemFactory';
+import UserFactory from '@shared/test_utils/factories/UserFactory';
+import '@shared/test_utils/matchers/toEqualInDatabase';
+import types from '@shared/types';
 import UserTypes from '@shared/UserTypes';
 import Application from 'src/Application';
 import supertest from 'supertest';
 
 describe('Catalog E2E tests', () => {
-  const application = new Application({ modules: [new SharedModule(), new AuthModule(), new CatalogModule()] });
+  const application = new Application({ modules: [new GlobalModule(), new AuthModule(), new CatalogModule()] });
   const auth_token_manager = application.container.get<AuthTokenManager>(types.AuthTokenManager);
   const request = supertest(application.server);
   const user_factory = new UserFactory();

@@ -2,10 +2,9 @@ import AuthModule from "@auth/infra/AuthModule";
 import CatalogModule from "@catalog/infra/CatalogModule";
 import CompanyModule from "@company/infra/CompanyModule";
 import PaymentModule from "@payment/infra/PaymentModule";
-import Database from "@shared/infra/Database";
-import Logger from "@shared/infra/Logger";
-import SharedModule from "@shared/infra/SharedModule";
-import types from "@shared/infra/types";
+import Database from "@shared/Database";
+import Logger from "@shared/Logger";
+import types from "@shared/types";
 import SubscriberModule from "@subscriber/infra/SubscriberModule";
 import Application from "./Application";
 
@@ -14,7 +13,7 @@ import Application from "./Application";
     Database.connect();
     const application = new Application({
       modules: [
-        new SharedModule(),
+        new GlobalModule(),
         new AuthModule(),
         new CatalogModule(),
         new CompanyModule(),

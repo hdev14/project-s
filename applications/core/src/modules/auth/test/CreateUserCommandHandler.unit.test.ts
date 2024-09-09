@@ -7,7 +7,7 @@ import User from "@auth/domain/User";
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import CreateUserCommand from "@shared/commands/CreateUserCommand";
 import NotFoundError from "@shared/errors/NotFoundError";
-import { Policies } from "@shared/infra/Principal";
+import { Policies } from "@shared/Principal";
 import UserTypes from "@shared/UserTypes";
 import { mock } from "jest-mock-extended";
 

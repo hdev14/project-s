@@ -1,7 +1,7 @@
 import Commission, { TaxTypes } from "@company/domain/Commission";
 import DbCommissionRepository from "@company/infra/persistence/DbCommissionRepository";
 import { faker } from '@faker-js/faker/locale/pt_BR';
-import Database from "@shared/infra/Database";
+import Database from "@shared/Database";
 
 const connect_spy = jest.spyOn(Database, 'connect');
 const query_mock = jest.fn();

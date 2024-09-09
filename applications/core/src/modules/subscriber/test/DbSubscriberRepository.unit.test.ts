@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker/locale/pt_BR';
-import Database from "@shared/infra/Database";
+import Database from "@shared/Database";
 import { PaymentTypes } from "@subscriber/domain/PaymentMethod";
 import Subscriber from "@subscriber/domain/Subscriber";
 import DbSubscriberRepository from '@subscriber/infra/persistence/DbSubscriberRepository';

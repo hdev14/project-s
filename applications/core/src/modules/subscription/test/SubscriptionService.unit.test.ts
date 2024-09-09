@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker/locale/pt_BR';
+import FileStorage from '@global/app/FileStorage';
 import GetSubscriberCommand from '@shared/commands/GetSubscriberCommand';
 import UserExistsCommand from '@shared/commands/UserExistsCommand';
 import DomainError from '@shared/errors/DomainError';
 import NotFoundError from '@shared/errors/NotFoundError';
-import FileStorage from '@shared/infra/FileStorage';
 import Mediator from '@shared/Mediator';
 import { SubscriptionPlanRepository } from '@subscription/app/SubscriptionPlanRepository';
 import SubscriptionRepository from '@subscription/app/SubscriptionRepository';

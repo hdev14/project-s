@@ -1,5 +1,5 @@
 
-import Database from "@shared/infra/Database";
+import Database from "@shared/Database";
 import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
 import { SubscriptionPlanRepository, SubscriptionPlansFilter } from "@subscription/app/SubscriptionPlanRepository";

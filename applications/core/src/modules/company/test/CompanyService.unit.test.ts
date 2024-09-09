@@ -7,14 +7,14 @@ import Company from "@company/domain/Company";
 import Employee from "@company/domain/Employee";
 import ServiceLog from "@company/domain/ServiceLog";
 import { faker } from '@faker-js/faker/locale/pt_BR';
+import EmailService from "@global/app/EmailService";
 import CreateUserCommand from "@shared/commands/CreateUserCommand";
 import AlreadyRegisteredError from "@shared/errors/AlreadyRegisteredError";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
-import EmailService from "@shared/infra/EmailService";
-import { Policies } from "@shared/infra/Principal";
 import Mediator from "@shared/Mediator";
-import { mock } from 'jest-mock-extended';
+import { Policies } from "@shared/Principal";
+import { mock } from "jest-mock-extended";
 
 describe('CompanyService unit tests', () => {
   const mediator_mock = mock<Mediator>();

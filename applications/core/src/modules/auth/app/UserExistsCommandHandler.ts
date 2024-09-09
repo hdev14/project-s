@@ -1,6 +1,6 @@
 import UserExistsCommand from "@shared/commands/UserExistsCommand";
 import Handler from "@shared/Handler";
-import types from "@shared/infra/types";
+import types from "@shared/types";
 import { inject, injectable } from "inversify";
 import 'reflect-metadata';
 import UserRepository from "./UserRepository";

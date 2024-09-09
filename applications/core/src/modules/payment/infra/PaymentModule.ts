@@ -1,12 +1,12 @@
 import PaymentGateway from "@payment/app/PaymentGateway";
 import SaveCreditCardCommandHandler from "@payment/app/SaveCreditCardCommandHandler";
-import Mediator from "@shared/Mediator";
 import SaveCreditCardCommand from "@shared/commands/SaveCreditCardCommand";
-import Module from "@shared/infra/Module";
-import types from "@shared/infra/types";
+import Module from "@shared/Module";
+import types from "@shared/types";
 import { ContainerModule } from "inversify";
 import FakePaymentGateway from "./external/FakePaymentGateway";
 import MercadoPago from "./external/MercadoPago";
+import Mediator from "@shared/Mediator";
 
 export default class PaymentModule implements Module {
   init(): ContainerModule {

@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker/locale/pt_BR';
+import EmailService from '@global/app/EmailService';
 import SaveCreditCardCommand from '@shared/commands/SaveCreditCardCommand';
 import CreditCardError from '@shared/errors/CreditCardError';
 import NotFoundError from '@shared/errors/NotFoundError';
-import EmailService from '@shared/infra/EmailService';
 import Mediator from '@shared/Mediator';
 import UserTypes from '@shared/UserTypes';
 import SubscriberRepository from "@subscriber/app/SubscriberRepository";

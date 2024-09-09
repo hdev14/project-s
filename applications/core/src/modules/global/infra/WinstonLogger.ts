@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import 'reflect-metadata';
 import winston from 'winston';
-import Logger from "./Logger";
+import Logger from '../app/Logger';
 
 @injectable()
 export default class WinstonLogger implements Logger {

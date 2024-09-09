@@ -1,8 +1,8 @@
-import AuthProvider from '@shared/infra/AuthProvider';
-import Logger from '@shared/infra/Logger';
-import Module from '@shared/infra/Module';
-import { createErrorHandlerWithLogger, errorHandler } from '@shared/infra/middlewares';
-import types from '@shared/infra/types';
+import Logger from '@global/app/Logger';
+import AuthProvider from '@shared/AuthProvider';
+import Module from '@shared/Module';
+import { createErrorHandlerWithLogger, errorHandler } from '@shared/middlewares';
+import types from '@shared/types';
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import { I18n } from 'i18n';

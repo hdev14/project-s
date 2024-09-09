@@ -4,7 +4,7 @@ import Mediator from "@shared/Mediator";
 import UserExistsCommand from "@shared/commands/UserExistsCommand";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
-import types from "@shared/infra/types";
+import types from "@shared/types";
 import Either from "@shared/utils/Either";
 import { PageOptions, PageResult } from "@shared/utils/Pagination";
 import { randomUUID } from "crypto";

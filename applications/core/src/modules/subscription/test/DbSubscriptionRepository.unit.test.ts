@@ -1,4 +1,4 @@
-import Database from "@shared/infra/Database";
+import Database from "@shared/Database";
 import DbSubscriptionRepository from "@subscription/infra/DbSubscriptionRepository";
 
 const connect_spy = jest.spyOn(Database, 'connect');

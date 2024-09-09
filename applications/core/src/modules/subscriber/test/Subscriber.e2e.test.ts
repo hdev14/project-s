@@ -1,11 +1,11 @@
 import AuthModule from '@auth/infra/AuthModule';
 import { faker } from '@faker-js/faker/locale/pt_BR';
+import GlobalModule from '@global/infra/GlobalModule';
 import PaymentModule from '@payment/infra/PaymentModule';
-import SharedModule from '@shared/infra/SharedModule';
-import cleanUpDatabase from '@shared/infra/test_utils/cleanUpDatabase';
-import UserFactory from '@shared/infra/test_utils/factories/UserFactory';
-import '@shared/infra/test_utils/matchers/toBeNullInDatabase';
-import '@shared/infra/test_utils/matchers/toEqualInDatabase';
+import cleanUpDatabase from '@shared/test_utils/cleanUpDatabase';
+import UserFactory from '@shared/test_utils/factories/UserFactory';
+import '@shared/test_utils/matchers/toBeNullInDatabase';
+import '@shared/test_utils/matchers/toEqualInDatabase';
 import UserTypes from '@shared/UserTypes';
 import { PaymentTypes } from '@subscriber/domain/PaymentMethod';
 import SubscriberModule from '@subscriber/infra/SubscriberModule';
@@ -15,7 +15,7 @@ import supertest from 'supertest';
 describe('Subscriber E2E tests', () => {
   const application = new Application({
     modules: [
-      new SharedModule(),
+      new GlobalModule(),
       new AuthModule(),
       new SubscriberModule(),
       new PaymentModule(),

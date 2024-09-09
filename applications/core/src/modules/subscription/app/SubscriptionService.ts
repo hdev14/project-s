@@ -1,9 +1,9 @@
+import FileStorage from "@global/app/FileStorage";
 import GetCatalogItemCommand from "@shared/commands/GetCatalogItemCommand";
 import GetSubscriberCommand from "@shared/commands/GetSubscriberCommand";
 import UserExistsCommand from "@shared/commands/UserExistsCommand";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
-import FileStorage from "@shared/infra/FileStorage";
 import Mediator from "@shared/Mediator";
 import Either from "@shared/utils/Either";
 import { PageOptions, PageResult } from "@shared/utils/Pagination";
@@ -243,10 +243,5 @@ export default class SubscriptionService {
   async getSubscriptions(params: GetSubscriptionsParams): Promise<Either<GetSubscriptionsResult>> {
     const result = await this.#subscription_repository.getSubscriptions(params);
     return Either.right(result);
-  }
-
-  async updateSubscriptionTerm(params: {}): Promise<Either<void>> {
-    // TODO: update term and send emails
-    return Either.left(new Error());
   }
 }

@@ -3,17 +3,17 @@ import Encryptor from '@auth/app/Encryptor';
 import { AccessPlanTypes } from '@auth/domain/AccessPlan';
 import AuthModule from '@auth/infra/AuthModule';
 import { faker } from '@faker-js/faker/locale/pt_BR';
-import { Policies } from '@shared/infra/Principal';
-import SharedModule from '@shared/infra/SharedModule';
-import cleanUpDatabase from '@shared/infra/test_utils/cleanUpDatabase';
-import AccessPlanFactory from '@shared/infra/test_utils/factories/AccessPlanFactory';
-import PolicyFactory from '@shared/infra/test_utils/factories/PolicyFactory';
-import UserFactory from '@shared/infra/test_utils/factories/UserFactory';
-import VerificationCodeFactory from '@shared/infra/test_utils/factories/VerificationCodeFactory';
-import '@shared/infra/test_utils/matchers/toEqualInDatabase';
-import '@shared/infra/test_utils/matchers/toExistsInTable';
-import '@shared/infra/test_utils/matchers/toHasPoliciesInDatabase';
-import types from '@shared/infra/types';
+import GlobalModule from '@global/infra/GlobalModule';
+import { Policies } from '@shared/Principal';
+import cleanUpDatabase from '@shared/test_utils/cleanUpDatabase';
+import AccessPlanFactory from '@shared/test_utils/factories/AccessPlanFactory';
+import PolicyFactory from '@shared/test_utils/factories/PolicyFactory';
+import UserFactory from '@shared/test_utils/factories/UserFactory';
+import VerificationCodeFactory from '@shared/test_utils/factories/VerificationCodeFactory';
+import '@shared/test_utils/matchers/toEqualInDatabase';
+import '@shared/test_utils/matchers/toExistsInTable';
+import '@shared/test_utils/matchers/toHasPoliciesInDatabase';
+import types from '@shared/types';
 import UserTypes from '@shared/UserTypes';
 import Application from 'src/Application';
 import supertest from 'supertest';
@@ -32,7 +32,7 @@ function cookieExists(cookies: Array<string>) {
 }
 
 describe('Auth E2E tests', () => {
-  const application = new Application({ modules: [new SharedModule(), new AuthModule()] });
+  const application = new Application({ modules: [new GlobalModule(), new AuthModule()] });
   const encryptor = application.container.get<Encryptor>(types.Encryptor);
   const auth_token_manager = application.container.get<AuthTokenManager>(types.AuthTokenManager);
   const request = supertest(application.server);

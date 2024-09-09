@@ -1,11 +1,11 @@
 import CompanyService from "@company/app/CompanyService";
+import Logger from "@global/app/Logger";
 import AlreadyRegisteredError from "@shared/errors/AlreadyRegisteredError";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
-import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
-import Logger from "@shared/infra/Logger";
-import { requestValidator } from "@shared/infra/middlewares";
-import types from "@shared/infra/types";
+import HttpStatusCodes from "@shared/HttpStatusCodes";
+import { requestValidator } from "@shared/middlewares";
+import types from "@shared/types";
 import { Request } from 'express';
 import { inject } from "inversify";
 import {

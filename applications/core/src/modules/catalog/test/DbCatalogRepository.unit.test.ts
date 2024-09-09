@@ -1,7 +1,7 @@
 import CatalogItem from "@catalog/domain/CatalogItem";
 import DbCatalogRepository from "@catalog/infra/persistence/DbCatalogRepository";
 import { faker } from '@faker-js/faker/locale/pt_BR';
-import Database from "@shared/infra/Database";
+import Database from "@shared/Database";
 import { PageOptions } from "@shared/utils/Pagination";
 
 const connect_spy = jest.spyOn(Database, 'connect');

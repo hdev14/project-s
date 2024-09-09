@@ -1,6 +1,6 @@
 import VerificationCodeRepository from "@auth/app/VerificationCodeRepository";
 import VerificationCode from "@auth/domain/VerificationCode";
-import Database from "@shared/infra/Database";
+import Database from "@shared/Database";
 import DbUtils from "@shared/utils/DbUtils";
 import { injectable } from "inversify";
 import { Pool } from "pg";

@@ -1,11 +1,11 @@
 import CatalogService from "@catalog/app/CatalogService";
+import Logger from "@global/app/Logger";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
-import HttpStatusCodes from "@shared/infra/HttpStatusCodes";
-import Logger from "@shared/infra/Logger";
-import { Policies } from "@shared/infra/Principal";
-import { requestValidator } from "@shared/infra/middlewares";
-import types from "@shared/infra/types";
+import HttpStatusCodes from "@shared/HttpStatusCodes";
+import { requestValidator } from "@shared/middlewares";
+import { Policies } from "@shared/Principal";
+import types from "@shared/types";
 import { Request } from 'express';
 import { inject } from "inversify";
 import {

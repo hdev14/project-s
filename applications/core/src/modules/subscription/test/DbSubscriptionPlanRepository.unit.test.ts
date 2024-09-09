@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker/locale/pt_BR';
-import Database from "@shared/infra/Database";
+import Database from "@shared/Database";
 import SubscriptionPlan, { RecurrenceTypes } from '@subscription/domain/SubscriptionPlan';
 import DbSubscriptionPlanRepository from "@subscription/infra/DbSubscriptionPlanRepository";
 

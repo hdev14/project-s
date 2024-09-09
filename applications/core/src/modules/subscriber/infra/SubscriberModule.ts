@@ -1,5 +1,5 @@
-import Module from "@shared/infra/Module";
-import types from "@shared/infra/types";
+import Module from "@shared/Module";
+import types from "@shared/types";
 import SubscriberRepository from "@subscriber/app/SubscriberRepository";
 import SubscriberService from "@subscriber/app/SubscriberService";
 import { ContainerModule } from "inversify";

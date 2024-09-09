@@ -1,11 +1,11 @@
+import EmailService from "@global/app/EmailService";
 import Address, { AddressValue } from "@shared/Address";
 import CreateUserCommand from "@shared/commands/CreateUserCommand";
 import SaveCreditCardCommand from "@shared/commands/SaveCreditCardCommand";
 import CreditCardError from "@shared/errors/CreditCardError";
 import NotFoundError from "@shared/errors/NotFoundError";
-import EmailService from "@shared/infra/EmailService";
-import types from "@shared/infra/types";
 import Mediator from "@shared/Mediator";
+import types from "@shared/types";
 import UserTypes from "@shared/UserTypes";
 import Either from "@shared/utils/Either";
 import PaymentMethod, { PaymentTypes } from "@subscriber/domain/PaymentMethod";

@@ -16,7 +16,7 @@ export default class MinIOStorage implements FileStorage {
   }
 
   async createBucket(bucket_name: string): Promise<void> {
-    await this.#client.makeBucket(bucket_name,);
+    await this.#client.makeBucket(bucket_name);
   }
 
   async storeFile(params: StoreFileParams): Promise<string> {

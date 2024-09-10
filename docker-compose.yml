@@ -1,4 +1,9 @@
 services:
+  # TODO: add apps
+  # core:
+  # backoffice:
+  # platform:
+
   database:
     container_name: database
     hostname: database
@@ -25,7 +30,10 @@ services:
       - 'storage:/data'
     command: ["server", "/data", "--console-address", ":9001"]
 
+  # https://hub.docker.com/_/redis/
+  # redis
+
 volumes:
   storage:
     driver: local
-  # https://hub.docker.com/_/redis/
+  

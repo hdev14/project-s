@@ -31,6 +31,9 @@ export default class DbSubscriptionRepository implements SubscriptionRepository 
   }
 
   getSubscriptionById(id: string): Promise<Subscription | null> {
+    // TODO: select subscription
+    // TODO: select subscription_plan
+    // TODO: select catalog_items
     throw new Error("Method not implemented.");
   }
 

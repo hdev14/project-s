@@ -24,6 +24,7 @@ export default class MinIOStorage implements FileStorage {
 
     const result = await this.#client.putObject(params.bucket_name, object_name, params.file);
 
+    // TODO: check if the etag serves as private url.
     return result.etag;
   }
 

@@ -58,6 +58,14 @@ describe('MinIOStorage unit tests', () => {
     });
   });
 
-  it.todo('MinIOStorage.getFilePublicUrl');
+  describe('MinIOStorage.getFilePublicUrl', () => {
+    it.skip('should call the minio.presignedGetObject with correct params', async () => {
+      // const url = await storage.getFilePublicUrl({
+      //   bucket_name: faker.company.name(),
+      //   private_file_url: faker.internet.url()
+      // })
+    });
+  });
+
   it.todo('MinIOStorage.removeFile');
 });

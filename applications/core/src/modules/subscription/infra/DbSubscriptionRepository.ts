@@ -21,8 +21,13 @@ export default class DbSubscriptionRepository implements SubscriptionRepository 
     );
   }
 
-  updateSubscription(subscription: Subscription): Promise<void> {
-    throw new Error("Method not implemented.");
+  async updateSubscription(subscription: Subscription): Promise<void> {
+    const subscription_obj = subscription.toObject();
+
+    await this.#db.query(
+      `UPDATE subscriptions SET ${DbUtils.setColumns(subscription_obj)} WHERE id = $1`,
+      DbUtils.sanitizeValues(Object.values(subscription_obj))
+    );
   }
 
   getSubscriptionById(id: string): Promise<Subscription | null> {

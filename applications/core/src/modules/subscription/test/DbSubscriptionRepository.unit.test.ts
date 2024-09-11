@@ -172,5 +172,118 @@ describe('DbSubscriptionRepository unit tests', () => {
     });
   });
 
-  it.todo('DbSubscriptionRepository.getSubscriptions');
+  describe('DbSubscriptionRepository.getSubscriptions', () => {
+    it('returns a list of subscriptions', async () => {
+      const subscriptions = [
+        {
+          id: faker.string.uuid(),
+          subscriber_id: faker.string.uuid(),
+          subscription_plan_id: faker.string.uuid(),
+          started_at: faker.date.anytime(),
+          status: faker.helpers.enumValue(SubscriptionStatus),
+          tenant_id: faker.string.uuid(),
+        },
+        {
+          id: faker.string.uuid(),
+          subscriber_id: faker.string.uuid(),
+          subscription_plan_id: faker.string.uuid(),
+          started_at: faker.date.anytime(),
+          status: faker.helpers.enumValue(SubscriptionStatus),
+          tenant_id: faker.string.uuid(),
+        },
+      ];
+
+      query_mock.mockResolvedValueOnce({ rows: subscriptions });
+
+      const params = { tenant_id: faker.string.uuid() };
+
+      const { results, page_result } = await repository.getSubscriptions(params);
+
+      expect(results).toHaveLength(2);
+      expect(page_result).toBeUndefined();
+      expect(query_mock).toHaveBeenCalledWith('SELECT * FROM subscriptions WHERE tenant_id=$1', [params.tenant_id]);
+    });
+
+    it('returns a list of subscriptions when the limit of pagination is 1 and the page is 1', async () => {
+      const subscriptions = [
+        {
+          id: faker.string.uuid(),
+          subscriber_id: faker.string.uuid(),
+          subscription_plan_id: faker.string.uuid(),
+          started_at: faker.date.anytime(),
+          status: faker.helpers.enumValue(SubscriptionStatus),
+          tenant_id: faker.string.uuid(),
+        },
+      ];
+
+      query_mock
+        .mockResolvedValueOnce({ rows: [{ total: 2 }] })
+        .mockResolvedValueOnce({ rows: subscriptions });
+
+      const params = {
+        tenant_id: faker.string.uuid(),
+        page_options: {
+          limit: 1,
+          page: 1,
+        }
+      };
+
+      const { results, page_result } = await repository.getSubscriptions(params);
+
+      expect(results).toHaveLength(1);
+      expect(page_result!.next_page).toEqual(2);
+      expect(page_result!.total_of_pages).toEqual(2);
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        "SELECT count(id) as total FROM subscriptions WHERE tenant_id=$1",
+        [params.tenant_id]
+      );
+      expect(query_mock).toHaveBeenNthCalledWith(
+        2,
+        "SELECT * FROM subscriptions WHERE tenant_id=$1 LIMIT $2 OFFSET $3",
+        [params.tenant_id, params.page_options.limit, 0],
+      );
+    });
+
+    it('returns a list of subscriptions when the limit of pagination is 1 and the page is 2', async () => {
+      const subscriptions = [
+        {
+          id: faker.string.uuid(),
+          subscriber_id: faker.string.uuid(),
+          subscription_plan_id: faker.string.uuid(),
+          started_at: faker.date.anytime(),
+          status: faker.helpers.enumValue(SubscriptionStatus),
+          tenant_id: faker.string.uuid(),
+        },
+      ];
+
+      query_mock
+        .mockResolvedValueOnce({ rows: [{ total: 2 }] })
+        .mockResolvedValueOnce({ rows: subscriptions });
+
+      const params = {
+        tenant_id: faker.string.uuid(),
+        page_options: {
+          limit: 1,
+          page: 2,
+        }
+      };
+
+      const { results, page_result } = await repository.getSubscriptions(params);
+
+      expect(results).toHaveLength(1);
+      expect(page_result!.next_page).toEqual(-1);
+      expect(page_result!.total_of_pages).toEqual(2);
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        "SELECT count(id) as total FROM subscriptions WHERE tenant_id=$1",
+        [params.tenant_id]
+      );
+      expect(query_mock).toHaveBeenNthCalledWith(
+        2,
+        "SELECT * FROM subscriptions WHERE tenant_id=$1 LIMIT $2 OFFSET $3",
+        [params.tenant_id, params.page_options.limit, 1],
+      );
+    });
+  });
 });

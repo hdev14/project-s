@@ -30,11 +30,17 @@ export default class DbSubscriptionRepository implements SubscriptionRepository 
     );
   }
 
-  getSubscriptionById(id: string): Promise<Subscription | null> {
-    // TODO: select subscription
-    // TODO: select subscription_plan
-    // TODO: select catalog_items
-    throw new Error("Method not implemented.");
+  async getSubscriptionById(id: string): Promise<Subscription | null> {
+    const result = await this.#db.query('SELECT * FROM subscriptions WHERE id=$1', [id]);
+
+    return result.rows.length === 0 ? null : new Subscription({
+      id: result.rows[0].id,
+      status: result.rows[0].status,
+      subscription_plan_id: result.rows[0].subscription_plan_id,
+      subscriber_id: result.rows[0].subscriber_id,
+      started_at: result.rows[0].started_at,
+      tenant_id: result.rows[0].tenant_id,
+    });
   }
 
   getSubscriptions(filter: SubscriptionsFilter): Promise<PaginatedResult<SubscriptionObject>> {

@@ -138,7 +138,39 @@ describe('DbSubscriptionRepository unit tests', () => {
     });
   });
 
-  it.todo('DbSubscriptionRepository.getSubscriptionById');
+  describe('DbSubscriptionRepository.getSubscriptionById', () => {
+    it("returns NULL if subscription doesn't exist", async () => {
+      query_mock.mockResolvedValueOnce({ rows: [] });
+
+      const subscription_id = faker.string.uuid();
+      const subscription = await repository.getSubscriptionById(subscription_id);
+
+      expect(subscription).toBeNull();
+      expect(query_mock).toHaveBeenCalledWith('SELECT * FROM subscriptions WHERE id=$1', [subscription_id]);
+    });
+
+    it('returns a subscription', async () => {
+      const subscription_id = faker.string.uuid();
+
+      query_mock.mockResolvedValueOnce({
+        rows: [
+          {
+            id: subscription_id,
+            subscriber_id: faker.string.uuid(),
+            subscription_plan_id: faker.string.uuid(),
+            started_at: faker.date.anytime(),
+            status: faker.helpers.enumValue(SubscriptionStatus),
+            tenant_id: faker.string.uuid(),
+          }
+        ]
+      });
+
+      const subscription = await repository.getSubscriptionById(subscription_id);
+
+      expect(subscription).toBeInstanceOf(Subscription);
+      expect(query_mock).toHaveBeenCalledWith('SELECT * FROM subscriptions WHERE id=$1', [subscription_id]);
+    });
+  });
 
   it.todo('DbSubscriptionRepository.getSubscriptions');
 });

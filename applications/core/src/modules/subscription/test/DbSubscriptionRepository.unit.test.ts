@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker/locale/pt_BR";
 import Database from "@shared/Database";
 import Subscription, { SubscriptionObject, SubscriptionStatus } from "@subscription/domain/Subscription";
-import DbSubscriptionRepository from "@subscription/infra/DbSubscriptionRepository";
+import DbSubscriptionRepository from "@subscription/infra/persistence/DbSubscriptionRepository";
 
 const connect_spy = jest.spyOn(Database, 'connect');
 const query_mock = jest.fn();

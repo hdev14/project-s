@@ -5,12 +5,15 @@ import UserExistsCommand from "@shared/commands/UserExistsCommand";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import Mediator from "@shared/Mediator";
+import types from "@shared/types";
 import Either from "@shared/utils/Either";
 import { PageOptions, PageResult } from "@shared/utils/Pagination";
 import { ItemObject } from "@subscription/domain/Item";
 import Subscription, { SubscriptionObject } from "@subscription/domain/Subscription";
 import SubscriptionPlan, { RecurrenceTypes, SubscriptionPlanObject } from "@subscription/domain/SubscriptionPlan";
 import { randomUUID } from "crypto";
+import { inject, injectable } from "inversify";
+import 'reflect-metadata';
 import { SubscriptionPlanRepository } from "./SubscriptionPlanRepository";
 import SubscriptionRepository from "./SubscriptionRepository";
 
@@ -59,7 +62,7 @@ export type GetSubscriptionsResult = {
   page_result?: PageResult;
 };
 
-
+@injectable()
 export default class SubscriptionService {
   #mediator: Mediator;
   #subscription_plan_repository: SubscriptionPlanRepository;
@@ -67,10 +70,10 @@ export default class SubscriptionService {
   #file_storage: FileStorage;
 
   constructor(
-    mediator: Mediator,
-    subscription_plan_repository: SubscriptionPlanRepository,
-    subscription_repository: SubscriptionRepository,
-    file_storage: FileStorage,
+    @inject(types.Mediator) mediator: Mediator,
+    @inject(types.SubscriptionPlanRepository) subscription_plan_repository: SubscriptionPlanRepository,
+    @inject(types.SubscriptionRepository) subscription_repository: SubscriptionRepository,
+    @inject(types.FileStorage) file_storage: FileStorage,
   ) {
     this.#mediator = mediator;
     this.#subscription_plan_repository = subscription_plan_repository;

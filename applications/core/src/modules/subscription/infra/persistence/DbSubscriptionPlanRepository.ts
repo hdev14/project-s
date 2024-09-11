@@ -5,8 +5,11 @@ import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
 import { SubscriptionPlanRepository, SubscriptionPlansFilter } from "@subscription/app/SubscriptionPlanRepository";
 import { ItemObject } from "@subscription/domain/Item";
 import SubscriptionPlan, { SubscriptionPlanObject } from "@subscription/domain/SubscriptionPlan";
+import { injectable } from "inversify";
 import { Pool } from "pg";
+import 'reflect-metadata';
 
+@injectable()
 export default class DbSubscriptionPlanRepository implements SubscriptionPlanRepository {
   #db: Pool;
   #columns = [

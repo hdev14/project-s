@@ -11,7 +11,7 @@ export default class WinstonLogger implements Logger {
     this.#logger = winston.createLogger({
       format: winston.format.combine(
         winston.format.colorize({ message: true }),
-        winston.format.timestamp({ format: 'DD/MM/YYYY HH:mm:ss' }),
+        winston.format.timestamp({ format: 'DD/MM/YYYY HH:mm:ss:SSS' }),
         winston.format.errors({ stack: true }),
         winston.format.printf(WinstonLogger.template)
       ),

@@ -20,4 +20,8 @@ export default {
   SubscriberRepository: Symbol.for('SubscriberRepository'),
   PaymentGateway: Symbol.for('PaymentGateway'),
   Logger: Symbol.for('Logger'),
+  SubscriptionService: Symbol.for('SubscriptionService'),
+  SubscriptionPlanRepository: Symbol.for('SubscriptionPlanRepository'),
+  SubscriptionRepository: Symbol.for('SubscriptionRepository'),
+  FileStorage: Symbol.for('FileStorage'),
 };

@@ -7,6 +7,7 @@ import PaymentModule from "@payment/infra/PaymentModule";
 import Database from "@shared/Database";
 import types from "@shared/types";
 import SubscriberModule from "@subscriber/infra/SubscriberModule";
+import SubscriptionModule from "@subscription/infra/SubscriptionModule";
 import Application from "./Application";
 
 (async function main() {
@@ -20,6 +21,7 @@ import Application from "./Application";
         new CompanyModule(),
         new SubscriberModule(),
         new PaymentModule(),
+        new SubscriptionModule()
       ]
     });
 

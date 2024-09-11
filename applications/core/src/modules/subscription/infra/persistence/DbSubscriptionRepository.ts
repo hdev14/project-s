@@ -3,8 +3,11 @@ import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
 import SubscriptionRepository, { SubscriptionsFilter } from "@subscription/app/SubscriptionRepository";
 import Subscription, { SubscriptionObject } from "@subscription/domain/Subscription";
+import { injectable } from "inversify";
 import { Pool } from "pg";
+import 'reflect-metadata';
 
+@injectable()
 export default class DbSubscriptionRepository implements SubscriptionRepository {
   #db: Pool;
 

@@ -5,16 +5,17 @@ import Factory from "./Factory";
 export default class SubscriptionPlanFactory implements Factory<SubscriptionPlanObject> {
   async createOne(item: SubscriptionPlanObject): Promise<SubscriptionPlanObject> {
     const { amount, items, recurrence_type, tenant_id, id, term_url } = item;
-    const values = Object.values({
+    const data = {
       id,
       amount,
       recurrence_type,
       tenant_id,
       term_url,
-    });
+    };
+    const values = Object.values(data);
 
     await globalThis.db.query(
-      `INSERT INTO subscription_plans ${DbUtils.columns(item)} VALUES ${DbUtils.values(values)}`,
+      `INSERT INTO subscription_plans ${DbUtils.columns(data)} VALUES ${DbUtils.values(values)}`,
       DbUtils.sanitizeValues(values),
     );
 

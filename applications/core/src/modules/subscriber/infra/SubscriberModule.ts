@@ -12,12 +12,13 @@ import DbSubscriberRepository from "./persistence/DbSubscriberRepository";
 export default class SubscriberModule implements Module {
   init(): ContainerModule {
     const module = new ContainerModule((bind, _unbind, _isBound, _rebind, _unbindAsync, onActivation) => {
+      const subscriber_repository = new DbSubscriberRepository();
       bind<SubscriberService>(types.SubscriberService).to(SubscriberService).inSingletonScope();
-      bind<SubscriberRepository>(types.SubscriberRepository).to(DbSubscriberRepository).inSingletonScope();
+      bind<SubscriberRepository>(types.SubscriberRepository).toConstantValue(subscriber_repository);
       onActivation<Mediator>(types.Mediator, (_context, mediator) => {
         mediator.register(
           GetSubscriberCommand.name,
-          new GetSubscriberCommandHandler(),
+          new GetSubscriberCommandHandler(subscriber_repository),
         );
         return mediator;
       });

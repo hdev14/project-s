@@ -29,5 +29,6 @@
   "tax_percentage_error": "Taxa de commissão inválida",
   "notfound.commission": "Comissão não encontrada",
   "already_registered_company": "CNPJ já cadastrado",
-  "notfound.subscriber": "Assinante não encontrado"
+  "notfound.subscriber": "Assinante não encontrado",
+  "notfound.subscription_plan": "Plano de assinatura não encontrado"
 }

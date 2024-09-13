@@ -42,7 +42,7 @@ export default class SubscriptionController extends BaseHttpController {
     });
 
     if (error instanceof NotFoundError) {
-      return this.json({ message: req.__(error.message) }, HttpStatusCodes.BAD_REQUEST);
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
     }
 
     return this.ok();

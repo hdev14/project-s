@@ -28,5 +28,6 @@
   "tax_percentage_error": "Invalid commission's tax",
   "notfound.commission": "Commission not found",
   "already_registered_company": "Company already registered",
-  "notfound.subscriber": "Subscriber not found"
+  "notfound.subscriber": "Subscriber not found",
+  "notfound.subscription_plan": "Subscription plan not found"
 }

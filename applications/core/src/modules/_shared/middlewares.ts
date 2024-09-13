@@ -7,6 +7,7 @@ export function createErrorHandlerWithLogger(logger: Logger) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   return (error: Error, _req: Request, res: Response, _next: NextFunction) => {
     logger.error(error);
+    console.log(error);
     return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
       message: 'Internal Server Error'
     });

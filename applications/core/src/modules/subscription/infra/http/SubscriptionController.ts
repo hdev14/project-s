@@ -2,6 +2,8 @@
 // https://github.com/expressjs/multer
 
 import Logger from "@global/app/Logger";
+import NotFoundError from "@shared/errors/NotFoundError";
+import HttpStatusCodes from "@shared/HttpStatusCodes";
 import types from "@shared/types";
 import SubscriptionService from "@subscription/app/SubscriptionService";
 import { Request } from 'express';
@@ -27,6 +29,22 @@ export default class SubscriptionController extends BaseHttpController {
 
   @httpPost('/')
   async createSubscriptions(@request() req: Request) {
+    const {
+      subscriber_id,
+      subscription_plan_id,
+      tenant_id,
+    } = req.body;
+
+    const [error, data] = await this.subscription_service.createSubscription({
+      subscriber_id,
+      subscription_plan_id,
+      tenant_id
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.BAD_REQUEST);
+    }
+
     return this.ok();
   }
 

@@ -45,6 +45,11 @@ export default class SubscriptionController extends BaseHttpController {
     return this.ok();
   }
 
+  @httpPost('/plans')
+  async createSuscriptionPlan(@request() req: Request) {
+    return this.ok();
+  }
+
   @httpGet('/plans')
   async getSubscriptionPlans(@request() req: Request) {
     return this.ok();

@@ -191,24 +191,11 @@ export default class DbUserRepository implements UserRepository {
       policies
     );
 
-    let user_policy_values = '';
-
-    const policy_ids = [];
-
-    for (let idx = 1; idx <= policy_result.rows.length; idx++) {
-      policy_ids.push(policy_result.rows[idx - 1].id);
-
-      if (idx !== policy_result.rows.length) {
-        user_policy_values += `($1, $${idx + 1}), `;
-        continue;
-      }
-
-      user_policy_values += `($1, $${idx + 1})`;
-    }
+    const { ids, string_values } = DbUtils.manyToManyValues(policy_result.rows);
 
     await this.#db.query(
-      `INSERT INTO user_policies (user_id, policy_id) VALUES ${user_policy_values}`,
-      [user_id].concat(policy_ids)
+      `INSERT INTO user_policies (user_id, policy_id) VALUES ${string_values}`,
+      [user_id].concat(ids)
     );
   }
 }

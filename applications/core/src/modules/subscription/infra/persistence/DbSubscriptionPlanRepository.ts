@@ -140,23 +140,11 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
       DbUtils.sanitizeValues(values),
     );
 
-    const item_ids = [];
-    let subscription_items = '';
-
-    for (let idx = 0; idx < items.length; idx++) {
-      item_ids.push(items[idx].id!);
-
-      if (idx !== items.length - 1) {
-        subscription_items += `($1,$${idx + 2}), `;
-        continue;
-      }
-
-      subscription_items += `($1,$${idx + 2})`;
-    }
+    const { ids, string_values } = DbUtils.manyToManyValues(items)
 
     await this.#db.query(
-      `INSERT INTO subscription_plan_items (subscription_plan_id, item_id) VALUES ${subscription_items}`,
-      [id].concat(item_ids),
+      `INSERT INTO subscription_plan_items (subscription_plan_id, item_id) VALUES ${string_values}`,
+      [id].concat(ids),
     );
   }
 }

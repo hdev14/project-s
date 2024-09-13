@@ -49,6 +49,24 @@ export default class DbUtils {
     return columns.join(' AND ').toString();
   }
 
+  static manyToManyValues(items: { id?: string }[]) {
+    const ids = [];
+    let string_values = '';
+
+    for (let idx = 0; idx < items.length; idx++) {
+      ids.push(items[idx].id!);
+
+      if (idx !== items.length - 1) {
+        string_values += `($1,$${idx + 2}), `;
+        continue;
+      }
+
+      string_values += `($1,$${idx + 2})`;
+    }
+
+    return { ids, string_values };
+  }
+
   private static createColumns(obj: Record<string, any>, start_position?: number) {
     const keys = Object.keys(obj);
     let position = start_position ?? 1;

@@ -452,7 +452,7 @@ describe('DbUserRepository unit tests', () => {
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         3,
-        'INSERT INTO user_policies (user_id, policy_id) VALUES ($1, $2), ($1, $3)',
+        'INSERT INTO user_policies (user_id, policy_id) VALUES ($1,$2), ($1,$3)',
         [user_obj.id, rows[0].id, rows[1].id],
       );
     });
@@ -651,7 +651,7 @@ describe('DbUserRepository unit tests', () => {
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         4,
-        'INSERT INTO user_policies (user_id, policy_id) VALUES ($1, $2), ($1, $3)',
+        'INSERT INTO user_policies (user_id, policy_id) VALUES ($1,$2), ($1,$3)',
         [user_obj.id, rows[0].id, rows[1].id],
       );
     });

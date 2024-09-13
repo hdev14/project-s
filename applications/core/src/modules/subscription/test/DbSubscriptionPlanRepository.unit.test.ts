@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import Database from "@shared/Database";
 import SubscriptionPlan, { RecurrenceTypes } from '@subscription/domain/SubscriptionPlan';
-import DbSubscriptionPlanRepository from "@subscription/infra/DbSubscriptionPlanRepository";
+import DbSubscriptionPlanRepository from '@subscription/infra/persistence/DbSubscriptionPlanRepository';
 
 const connect_spy = jest.spyOn(Database, 'connect');
 const query_mock = jest.fn();

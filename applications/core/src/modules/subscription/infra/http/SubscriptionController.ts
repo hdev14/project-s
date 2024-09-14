@@ -52,17 +52,41 @@ export default class SubscriptionController extends BaseHttpController {
 
   @httpPatch('/:subscription_id/activations')
   async activeSubscription(@request() req: Request) {
-    return this.ok();
+    const { subscription_id } = req.params;
+
+    const [error] = await this.subscription_service.activeSubscription({ subscription_id });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
   @httpPatch('/:subscription_id/pauses')
   async pauseSubscription(@request() req: Request) {
-    return this.ok();
+    const { subscription_id } = req.params;
+
+    const [error] = await this.subscription_service.pauseSubscription({ subscription_id });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
   @httpPatch('/:subscription_id/cancellations')
   async cancelSubscription(@request() req: Request) {
-    return this.ok();
+    const { subscription_id } = req.params;
+
+    const [error] = await this.subscription_service.cancelSubscription({ subscription_id });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
   @httpPost('/plans')

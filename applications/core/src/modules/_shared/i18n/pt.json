@@ -30,5 +30,6 @@
   "notfound.commission": "Comissão não encontrada",
   "already_registered_company": "CNPJ já cadastrado",
   "notfound.subscriber": "Assinante não encontrado",
-  "notfound.subscription_plan": "Plano de assinatura não encontrado"
+  "notfound.subscription_plan": "Plano de assinatura não encontrado",
+  "notfound.subscription": "Assinatura não encontrada"
 }

@@ -4,6 +4,7 @@
 import Logger from "@global/app/Logger";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/HttpStatusCodes";
+import { requestValidator } from "@shared/middlewares";
 import types from "@shared/types";
 import SubscriptionService from "@subscription/app/SubscriptionService";
 import { Request } from 'express';
@@ -16,6 +17,7 @@ import {
   httpPost,
   request
 } from "inversify-express-utils";
+import { create_subscription_validation_schema } from "./validations";
 
 @controller('/api/subscriptions')
 export default class SubscriptionController extends BaseHttpController {
@@ -27,7 +29,7 @@ export default class SubscriptionController extends BaseHttpController {
     this.logger.info("Subscriptions's APIs enabled");
   }
 
-  @httpPost('/')
+  @httpPost('/', requestValidator(create_subscription_validation_schema))
   async createSubscriptions(@request() req: Request) {
     const {
       subscriber_id,
@@ -45,7 +47,7 @@ export default class SubscriptionController extends BaseHttpController {
       return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
     }
 
-    return this.ok();
+    return this.json(data, HttpStatusCodes.CREATED);
   }
 
   @httpPatch('/:subscription_id/activations')

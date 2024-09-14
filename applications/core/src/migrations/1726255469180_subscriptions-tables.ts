@@ -35,8 +35,11 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
   pgm.addColumns('subscriptions', {
     subscription_plan_id: { type: 'uuid', notNull: true, references: 'subscription_plans' },
+    tenant_id: { type: 'uuid', notNull: true, references: 'users' },
     status: { type: 'subscription_status', notNull: true },
   });
+
+  pgm.alterColumn('subscriptions', 'started_at', { notNull: false });
 
   pgm.createTable('subscription_plan_items', {
     subscription_plan_id: { type: 'uuid', notNull: true, references: 'subscription_plans' },
@@ -46,7 +49,8 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
   pgm.dropTable('subscription_plan_items');
-  pgm.dropColumns('subscriptions', ['subscription_plan_id', 'status']);
+  pgm.alterColumn('subscriptions', 'started_at', { notNull: true });
+  pgm.dropColumns('subscriptions', ['subscription_plan_id', 'tenant_id', 'status']);
   pgm.dropType('subscription_status');
   pgm.dropTable('subscription_plans');
   pgm.dropType('recurrence_types');

@@ -2,6 +2,7 @@
 // https://github.com/expressjs/multer
 
 import Logger from "@global/app/Logger";
+import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/HttpStatusCodes";
 import { requestValidator } from "@shared/middlewares";
@@ -58,6 +59,10 @@ export default class SubscriptionController extends BaseHttpController {
 
     if (error instanceof NotFoundError) {
       return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    if (error instanceof DomainError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.UNPROCESSABLE_CONTENT);
     }
 
     return this.statusCode(HttpStatusCodes.NO_CONTENT);

@@ -290,7 +290,164 @@ describe('Subscription E2E tests', () => {
       expect({ status: SubscriptionStatus.ACTIVE }).toEqualInDatabase('subscriptions', subscription.id!);
     });
 
-    it.todo('should return 422 if not possible to change status to "active"');
+    it('should return 422 if subscription already is active', async () => {
+      const subscriber = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        document: faker.string.numeric(11),
+        password: faker.string.alphanumeric(11),
+        type: UserTypes.CUSTOMER,
+      });
+
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        document: faker.string.numeric(14),
+        password: faker.string.alphanumeric(11),
+        type: UserTypes.COMPANY,
+      });
+
+      const catalog_item = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        attributes: [{ name: faker.commerce.productAdjective(), description: faker.string.sample() }],
+        description: faker.commerce.productDescription(),
+        is_service: faker.datatype.boolean(),
+        name: faker.commerce.product(),
+        tenant_id: company.id!,
+        picture_url: faker.internet.url(),
+      });
+
+      const subscription_plan = await subscription_plan_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        items: [{ id: catalog_item.id, name: catalog_item.name }],
+        recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+        tenant_id: company.id!,
+      });
+
+      const subscription = await subscription_factory.createOne({
+        id: faker.string.uuid(),
+        status: SubscriptionStatus.ACTIVE,
+        subscriber_id: subscriber.id!,
+        subscription_plan_id: subscription_plan.id!,
+        tenant_id: company.id!,
+      });
+
+      const response = await request
+        .patch(`/api/subscriptions/${subscription.id}/activations`)
+        .set('Content-Type', 'application/json')
+        .send({});
+
+      expect(response.status).toEqual(422);
+      expect(response.body.message).toEqual('Assinatura já está ativa');
+    });
+
+    it('should return 422 if subscription is canceled', async () => {
+      const subscriber = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        document: faker.string.numeric(11),
+        password: faker.string.alphanumeric(11),
+        type: UserTypes.CUSTOMER,
+      });
+
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        document: faker.string.numeric(14),
+        password: faker.string.alphanumeric(11),
+        type: UserTypes.COMPANY,
+      });
+
+      const catalog_item = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        attributes: [{ name: faker.commerce.productAdjective(), description: faker.string.sample() }],
+        description: faker.commerce.productDescription(),
+        is_service: faker.datatype.boolean(),
+        name: faker.commerce.product(),
+        tenant_id: company.id!,
+        picture_url: faker.internet.url(),
+      });
+
+      const subscription_plan = await subscription_plan_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        items: [{ id: catalog_item.id, name: catalog_item.name }],
+        recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+        tenant_id: company.id!,
+      });
+
+      const subscription = await subscription_factory.createOne({
+        id: faker.string.uuid(),
+        status: SubscriptionStatus.CANCELED,
+        subscriber_id: subscriber.id!,
+        subscription_plan_id: subscription_plan.id!,
+        tenant_id: company.id!,
+      });
+
+      const response = await request
+        .patch(`/api/subscriptions/${subscription.id}/activations`)
+        .set('Content-Type', 'application/json')
+        .send({});
+
+      expect(response.status).toEqual(422);
+      expect(response.body.message).toEqual('Assinatura já está cancelada');
+    });
+
+    it('should return 422 if subscription is finished', async () => {
+      const subscriber = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        document: faker.string.numeric(11),
+        password: faker.string.alphanumeric(11),
+        type: UserTypes.CUSTOMER,
+      });
+
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        document: faker.string.numeric(14),
+        password: faker.string.alphanumeric(11),
+        type: UserTypes.COMPANY,
+      });
+
+      const catalog_item = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        attributes: [{ name: faker.commerce.productAdjective(), description: faker.string.sample() }],
+        description: faker.commerce.productDescription(),
+        is_service: faker.datatype.boolean(),
+        name: faker.commerce.product(),
+        tenant_id: company.id!,
+        picture_url: faker.internet.url(),
+      });
+
+      const subscription_plan = await subscription_plan_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        items: [{ id: catalog_item.id, name: catalog_item.name }],
+        recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+        tenant_id: company.id!,
+      });
+
+      const subscription = await subscription_factory.createOne({
+        id: faker.string.uuid(),
+        status: SubscriptionStatus.FINISHED,
+        subscriber_id: subscriber.id!,
+        subscription_plan_id: subscription_plan.id!,
+        tenant_id: company.id!,
+      });
+
+      const response = await request
+        .patch(`/api/subscriptions/${subscription.id}/activations`)
+        .set('Content-Type', 'application/json')
+        .send({});
+
+      expect(response.status).toEqual(422);
+      expect(response.body.message).toEqual('Assinatura já está finalizada');
+    });
   });
 
   describe('PACTH: /api/subscriptions/:subscription_id/pauses', () => {

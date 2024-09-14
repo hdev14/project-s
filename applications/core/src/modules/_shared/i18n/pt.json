@@ -31,5 +31,8 @@
   "already_registered_company": "CNPJ já cadastrado",
   "notfound.subscriber": "Assinante não encontrado",
   "notfound.subscription_plan": "Plano de assinatura não encontrado",
-  "notfound.subscription": "Assinatura não encontrada"
+  "notfound.subscription": "Assinatura não encontrada",
+  "subscription_finished": "Assinatura já está finalizada",
+  "subscription_actived": "Assinatura já está ativa",
+  "subscription_canceled": "Assinatura já está cancelada"
 }

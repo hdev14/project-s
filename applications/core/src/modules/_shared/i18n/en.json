@@ -30,5 +30,8 @@
   "already_registered_company": "Company already registered",
   "notfound.subscriber": "Subscriber not found",
   "notfound.subscription_plan": "Subscription plan not found",
-  "notfound.subscription": "Subscription not found"
+  "notfound.subscription": "Subscription not found",
+  "subscription_finished": "The subscription is already finished",
+  "subscription_actived": "The subscription is already active",
+  "subscription_canceled": "The subscription is already canceled"
 }

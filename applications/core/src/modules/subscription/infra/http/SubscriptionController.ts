@@ -78,6 +78,10 @@ export default class SubscriptionController extends BaseHttpController {
       return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
     }
 
+    if (error instanceof DomainError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.UNPROCESSABLE_CONTENT);
+    }
+
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
@@ -89,6 +93,10 @@ export default class SubscriptionController extends BaseHttpController {
 
     if (error instanceof NotFoundError) {
       return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    if (error instanceof DomainError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.UNPROCESSABLE_CONTENT);
     }
 
     return this.statusCode(HttpStatusCodes.NO_CONTENT);

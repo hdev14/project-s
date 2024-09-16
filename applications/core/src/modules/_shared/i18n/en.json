@@ -33,5 +33,7 @@
   "notfound.subscription": "Subscription not found",
   "subscription_finished": "The subscription is already finished",
   "subscription_actived": "The subscription is already active",
-  "subscription_canceled": "The subscription is already canceled"
+  "subscription_canceled": "The subscription is already canceled",
+  "subscription_pending": "The subscription is pending",
+  "subscription_paused": "The subscription is paused"
 }

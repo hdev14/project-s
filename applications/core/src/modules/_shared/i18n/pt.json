@@ -34,5 +34,7 @@
   "notfound.subscription": "Assinatura não encontrada",
   "subscription_finished": "Assinatura já está finalizada",
   "subscription_actived": "Assinatura já está ativa",
-  "subscription_canceled": "Assinatura já está cancelada"
+  "subscription_canceled": "Assinatura já está cancelada",
+  "subscription_pending": "Assinatura pendente",
+  "subscription_paused": "Assinatura já está pausada"
 }

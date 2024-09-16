@@ -114,6 +114,17 @@ export default class SubscriptionController extends BaseHttpController {
 
   @httpGet('/')
   async getSubscriptions(@request() req: Request) {
-    return this.ok();
+    const { tenant_id, page, limit } = req.query;
+    const params = (page && limit) ? ({
+      tenant_id: tenant_id!.toString(),
+      page_options: {
+        limit: parseInt(limit.toString(), 10),
+        page: parseInt(page.toString(), 10)
+      }
+    }) : { tenant_id: tenant_id!.toString() };
+
+    const [, data] = await this.subscription_service.getSubscriptions(params);
+
+    return this.json(data, HttpStatusCodes.OK);
   }
 }

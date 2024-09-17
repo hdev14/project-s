@@ -901,7 +901,154 @@ describe('Subscription E2E tests', () => {
 
   it.todo('POST: /api/subscriptions/plans');
 
-  it.todo('GET: /api/subscriptions/plans');
+  describe('GET: /api/subscriptions/plans', () => {
+    it('should return all subscriptions', async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        document: faker.string.numeric(14),
+        password: faker.string.alphanumeric(11),
+        type: UserTypes.COMPANY,
+      });
+
+      const catalog_item = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        attributes: [{ name: faker.commerce.productAdjective(), description: faker.string.sample() }],
+        description: faker.commerce.productDescription(),
+        is_service: faker.datatype.boolean(),
+        name: faker.commerce.product(),
+        tenant_id: company.id!,
+        picture_url: faker.internet.url(),
+      });
+
+      await subscription_plan_factory.createMany([
+        {
+          id: faker.string.uuid(),
+          amount: faker.number.float(),
+          items: [{ id: catalog_item.id, name: catalog_item.name }],
+          recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+          tenant_id: company.id!,
+        },
+        {
+          id: faker.string.uuid(),
+          amount: faker.number.float(),
+          items: [{ id: catalog_item.id, name: catalog_item.name }],
+          recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+          tenant_id: company.id!,
+        },
+        {
+          id: faker.string.uuid(),
+          amount: faker.number.float(),
+          items: [{ id: catalog_item.id, name: catalog_item.name }],
+          recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+          tenant_id: company.id!,
+        },
+        {
+          id: faker.string.uuid(),
+          amount: faker.number.float(),
+          items: [{ id: catalog_item.id, name: catalog_item.name }],
+          recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+          tenant_id: company.id!,
+        },
+      ]);
+
+      const response = await request
+        .get('/api/subscriptions/plans')
+        .query({ tenant_id: company.id })
+        .set('Content-Type', 'application/json')
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body.results).toHaveLength(4);
+      expect(response.body).not.toHaveProperty('page_result');
+    });
+
+    it('should return subscription plans with pagination', async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        document: faker.string.numeric(14),
+        password: faker.string.alphanumeric(11),
+        type: UserTypes.COMPANY,
+      });
+
+      const catalog_item = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        attributes: [{ name: faker.commerce.productAdjective(), description: faker.string.sample() }],
+        description: faker.commerce.productDescription(),
+        is_service: faker.datatype.boolean(),
+        name: faker.commerce.product(),
+        tenant_id: company.id!,
+        picture_url: faker.internet.url(),
+      });
+
+      await subscription_plan_factory.createMany([
+        {
+          id: faker.string.uuid(),
+          amount: faker.number.float(),
+          items: [{ id: catalog_item.id, name: catalog_item.name }],
+          recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+          tenant_id: company.id!,
+        },
+        {
+          id: faker.string.uuid(),
+          amount: faker.number.float(),
+          items: [{ id: catalog_item.id, name: catalog_item.name }],
+          recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+          tenant_id: company.id!,
+        },
+        {
+          id: faker.string.uuid(),
+          amount: faker.number.float(),
+          items: [{ id: catalog_item.id, name: catalog_item.name }],
+          recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+          tenant_id: company.id!,
+        },
+        {
+          id: faker.string.uuid(),
+          amount: faker.number.float(),
+          items: [{ id: catalog_item.id, name: catalog_item.name }],
+          recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+          tenant_id: company.id!,
+        },
+      ]);
+
+      let response = await request
+        .get('/api/subscriptions/plans')
+        .query({ page: 1, limit: 1, tenant_id: company.id })
+        .set('Content-Type', 'application/json')
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body.results).toHaveLength(1);
+      expect(response.body.page_result.next_page).toEqual(2);
+      expect(response.body.page_result.total_of_pages).toEqual(4);
+
+      response = await request
+        .get('/api/subscriptions/plans')
+        .query({ page: 1, limit: 2, tenant_id: company.id })
+        .set('Content-Type', 'application/json')
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body.results).toHaveLength(2);
+      expect(response.body.page_result.next_page).toEqual(2);
+      expect(response.body.page_result.total_of_pages).toEqual(2);
+
+      response = await request
+        .get('/api/subscriptions/plans')
+        .query({ page: 2, limit: 2, tenant_id: company.id })
+        .set('Content-Type', 'application/json')
+        .send();
+
+      expect(response.status).toEqual(200);
+      expect(response.body.results).toHaveLength(2);
+      expect(response.body.page_result.next_page).toEqual(-1);
+      expect(response.body.page_result.total_of_pages).toEqual(2);
+    });
+  });
 
   describe('GET: /api/subscriptions', () => {
     it('should return all subscriptions', async () => {

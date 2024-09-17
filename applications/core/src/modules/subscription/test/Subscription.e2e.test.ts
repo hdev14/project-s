@@ -12,6 +12,8 @@ import SubscriberModule from '@subscriber/infra/SubscriberModule';
 import { SubscriptionStatus } from '@subscription/domain/Subscription';
 import { RecurrenceTypes } from '@subscription/domain/SubscriptionPlan';
 import SubscriptionModule from '@subscription/infra/SubscriptionModule';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 import Application from 'src/Application';
 import supertest from 'supertest';
 
@@ -899,7 +901,20 @@ describe('Subscription E2E tests', () => {
 
   });
 
-  it.todo('POST: /api/subscriptions/plans');
+  describe.only('POST: /api/subscriptions/plans', () => {
+    it('test', async () => {
+      const file = readFileSync(resolve(__dirname, './fixtures/test.png'));
+
+      await request
+        .post('/api/subscriptions/plans')
+        .set('Content-Type', 'multipart/form-data')
+        .field('item[]', 'test1')
+        .field('recurrence_type', 'asdf')
+        .field('tenant_id', 'tasdfa')
+        .attach('term_file', file, 'test.png')
+        .expect(200);
+    })
+  });
 
   describe('GET: /api/subscriptions/plans', () => {
     it('should return all subscriptions', async () => {

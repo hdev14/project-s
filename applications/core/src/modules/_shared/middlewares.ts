@@ -1,5 +1,8 @@
+import { randomUUID } from 'crypto';
 import { NextFunction, Request, Response } from 'express';
 import { Schema, checkSchema } from 'express-validator';
+import multer from 'multer';
+import { resolve } from 'path';
 import Logger from '../global/app/Logger';
 import HttpStatusCodes from './HttpStatusCodes';
 
@@ -49,3 +52,14 @@ export function requestValidator(schema: Schema) {
     return next();
   }
 }
+
+const storage = multer.diskStorage({
+  destination: function (_req, _file, cb) {
+    cb(null, resolve(__dirname, './tmp/uploads'));
+  },
+  filename: function (_req, file, cb) {
+    cb(null, `${file.fieldname}-${randomUUID()}`);
+  }
+});
+
+export const upload = multer({ storage });

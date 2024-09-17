@@ -1,11 +1,8 @@
-// TODO: add multer in the create subscription plan endpoint
-// https://github.com/expressjs/multer
-
 import Logger from "@global/app/Logger";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/HttpStatusCodes";
-import { requestValidator } from "@shared/middlewares";
+import { requestValidator, upload } from "@shared/middlewares";
 import types from "@shared/types";
 import SubscriptionService from "@subscription/app/SubscriptionService";
 import { Request } from 'express';
@@ -102,8 +99,11 @@ export default class SubscriptionController extends BaseHttpController {
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
-  @httpPost('/plans')
+  @httpPost('/plans', upload.single('term_file'))
   async createSuscriptionPlan(@request() req: Request) {
+    console.log(req.files);
+    console.log(req.file);
+    console.log(req.body);
     return this.ok();
   }
 

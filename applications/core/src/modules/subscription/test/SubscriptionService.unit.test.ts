@@ -497,9 +497,9 @@ describe('SubscriptionService unit tests', () => {
       const subscription_plan = subscription_plan_repository_mock.createSubscriptionPlan.mock.calls[0][0];
 
       expect(file_storage_mock.storeFile).toHaveBeenCalledWith({
-        bucket_name: `tenant_${params.tenant_id}`,
+        bucket_name: `tenant-${params.tenant_id}`,
         folder: 'subscription_terms',
-        name: `term_${subscription_plan.id}`,
+        name: `term_${subscription_plan.id}.pdf`,
         file: params.term_file,
       });
     });

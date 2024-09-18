@@ -915,7 +915,7 @@ describe('Subscription E2E tests', () => {
     });
 
     it('returns status code 400 if term_file is not a PDF', async () => {
-      const file = readFileSync(resolve(__dirname, './fixtures/test.png'));
+      const term_file = readFileSync(resolve(__dirname, './fixtures/test.png'));
 
       const response = await request
         .post('/api/subscriptions/plans')
@@ -923,7 +923,7 @@ describe('Subscription E2E tests', () => {
         .field('item_ids[]', faker.string.uuid())
         .field('recurrence_type', faker.helpers.enumValue(RecurrenceTypes))
         .field('tenant_id', faker.string.uuid())
-        .attach('term_file', file, 'test.png');
+        .attach('term_file', term_file, 'test.png');
 
       expect(response.status).toEqual(400);
       expect(response.body.message).toEqual('O arquivo precisa ser um PDF');
@@ -949,7 +949,7 @@ describe('Subscription E2E tests', () => {
         picture_url: faker.internet.url(),
       });
 
-      const file = readFileSync(resolve(__dirname, './fixtures/test.pdf'));
+      const term_file = readFileSync(resolve(__dirname, './fixtures/test.pdf'));
 
       const response = await request
         .post('/api/subscriptions/plans')
@@ -957,7 +957,7 @@ describe('Subscription E2E tests', () => {
         .field('item_ids[]', catalog_item.id!)
         .field('recurrence_type', faker.helpers.enumValue(RecurrenceTypes))
         .field('tenant_id', faker.string.uuid())
-        .attach('term_file', file, 'test.pdf');
+        .attach('term_file', term_file, 'test.pdf');
 
       expect(response.status).toEqual(404);
       expect(response.body.message).toEqual('Empresa não encontrada');
@@ -983,7 +983,7 @@ describe('Subscription E2E tests', () => {
         picture_url: faker.internet.url(),
       });
 
-      const file = readFileSync(resolve(__dirname, './fixtures/test.pdf'));
+      const term_file = readFileSync(resolve(__dirname, './fixtures/test.pdf'));
 
       const response = await request
         .post('/api/subscriptions/plans')
@@ -992,7 +992,7 @@ describe('Subscription E2E tests', () => {
         .field('item_ids[]', faker.string.uuid())
         .field('recurrence_type', faker.helpers.enumValue(RecurrenceTypes))
         .field('tenant_id', company.id!)
-        .attach('term_file', file, 'test.pdf');
+        .attach('term_file', term_file, 'test.pdf');
 
       expect(response.status).toEqual(404);
       expect(response.body.message).toEqual('Item não encontrado');
@@ -1067,7 +1067,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const recurrence_type = faker.helpers.enumValue(RecurrenceTypes);
-      const file = readFileSync(resolve(__dirname, './fixtures/test.pdf'));
+      const term_file = readFileSync(resolve(__dirname, './fixtures/test.pdf'));
 
       const response = await request
         .post('/api/subscriptions/plans')
@@ -1075,7 +1075,7 @@ describe('Subscription E2E tests', () => {
         .field('item_ids[]', catalog_item.id!)
         .field('recurrence_type', recurrence_type)
         .field('tenant_id', company.id!)
-        .attach('term_file', file, 'test.pdf');
+        .attach('term_file', term_file, 'test.pdf');
 
       expect(response.status).toEqual(201);
       expect(response.body).toHaveProperty('id');

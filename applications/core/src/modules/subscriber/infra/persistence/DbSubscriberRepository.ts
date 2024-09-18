@@ -116,7 +116,6 @@ export default class DbSubscriberRepository implements SubscriberRepository {
       if (subscription_row.subscriber_id === subscriber_id) {
         subscriptions.push({
           id: subscription_row.id,
-          amount: subscription_row.amount,
           started_at: subscription_row.started_at,
         });
       }

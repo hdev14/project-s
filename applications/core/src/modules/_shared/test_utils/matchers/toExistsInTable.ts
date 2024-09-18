@@ -9,7 +9,7 @@ const toExistsInTable: MatcherFunction<[table: string]> =
     }
 
     const result = await globalThis.db.query(
-      `SELECT id FROM ${table} WHERE ${DbUtils.andOperator(payload as object)}`,
+      `SELECT * FROM ${table} WHERE ${DbUtils.andOperator(payload as object)}`,
       DbUtils.sanitizeValues(Object.values(payload as object))
     );
 

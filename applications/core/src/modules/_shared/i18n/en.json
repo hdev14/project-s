@@ -35,5 +35,6 @@
   "subscription_actived": "The subscription is already active",
   "subscription_canceled": "The subscription is already canceled",
   "subscription_pending": "The subscription is pending",
-  "subscription_paused": "The subscription is paused"
+  "subscription_paused": "The subscription is paused",
+  "validation.pdf": "The term must be a PDF"
 }

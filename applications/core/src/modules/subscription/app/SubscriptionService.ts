@@ -217,10 +217,10 @@ export default class SubscriptionService {
 
       if (params.term_file) {
         subscription_plan_obj.term_url = await this.#file_storage.storeFile({
-          bucket_name: `tenant_${params.tenant_id}`,
+          bucket_name: `tenant-${params.tenant_id}`,
           file: params.term_file,
           folder: 'subscription_terms',
-          name: `term_${subscription_plan_obj.id}`,
+          name: `term_${subscription_plan_obj.id}.pdf`,
         });
       }
 

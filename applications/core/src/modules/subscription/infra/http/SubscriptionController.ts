@@ -6,6 +6,7 @@ import { requestValidator, upload } from "@shared/middlewares";
 import types from "@shared/types";
 import SubscriptionService from "@subscription/app/SubscriptionService";
 import { Request } from 'express';
+import { readFileSync, unlinkSync } from "fs";
 import { inject } from "inversify";
 import {
   BaseHttpController,
@@ -101,10 +102,31 @@ export default class SubscriptionController extends BaseHttpController {
 
   @httpPost('/plans', upload.single('term_file'))
   async createSuscriptionPlan(@request() req: Request) {
-    console.log(req.files);
-    console.log(req.file);
-    console.log(req.body);
-    return this.ok();
+    const { item_ids, recurrence_type, tenant_id } = req.body;
+
+    let term_file: Buffer | undefined = undefined;
+
+    if (req.file) {
+      term_file = readFileSync(req.file.path);
+      unlinkSync(req.file.path);
+
+      if (req.file.mimetype !== 'application/pdf') {
+        return this.json({ message: req.__('validation.pdf') }, HttpStatusCodes.BAD_REQUEST);
+      }
+    }
+
+    const [error, data] = await this.subscription_service.createSubscriptionPlan({
+      item_ids,
+      recurrence_type,
+      tenant_id,
+      term_file,
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    return this.json(data, HttpStatusCodes.CREATED);
   }
 
   @httpGet('/plans')

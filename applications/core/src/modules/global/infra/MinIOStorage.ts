@@ -25,11 +25,8 @@ export default class MinIOStorage implements FileStorage {
 
   async storeFile(params: StoreFileParams): Promise<string> {
     const object_name = params.folder ? `${params.folder}/${params.name}` : params.name;
-
-    const result = await this.#client.putObject(params.bucket_name, object_name, params.file);
-
-    // TODO: check if the etag serves as private url.
-    return result.etag;
+    await this.#client.putObject(params.bucket_name, object_name, params.file);
+    return `${process.env.STORAGE_DOMAIN_URL}/${params.bucket_name}/${object_name}`;
   }
 
   async getFilePublicUrl(params: GetFilePublicUrlParams): Promise<string> {

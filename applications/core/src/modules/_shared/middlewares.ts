@@ -58,7 +58,8 @@ const storage = multer.diskStorage({
     cb(null, resolve(__dirname, './tmp/uploads'));
   },
   filename: function (_req, file, cb) {
-    cb(null, `${file.fieldname}-${randomUUID()}`);
+    const ext = file.originalname.split('.')[1];
+    cb(null, `${file.fieldname}-${randomUUID()}.${ext}`);
   }
 });
 

@@ -41,3 +41,4 @@ next-env.d.ts
 **/tmp/uploads/*.png
 **/tmp/uploads/*.jpg
 **/tmp/uploads/*.jpeg
+**/tmp/uploads/*.pdf

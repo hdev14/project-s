@@ -1,5 +1,7 @@
 import AuthModule from '@auth/infra/AuthModule';
+import CatalogModule from '@catalog/infra/CatalogModule';
 import { faker } from '@faker-js/faker/locale/pt_BR';
+import FileStorage from '@global/app/FileStorage';
 import GlobalModule from '@global/infra/GlobalModule';
 import cleanUpDatabase from '@shared/test_utils/cleanUpDatabase';
 import CatalogItemFactory from '@shared/test_utils/factories/CatalogItemFactory';
@@ -7,6 +9,8 @@ import SubscriptionFactory from '@shared/test_utils/factories/SubscriptionFactor
 import SubscriptionPlanFactory from '@shared/test_utils/factories/SubscriptionPlanFactory';
 import UserFactory from '@shared/test_utils/factories/UserFactory';
 import '@shared/test_utils/matchers/toEqualInDatabase';
+import '@shared/test_utils/matchers/toExistsInTable';
+import types from '@shared/types';
 import UserTypes from '@shared/UserTypes';
 import SubscriberModule from '@subscriber/infra/SubscriberModule';
 import { SubscriptionStatus } from '@subscription/domain/Subscription';
@@ -23,6 +27,7 @@ describe('Subscription E2E tests', () => {
       new GlobalModule(),
       new AuthModule(),
       new SubscriberModule(),
+      new CatalogModule(),
       new SubscriptionModule(),
     ]
   });
@@ -901,19 +906,195 @@ describe('Subscription E2E tests', () => {
 
   });
 
-  describe.only('POST: /api/subscriptions/plans', () => {
-    it('test', async () => {
+  describe('POST: /api/subscriptions/plans', () => {
+    const company_id = faker.string.uuid();
+
+    beforeAll(async () => {
+      const storage = application.container.get<FileStorage>(types.FileStorage);
+      await storage.createBucket(`tenant-${company_id}`);
+    });
+
+    it('returns status code 400 if term_file is not a PDF', async () => {
       const file = readFileSync(resolve(__dirname, './fixtures/test.png'));
 
-      await request
+      const response = await request
         .post('/api/subscriptions/plans')
         .set('Content-Type', 'multipart/form-data')
-        .field('item[]', 'test1')
-        .field('recurrence_type', 'asdf')
-        .field('tenant_id', 'tasdfa')
-        .attach('term_file', file, 'test.png')
-        .expect(200);
-    })
+        .field('item_ids[]', faker.string.uuid())
+        .field('recurrence_type', faker.helpers.enumValue(RecurrenceTypes))
+        .field('tenant_id', faker.string.uuid())
+        .attach('term_file', file, 'test.png');
+
+      expect(response.status).toEqual(400);
+      expect(response.body.message).toEqual('O termo precisar ser no formato PDF');
+    });
+
+    it("returns status code 404 if tenant doesn't exist", async () => {
+      const company = await user_factory.createOne({
+        id: company_id,
+        email: faker.internet.email(),
+        document: faker.string.numeric(14),
+        password: faker.string.alphanumeric(11),
+        type: UserTypes.COMPANY,
+      });
+
+      const catalog_item = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        attributes: [{ name: faker.commerce.productAdjective(), description: faker.string.sample() }],
+        description: faker.commerce.productDescription(),
+        is_service: faker.datatype.boolean(),
+        name: faker.commerce.product(),
+        tenant_id: company.id!,
+        picture_url: faker.internet.url(),
+      });
+
+      const file = readFileSync(resolve(__dirname, './fixtures/test.pdf'));
+
+      const response = await request
+        .post('/api/subscriptions/plans')
+        .set('Content-Type', 'multipart/form-data')
+        .field('item_ids[]', catalog_item.id!)
+        .field('recurrence_type', faker.helpers.enumValue(RecurrenceTypes))
+        .field('tenant_id', faker.string.uuid())
+        .attach('term_file', file, 'test.pdf');
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Empresa não encontrada');
+    });
+
+    it("returns status code 404 if some catalog item doesn't exist", async () => {
+      const company = await user_factory.createOne({
+        id: company_id,
+        email: faker.internet.email(),
+        document: faker.string.numeric(14),
+        password: faker.string.alphanumeric(11),
+        type: UserTypes.COMPANY,
+      });
+
+      const catalog_item = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        attributes: [{ name: faker.commerce.productAdjective(), description: faker.string.sample() }],
+        description: faker.commerce.productDescription(),
+        is_service: faker.datatype.boolean(),
+        name: faker.commerce.product(),
+        tenant_id: company.id!,
+        picture_url: faker.internet.url(),
+      });
+
+      const file = readFileSync(resolve(__dirname, './fixtures/test.pdf'));
+
+      const response = await request
+        .post('/api/subscriptions/plans')
+        .set('Content-Type', 'multipart/form-data')
+        .field('item_ids[]', catalog_item.id!)
+        .field('item_ids[]', faker.string.uuid())
+        .field('recurrence_type', faker.helpers.enumValue(RecurrenceTypes))
+        .field('tenant_id', company.id!)
+        .attach('term_file', file, 'test.pdf');
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Item não encontrado');
+    });
+
+    it('creates a subscription plan without term', async () => {
+      const company = await user_factory.createOne({
+        id: company_id,
+        email: faker.internet.email(),
+        document: faker.string.numeric(14),
+        password: faker.string.alphanumeric(11),
+        type: UserTypes.COMPANY,
+      });
+
+      const catalog_item = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float({ fractionDigits: 2 }),
+        attributes: [{ name: faker.commerce.productAdjective(), description: faker.string.sample() }],
+        description: faker.commerce.productDescription(),
+        is_service: faker.datatype.boolean(),
+        name: faker.commerce.product(),
+        tenant_id: company.id!,
+        picture_url: faker.internet.url(),
+      });
+
+      const recurrence_type = faker.helpers.enumValue(RecurrenceTypes);
+
+      const response = await request
+        .post('/api/subscriptions/plans')
+        .set('Content-Type', 'multipart/form-data')
+        .field('item_ids[]', catalog_item.id!)
+        .field('recurrence_type', recurrence_type)
+        .field('tenant_id', company.id!);
+
+      expect(response.status).toEqual(201);
+      expect(response.body).toHaveProperty('id');
+      expect(response.body.items[0]).toEqual({ name: catalog_item.name, id: catalog_item.id });
+      expect(response.body.amount).toEqual(catalog_item.amount);
+      expect(response.body.recurrence_type).toEqual(recurrence_type);
+      expect(response.body.tenant_id).toEqual(company.id);
+      expect(response.body.term_url).toBeUndefined();
+      expect({
+        amount: catalog_item.amount,
+        tenant_id: company.id,
+        term_url: null,
+        recurrence_type,
+      }).toEqualInDatabase('subscription_plans', response.body.id);
+      expect({
+        subscription_plan_id: response.body.id,
+        item_id: catalog_item.id
+      }).toExistsInTable('subscription_plan_items');
+    });
+
+    it('creates a subscription plan with a term', async () => {
+      const company = await user_factory.createOne({
+        id: company_id,
+        email: faker.internet.email(),
+        document: faker.string.numeric(14),
+        password: faker.string.alphanumeric(11),
+        type: UserTypes.COMPANY,
+      });
+
+      const catalog_item = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float({ fractionDigits: 2, min: 10, max: 1000 }),
+        attributes: [{ name: faker.commerce.productAdjective(), description: faker.string.sample() }],
+        description: faker.commerce.productDescription(),
+        is_service: faker.datatype.boolean(),
+        name: faker.commerce.product(),
+        tenant_id: company.id!,
+        picture_url: faker.internet.url(),
+      });
+
+      const recurrence_type = faker.helpers.enumValue(RecurrenceTypes);
+      const file = readFileSync(resolve(__dirname, './fixtures/test.pdf'));
+
+      const response = await request
+        .post('/api/subscriptions/plans')
+        .set('Content-Type', 'multipart/form-data')
+        .field('item_ids[]', catalog_item.id!)
+        .field('recurrence_type', recurrence_type)
+        .field('tenant_id', company.id!)
+        .attach('term_file', file, 'test.pdf');
+
+      expect(response.status).toEqual(201);
+      expect(response.body).toHaveProperty('id');
+      expect(response.body.items[0]).toEqual({ name: catalog_item.name, id: catalog_item.id });
+      expect(response.body.amount).toEqual(catalog_item.amount);
+      expect(response.body.recurrence_type).toEqual(recurrence_type);
+      expect(response.body.tenant_id).toEqual(company.id);
+      expect(response.body.term_url).toEqual(`http://localhost:9000/tenant-${company.id}/subscription_terms/term_${response.body.id}.pdf`);
+      expect({
+        amount: catalog_item.amount,
+        tenant_id: company.id,
+        term_url: response.body.term_url,
+        recurrence_type,
+      }).toEqualInDatabase('subscription_plans', response.body.id);
+      expect({
+        subscription_plan_id: response.body.id,
+        item_id: catalog_item.id
+      }).toExistsInTable('subscription_plan_items');
+    });
   });
 
   describe('GET: /api/subscriptions/plans', () => {

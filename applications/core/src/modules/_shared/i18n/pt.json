@@ -37,5 +37,5 @@
   "subscription_canceled": "Assinatura já está cancelada",
   "subscription_pending": "Assinatura pendente",
   "subscription_paused": "Assinatura já está pausada",
-  "validation.pdf": "O termo precisar ser no formato PDF"
+  "validation.pdf": "O arquivo precisa ser um PDF"
 }

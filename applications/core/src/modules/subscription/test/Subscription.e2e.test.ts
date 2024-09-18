@@ -926,7 +926,7 @@ describe('Subscription E2E tests', () => {
         .attach('term_file', file, 'test.png');
 
       expect(response.status).toEqual(400);
-      expect(response.body.message).toEqual('O termo precisar ser no formato PDF');
+      expect(response.body.message).toEqual('O arquivo precisa ser um PDF');
     });
 
     it("returns status code 404 if tenant doesn't exist", async () => {

@@ -154,7 +154,6 @@ describe('MercadoPago unit tests', () => {
         status: faker.helpers.enumValue(PaymentStatus),
         subscription_id: faker.string.uuid(),
         tax: faker.number.float(),
-        logs: [],
         customer: {
           id: faker.string.uuid(),
           email: faker.internet.email(),
@@ -163,13 +162,14 @@ describe('MercadoPago unit tests', () => {
         }
       });
 
-      const result = await mercado_pago.makeTransaction(payment);
+      const payment_log = await mercado_pago.makeTransaction(payment);
 
       const payment_obj = payment.toObject();
 
-      expect(result).toBeInstanceOf(PaymentLog);
-      expect(result.toObject().external_id).toEqual(mercado_pago_fixtures.payment_response.id);
-      expect(result.toObject().payload).toEqual(JSON.stringify(mercado_pago_fixtures.payment_response));
+      expect(payment_log).toBeInstanceOf(PaymentLog);
+      expect(payment_log.toObject().external_id).toEqual(mercado_pago_fixtures.payment_response.id);
+      expect(payment_log.toObject().payment_id).toEqual(payment_obj.id);
+      expect(payment_log.toObject().payload).toEqual(JSON.stringify(mercado_pago_fixtures.payment_response));
       expect(fetch_spy).toHaveBeenLastCalledWith(
         `${mercado_pago_base_url}/v1/payments`,
         {
@@ -218,7 +218,6 @@ describe('MercadoPago unit tests', () => {
             status: faker.helpers.enumValue(PaymentStatus),
             subscription_id: faker.string.uuid(),
             tax: faker.number.float(),
-            logs: [],
             customer: {
               id: faker.string.uuid(),
               email: faker.internet.email(),

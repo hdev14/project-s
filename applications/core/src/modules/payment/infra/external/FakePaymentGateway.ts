@@ -16,6 +16,7 @@ export default class FakePaymentGateway implements PaymentGateway {
     return Promise.resolve(
       new PaymentLog({
         external_id: randomUUID(),
+        payment_id: payment.id,
         payload: JSON.stringify({}),
       })
     );

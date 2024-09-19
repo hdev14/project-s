@@ -132,6 +132,7 @@ export default class MercadoPago implements PaymentGateway {
 
     return new PaymentLog({
       external_id: data.id,
+      payment_id: payment.id,
       payload: JSON.stringify(data),
     });
   }

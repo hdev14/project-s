@@ -1,18 +1,21 @@
-import Aggregate, { RequiredId } from "@shared/ddd/Aggregate";
+import Aggregate, { AggregateRoot, RequiredId } from "@shared/ddd/Aggregate";
 
 export type PaymentLogObject = {
   id?: string;
   external_id: string;
+  payment_id: string;
   payload: string; // JSON
 }
 
-export default class PaymentLog extends Aggregate<PaymentLogObject> {
+export default class PaymentLog extends Aggregate<PaymentLogObject> implements AggregateRoot {
   #external_id: string;
+  #payment_id: string;
   #payload: string;
 
   constructor(obj: PaymentLogObject) {
     super(obj.id);
     this.#external_id = obj.external_id;
+    this.#payment_id = obj.payment_id;
     this.#payload = obj.payload;
   }
 
@@ -20,6 +23,7 @@ export default class PaymentLog extends Aggregate<PaymentLogObject> {
     return {
       id: this.id,
       external_id: this.#external_id,
+      payment_id: this.#payment_id,
       payload: this.#payload
     }
   }

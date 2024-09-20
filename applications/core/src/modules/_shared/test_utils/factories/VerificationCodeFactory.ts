@@ -1,9 +1,9 @@
-import { VerificationCodeObject } from "@auth/domain/VerificationCode";
+import { VerificationCodeProps } from "@auth/domain/VerificationCode";
 import DbUtils from "@shared/utils/DbUtils";
 import Factory from "./Factory";
 
-export default class VerificationCodeFactory implements Factory<VerificationCodeObject> {
-  async createOne(item: VerificationCodeObject): Promise<VerificationCodeObject> {
+export default class VerificationCodeFactory implements Factory<VerificationCodeProps> {
+  async createOne(item: VerificationCodeProps): Promise<VerificationCodeProps> {
     const values = Object.values(item);
 
     await globalThis.db.query(
@@ -14,7 +14,7 @@ export default class VerificationCodeFactory implements Factory<VerificationCode
     return item;
   }
 
-  async createMany(items: VerificationCodeObject[]): Promise<VerificationCodeObject[]> {
+  async createMany(items: VerificationCodeProps[]): Promise<VerificationCodeProps[]> {
     for (let idx = 0; idx < items.length; idx++) {
       await this.createOne(items[idx]);
     }

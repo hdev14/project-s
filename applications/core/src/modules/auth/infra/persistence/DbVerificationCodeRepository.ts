@@ -26,6 +26,8 @@ export default class DbVerificationCodeRepository implements VerificationCodeRep
       code: result.rows[0].code,
       user_id: result.rows[0].user_id,
       expired_at: result.rows[0].expired_at,
+      created_at: result.rows[0].created_at,
+      updated_at: result.rows[0].updated_at,
     });
   }
 
@@ -40,7 +42,7 @@ export default class DbVerificationCodeRepository implements VerificationCodeRep
   }
 
   async updateVerificationCode(verification_code: VerificationCode): Promise<void> {
-    const verification_code_obj = verification_code.toObject();
+    const verification_code_obj = Object.assign({}, verification_code.toObject(), { created_at: undefined });
 
     const query = `UPDATE verification_codes SET ${DbUtils.setColumns(verification_code_obj)} WHERE id = $1`;
 

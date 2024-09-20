@@ -1,5 +1,5 @@
 import CatalogRepository, { CatalogItemsFilter } from "@catalog/app/CatalogRepository";
-import CatalogItem, { CatalogItemObject } from "@catalog/domain/CatalogItem";
+import CatalogItem, { CatalogItemProps } from "@catalog/domain/CatalogItem";
 import Database from "@shared/Database";
 import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
@@ -26,10 +26,12 @@ export default class DbCatalogRepository implements CatalogRepository {
       attributes: result.rows[0].attributes,
       is_service: result.rows[0].is_service,
       tenant_id: result.rows[0].tenant_id,
+      created_at: result.rows[0].created_at,
+      updated_at: result.rows[0].updated_at,
     });
   }
 
-  async getCatalogItems(filter?: CatalogItemsFilter): Promise<PaginatedResult<CatalogItemObject>> {
+  async getCatalogItems(filter?: CatalogItemsFilter): Promise<PaginatedResult<CatalogItemProps>> {
     const { rows, page_result } = await this.selectCatalogItems(filter);
 
     const results = [];
@@ -45,6 +47,8 @@ export default class DbCatalogRepository implements CatalogRepository {
         attributes: row.attributes,
         picture_url: row.picture_url,
         tenant_id: row.tenant_id,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
       });
     }
 
@@ -99,7 +103,7 @@ export default class DbCatalogRepository implements CatalogRepository {
 
   async updateCatalogItem(catalog_item: CatalogItem): Promise<void> {
     const catalog_item_obj = catalog_item.toObject();
-    const data = Object.assign(catalog_item_obj, { attributes: JSON.stringify(catalog_item_obj.attributes) });
+    const data = Object.assign({}, catalog_item_obj, { attributes: JSON.stringify(catalog_item_obj.attributes), created_at: undefined });
     const query = `UPDATE catalog_items SET ${DbUtils.setColumns(data)} WHERE id=$1`;
     const values = DbUtils.sanitizeValues(Object.values(data));
 

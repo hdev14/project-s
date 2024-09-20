@@ -1,4 +1,4 @@
-import Aggregate, { AggregateRoot, RequiredId } from "@shared/ddd/Aggregate";
+import Aggregate, { AggregateProps, AggregateRoot, RequiredProps } from "@shared/ddd/Aggregate";
 import DomainError from "@shared/errors/DomainError";
 
 export enum AccessPlanTypes {
@@ -6,26 +6,25 @@ export enum AccessPlanTypes {
   ANNUALLY = 'annually'
 }
 
-export type AccessPlanObject = {
-  id?: string;
+export type AccessPlanProps = AggregateProps<{
   amount: number;
   type: AccessPlanTypes;
   description?: string;
   active: boolean;
-};
+}>;
 
-export default class AccessPlan extends Aggregate<AccessPlanObject> implements AggregateRoot {
+export default class AccessPlan extends Aggregate<AccessPlanProps> implements AggregateRoot {
   #amount: number = 0;
   #type: AccessPlanTypes;
   #description?: string;
   #active: boolean;
 
-  constructor(obj: AccessPlanObject) {
-    super(obj.id);
-    this.amount = obj.amount;
-    this.#type = obj.type;
-    this.#description = obj.description;
-    this.#active = obj.active;
+  constructor(props: AccessPlanProps) {
+    super(props);
+    this.amount = props.amount;
+    this.#type = props.type;
+    this.#description = props.description;
+    this.#active = props.active;
   }
 
   set amount(value: number) {
@@ -55,13 +54,15 @@ export default class AccessPlan extends Aggregate<AccessPlanObject> implements A
     return this.#active
   }
 
-  toObject(): RequiredId<AccessPlanObject> {
+  toObject(): RequiredProps<AccessPlanProps> {
     return {
       id: this.id,
       amount: this.#amount,
       type: this.#type,
       description: this.#description,
       active: this.#active,
+      created_at: this.created_at,
+      updated_at: this.updated_at,
     };
   }
 }

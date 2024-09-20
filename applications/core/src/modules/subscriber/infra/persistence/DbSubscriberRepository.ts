@@ -2,8 +2,8 @@ import Database from "@shared/Database";
 import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
 import SubscriberRepository, { SubscribersFilter } from "@subscriber/app/SubscriberRepository";
-import Subscriber, { SubscriberObject } from "@subscriber/domain/Subscriber";
-import { SubscriptionObject } from "@subscriber/domain/Subscription";
+import Subscriber, { SubscriberProps } from "@subscriber/domain/Subscriber";
+import { SubscriptionProps } from "@subscriber/domain/Subscription";
 import { injectable } from "inversify";
 import { Pool } from "pg";
 import 'reflect-metadata';
@@ -23,6 +23,8 @@ export default class DbSubscriberRepository implements SubscriberRepository {
     'complement',
     'payment_type',
     'credit_card_external_id',
+    'created_at',
+    'updated_at',
   ];
 
   constructor() {
@@ -51,6 +53,8 @@ export default class DbSubscriberRepository implements SubscriberRepository {
       email: subscriber_row.email,
       document: subscriber_row.document,
       phone_number: subscriber_row.phone_number,
+      created_at: subscriber_row.created_at,
+      updated_at: subscriber_row.updated_at,
       address: {
         street: subscriber_row.street,
         district: subscriber_row.district,
@@ -66,7 +70,7 @@ export default class DbSubscriberRepository implements SubscriberRepository {
     });
   }
 
-  async getSubscribers(filter?: SubscribersFilter): Promise<PaginatedResult<SubscriberObject>> {
+  async getSubscribers(filter?: SubscribersFilter): Promise<PaginatedResult<SubscriberProps>> {
     const { rows, page_result } = await this.selectSubscribers(filter);
 
     const subscriber_ids = [];
@@ -90,6 +94,8 @@ export default class DbSubscriberRepository implements SubscriberRepository {
         email: subscriber_row.email,
         document: subscriber_row.document,
         phone_number: subscriber_row.phone_number,
+        created_at: subscriber_row.created_at,
+        updated_at: subscriber_row.updated_at,
         address: {
           street: subscriber_row.street,
           district: subscriber_row.district,
@@ -109,7 +115,7 @@ export default class DbSubscriberRepository implements SubscriberRepository {
   }
 
   private mapSubscriptions(subscription_rows: any[], subscriber_id: string) {
-    const subscriptions: SubscriptionObject[] = [];
+    const subscriptions: SubscriptionProps[] = [];
 
     for (let h = 0; h < subscription_rows.length; h++) {
       const subscription_row = subscription_rows[h];
@@ -117,6 +123,8 @@ export default class DbSubscriberRepository implements SubscriberRepository {
         subscriptions.push({
           id: subscription_row.id,
           started_at: subscription_row.started_at,
+          created_at: subscription_row.created_at,
+          updated_at: subscription_row.updated_at,
         });
       }
     }
@@ -152,8 +160,8 @@ export default class DbSubscriberRepository implements SubscriberRepository {
   }
 
   async updateSubscriber(subscriber: Subscriber): Promise<void> {
-    const { id, document, email, phone_number, address, payment_method } = subscriber.toObject();
-    const data = Object.assign({}, { id, document, email, phone_number }, address, payment_method);
+    const { id, document, email, phone_number, address, payment_method, updated_at } = subscriber.toObject();
+    const data = Object.assign({}, { id, document, email, phone_number, updated_at }, address, payment_method);
 
     await this.#db.query(
       `UPDATE users SET ${DbUtils.setColumns(data)} WHERE type='customer' AND id=$1`,

@@ -1,4 +1,4 @@
-import { UserObject } from "@auth/domain/User";
+import { UserProps } from "@auth/domain/User";
 import { interfaces } from "inversify-express-utils";
 
 export enum Policies {
@@ -19,9 +19,9 @@ export enum Policies {
 }
 
 export class Principal implements interfaces.Principal {
-  details: UserObject | null;
+  details: UserProps | null;
 
-  constructor(user: UserObject | null) {
+  constructor(user: UserProps | null) {
     this.details = user;
   }
 

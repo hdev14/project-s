@@ -67,7 +67,7 @@ describe('DbUserRepository unit tests', () => {
       expect(results).toHaveLength(2);
       expect(page_result).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id'
+        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type,u.created_at,u.updated_at FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id'
       );
     });
 
@@ -125,7 +125,7 @@ describe('DbUserRepository unit tests', () => {
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
+        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type,u.created_at,u.updated_at FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
         [page_options.limit, 0],
       );
     });
@@ -184,7 +184,7 @@ describe('DbUserRepository unit tests', () => {
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
+        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type,u.created_at,u.updated_at FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id LIMIT $1 OFFSET $2',
         [page_options.limit, 1],
       );
     });
@@ -236,7 +236,7 @@ describe('DbUserRepository unit tests', () => {
       expect(results).toHaveLength(2);
       expect(page_result).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.tenant_id=$1',
+        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type,u.created_at,u.updated_at FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.tenant_id=$1',
         [tenant_id]
       );
     });
@@ -296,7 +296,7 @@ describe('DbUserRepository unit tests', () => {
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.tenant_id=$1 LIMIT $2 OFFSET $3',
+        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type,u.created_at,u.updated_at FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.tenant_id=$1 LIMIT $2 OFFSET $3',
         [tenant_id, page_options.limit, 1],
       );
     });
@@ -335,7 +335,7 @@ describe('DbUserRepository unit tests', () => {
       expect(user).toBeInstanceOf(User);
       expect(user?.toObject().policies).toHaveLength(2);
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.id = $1',
+        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type,u.created_at,u.updated_at FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.id = $1',
         [data.id]
       );
     });
@@ -350,7 +350,7 @@ describe('DbUserRepository unit tests', () => {
 
       expect(user).toBeNull()
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.id = $1',
+        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type,u.created_at,u.updated_at FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.id = $1',
         [user_id]
       );
     });
@@ -388,7 +388,7 @@ describe('DbUserRepository unit tests', () => {
       expect(user).toBeInstanceOf(User);
       expect(user?.toObject().policies).toHaveLength(2);
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE email = $1',
+        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type,u.created_at,u.updated_at FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE email = $1',
         [data.email]
       );
     });
@@ -403,7 +403,7 @@ describe('DbUserRepository unit tests', () => {
 
       expect(user).toBeNull()
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE email = $1',
+        'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type,u.created_at,u.updated_at FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE email = $1',
         [user_email]
       );
     });
@@ -425,7 +425,7 @@ describe('DbUserRepository unit tests', () => {
         .mockResolvedValueOnce({})
         .mockResolvedValueOnce({ rows });
 
-      const user_obj = {
+      const user_props = {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
@@ -433,17 +433,28 @@ describe('DbUserRepository unit tests', () => {
         access_plan_id: faker.string.uuid(),
         tenant_id: faker.string.uuid(),
         type: faker.helpers.enumValue(UserTypes),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
-      const user = new User(user_obj);
+      const user = new User(user_props);
 
       await repository.createUser(user);
 
       expect(query_mock).toHaveBeenCalledTimes(3);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'INSERT INTO users (id,email,password,access_plan_id,tenant_id,type) VALUES ($1,$2,$3,$4,$5,$6)',
-        [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id, user_obj.tenant_id, user_obj.type],
+        'INSERT INTO users (id,email,password,access_plan_id,tenant_id,type,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)',
+        [
+          user_props.id,
+          user_props.email,
+          user_props.password,
+          user_props.access_plan_id,
+          user_props.tenant_id,
+          user_props.type,
+          user_props.created_at,
+          user_props.updated_at,
+        ],
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
@@ -453,7 +464,7 @@ describe('DbUserRepository unit tests', () => {
       expect(query_mock).toHaveBeenNthCalledWith(
         3,
         'INSERT INTO user_policies (user_id, policy_id) VALUES ($1,$2), ($1,$3)',
-        [user_obj.id, rows[0].id, rows[1].id],
+        [user_props.id, rows[0].id, rows[1].id],
       );
     });
 
@@ -461,23 +472,33 @@ describe('DbUserRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const user_obj = {
+      const user_props = {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         policies: [],
         access_plan_id: faker.string.uuid(),
         type: faker.helpers.enumValue(UserTypes),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
-      const user = new User(user_obj);
+      const user = new User(user_props);
 
       await repository.createUser(user);
 
       expect(query_mock).toHaveBeenCalledTimes(1);
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO users (id,email,password,access_plan_id,type) VALUES ($1,$2,$3,$4,$5)',
-        [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id, user_obj.type],
+        'INSERT INTO users (id,email,password,access_plan_id,type,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+        [
+          user_props.id,
+          user_props.email,
+          user_props.password,
+          user_props.access_plan_id,
+          user_props.type,
+          user_props.created_at,
+          user_props.updated_at,
+        ],
       );
     });
 
@@ -485,23 +506,33 @@ describe('DbUserRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const user_obj = {
+      const user_props = {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         policies: [],
         tenant_id: faker.string.uuid(),
         type: faker.helpers.enumValue(UserTypes),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
-      const user = new User(user_obj);
+      const user = new User(user_props);
 
       await repository.createUser(user);
 
       expect(query_mock).toHaveBeenCalledTimes(1);
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO users (id,email,password,tenant_id,type) VALUES ($1,$2,$3,$4,$5)',
-        [user_obj.id, user_obj.email, user_obj.password, user_obj.tenant_id, user_obj.type],
+        'INSERT INTO users (id,email,password,tenant_id,type,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+        [
+          user_props.id,
+          user_props.email,
+          user_props.password,
+          user_props.tenant_id,
+          user_props.type,
+          user_props.created_at,
+          user_props.updated_at,
+        ],
       );
     });
 
@@ -509,23 +540,33 @@ describe('DbUserRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const user_obj = {
+      const user_props = {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         policies: [],
         access_plan_id: faker.string.uuid(),
         type: faker.helpers.enumValue(UserTypes),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
-      const user = new User(user_obj);
+      const user = new User(user_props);
 
       await repository.createUser(user);
 
       expect(query_mock).toHaveBeenCalledTimes(1);
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO users (id,email,password,access_plan_id,type) VALUES ($1,$2,$3,$4,$5)',
-        [user_obj.id, user_obj.email, user_obj.password, user_obj.access_plan_id, user_obj.type],
+        'INSERT INTO users (id,email,password,access_plan_id,type,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+        [
+          user_props.id,
+          user_props.email,
+          user_props.password,
+          user_props.access_plan_id,
+          user_props.type,
+          user_props.created_at,
+          user_props.updated_at,
+        ],
       );
     });
 
@@ -533,22 +574,31 @@ describe('DbUserRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const user_obj = {
+      const user_props = {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         policies: [],
         type: faker.helpers.enumValue(UserTypes),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
-      const user = new User(user_obj);
+      const user = new User(user_props);
 
       await repository.createUser(user);
 
       expect(query_mock).toHaveBeenCalledTimes(1);
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO users (id,email,password,type) VALUES ($1,$2,$3,$4)',
-        [user_obj.id, user_obj.email, user_obj.password, user_obj.type],
+        'INSERT INTO users (id,email,password,type,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6)',
+        [
+          user_props.id,
+          user_props.email,
+          user_props.password,
+          user_props.type,
+          user_props.created_at,
+          user_props.updated_at,
+        ],
       );
     });
   });
@@ -558,27 +608,30 @@ describe('DbUserRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const user_obj = {
+      const user_props = {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         access_plan_id: faker.string.uuid(),
         policies: [],
         type: faker.helpers.enumValue(UserTypes),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
-      const user = new User(user_obj);
+      const user = new User(user_props);
 
       await repository.updateUser(user);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'UPDATE users SET email=$2,password=$3,access_plan_id=$4,type=$5 WHERE id = $1',
+        'UPDATE users SET email=$2,password=$3,access_plan_id=$4,type=$5,updated_at=$6 WHERE id = $1',
         [
-          user_obj.id,
-          user_obj.email,
-          user_obj.password,
-          user_obj.access_plan_id,
-          user_obj.type,
+          user_props.id,
+          user_props.email,
+          user_props.password,
+          user_props.access_plan_id,
+          user_props.type,
+          user_props.updated_at,
         ],
       );
     });
@@ -587,21 +640,29 @@ describe('DbUserRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const user_obj = {
+      const user_props = {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         policies: [],
         type: faker.helpers.enumValue(UserTypes),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
-      const user = new User(user_obj);
+      const user = new User(user_props);
 
       await repository.updateUser(user);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'UPDATE users SET email=$2,password=$3,type=$4 WHERE id = $1',
-        [user_obj.id, user_obj.email, user_obj.password, user_obj.type],
+        'UPDATE users SET email=$2,password=$3,type=$4,updated_at=$5 WHERE id = $1',
+        [
+          user_props.id,
+          user_props.email,
+          user_props.password,
+          user_props.type,
+          user_props.updated_at,
+        ],
       );
     });
 
@@ -621,28 +682,29 @@ describe('DbUserRepository unit tests', () => {
         .mockResolvedValueOnce({ rows })
         .mockResolvedValueOnce({});
 
-
-      const user_obj = {
+      const user_props = {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.string.alphanumeric(),
         policies,
         type: faker.helpers.enumValue(UserTypes),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
-      const user = new User(user_obj);
+      const user = new User(user_props);
 
       await repository.updateUser(user);
 
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'UPDATE users SET email=$2,password=$3,type=$4 WHERE id = $1',
-        [user_obj.id, user_obj.email, user_obj.password, user_obj.type],
+        'UPDATE users SET email=$2,password=$3,type=$4,updated_at=$5 WHERE id = $1',
+        [user_props.id, user_props.email, user_props.password, user_props.type, user_props.updated_at],
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
         'DELETE FROM user_policies WHERE user_id = $1',
-        [user_obj.id],
+        [user_props.id],
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         3,
@@ -652,7 +714,7 @@ describe('DbUserRepository unit tests', () => {
       expect(query_mock).toHaveBeenNthCalledWith(
         4,
         'INSERT INTO user_policies (user_id, policy_id) VALUES ($1,$2), ($1,$3)',
-        [user_obj.id, rows[0].id, rows[1].id],
+        [user_props.id, rows[0].id, rows[1].id],
       );
     });
   });

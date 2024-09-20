@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import AuthTokenManager from "@auth/app/AuthTokenManager";
-import { UserObject } from "@auth/domain/User";
+import { UserProps } from "@auth/domain/User";
 import { NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { interfaces } from "inversify-express-utils";
@@ -23,7 +23,7 @@ export default class AuthProvider implements interfaces.AuthProvider {
       return Promise.resolve(new Principal(null));
     }
 
-    const payload = this.auth_token_manager.verifyToken(token) as UserObject;
+    const payload = this.auth_token_manager.verifyToken(token) as UserProps;
 
     return Promise.resolve(new Principal(payload));
   }

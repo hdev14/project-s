@@ -1,8 +1,8 @@
 import Bank, { BankValue } from "@company/domain/Bank";
 import Brand, { BrandValue } from "@company/domain/Brand";
-import Commission, { CommissionObject, TaxTypes } from "@company/domain/Commission";
-import Employee, { EmployeeObject } from "@company/domain/Employee";
-import ServiceLog, { ServiceLogObject } from "@company/domain/ServiceLog";
+import Commission, { CommissionProps, TaxTypes } from "@company/domain/Commission";
+import Employee, { EmployeeProps } from "@company/domain/Employee";
+import ServiceLog, { ServiceLogProps } from "@company/domain/ServiceLog";
 import EmailService from "@global/app/EmailService";
 import Address, { AddressValue } from "@shared/Address";
 import Mediator from "@shared/Mediator";
@@ -19,7 +19,7 @@ import Either from "@shared/utils/Either";
 import { PageOptions, PageResult } from "@shared/utils/Pagination";
 import { inject, injectable } from "inversify";
 import 'reflect-metadata';
-import Company, { CompanyObject } from "../domain/Company";
+import Company, { CompanyProps } from "../domain/Company";
 import CommissionRepository from "./CommissionRepository";
 import CompanyRepository from "./CompanyRepository";
 import ServiceLogRepository from "./ServiceLogRepository";
@@ -38,7 +38,7 @@ export type GetCompanisParams = {
 };
 
 export type GetCompaniesResult = {
-  results: Array<CompanyObject>;
+  results: Array<CompanyProps>;
   page_result?: PageResult;
 };
 
@@ -84,7 +84,7 @@ export type GetServiceLogsParams = {
 };
 
 export type GetServiceLogsResult = {
-  results: Array<ServiceLogObject>;
+  results: Array<ServiceLogProps>;
   page_result?: PageResult;
 };
 
@@ -128,7 +128,7 @@ export default class CompanyService {
   }
 
   // TODO: create a bucket for the company
-  async createCompany(params: CreateCompanyParams): Promise<Either<CompanyObject>> {
+  async createCompany(params: CreateCompanyParams): Promise<Either<CompanyProps>> {
     try {
       const exists = await this.#company_repository.documentExists(params.document);
 
@@ -185,7 +185,7 @@ export default class CompanyService {
     return Either.right(await this.#company_repository.getCompanies(params));
   }
 
-  async getCompany(params: GetCompanyParams): Promise<Either<CompanyObject>> {
+  async getCompany(params: GetCompanyParams): Promise<Either<CompanyProps>> {
     const company = await this.#company_repository.getCompanyById(params.company_id);
 
     if (!company) {
@@ -262,7 +262,7 @@ export default class CompanyService {
     return Either.right();
   }
 
-  async createEmployee(params: CreateEmployeeParams): Promise<Either<EmployeeObject>> {
+  async createEmployee(params: CreateEmployeeParams): Promise<Either<EmployeeProps>> {
     if (!await this.#mediator.send<boolean>(new UserExistsCommand(params.tenant_id))) {
       return Either.left(new NotFoundError('notfound.company'));
     }
@@ -307,7 +307,7 @@ export default class CompanyService {
     return Either.right();
   }
 
-  async createServiceLog(params: CreateServiceLogParams): Promise<Either<ServiceLogObject>> {
+  async createServiceLog(params: CreateServiceLogParams): Promise<Either<ServiceLogProps>> {
     try {
       const has_employee = await this.#mediator.send<boolean>(new UserExistsCommand(params.employee_id));
 
@@ -349,7 +349,7 @@ export default class CompanyService {
     return Either.right(await this.#service_log_repository.getServiceLogs(params));
   }
 
-  async createCommission(params: CreateCommissionParams): Promise<Either<CommissionObject>> {
+  async createCommission(params: CreateCommissionParams): Promise<Either<CommissionProps>> {
     try {
       await this.#mediator.send(new GetCatalogItemCommand(params.catalog_item_id));
 
@@ -382,7 +382,7 @@ export default class CompanyService {
     return Either.right();
   }
 
-  async getCommission(params: GetCommissionsParams): Promise<Either<CommissionObject>> {
+  async getCommission(params: GetCommissionsParams): Promise<Either<CommissionProps>> {
     const commission = await this.#commission_repository.getCommissionById(params.commission_id);
 
     if (!commission) {

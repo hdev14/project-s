@@ -1,5 +1,5 @@
 import { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
-import SubscriptionPlan, { SubscriptionPlanObject } from "@subscription/domain/SubscriptionPlan";
+import SubscriptionPlan, { SubscriptionPlanProps } from "@subscription/domain/SubscriptionPlan";
 
 export type SubscriptionPlansFilter = {
   tenant_id: string;
@@ -7,7 +7,7 @@ export type SubscriptionPlansFilter = {
 };
 
 export interface SubscriptionPlanRepository {
-  getSubscriptionPlans(filter: SubscriptionPlansFilter): Promise<PaginatedResult<SubscriptionPlanObject>>;
+  getSubscriptionPlans(filter: SubscriptionPlansFilter): Promise<PaginatedResult<SubscriptionPlanProps>>;
   getSubscriptionPlanById(id: string): Promise<SubscriptionPlan | null>;
   createSubscriptionPlan(subscription_plan: SubscriptionPlan): Promise<void>;
 }

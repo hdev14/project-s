@@ -17,7 +17,7 @@ describe('GetSubscriberCommandHandler unit tests', () => {
   });
 
   it("returns a subscriber", async () => {
-    const subscriber_obj = {
+    const subscriber_props = {
       id: faker.string.uuid(),
       document: faker.string.numeric(11),
       address: {
@@ -37,12 +37,12 @@ describe('GetSubscriberCommandHandler unit tests', () => {
     };
 
     subscriber_repository_mock.getSubcriberById.mockResolvedValueOnce(
-      new Subscriber(subscriber_obj),
+      new Subscriber(subscriber_props),
     );
 
     const result = await handler.handle(new GetSubscriberCommand(faker.string.uuid()));
 
     expect(result).not.toBeInstanceOf(Subscriber);
-    expect(result).toEqual(subscriber_obj);
+    expect(result).toEqual(subscriber_props);
   });
 });

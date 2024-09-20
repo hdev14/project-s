@@ -1,5 +1,5 @@
 import { AttributeValue } from "@catalog/domain/Attribute";
-import CatalogItem, { CatalogItemObject } from "@catalog/domain/CatalogItem";
+import CatalogItem, { CatalogItemProps } from "@catalog/domain/CatalogItem";
 import Mediator from "@shared/Mediator";
 import UserExistsCommand from "@shared/commands/UserExistsCommand";
 import DomainError from "@shared/errors/DomainError";
@@ -18,7 +18,7 @@ export type GetCatalogItemsParams = {
 };
 
 export type GetCatalogItemsResult = {
-  results: Array<CatalogItemObject>;
+  results: Array<CatalogItemProps>;
   page_result?: PageResult;
 };
 
@@ -53,7 +53,7 @@ export default class CatalogService {
     return Either.right(await this.#catalog_repository.getCatalogItems(params));
   }
 
-  async createCatalogItem(params: CreateCatalogItemParams): Promise<Either<CatalogItemObject>> {
+  async createCatalogItem(params: CreateCatalogItemParams): Promise<Either<CatalogItemProps>> {
     try {
       const exists = await this.#mediator.send<boolean>(new UserExistsCommand(params.tenant_id));
 

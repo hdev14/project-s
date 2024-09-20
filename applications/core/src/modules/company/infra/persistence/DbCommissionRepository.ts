@@ -27,6 +27,8 @@ export default class DbCommissionRepository implements CommissionRepository {
       tax: rows[0].tax,
       tax_type: rows[0].tax_type,
       tenant_id: rows[0].tenant_id,
+      created_at: rows[0].created_at,
+      updated_at: rows[0].updated_at,
     });
   }
 
@@ -40,7 +42,7 @@ export default class DbCommissionRepository implements CommissionRepository {
   }
 
   async updateCommission(commission: Commission): Promise<void> {
-    const commission_obj = commission.toObject();
+    const commission_obj = Object.assign({}, commission.toObject(), { created_at: undefined });
 
     await this.#db.query(
       `UPDATE commissions SET ${DbUtils.setColumns(commission_obj)} WHERE id = $1`,
@@ -61,6 +63,8 @@ export default class DbCommissionRepository implements CommissionRepository {
       tax: rows[0].tax,
       tax_type: rows[0].tax_type,
       tenant_id: rows[0].tenant_id,
+      created_at: rows[0].created_at,
+      updated_at: rows[0].updated_at,
     });
   }
 }

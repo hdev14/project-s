@@ -1,25 +1,24 @@
-import Aggregate, { RequiredId } from "@shared/ddd/Aggregate";
+import Aggregate, { AggregateProps, RequiredProps } from "@shared/ddd/Aggregate";
 
-export type EmployeeObject = {
-  id?: string;
+export type EmployeeProps = AggregateProps & {
   name: string;
   document: string;
   email: string;
   deactivated_at?: Date;
 };
 
-export default class Employee extends Aggregate<EmployeeObject> {
+export default class Employee extends Aggregate<EmployeeProps> {
   #name: string;
   #document: string;
   #email: string;
   #deactivated_at?: Date;
 
-  constructor(obj: EmployeeObject) {
-    super(obj.id);
-    this.#name = obj.name;
-    this.#document = obj.document;
-    this.#email = obj.email;
-    this.#deactivated_at = obj.deactivated_at;
+  constructor(props: EmployeeProps) {
+    super(props);
+    this.#name = props.name;
+    this.#document = props.document;
+    this.#email = props.email;
+    this.#deactivated_at = props.deactivated_at;
   }
 
   set name(value: string) {
@@ -38,13 +37,15 @@ export default class Employee extends Aggregate<EmployeeObject> {
     this.#deactivated_at = new Date();
   }
 
-  toObject(): RequiredId<EmployeeObject> {
+  toObject(): RequiredProps<EmployeeProps> {
     return {
       id: this.id,
       name: this.#name,
       document: this.#document,
       email: this.#email,
       deactivated_at: this.#deactivated_at,
+      created_at: this.created_at,
+      updated_at: this.updated_at,
     };
   }
 }

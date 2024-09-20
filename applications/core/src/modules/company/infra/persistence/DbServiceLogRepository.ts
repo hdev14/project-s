@@ -5,7 +5,7 @@ import { injectable } from "inversify";
 import { Pool } from "pg";
 import 'reflect-metadata';
 import ServiceLogRepository, { ServiceLogsFilter } from "../../app/ServiceLogRepository";
-import ServiceLog, { ServiceLogObject } from "../../domain/ServiceLog";
+import ServiceLog, { ServiceLogProps } from "../../domain/ServiceLog";
 
 @injectable()
 export default class DbServiceLogRepository implements ServiceLogRepository {
@@ -15,7 +15,7 @@ export default class DbServiceLogRepository implements ServiceLogRepository {
     this.#db = Database.connect();
   }
 
-  async getServiceLogs(filter: ServiceLogsFilter): Promise<PaginatedResult<ServiceLogObject>> {
+  async getServiceLogs(filter: ServiceLogsFilter): Promise<PaginatedResult<ServiceLogProps>> {
     const { rows, page_result } = await this.selectServiceLogs(filter);
 
     const results = [];
@@ -31,6 +31,8 @@ export default class DbServiceLogRepository implements ServiceLogRepository {
         commission_amount: row.commission_amount,
         employee_id: row.employee_id,
         service_id: row.service_id,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
       });
     }
 

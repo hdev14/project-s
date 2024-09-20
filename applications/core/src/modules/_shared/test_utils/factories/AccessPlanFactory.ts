@@ -1,9 +1,9 @@
-import { AccessPlanObject } from "@auth/domain/AccessPlan";
+import { AccessPlanProps } from "@auth/domain/AccessPlan";
 import DbUtils from "@shared/utils/DbUtils";
 import Factory from "./Factory";
 
-export default class AccessPlanFactory implements Factory<AccessPlanObject> {
-  async createOne(item: AccessPlanObject): Promise<AccessPlanObject> {
+export default class AccessPlanFactory implements Factory<AccessPlanProps> {
+  async createOne(item: AccessPlanProps): Promise<AccessPlanProps> {
     const values = Object.values(item);
 
     await globalThis.db.query(
@@ -14,7 +14,7 @@ export default class AccessPlanFactory implements Factory<AccessPlanObject> {
     return item;
   }
 
-  async createMany(items: AccessPlanObject[]): Promise<AccessPlanObject[]> {
+  async createMany(items: AccessPlanProps[]): Promise<AccessPlanProps[]> {
     for (let idx = 0; idx < items.length; idx++) {
       await this.createOne(items[idx]);
     }

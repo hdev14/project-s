@@ -419,26 +419,29 @@ describe('DbCompanyRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const employee_obj = {
+      const employee_props = {
         id: faker.string.uuid(),
         document: faker.string.numeric(11),
         email: faker.internet.email(),
         name: faker.person.fullName(),
         deactivated_at: faker.date.anytime(),
+        created_at: faker.date.anytime(),
+        updated_at: faker.date.anytime(),
       };
 
-      const employee = new Employee(employee_obj);
+      const employee = new Employee(employee_props);
 
       await repository.updateEmployee(employee);
 
       expect(query_mock).toHaveBeenCalledWith(
-        "UPDATE users SET name=$2,document=$3,email=$4,deactivated_at=$5 WHERE type='employee' AND id = $1",
+        "UPDATE users SET name=$2,document=$3,email=$4,deactivated_at=$5,updated_at=$6 WHERE type='employee' AND id = $1",
         [
-          employee_obj.id,
-          employee_obj.name,
-          employee_obj.document,
-          employee_obj.email,
-          employee_obj.deactivated_at,
+          employee_props.id,
+          employee_props.name,
+          employee_props.document,
+          employee_props.email,
+          employee_props.deactivated_at,
+          employee_props.updated_at,
         ],
       );
     });

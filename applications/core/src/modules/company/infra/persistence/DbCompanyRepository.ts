@@ -6,7 +6,7 @@ import { injectable } from "inversify";
 import { Pool } from "pg";
 import 'reflect-metadata';
 import CompanyRepository, { CompaniesFilter } from "../../app/CompanyRepository";
-import Company, { CompanyObject } from "../../domain/Company";
+import Company, { CompanyProps } from "../../domain/Company";
 
 @injectable()
 export default class DbCompanyRepository implements CompanyRepository {
@@ -33,12 +33,14 @@ export default class DbCompanyRepository implements CompanyRepository {
       name: result.rows[0].name,
       document: result.rows[0].document,
       email: result.rows[0].email,
-      deactivated_at: result.rows[0].deactived_at,
+      deactivated_at: result.rows[0].deactivated_at,
+      created_at: result.rows[0].created_at,
+      updated_at: result.rows[0].updated_at,
     });
   }
 
   async updateEmployee(employee: Employee): Promise<void> {
-    const data = employee.toObject();
+    const data = Object.assign({}, employee.toObject(), { created_at: undefined });
     await this.#db.query(
       `UPDATE users SET ${DbUtils.setColumns(data)} WHERE type='employee' AND id = $1`,
       DbUtils.sanitizeValues(Object.values(data))
@@ -51,7 +53,7 @@ export default class DbCompanyRepository implements CompanyRepository {
     return Boolean(parseInt(result.rows[0].total));
   }
 
-  async getCompanies(filter?: CompaniesFilter): Promise<PaginatedResult<CompanyObject>> {
+  async getCompanies(filter?: CompaniesFilter): Promise<PaginatedResult<CompanyProps>> {
     const { rows: company_rows, page_result } = await this.selectCompanies(filter);
 
     const company_ids = [];
@@ -118,11 +120,13 @@ export default class DbCompanyRepository implements CompanyRepository {
   }
 
   private mapCompany(company: any, employee_rows: any[]) {
-    const company_obj: CompanyObject = {
+    const company_props: CompanyProps = {
       id: company.id,
       document: company.document,
       name: company.name,
       access_plan_id: company.access_plan_id,
+      created_at: company.created_at,
+      updated_at: company.updated_at,
       bank: {
         account: company.account,
         account_digit: company.account_digit,
@@ -148,15 +152,17 @@ export default class DbCompanyRepository implements CompanyRepository {
       const employee = employee_rows[idx];
 
       if (employee.tenant_id === company.id) {
-        company_obj.employees.push({
+        company_props.employees.push({
           id: employee.id,
           document: employee.document,
           email: employee.email,
           name: employee.name,
+          created_at: employee.created_at,
+          updated_at: employee.updated_at,
         });
       }
     }
 
-    return company_obj;
+    return company_props;
   }
 }

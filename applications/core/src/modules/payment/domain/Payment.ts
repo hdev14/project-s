@@ -1,5 +1,5 @@
-import Aggregate, { AggregateRoot, RequiredId } from "@shared/ddd/Aggregate";
-import Customer, { CustomerObject } from "./Customer";
+import Aggregate, { AggregateProps, AggregateRoot, RequiredProps } from "@shared/ddd/Aggregate";
+import Customer, { CustomerProps } from "./Customer";
 
 export enum PaymentStatus {
   PENDING = 'pending',
@@ -8,29 +8,29 @@ export enum PaymentStatus {
   CANCELED = 'canceled',
 }
 
-export type PaymentObject = {
+export type PaymentProps = AggregateProps<{
   id?: string;
   amount: number;
   tax: number;
   status: PaymentStatus;
   subscription_id: string;
-  customer: CustomerObject;
-}
+  customer: CustomerProps;
+}>;
 
-export default class Payment extends Aggregate<PaymentObject> implements AggregateRoot {
+export default class Payment extends Aggregate<PaymentProps> implements AggregateRoot {
   #amount: number;
   #tax: number;
   #status: PaymentStatus;
   #subcription_id: string;
   #customer: Customer;
 
-  constructor(obj: PaymentObject) {
-    super(obj.id);
-    this.#amount = obj.amount;
-    this.#tax = obj.tax;
-    this.#status = obj.status;
-    this.#subcription_id = obj.subscription_id;
-    this.#customer = new Customer(obj.customer);
+  constructor(props: PaymentProps) {
+    super(props);
+    this.#amount = props.amount;
+    this.#tax = props.tax;
+    this.#status = props.status;
+    this.#subcription_id = props.subscription_id;
+    this.#customer = new Customer(props.customer);
   }
 
   cancel() { }
@@ -39,7 +39,7 @@ export default class Payment extends Aggregate<PaymentObject> implements Aggrega
 
   reject() { }
 
-  toObject(): RequiredId<PaymentObject> {
+  toObject(): RequiredProps<PaymentProps> {
     return {
       id: this.id,
       amount: this.#amount,
@@ -47,6 +47,8 @@ export default class Payment extends Aggregate<PaymentObject> implements Aggrega
       status: this.#status,
       subscription_id: this.#subcription_id,
       customer: this.#customer.toObject(),
+      created_at: this.created_at,
+      updated_at: this.updated_at
     }
   }
 }

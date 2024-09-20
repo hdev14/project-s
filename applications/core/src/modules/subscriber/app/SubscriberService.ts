@@ -9,7 +9,7 @@ import types from "@shared/types";
 import UserTypes from "@shared/UserTypes";
 import Either from "@shared/utils/Either";
 import PaymentMethod, { PaymentTypes } from "@subscriber/domain/PaymentMethod";
-import Subscriber, { SubscriberObject } from "@subscriber/domain/Subscriber";
+import Subscriber, { SubscriberProps } from "@subscriber/domain/Subscriber";
 import { inject, injectable } from "inversify";
 import 'reflect-metadata';
 import SubscriberRepository from "./SubscriberRepository";
@@ -58,7 +58,7 @@ export default class SubscriberService {
     this.#email_service = email_service;
   }
 
-  async getSubscriber(params: GetSubscriberParams): Promise<Either<SubscriberObject>> {
+  async getSubscriber(params: GetSubscriberParams): Promise<Either<SubscriberProps>> {
     const subscriber = await this.#subscriber_repository.getSubcriberById(params.subscriber_id);
 
     if (!subscriber) {
@@ -68,7 +68,7 @@ export default class SubscriberService {
     return Either.right(subscriber.toObject());
   }
 
-  async createSubscriber(params: CreateSubscriberParams): Promise<Either<SubscriberObject>> {
+  async createSubscriber(params: CreateSubscriberParams): Promise<Either<SubscriberProps>> {
     const user_id = await this.#mediator.send<string>(new CreateUserCommand({
       default_policies: [],
       email: params.email,

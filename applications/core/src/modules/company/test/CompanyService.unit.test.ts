@@ -908,16 +908,18 @@ describe('CompanyService unit tests', () => {
 
   describe('CompanyService.getCommission', () => {
     it('returns a commission', async () => {
-      const commission_obj = {
+      const commission_props = {
         id: faker.string.uuid(),
         catalog_item_id: faker.string.uuid(),
         tax: faker.number.float(),
         tax_type: faker.helpers.enumValue(TaxTypes),
         tenant_id: faker.string.uuid(),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future()
       };
 
       commission_repository_mock.getCommissionById.mockResolvedValueOnce(
-        new Commission(commission_obj)
+        new Commission(commission_props)
       );
 
       const commission_id = faker.string.uuid();
@@ -925,7 +927,7 @@ describe('CompanyService unit tests', () => {
       const [error, data] = await company_service.getCommission({ commission_id });
 
       expect(error).toBeUndefined();
-      expect(data).toEqual(commission_obj);
+      expect(data).toEqual(commission_props);
     });
 
     it("returns a not found error if commission doesn't exist", async () => {

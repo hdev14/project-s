@@ -8,9 +8,9 @@ import Mediator from "@shared/Mediator";
 import types from "@shared/types";
 import Either from "@shared/utils/Either";
 import { PageOptions, PageResult } from "@shared/utils/Pagination";
-import { ItemObject } from "@subscription/domain/Item";
-import Subscription, { SubscriptionObject } from "@subscription/domain/Subscription";
-import SubscriptionPlan, { RecurrenceTypes, SubscriptionPlanObject } from "@subscription/domain/SubscriptionPlan";
+import { ItemProps } from "@subscription/domain/Item";
+import Subscription, { SubscriptionProps } from "@subscription/domain/Subscription";
+import SubscriptionPlan, { RecurrenceTypes, SubscriptionPlanProps } from "@subscription/domain/SubscriptionPlan";
 import { randomUUID } from "crypto";
 import { inject, injectable } from "inversify";
 import 'reflect-metadata';
@@ -48,7 +48,7 @@ export type GetSubscriptionPlansParams = {
 };
 
 export type GetSubscriptionPlansResult = {
-  results: Array<SubscriptionPlanObject>;
+  results: Array<SubscriptionPlanProps>;
   page_result?: PageResult;
 };
 
@@ -58,7 +58,7 @@ export type GetSubscriptionsParams = {
 };
 
 export type GetSubscriptionsResult = {
-  results: Array<SubscriptionObject>;
+  results: Array<SubscriptionProps>;
   page_result?: PageResult;
 };
 
@@ -81,7 +81,7 @@ export default class SubscriptionService {
     this.#file_storage = file_storage;
   }
 
-  async createSubscription(params: CreateSubscriptionParams): Promise<Either<SubscriptionObject>> {
+  async createSubscription(params: CreateSubscriptionParams): Promise<Either<SubscriptionProps>> {
     const subscriber = await this.#mediator.send<any>(new GetSubscriberCommand(params.subscriber_id));
 
     if (!subscriber) {
@@ -177,7 +177,7 @@ export default class SubscriptionService {
     }
   }
 
-  async createSubscriptionPlan(params: CreateSubscriptionPlanParams): Promise<Either<SubscriptionPlanObject>> {
+  async createSubscriptionPlan(params: CreateSubscriptionPlanParams): Promise<Either<SubscriptionPlanProps>> {
     try {
       const promises = [];
 
@@ -196,7 +196,7 @@ export default class SubscriptionService {
       }
 
       let amount = 0;
-      const items: ItemObject[] = [];
+      const items: ItemProps[] = [];
 
       for (let idx = 0; idx < catalog_items.length; idx++) {
         const catalog_item = catalog_items[idx];
@@ -207,7 +207,7 @@ export default class SubscriptionService {
         });
       }
 
-      const subscription_plan_obj: SubscriptionPlanObject = {
+      const subscription_plan_obj: SubscriptionPlanProps = {
         id: randomUUID(),
         amount,
         items,

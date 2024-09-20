@@ -1,7 +1,6 @@
-import Aggregate, { AggregateRoot, RequiredId } from "@shared/ddd/Aggregate";
+import Aggregate, { AggregateProps, AggregateRoot, RequiredProps } from "@shared/ddd/Aggregate";
 
-export type ServiceLogObject = {
-  id?: string;
+export type ServiceLogProps = AggregateProps & {
   commission_amount: number;
   employee_id: string;
   service_id: string;
@@ -11,7 +10,7 @@ export type ServiceLogObject = {
   registed_at: Date;
 };
 
-export default class ServiceLog extends Aggregate<ServiceLogObject> implements AggregateRoot {
+export default class ServiceLog extends Aggregate<ServiceLogProps> implements AggregateRoot {
   #commission_amount: number;
   #employee_id: string;
   #service_id: string;
@@ -20,18 +19,18 @@ export default class ServiceLog extends Aggregate<ServiceLogObject> implements A
   #paid_amount: number;
   #registed_at: Date;
 
-  constructor(obj: ServiceLogObject) {
-    super(obj.id);
-    this.#commission_amount = obj.commission_amount;
-    this.#employee_id = obj.employee_id;
-    this.#service_id = obj.service_id;
-    this.#customer_id = obj.customer_id;
-    this.#tenant_id = obj.tenant_id;
-    this.#paid_amount = obj.paid_amount;
-    this.#registed_at = obj.registed_at;
+  constructor(props: ServiceLogProps) {
+    super(props);
+    this.#commission_amount = props.commission_amount;
+    this.#employee_id = props.employee_id;
+    this.#service_id = props.service_id;
+    this.#customer_id = props.customer_id;
+    this.#tenant_id = props.tenant_id;
+    this.#paid_amount = props.paid_amount;
+    this.#registed_at = props.registed_at;
   }
 
-  toObject(): RequiredId<ServiceLogObject> {
+  toObject(): RequiredProps<ServiceLogProps> {
     return {
       id: this.id,
       commission_amount: this.#commission_amount,
@@ -41,6 +40,8 @@ export default class ServiceLog extends Aggregate<ServiceLogObject> implements A
       tenant_id: this.#tenant_id,
       paid_amount: this.#paid_amount,
       registed_at: this.#registed_at,
+      created_at: this.created_at,
+      updated_at: this.updated_at,
     };
   }
 }

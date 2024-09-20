@@ -1,22 +1,21 @@
-import Aggregate, { AggregateRoot, RequiredId } from "@shared/ddd/Aggregate";
+import Aggregate, { AggregateProps, AggregateRoot, RequiredProps } from "@shared/ddd/Aggregate";
 
-export type VerificationCodeObject = {
-  id?: string;
+export type VerificationCodeProps = AggregateProps<{
   code: string;
   user_id: string;
   expired_at: Date;
-};
+}>;
 
-export default class VerificationCode extends Aggregate<VerificationCodeObject> implements AggregateRoot {
+export default class VerificationCode extends Aggregate<VerificationCodeProps> implements AggregateRoot {
   #code: string;
   #user_id: string;
   #expired_at: Date;
 
-  constructor(obj: VerificationCodeObject) {
-    super(obj.id);
-    this.#code = obj.code;
-    this.#user_id = obj.user_id;
-    this.#expired_at = obj.expired_at;
+  constructor(props: VerificationCodeProps) {
+    super(props);
+    this.#code = props.code;
+    this.#user_id = props.user_id;
+    this.#expired_at = props.expired_at;
   }
 
   get code() {
@@ -35,12 +34,14 @@ export default class VerificationCode extends Aggregate<VerificationCodeObject> 
     return this.#expired_at < new Date();
   }
 
-  toObject(): RequiredId<VerificationCodeObject> {
+  toObject(): RequiredProps<VerificationCodeProps> {
     return {
       id: this.id,
       code: this.#code,
       user_id: this.#user_id,
-      expired_at: this.#expired_at
+      expired_at: this.#expired_at,
+      created_at: this.created_at,
+      updated_at: this.updated_at
     };
   }
 }

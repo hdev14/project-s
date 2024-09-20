@@ -1,21 +1,20 @@
-import Aggregate, { AggregateRoot, RequiredId } from "@shared/ddd/Aggregate";
+import Aggregate, { AggregateProps, AggregateRoot, RequiredProps } from "@shared/ddd/Aggregate";
 import Address, { AddressValue } from "../../_shared/Address";
 import Bank, { BankValue } from "./Bank";
 import Brand, { BrandValue } from "./Brand";
-import Employee, { EmployeeObject } from "./Employee";
+import Employee, { EmployeeProps } from "./Employee";
 
-export type CompanyObject = {
-  id?: string;
+export type CompanyProps = AggregateProps & {
   document: string;
   name: string;
   address: AddressValue;
   bank: BankValue;
   brand?: BrandValue;
-  employees: Array<EmployeeObject>;
+  employees: Array<EmployeeProps>;
   access_plan_id: string;
 };
 
-export default class Company extends Aggregate<CompanyObject> implements AggregateRoot {
+export default class Company extends Aggregate<CompanyProps> implements AggregateRoot {
   #document: string;
   #name: string;
   #address: Address;
@@ -24,30 +23,30 @@ export default class Company extends Aggregate<CompanyObject> implements Aggrega
   #access_plan_id: string;
   #employees: Array<Employee> = [];
 
-  constructor(obj: CompanyObject) {
-    super(obj.id);
-    this.#document = obj.document;
-    this.#name = obj.name;
+  constructor(props: CompanyProps) {
+    super(props);
+    this.#document = props.document;
+    this.#name = props.name;
     this.#address = new Address(
-      obj.address.street,
-      obj.address.district,
-      obj.address.state,
-      obj.address.number,
-      obj.address.complement,
+      props.address.street,
+      props.address.district,
+      props.address.state,
+      props.address.number,
+      props.address.complement,
     );
     this.#bank = new Bank(
-      obj.bank.account,
-      obj.bank.account_digit,
-      obj.bank.agency,
-      obj.bank.agency_digit,
-      obj.bank.bank_code,
+      props.bank.account,
+      props.bank.account_digit,
+      props.bank.agency,
+      props.bank.agency_digit,
+      props.bank.bank_code,
     );
-    if (obj.brand) {
-      this.#brand = new Brand(obj.brand.color, obj.brand.logo_url);
+    if (props.brand) {
+      this.#brand = new Brand(props.brand.color, props.brand.logo_url);
     }
-    this.#access_plan_id = obj.access_plan_id;
-    for (let idx = 0; idx < obj.employees.length; idx++) {
-      this.#employees.push(new Employee(obj.employees[idx]));
+    this.#access_plan_id = props.access_plan_id;
+    for (let idx = 0; idx < props.employees.length; idx++) {
+      this.#employees.push(new Employee(props.employees[idx]));
     }
   }
 
@@ -63,7 +62,7 @@ export default class Company extends Aggregate<CompanyObject> implements Aggrega
     this.#brand = value;
   }
 
-  toObject(): RequiredId<CompanyObject> {
+  toObject(): RequiredProps<CompanyProps> {
     const employees = [];
 
     for (let idx = 0; idx < this.#employees.length; idx++) {
@@ -79,6 +78,8 @@ export default class Company extends Aggregate<CompanyObject> implements Aggrega
       brand: this.#brand,
       access_plan_id: this.#access_plan_id,
       employees,
+      created_at: this.created_at,
+      updated_at: this.updated_at
     };
   }
 }

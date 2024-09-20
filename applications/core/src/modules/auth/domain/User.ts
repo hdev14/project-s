@@ -1,19 +1,18 @@
-import Aggregate, { AggregateRoot, RequiredId } from "@shared/ddd/Aggregate";
+import Aggregate, { AggregateProps, AggregateRoot, RequiredProps } from "@shared/ddd/Aggregate";
+import UserTypes from "@shared/UserTypes";
 import AccessPlan from "./AccessPlan";
 import Policy from "./Policy";
-import UserTypes from "@shared/UserTypes";
 
-export type UserObject = {
-  id?: string;
+export type UserProps = AggregateProps<{
   email: string;
   password: string;
   policies: Array<string>; // slugs
   access_plan_id?: string;
   tenant_id?: string;
   type: UserTypes;
-}
+}>;
 
-export default class User extends Aggregate<UserObject> implements AggregateRoot {
+export default class User extends Aggregate<UserProps> implements AggregateRoot {
   #email: string;
   #password: string;
   #policies: Array<string>;
@@ -21,14 +20,14 @@ export default class User extends Aggregate<UserObject> implements AggregateRoot
   #tenant_id?: string;
   #type: UserTypes;
 
-  constructor(obj: UserObject) {
-    super(obj.id);
-    this.#email = obj.email;
-    this.#password = obj.password;
-    this.#policies = obj.policies;
-    this.#access_plan_id = obj.access_plan_id;
-    this.#tenant_id = obj.tenant_id;
-    this.#type = obj.type;
+  constructor(props: UserProps) {
+    super(props);
+    this.#email = props.email;
+    this.#password = props.password;
+    this.#policies = props.policies;
+    this.#access_plan_id = props.access_plan_id;
+    this.#tenant_id = props.tenant_id;
+    this.#type = props.type;
   }
 
   set email(value: string) {
@@ -69,7 +68,7 @@ export default class User extends Aggregate<UserObject> implements AggregateRoot
     this.#access_plan_id = access_plan.id;
   }
 
-  toObject(): RequiredId<UserObject> {
+  toObject(): RequiredProps<UserProps> {
     return {
       id: this.id,
       email: this.#email,
@@ -78,6 +77,8 @@ export default class User extends Aggregate<UserObject> implements AggregateRoot
       access_plan_id: this.#access_plan_id,
       tenant_id: this.#tenant_id,
       type: this.#type,
+      created_at: this.created_at,
+      updated_at: this.updated_at
     };
   }
 }

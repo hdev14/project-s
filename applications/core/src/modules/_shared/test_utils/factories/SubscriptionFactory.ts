@@ -1,9 +1,9 @@
 import DbUtils from "@shared/utils/DbUtils";
-import { SubscriptionObject } from "@subscription/domain/Subscription";
+import { SubscriptionProps } from "@subscription/domain/Subscription";
 import Factory from "./Factory";
 
-export default class SubscriptionFactory implements Factory<SubscriptionObject> {
-  async createOne(item: SubscriptionObject): Promise<SubscriptionObject> {
+export default class SubscriptionFactory implements Factory<SubscriptionProps> {
+  async createOne(item: SubscriptionProps): Promise<SubscriptionProps> {
     const values = Object.values(item);
 
     await globalThis.db.query(
@@ -14,7 +14,7 @@ export default class SubscriptionFactory implements Factory<SubscriptionObject> 
     return item;
   }
 
-  async createMany(items: SubscriptionObject[]): Promise<SubscriptionObject[]> {
+  async createMany(items: SubscriptionProps[]): Promise<SubscriptionProps[]> {
     for (let idx = 0; idx < items.length; idx++) {
       await this.createOne(items[idx]);
     }

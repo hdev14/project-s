@@ -417,13 +417,17 @@ describe('SubscriptionService unit tests', () => {
       const catalog_item_1 = {
         id: faker.string.uuid(),
         name: faker.commerce.product(),
-        amount: faker.number.float()
+        amount: faker.number.float(),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
       const catalog_item_2 = {
         id: faker.string.uuid(),
         name: faker.commerce.product(),
-        amount: faker.number.float()
+        amount: faker.number.float(),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
       mediator_mock.send
@@ -446,8 +450,18 @@ describe('SubscriptionService unit tests', () => {
       expect(data!.recurrence_type).toEqual(params.recurrence_type);
       expect(data!.term_url).toBeUndefined();
       expect(data!.items).toEqual([
-        { id: catalog_item_1.id, name: catalog_item_1.name },
-        { id: catalog_item_2.id, name: catalog_item_2.name }
+        {
+          id: catalog_item_1.id,
+          name: catalog_item_1.name,
+          created_at: catalog_item_1.created_at,
+          updated_at: catalog_item_1.updated_at,
+        },
+        {
+          id: catalog_item_2.id,
+          name: catalog_item_2.name,
+          created_at: catalog_item_1.created_at,
+          updated_at: catalog_item_1.updated_at,
+        }
       ]);
       expect(subscription_plan_repository_mock.createSubscriptionPlan).toHaveBeenCalledTimes(1);
     });
@@ -456,13 +470,17 @@ describe('SubscriptionService unit tests', () => {
       const catalog_item_1 = {
         id: faker.string.uuid(),
         name: faker.commerce.product(),
-        amount: faker.number.float()
+        amount: faker.number.float(),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
       const catalog_item_2 = {
         id: faker.string.uuid(),
         name: faker.commerce.product(),
-        amount: faker.number.float()
+        amount: faker.number.float(),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
       mediator_mock.send
@@ -489,8 +507,18 @@ describe('SubscriptionService unit tests', () => {
       expect(data!.recurrence_type).toEqual(params.recurrence_type);
       expect(data!.term_url).toEqual(term_url);
       expect(data!.items).toEqual([
-        { id: catalog_item_1.id, name: catalog_item_1.name },
-        { id: catalog_item_2.id, name: catalog_item_2.name }
+        {
+          id: catalog_item_1.id,
+          name: catalog_item_1.name,
+          created_at: catalog_item_1.created_at,
+          updated_at: catalog_item_1.updated_at,
+        },
+        {
+          id: catalog_item_2.id,
+          name: catalog_item_2.name,
+          created_at: catalog_item_1.created_at,
+          updated_at: catalog_item_1.updated_at,
+        }
       ]);
 
       expect(subscription_plan_repository_mock.createSubscriptionPlan).toHaveBeenCalledTimes(1);
@@ -514,22 +542,30 @@ describe('SubscriptionService unit tests', () => {
             items: [{
               id: faker.string.uuid(),
               name: faker.commerce.product(),
+              created_at: faker.date.future(),
+              updated_at: faker.date.future(),
             }],
             amount: faker.number.float(),
             recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
             term_url: faker.internet.url(),
             tenant_id: faker.string.uuid(),
+            created_at: faker.date.future(),
+            updated_at: faker.date.future(),
           },
           {
             id: faker.string.uuid(),
             items: [{
               id: faker.string.uuid(),
               name: faker.commerce.product(),
+              created_at: faker.date.future(),
+              updated_at: faker.date.future(),
             }],
             amount: faker.number.float(),
             recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
             term_url: faker.internet.url(),
             tenant_id: faker.string.uuid(),
+            created_at: faker.date.future(),
+            updated_at: faker.date.future(),
           }
         ],
         page_result: {
@@ -569,6 +605,8 @@ describe('SubscriptionService unit tests', () => {
             subscriber_id: faker.string.uuid(),
             subscription_plan_id: faker.string.uuid(),
             tenant_id: faker.string.uuid(),
+            created_at: faker.date.future(),
+            updated_at: faker.date.future(),
           },
           {
             id: faker.string.uuid(),
@@ -576,6 +614,8 @@ describe('SubscriptionService unit tests', () => {
             subscriber_id: faker.string.uuid(),
             subscription_plan_id: faker.string.uuid(),
             tenant_id: faker.string.uuid(),
+            created_at: faker.date.future(),
+            updated_at: faker.date.future(),
           },
         ],
         page_result: {

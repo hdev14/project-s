@@ -1,9 +1,9 @@
 import DbUtils from "@shared/utils/DbUtils";
-import { SubscriptionPlanObject } from "@subscription/domain/SubscriptionPlan";
+import { SubscriptionPlanProps } from "@subscription/domain/SubscriptionPlan";
 import Factory from "./Factory";
 
-export default class SubscriptionPlanFactory implements Factory<SubscriptionPlanObject> {
-  async createOne(item: SubscriptionPlanObject): Promise<SubscriptionPlanObject> {
+export default class SubscriptionPlanFactory implements Factory<SubscriptionPlanProps> {
+  async createOne(item: SubscriptionPlanProps): Promise<SubscriptionPlanProps> {
     const { amount, items, recurrence_type, tenant_id, id, term_url } = item;
     const data = {
       id,
@@ -29,7 +29,7 @@ export default class SubscriptionPlanFactory implements Factory<SubscriptionPlan
     return item;
   }
 
-  async createMany(items: SubscriptionPlanObject[]): Promise<SubscriptionPlanObject[]> {
+  async createMany(items: SubscriptionPlanProps[]): Promise<SubscriptionPlanProps[]> {
     for (let idx = 0; idx < items.length; idx++) {
       await this.createOne(items[idx]);
     }

@@ -1,10 +1,10 @@
 
-import { CommissionObject } from "@company/domain/Commission";
+import { CommissionProps } from "@company/domain/Commission";
 import DbUtils from "@shared/utils/DbUtils";
 import Factory from "./Factory";
 
-export default class CommissionFactory implements Factory<CommissionObject> {
-  async createOne(item: CommissionObject): Promise<CommissionObject> {
+export default class CommissionFactory implements Factory<CommissionProps> {
+  async createOne(item: CommissionProps): Promise<CommissionProps> {
     const values = Object.values(item);
 
     await globalThis.db.query(
@@ -15,7 +15,7 @@ export default class CommissionFactory implements Factory<CommissionObject> {
     return item;
   }
 
-  async createMany(items: CommissionObject[]): Promise<CommissionObject[]> {
+  async createMany(items: CommissionProps[]): Promise<CommissionProps[]> {
     for (let idx = 0; idx < items.length; idx++) {
       await this.createOne(items[idx]);
     }

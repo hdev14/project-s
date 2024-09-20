@@ -23,26 +23,28 @@ describe('DbCommissionRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const commission_obj = {
+      const commission_props = {
         id: faker.string.uuid(),
         catalog_item_id: faker.string.uuid(),
         tax: faker.number.float(),
         tax_type: faker.helpers.enumValue(TaxTypes),
         tenant_id: faker.string.uuid(),
+        updated_at: faker.date.future(),
       };
 
-      const commission = new Commission(commission_obj);
+      const commission = new Commission(commission_props);
 
       await repository.updateCommission(commission);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'UPDATE commissions SET catalog_item_id=$2,tax=$3,tax_type=$4,tenant_id=$5 WHERE id = $1',
+        'UPDATE commissions SET catalog_item_id=$2,tax=$3,tax_type=$4,tenant_id=$5,updated_at=$6 WHERE id = $1',
         [
-          commission_obj.id,
-          commission_obj.catalog_item_id,
-          commission_obj.tax,
-          commission_obj.tax_type,
-          commission_obj.tenant_id,
+          commission_props.id,
+          commission_props.catalog_item_id,
+          commission_props.tax,
+          commission_props.tax_type,
+          commission_props.tenant_id,
+          commission_props.updated_at,
         ],
       );
     });
@@ -91,26 +93,30 @@ describe('DbCommissionRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const commission_obj = {
+      const commission_props = {
         id: faker.string.uuid(),
         catalog_item_id: faker.string.uuid(),
         tax: faker.number.float(),
         tax_type: faker.helpers.enumValue(TaxTypes),
         tenant_id: faker.string.uuid(),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
-      const commission = new Commission(commission_obj);
+      const commission = new Commission(commission_props);
 
       await repository.createCommission(commission);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO commissions (id,catalog_item_id,tax,tax_type,tenant_id) VALUES ($1,$2,$3,$4,$5)',
+        'INSERT INTO commissions (id,catalog_item_id,tax,tax_type,tenant_id,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7)',
         [
-          commission_obj.id,
-          commission_obj.catalog_item_id,
-          commission_obj.tax,
-          commission_obj.tax_type,
-          commission_obj.tenant_id,
+          commission_props.id,
+          commission_props.catalog_item_id,
+          commission_props.tax,
+          commission_props.tax_type,
+          commission_props.tenant_id,
+          commission_props.created_at,
+          commission_props.updated_at,
         ],
       );
     });

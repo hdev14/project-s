@@ -1,18 +1,18 @@
 
-import { CatalogItemObject } from "@catalog/domain/CatalogItem";
+import { CatalogItemProps } from "@catalog/domain/CatalogItem";
 import GetCatalogItemCommand from "@shared/commands/GetCatalogItemCommand";
 import NotFoundError from "@shared/errors/NotFoundError";
 import Handler from "@shared/Handler";
 import CatalogRepository from "./CatalogRepository";
 
-export default class GetCatalogItemCommandHandler implements Handler<GetCatalogItemCommand, CatalogItemObject> {
+export default class GetCatalogItemCommandHandler implements Handler<GetCatalogItemCommand, CatalogItemProps> {
   #catalog_repository: CatalogRepository;
 
   constructor(catalog_repository: CatalogRepository) {
     this.#catalog_repository = catalog_repository;
   }
 
-  async handle(command: GetCatalogItemCommand): Promise<CatalogItemObject> {
+  async handle(command: GetCatalogItemCommand): Promise<CatalogItemProps> {
     const catalog_item = await this.#catalog_repository.getCatalogItemById(command.catalog_item_id);
 
     if (!catalog_item) {

@@ -1,5 +1,5 @@
 import PolicyRepository, { PolicyFilter } from "@auth/app/PolicyRepository";
-import Policy, { PolicyObject } from "@auth/domain/Policy";
+import Policy, { PolicyProps } from "@auth/domain/Policy";
 import Database from "@shared/Database";
 import DbUtils from "@shared/utils/DbUtils";
 import { injectable } from "inversify";
@@ -14,7 +14,7 @@ export default class DbPolicyRepository implements PolicyRepository {
     this.#db = Database.connect();
   }
 
-  async getPolicies(filter?: PolicyFilter): Promise<Array<PolicyObject>> {
+  async getPolicies(filter?: PolicyFilter): Promise<Array<PolicyProps>> {
     let query = 'SELECT * FROM policies';
     let values: unknown[] = [];
 
@@ -29,11 +29,13 @@ export default class DbPolicyRepository implements PolicyRepository {
     const policies = [];
 
     for (let idx = 0; idx < result.rows.length; idx++) {
-      const data = result.rows[idx];
+      const row = result.rows[idx];
       policies.push({
-        id: data.id,
-        slug: data.slug,
-        description: data.description,
+        id: row.id,
+        slug: row.slug,
+        description: row.description,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
       });
     }
 
@@ -43,16 +45,18 @@ export default class DbPolicyRepository implements PolicyRepository {
   async getPolicyBySlug(slug: string): Promise<Policy | null> {
     const result = await this.#db.query('SELECT * FROM policies WHERE slug=$1', [slug]);
 
-    const data = result.rows[0];
+    const row = result.rows[0];
 
-    if (!data) {
+    if (!row) {
       return null;
     }
 
     return new Policy({
-      id: data.id,
-      slug: data.slug,
-      description: data.description,
+      id: row.id,
+      slug: row.slug,
+      description: row.description,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
     });
   }
 }

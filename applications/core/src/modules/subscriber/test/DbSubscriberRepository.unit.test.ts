@@ -85,7 +85,7 @@ describe('DbSubscriberRepository unit tests', () => {
       expect(page_result).toBeUndefined();
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        "SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_external_id FROM users WHERE type='customer'",
+        "SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_external_id,created_at,updated_at FROM users WHERE type='customer'",
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
@@ -147,7 +147,7 @@ describe('DbSubscriberRepository unit tests', () => {
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        "SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_external_id FROM users WHERE type='customer' LIMIT $1 OFFSET $2",
+        "SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_external_id,created_at,updated_at FROM users WHERE type='customer' LIMIT $1 OFFSET $2",
         [page_options.limit, 0]
       );
       expect(query_mock).toHaveBeenNthCalledWith(
@@ -210,7 +210,7 @@ describe('DbSubscriberRepository unit tests', () => {
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        "SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_external_id FROM users WHERE type='customer' LIMIT $1 OFFSET $2",
+        "SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_external_id,created_at,updated_at FROM users WHERE type='customer' LIMIT $1 OFFSET $2",
         [page_options.limit, 1]
       );
       expect(query_mock).toHaveBeenNthCalledWith(
@@ -265,7 +265,7 @@ describe('DbSubscriberRepository unit tests', () => {
       expect(subscriber!.toObject().subscriptions).toHaveLength(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        "SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_external_id FROM users WHERE type='customer' AND id=$1",
+        "SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_external_id,created_at,updated_at FROM users WHERE type='customer' AND id=$1",
         [subscriber_id]
       );
       expect(query_mock).toHaveBeenNthCalledWith(
@@ -285,7 +285,7 @@ describe('DbSubscriberRepository unit tests', () => {
       expect(subscriber).toBeNull()
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        "SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_external_id FROM users WHERE type='customer' AND id=$1",
+        "SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_external_id,created_at,updated_at FROM users WHERE type='customer' AND id=$1",
         [subscriber_id]
       );
     });
@@ -296,7 +296,7 @@ describe('DbSubscriberRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const subscriber_obj = {
+      const subscriber_props = {
         id: faker.string.uuid(),
         address: {
           street: faker.location.street(),
@@ -313,26 +313,29 @@ describe('DbSubscriberRepository unit tests', () => {
         },
         phone_number: faker.string.numeric(11),
         subscriptions: [],
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
-      const subscriber = new Subscriber(subscriber_obj);
+      const subscriber = new Subscriber(subscriber_props);
 
       await repository.updateSubscriber(subscriber);
 
       expect(query_mock).toHaveBeenCalledWith(
-        "UPDATE users SET document=$2,email=$3,phone_number=$4,street=$5,district=$6,state=$7,number=$8,complement=$9,payment_type=$10,credit_card_external_id=$11 WHERE type='customer' AND id=$1",
+        "UPDATE users SET document=$2,email=$3,phone_number=$4,updated_at=$5,street=$6,district=$7,state=$8,number=$9,complement=$10,payment_type=$11,credit_card_external_id=$12 WHERE type='customer' AND id=$1",
         [
-          subscriber_obj.id,
-          subscriber_obj.document,
-          subscriber_obj.email,
-          subscriber_obj.phone_number,
-          subscriber_obj.address.street,
-          subscriber_obj.address.district,
-          subscriber_obj.address.state,
-          subscriber_obj.address.number,
-          subscriber_obj.address.complement,
-          subscriber_obj.payment_method.payment_type,
-          subscriber_obj.payment_method.credit_card_external_id,
+          subscriber_props.id,
+          subscriber_props.document,
+          subscriber_props.email,
+          subscriber_props.phone_number,
+          subscriber_props.updated_at,
+          subscriber_props.address.street,
+          subscriber_props.address.district,
+          subscriber_props.address.state,
+          subscriber_props.address.number,
+          subscriber_props.address.complement,
+          subscriber_props.payment_method.payment_type,
+          subscriber_props.payment_method.credit_card_external_id,
         ],
       );
     });
@@ -341,7 +344,7 @@ describe('DbSubscriberRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const subscriber_obj = {
+      const subscriber_props = {
         id: faker.string.uuid(),
         address: {
           street: faker.location.street(),
@@ -357,25 +360,28 @@ describe('DbSubscriberRepository unit tests', () => {
         },
         phone_number: faker.string.numeric(11),
         subscriptions: [],
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
-      const subscriber = new Subscriber(subscriber_obj);
+      const subscriber = new Subscriber(subscriber_props);
 
       await repository.updateSubscriber(subscriber);
 
       expect(query_mock).toHaveBeenCalledWith(
-        "UPDATE users SET document=$2,email=$3,phone_number=$4,street=$5,district=$6,state=$7,number=$8,complement=$9,payment_type=$10 WHERE type='customer' AND id=$1",
+        "UPDATE users SET document=$2,email=$3,phone_number=$4,updated_at=$5,street=$6,district=$7,state=$8,number=$9,complement=$10,payment_type=$11 WHERE type='customer' AND id=$1",
         [
-          subscriber_obj.id,
-          subscriber_obj.document,
-          subscriber_obj.email,
-          subscriber_obj.phone_number,
-          subscriber_obj.address.street,
-          subscriber_obj.address.district,
-          subscriber_obj.address.state,
-          subscriber_obj.address.number,
-          subscriber_obj.address.complement,
-          subscriber_obj.payment_method.payment_type,
+          subscriber_props.id,
+          subscriber_props.document,
+          subscriber_props.email,
+          subscriber_props.phone_number,
+          subscriber_props.updated_at,
+          subscriber_props.address.street,
+          subscriber_props.address.district,
+          subscriber_props.address.state,
+          subscriber_props.address.number,
+          subscriber_props.address.complement,
+          subscriber_props.payment_method.payment_type,
         ],
       );
     });

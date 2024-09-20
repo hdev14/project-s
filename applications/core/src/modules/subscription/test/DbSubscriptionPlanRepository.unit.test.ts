@@ -64,7 +64,7 @@ describe('DbSubscriptionPlanRepository unit tests', () => {
       expect(results[0].items).toHaveLength(2);
       expect(results[1].items).toHaveLength(1);
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT sp.id,sp.amount,sp.recurrence_type,sp.term_url,sp.tenant_id,ci.id as item_id,ci.name as item_name FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id WHERE sp.tenant_id=$1',
+        'SELECT sp.id,sp.amount,sp.recurrence_type,sp.term_url,sp.tenant_id,sp.created_at,sp.updated_at,ci.id as item_id,ci.name as item_name,ci.created_at as item_created_at,ci.updated_at as item_updated_at FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id WHERE sp.tenant_id=$1',
         [filter.tenant_id],
       );
     });
@@ -115,7 +115,7 @@ describe('DbSubscriptionPlanRepository unit tests', () => {
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT sp.id,sp.amount,sp.recurrence_type,sp.term_url,sp.tenant_id,ci.id as item_id,ci.name as item_name FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id WHERE sp.tenant_id=$1 LIMIT $2 OFFSET $3',
+        'SELECT sp.id,sp.amount,sp.recurrence_type,sp.term_url,sp.tenant_id,sp.created_at,sp.updated_at,ci.id as item_id,ci.name as item_name,ci.created_at as item_created_at,ci.updated_at as item_updated_at FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id WHERE sp.tenant_id=$1 LIMIT $2 OFFSET $3',
         [filter.tenant_id, filter.page_options.limit, 0],
       );
     });
@@ -166,7 +166,7 @@ describe('DbSubscriptionPlanRepository unit tests', () => {
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT sp.id,sp.amount,sp.recurrence_type,sp.term_url,sp.tenant_id,ci.id as item_id,ci.name as item_name FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id WHERE sp.tenant_id=$1 LIMIT $2 OFFSET $3',
+        'SELECT sp.id,sp.amount,sp.recurrence_type,sp.term_url,sp.tenant_id,sp.created_at,sp.updated_at,ci.id as item_id,ci.name as item_name,ci.created_at as item_created_at,ci.updated_at as item_updated_at FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id WHERE sp.tenant_id=$1 LIMIT $2 OFFSET $3',
         [filter.tenant_id, filter.page_options.limit, 1],
       );
     });
@@ -211,7 +211,7 @@ describe('DbSubscriptionPlanRepository unit tests', () => {
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT ci.id, ci.name FROM subscription_plan_items JOIN catalog_items ci ON item_id = ci.id WHERE subscription_plan_id = $1',
+        'SELECT ci.id,ci.name,ci.created_at,ci.updated_at FROM subscription_plan_items JOIN catalog_items ci ON item_id = ci.id WHERE subscription_plan_id = $1',
         [subscription_plan_id],
       );
     });
@@ -243,35 +243,39 @@ describe('DbSubscriptionPlanRepository unit tests', () => {
         { id: faker.string.uuid(), name: faker.commerce.product() }
       ];
 
-      const subscription_plan_obj = {
+      const subscription_plan_props = {
         id: faker.string.uuid(),
         amount: faker.number.float(),
         tenant_id: faker.string.uuid(),
         items,
         recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
         term_url: faker.internet.url(),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
-      const subscription_plan = new SubscriptionPlan(subscription_plan_obj);
+      const subscription_plan = new SubscriptionPlan(subscription_plan_props);
 
       await repository.createSubscriptionPlan(subscription_plan);
 
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'INSERT INTO subscription_plans (id,amount,tenant_id,recurrence_type,term_url) VALUES ($1,$2,$3,$4,$5)',
+        'INSERT INTO subscription_plans (id,amount,tenant_id,recurrence_type,term_url,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7)',
         [
-          subscription_plan_obj.id,
-          subscription_plan_obj.amount,
-          subscription_plan_obj.tenant_id,
-          subscription_plan_obj.recurrence_type,
-          subscription_plan_obj.term_url,
+          subscription_plan_props.id,
+          subscription_plan_props.amount,
+          subscription_plan_props.tenant_id,
+          subscription_plan_props.recurrence_type,
+          subscription_plan_props.term_url,
+          subscription_plan_props.created_at,
+          subscription_plan_props.updated_at,
         ]
       );;
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
         'INSERT INTO subscription_plan_items (subscription_plan_id, item_id) VALUES ($1,$2), ($1,$3)',
         [
-          subscription_plan_obj.id,
+          subscription_plan_props.id,
           items[0].id,
           items[1].id,
         ]

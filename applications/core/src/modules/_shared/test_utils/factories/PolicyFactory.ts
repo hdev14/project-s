@@ -1,9 +1,9 @@
-import { PolicyObject } from "@auth/domain/Policy";
+import { PolicyProps } from "@auth/domain/Policy";
 import DbUtils from "@shared/utils/DbUtils";
 import Factory from "./Factory";
 
-export default class PolicyFactory implements Factory<PolicyObject> {
-  async createOne(item: PolicyObject): Promise<PolicyObject> {
+export default class PolicyFactory implements Factory<PolicyProps> {
+  async createOne(item: PolicyProps): Promise<PolicyProps> {
     const values = Object.values(item);
 
     await globalThis.db.query(
@@ -14,7 +14,7 @@ export default class PolicyFactory implements Factory<PolicyObject> {
     return item;
   }
 
-  async createMany(items: PolicyObject[]): Promise<PolicyObject[]> {
+  async createMany(items: PolicyProps[]): Promise<PolicyProps[]> {
     for (let idx = 0; idx < items.length; idx++) {
       await this.createOne(items[idx]);
     }

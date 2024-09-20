@@ -1,5 +1,5 @@
 import UserRepository, { UsersFilter } from "@auth/app/UserRepository";
-import User, { UserObject } from "@auth/domain/User";
+import User, { UserProps } from "@auth/domain/User";
 import Database from "@shared/Database";
 import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
@@ -18,6 +18,8 @@ export default class DbUserRepository implements UserRepository {
     'p.slug',
     'u.tenant_id',
     'u.type',
+    'u.created_at',
+    'u.updated_at',
   ];
   #select_users_query = `SELECT ${this.#columns.toString()} FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id`;
   #count_select_users_query = 'SELECT count(id) as total FROM users';
@@ -26,10 +28,10 @@ export default class DbUserRepository implements UserRepository {
     this.#db = Database.connect();
   }
 
-  async getUsers(filter?: UsersFilter): Promise<PaginatedResult<UserObject>> {
+  async getUsers(filter?: UsersFilter): Promise<PaginatedResult<UserProps>> {
     const { rows, page_result } = await this.selectUsers(filter);
 
-    const user_objs: Record<string, UserObject> = {};
+    const user_objs: Record<string, UserProps> = {};
 
     for (let idx = 0; idx < rows.length; idx++) {
       const row = rows[idx];
@@ -50,6 +52,8 @@ export default class DbUserRepository implements UserRepository {
         policies,
         tenant_id: row.tenant_id,
         type: row.type,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
       };
     }
 
@@ -115,6 +119,8 @@ export default class DbUserRepository implements UserRepository {
       policies,
       tenant_id: result.rows[0].tenant_id,
       type: result.rows[0].type,
+      created_at: result.rows[0].created_at,
+      updated_at: result.rows[0].updated_at,
     });
   }
 
@@ -138,7 +144,9 @@ export default class DbUserRepository implements UserRepository {
       access_plan_id: result.rows[0].access_plan_id,
       policies,
       tenant_id: result.rows[0].tenant_id,
-      type: result.rows[0].type
+      type: result.rows[0].type,
+      created_at: result.rows[0].created_at,
+      updated_at: result.rows[0].updated_at
     });
   }
 
@@ -151,6 +159,8 @@ export default class DbUserRepository implements UserRepository {
       access_plan_id: user_obj.access_plan_id,
       tenant_id: user_obj.tenant_id,
       type: user_obj.type,
+      created_at: user_obj.created_at,
+      updated_at: user_obj.updated_at,
     };
 
     const values = Object.values(insert_obj)
@@ -168,7 +178,7 @@ export default class DbUserRepository implements UserRepository {
 
   async updateUser(user: User): Promise<void> {
     const user_obj = user.toObject();
-    const data = Object.assign({}, user_obj, { policies: undefined });
+    const data = Object.assign({}, user_obj, { created_at: undefined, policies: undefined });
 
     const query = `UPDATE users SET ${DbUtils.setColumns(data)} WHERE id = $1`;
 

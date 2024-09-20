@@ -1,5 +1,5 @@
 import { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
-import ServiceLog, { ServiceLogObject } from "../domain/ServiceLog";
+import ServiceLog, { ServiceLogProps } from "../domain/ServiceLog";
 
 
 export type ServiceLogsFilter = {
@@ -8,6 +8,6 @@ export type ServiceLogsFilter = {
 };
 
 export default interface ServiceLogRepository {
-  getServiceLogs(filter: ServiceLogsFilter): Promise<PaginatedResult<ServiceLogObject>>;
+  getServiceLogs(filter: ServiceLogsFilter): Promise<PaginatedResult<ServiceLogProps>>;
   createServiceLog(service_log: ServiceLog): Promise<void>;
 }

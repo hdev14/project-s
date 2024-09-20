@@ -1,10 +1,10 @@
 
-import { ServiceLogObject } from "@company/domain/ServiceLog";
+import { ServiceLogProps } from "@company/domain/ServiceLog";
 import DbUtils from "@shared/utils/DbUtils";
 import Factory from "./Factory";
 
-export default class ServiceLogFactory implements Factory<ServiceLogObject> {
-  async createOne(item: ServiceLogObject): Promise<ServiceLogObject> {
+export default class ServiceLogFactory implements Factory<ServiceLogProps> {
+  async createOne(item: ServiceLogProps): Promise<ServiceLogProps> {
     const values = Object.values(item);
 
     await globalThis.db.query(
@@ -15,7 +15,7 @@ export default class ServiceLogFactory implements Factory<ServiceLogObject> {
     return item;
   }
 
-  async createMany(items: ServiceLogObject[]): Promise<ServiceLogObject[]> {
+  async createMany(items: ServiceLogProps[]): Promise<ServiceLogProps[]> {
     for (let idx = 0; idx < items.length; idx++) {
       await this.createOne(items[idx]);
     }

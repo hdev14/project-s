@@ -1,6 +1,6 @@
 import AuthTokenManager from '@auth/app/AuthTokenManager';
 import { AccessPlanTypes } from '@auth/domain/AccessPlan';
-import { PolicyObject } from '@auth/domain/Policy';
+import { PolicyProps } from '@auth/domain/Policy';
 import AuthModule from '@auth/infra/AuthModule';
 import CatalogModule from '@catalog/infra/CatalogModule';
 import { TaxTypes } from '@company/domain/Commission';
@@ -110,7 +110,7 @@ describe('Company E2E tests', () => {
     });
 
     it('creates a new company', async () => {
-      const policies: PolicyObject[] = [];
+      const policies: PolicyProps[] = [];
       const slugs = Object.values(Policies);
 
       for (let idx = 0; idx < slugs.length; idx++) {
@@ -175,7 +175,7 @@ describe('Company E2E tests', () => {
     });
 
     it("returns status code 404 if access plan doesn't exist", async () => {
-      const policies: PolicyObject[] = [];
+      const policies: PolicyProps[] = [];
       const slugs = Object.values(Policies);
 
       for (let idx = 0; idx < slugs.length; idx++) {

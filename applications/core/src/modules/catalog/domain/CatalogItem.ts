@@ -1,9 +1,8 @@
-import Aggregate, { RequiredId } from "@shared/ddd/Aggregate";
+import Aggregate, { AggregateProps, RequiredProps } from "@shared/ddd/Aggregate";
 import DomainError from "@shared/errors/DomainError";
 import Attribute, { AttributeValue } from "./Attribute";
 
-export type CatalogItemObject = {
-  id?: string;
+export type CatalogItemProps = AggregateProps<{
   name: string;
   description: string;
   attributes: Array<AttributeValue>;
@@ -11,9 +10,9 @@ export type CatalogItemObject = {
   tenant_id: string;
   amount: number;
   picture_url?: string;
-};
+}>;
 
-export default class CatalogItem extends Aggregate<CatalogItemObject> {
+export default class CatalogItem extends Aggregate<CatalogItemProps> {
   #name: string;
   #description: string;
   #attributes: Array<Attribute> = [];
@@ -22,17 +21,17 @@ export default class CatalogItem extends Aggregate<CatalogItemObject> {
   #amount: number = 0;
   #picture_url?: string;
 
-  constructor(obj: CatalogItemObject) {
-    super(obj.id);
-    this.#name = obj.name;
-    this.#description = obj.description;
-    this.#is_service = obj.is_service;
-    this.#tenant_id = obj.tenant_id;
-    this.amount = obj.amount;
-    this.#picture_url = obj.picture_url;
+  constructor(props: CatalogItemProps) {
+    super(props);
+    this.#name = props.name;
+    this.#description = props.description;
+    this.#is_service = props.is_service;
+    this.#tenant_id = props.tenant_id;
+    this.amount = props.amount;
+    this.#picture_url = props.picture_url;
 
-    for (let idx = 0; idx < obj.attributes.length; idx++) {
-      const attribute = obj.attributes[idx];
+    for (let idx = 0; idx < props.attributes.length; idx++) {
+      const attribute = props.attributes[idx];
       this.#attributes.push(new Attribute(attribute.name, attribute.description));
     }
   }
@@ -65,7 +64,7 @@ export default class CatalogItem extends Aggregate<CatalogItemObject> {
     this.#picture_url = value;
   }
 
-  toObject(): RequiredId<CatalogItemObject> {
+  toObject(): RequiredProps<CatalogItemProps> {
     const attributes = [];
 
     for (let idx = 0; idx < this.#attributes.length; idx++) {
@@ -81,6 +80,8 @@ export default class CatalogItem extends Aggregate<CatalogItemObject> {
       tenant_id: this.#tenant_id,
       amount: this.#amount,
       picture_url: this.#picture_url,
+      created_at: this.created_at,
+      updated_at: this.updated_at
     };
   }
 }

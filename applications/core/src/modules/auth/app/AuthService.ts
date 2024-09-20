@@ -1,6 +1,6 @@
-import AccessPlan, { AccessPlanObject, AccessPlanTypes } from "@auth/domain/AccessPlan";
-import Policy, { PolicyObject } from "@auth/domain/Policy";
-import User, { UserObject } from "@auth/domain/User";
+import AccessPlan, { AccessPlanProps, AccessPlanTypes } from "@auth/domain/AccessPlan";
+import Policy, { PolicyProps } from "@auth/domain/Policy";
+import User, { UserProps } from "@auth/domain/User";
 import VerificationCode from "@auth/domain/VerificationCode";
 import CredentialError from "@shared/errors/CredentialError";
 import DomainError from "@shared/errors/DomainError";
@@ -22,7 +22,7 @@ import UserRepository from "./UserRepository";
 import VerificationCodeRepository from "./VerificationCodeRepository";
 
 export type LoginResult = {
-  user: UserObject;
+  user: UserProps;
   auth: TokenResult;
 };
 
@@ -53,7 +53,7 @@ export type GetUsersParams = {
 };
 
 export type GetUsersResult = {
-  results: Array<UserObject>;
+  results: Array<UserProps>;
   page_result?: PageResult;
 };
 
@@ -130,7 +130,7 @@ export default class AuthService {
     });
   }
 
-  async registerUser(params: RegisterUserParams): Promise<Either<UserObject>> {
+  async registerUser(params: RegisterUserParams): Promise<Either<UserProps>> {
     if (params.access_plan_id !== undefined) {
       const access_plan = await this.#access_plan_repository.getAccessPlanById(params.access_plan_id);
       if (!access_plan) {
@@ -234,7 +234,7 @@ export default class AuthService {
     return Either.right();
   }
 
-  async createAccessPlan(params: CreateAccessPlanParams): Promise<Either<AccessPlanObject>> {
+  async createAccessPlan(params: CreateAccessPlanParams): Promise<Either<AccessPlanProps>> {
     try {
       const access_plan = new AccessPlan({
         active: false,
@@ -290,12 +290,12 @@ export default class AuthService {
     }
   }
 
-  async getAccessPlans(): Promise<Either<Array<AccessPlanObject>>> {
+  async getAccessPlans(): Promise<Either<Array<AccessPlanProps>>> {
     const access_plans = await this.#access_plan_repository.getAccessPlans();
     return Either.right(access_plans);
   }
 
-  async getPolicies(): Promise<Either<Array<PolicyObject>>> {
+  async getPolicies(): Promise<Either<Array<PolicyProps>>> {
     const policies = await this.#policy_repository.getPolicies();
     return Either.right(policies);
   }

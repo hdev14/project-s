@@ -1,4 +1,4 @@
-import Aggregate, { AggregateRoot, RequiredId } from "@shared/ddd/Aggregate";
+import Aggregate, { AggregateProps, AggregateRoot, RequiredProps } from "@shared/ddd/Aggregate";
 import DomainError from "@shared/errors/DomainError";
 
 export enum TaxTypes {
@@ -6,26 +6,25 @@ export enum TaxTypes {
   RAW = 'raw'
 }
 
-export type CommissionObject = {
-  id?: string;
+export type CommissionProps = AggregateProps & {
   catalog_item_id: string;
   tax: number;
   tax_type: TaxTypes;
   tenant_id: string;
 };
 
-export default class Commission extends Aggregate<CommissionObject> implements AggregateRoot {
+export default class Commission extends Aggregate<CommissionProps> implements AggregateRoot {
   #catalog_item_id: string;
   #tax: number = 0;
   #tax_type: TaxTypes;
   #tenant_id: string;
 
-  constructor(obj: CommissionObject) {
-    super(obj.id);
-    this.#catalog_item_id = obj.catalog_item_id;
-    this.#tax_type = obj.tax_type;
-    this.tax = obj.tax;
-    this.#tenant_id = obj.tenant_id;
+  constructor(props: CommissionProps) {
+    super(props);
+    this.#catalog_item_id = props.catalog_item_id;
+    this.#tax_type = props.tax_type;
+    this.tax = props.tax;
+    this.#tenant_id = props.tenant_id;
   }
 
   set tax_type(value: TaxTypes) {
@@ -47,13 +46,15 @@ export default class Commission extends Aggregate<CommissionObject> implements A
     return this.#tax;
   }
 
-  toObject(): RequiredId<CommissionObject> {
+  toObject(): RequiredProps<CommissionProps> {
     return {
       id: this.id,
       catalog_item_id: this.#catalog_item_id,
       tax: this.#tax,
       tax_type: this.#tax_type,
       tenant_id: this.#tenant_id,
+      created_at: this.created_at,
+      updated_at: this.updated_at
     };
   }
 }

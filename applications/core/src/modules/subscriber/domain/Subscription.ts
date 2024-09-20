@@ -1,22 +1,24 @@
-import Aggregate, { RequiredId } from "@shared/ddd/Aggregate";
+import Aggregate, { AggregateProps, RequiredProps } from "@shared/ddd/Aggregate";
 
-export type SubscriptionObject = {
+export type SubscriptionProps = AggregateProps<{
   id?: string;
   started_at: Date;
-};
+}>;
 
-export default class Subscription extends Aggregate<SubscriptionObject> {
+export default class Subscription extends Aggregate<SubscriptionProps> {
   #started_at: Date;
 
-  constructor(obj: SubscriptionObject) {
-    super(obj.id);
-    this.#started_at = obj.started_at;
+  constructor(props: SubscriptionProps) {
+    super(props);
+    this.#started_at = props.started_at;
   }
 
-  toObject(): RequiredId<SubscriptionObject> {
+  toObject(): RequiredProps<SubscriptionProps> {
     return {
       id: this.id,
       started_at: this.#started_at,
+      created_at: this.created_at,
+      updated_at: this.updated_at
     };
   }
 }

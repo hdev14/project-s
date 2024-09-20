@@ -2,7 +2,7 @@ import Database from "@shared/Database";
 import DbUtils from "@shared/utils/DbUtils";
 import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
 import SubscriptionRepository, { SubscriptionsFilter } from "@subscription/app/SubscriptionRepository";
-import Subscription, { SubscriptionObject } from "@subscription/domain/Subscription";
+import Subscription, { SubscriptionProps } from "@subscription/domain/Subscription";
 import { injectable } from "inversify";
 import { Pool } from "pg";
 import 'reflect-metadata';
@@ -25,7 +25,7 @@ export default class DbSubscriptionRepository implements SubscriptionRepository 
   }
 
   async updateSubscription(subscription: Subscription): Promise<void> {
-    const subscription_obj = subscription.toObject();
+    const subscription_obj = Object.assign({}, subscription.toObject(), { created_at: undefined });
 
     await this.#db.query(
       `UPDATE subscriptions SET ${DbUtils.setColumns(subscription_obj)} WHERE id = $1`,
@@ -43,13 +43,15 @@ export default class DbSubscriptionRepository implements SubscriptionRepository 
       subscriber_id: result.rows[0].subscriber_id,
       started_at: result.rows[0].started_at,
       tenant_id: result.rows[0].tenant_id,
+      created_at: result.rows[0].created_at,
+      updated_at: result.rows[0].updated_at,
     });
   }
 
-  async getSubscriptions(filter: SubscriptionsFilter): Promise<PaginatedResult<SubscriptionObject>> {
+  async getSubscriptions(filter: SubscriptionsFilter): Promise<PaginatedResult<SubscriptionProps>> {
     const { rows, page_result } = await this.selectSubscriptions(filter);
 
-    const results: SubscriptionObject[] = [];
+    const results: SubscriptionProps[] = [];
 
     for (let idx = 0; idx < rows.length; idx++) {
       const subscription = rows[idx];
@@ -60,6 +62,8 @@ export default class DbSubscriptionRepository implements SubscriptionRepository 
         subscription_plan_id: subscription.subscription_plan_id,
         tenant_id: subscription.tenant_id,
         started_at: subscription.started_at,
+        created_at: subscription.created_at,
+        updated_at: subscription.updated_at,
       });
     }
 

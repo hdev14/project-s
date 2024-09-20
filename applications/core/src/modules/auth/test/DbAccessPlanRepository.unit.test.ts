@@ -118,21 +118,30 @@ describe('DbAccessPlanRepository unit tests', () => {
 
   describe('DbAccessPlanRepository.updateAccessPlan', () => {
     it('updates an access plan', async () => {
-      const access_plan_obj = {
+      const access_plan_props = {
         id: faker.string.uuid(),
         active: true,
         amount: faker.number.float(),
         type: AccessPlanTypes.MONTHLY,
         description: faker.lorem.lines(),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
-      const access_plan = new AccessPlan(access_plan_obj);
+      const access_plan = new AccessPlan(access_plan_props);
 
       await repository.updateAccessPlan(access_plan);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'UPDATE access_plans SET active=$2, amount=$3, type=$4, description=$5 WHERE id=$1',
-        [access_plan_obj.id, access_plan_obj.active, access_plan_obj.amount, access_plan_obj.type, access_plan_obj.description]
+        'UPDATE access_plans SET active=$2,amount=$3,type=$4,description=$5,updated_at=$6 WHERE id=$1',
+        [
+          access_plan_props.id,
+          access_plan_props.active,
+          access_plan_props.amount,
+          access_plan_props.type,
+          access_plan_props.description,
+          access_plan_props.updated_at
+        ]
       );
     });
   });

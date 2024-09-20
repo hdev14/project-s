@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker/locale/pt_BR";
 import Database from "@shared/Database";
-import Subscription, { SubscriptionObject, SubscriptionStatus } from "@subscription/domain/Subscription";
+import Subscription, { SubscriptionProps, SubscriptionStatus } from "@subscription/domain/Subscription";
 import DbSubscriptionRepository from "@subscription/infra/persistence/DbSubscriptionRepository";
 
 const connect_spy = jest.spyOn(Database, 'connect');
@@ -23,28 +23,32 @@ describe('DbSubscriptionRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const subscription_obj: SubscriptionObject = {
+      const subscription_props: SubscriptionProps = {
         id: faker.string.uuid(),
         status: faker.helpers.enumValue(SubscriptionStatus),
         subscriber_id: faker.string.uuid(),
         subscription_plan_id: faker.string.uuid(),
         tenant_id: faker.string.uuid(),
         started_at: faker.date.future(),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
-      const subscription = new Subscription(subscription_obj);
+      const subscription = new Subscription(subscription_props);
 
       await repository.createSubscription(subscription);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO subscriptions (id,subscriber_id,subscription_plan_id,started_at,status,tenant_id) VALUES ($1,$2,$3,$4,$5,$6)',
+        'INSERT INTO subscriptions (id,subscriber_id,subscription_plan_id,started_at,status,tenant_id,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)',
         [
-          subscription_obj.id,
-          subscription_obj.subscriber_id,
-          subscription_obj.subscription_plan_id,
-          subscription_obj.started_at,
-          subscription_obj.status,
-          subscription_obj.tenant_id,
+          subscription_props.id,
+          subscription_props.subscriber_id,
+          subscription_props.subscription_plan_id,
+          subscription_props.started_at,
+          subscription_props.status,
+          subscription_props.tenant_id,
+          subscription_props.created_at,
+          subscription_props.updated_at,
         ],
       );
     });
@@ -53,26 +57,30 @@ describe('DbSubscriptionRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const subscription_obj: SubscriptionObject = {
+      const subscription_props: SubscriptionProps = {
         id: faker.string.uuid(),
         status: faker.helpers.enumValue(SubscriptionStatus),
         subscriber_id: faker.string.uuid(),
         subscription_plan_id: faker.string.uuid(),
         tenant_id: faker.string.uuid(),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
-      const subscription = new Subscription(subscription_obj);
+      const subscription = new Subscription(subscription_props);
 
       await repository.createSubscription(subscription);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO subscriptions (id,subscriber_id,subscription_plan_id,status,tenant_id) VALUES ($1,$2,$3,$4,$5)',
+        'INSERT INTO subscriptions (id,subscriber_id,subscription_plan_id,status,tenant_id,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7)',
         [
-          subscription_obj.id,
-          subscription_obj.subscriber_id,
-          subscription_obj.subscription_plan_id,
-          subscription_obj.status,
-          subscription_obj.tenant_id,
+          subscription_props.id,
+          subscription_props.subscriber_id,
+          subscription_props.subscription_plan_id,
+          subscription_props.status,
+          subscription_props.tenant_id,
+          subscription_props.created_at,
+          subscription_props.updated_at,
         ],
       );
     });
@@ -83,28 +91,31 @@ describe('DbSubscriptionRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const subscription_obj = {
+      const subscription_props = {
         id: faker.string.uuid(),
         status: faker.helpers.enumValue(SubscriptionStatus),
         subscriber_id: faker.string.uuid(),
         subscription_plan_id: faker.string.uuid(),
         tenant_id: faker.string.uuid(),
         started_at: faker.date.future(),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
-      const subscription = new Subscription(subscription_obj);
+      const subscription = new Subscription(subscription_props);
 
       await repository.updateSubscription(subscription);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'UPDATE subscriptions SET subscriber_id=$2,subscription_plan_id=$3,started_at=$4,status=$5,tenant_id=$6 WHERE id = $1',
+        'UPDATE subscriptions SET subscriber_id=$2,subscription_plan_id=$3,started_at=$4,status=$5,tenant_id=$6,updated_at=$7 WHERE id = $1',
         [
-          subscription_obj.id,
-          subscription_obj.subscriber_id,
-          subscription_obj.subscription_plan_id,
-          subscription_obj.started_at,
-          subscription_obj.status,
-          subscription_obj.tenant_id,
+          subscription_props.id,
+          subscription_props.subscriber_id,
+          subscription_props.subscription_plan_id,
+          subscription_props.started_at,
+          subscription_props.status,
+          subscription_props.tenant_id,
+          subscription_props.updated_at,
         ],
       );
     });
@@ -113,26 +124,29 @@ describe('DbSubscriptionRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const subscription_obj = {
+      const subscription_props = {
         id: faker.string.uuid(),
         status: faker.helpers.enumValue(SubscriptionStatus),
         subscriber_id: faker.string.uuid(),
         subscription_plan_id: faker.string.uuid(),
         tenant_id: faker.string.uuid(),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       };
 
-      const subscription = new Subscription(subscription_obj);
+      const subscription = new Subscription(subscription_props);
 
       await repository.updateSubscription(subscription);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'UPDATE subscriptions SET subscriber_id=$2,subscription_plan_id=$3,status=$4,tenant_id=$5 WHERE id = $1',
+        'UPDATE subscriptions SET subscriber_id=$2,subscription_plan_id=$3,status=$4,tenant_id=$5,updated_at=$6 WHERE id = $1',
         [
-          subscription_obj.id,
-          subscription_obj.subscriber_id,
-          subscription_obj.subscription_plan_id,
-          subscription_obj.status,
-          subscription_obj.tenant_id,
+          subscription_props.id,
+          subscription_props.subscriber_id,
+          subscription_props.subscription_plan_id,
+          subscription_props.status,
+          subscription_props.tenant_id,
+          subscription_props.updated_at,
         ],
       );
     });

@@ -59,7 +59,7 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
 
       subscription_plan_objs[row.id] = {
         id: row.id,
-        amount: row.amount,
+        amount: parseFloat(row.amount),
         recurrence_type: row.recurrence_type,
         tenant_id: row.tenant_id,
         term_url: row.term_url,
@@ -133,7 +133,7 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
 
     return SubscriptionPlan.fromObject({
       id: subscription_plan_row.id,
-      amount: subscription_plan_row.amount,
+      amount: parseFloat(subscription_plan_row.amount),
       recurrence_type: subscription_plan_row.recurrence_type,
       tenant_id: subscription_plan_row.tenant_id,
       term_url: subscription_plan_row.term_url,

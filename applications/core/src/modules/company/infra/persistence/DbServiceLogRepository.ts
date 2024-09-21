@@ -25,10 +25,10 @@ export default class DbServiceLogRepository implements ServiceLogRepository {
       results.push({
         id: row.id,
         customer_id: row.customer_id,
-        paid_amount: row.paid_amount,
+        paid_amount: parseFloat(row.paid_amount),
         registed_at: new Date(row.registed_at),
         tenant_id: row.tenant_id,
-        commission_amount: row.commission_amount,
+        commission_amount: parseFloat(row.commission_amount),
         employee_id: row.employee_id,
         service_id: row.service_id,
         created_at: new Date(row.created_at),

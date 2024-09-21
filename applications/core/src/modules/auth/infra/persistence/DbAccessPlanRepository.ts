@@ -26,7 +26,7 @@ export default class DbAccessPlanRepository implements AccessPlanRepository {
     return AccessPlan.fromObject({
       id: row.id,
       active: row.active,
-      amount: row.amount,
+      amount: parseFloat(row.amount),
       type: row.type,
       description: row.description,
       created_at: new Date(row.created_at),

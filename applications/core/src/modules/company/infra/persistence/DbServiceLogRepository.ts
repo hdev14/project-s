@@ -26,7 +26,7 @@ export default class DbServiceLogRepository implements ServiceLogRepository {
         id: row.id,
         customer_id: row.customer_id,
         paid_amount: row.paid_amount,
-        registed_at: row.registed_at,
+        registed_at: new Date(row.registed_at),
         tenant_id: row.tenant_id,
         commission_amount: row.commission_amount,
         employee_id: row.employee_id,

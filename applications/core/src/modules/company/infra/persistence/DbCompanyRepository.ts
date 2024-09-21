@@ -33,7 +33,7 @@ export default class DbCompanyRepository implements CompanyRepository {
       name: result.rows[0].name,
       document: result.rows[0].document,
       email: result.rows[0].email,
-      deactivated_at: result.rows[0].deactivated_at,
+      deactivated_at: result.rows[0].deactivated_at && new Date(result.rows[0].deactivated_at),
       created_at: new Date(result.rows[0].created_at),
       updated_at: new Date(result.rows[0].updated_at),
     });

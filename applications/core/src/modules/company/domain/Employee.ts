@@ -23,18 +23,22 @@ export default class Employee extends Aggregate<EmployeeProps> {
 
   set name(value: string) {
     this.#name = value;
+    this.update();
   }
 
   set email(value: string) {
     this.#email = value;
+    this.update();
   }
 
   set document(value: string) {
     this.#document = value;
+    this.update();
   }
 
   deactive() {
     this.#deactivated_at = new Date();
+    this.update();
   }
 
   toObject(): RequiredProps<EmployeeProps> {

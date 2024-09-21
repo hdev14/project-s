@@ -38,10 +38,12 @@ export default class CatalogItem extends Aggregate<CatalogItemProps> {
 
   set name(value: string) {
     this.#name = value;
+    this.update();
   }
 
   set description(value: string) {
     this.#description = value;
+    this.update();
   }
 
   set amount(value: number) {
@@ -50,6 +52,7 @@ export default class CatalogItem extends Aggregate<CatalogItemProps> {
     }
 
     this.#amount = value;
+    this.update();
   }
 
   set attributes(value: Array<AttributeValue>) {
@@ -58,10 +61,13 @@ export default class CatalogItem extends Aggregate<CatalogItemProps> {
     for (let idx = 0; idx < value.length; idx++) {
       this.#attributes.push(new Attribute(value[idx].name, value[idx].description));
     }
+
+    this.update();
   }
 
   set picture_url(value: string | undefined) {
     this.#picture_url = value;
+    this.update();
   }
 
   toObject(): RequiredProps<CatalogItemProps> {

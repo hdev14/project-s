@@ -182,7 +182,7 @@ export default class SubscriptionService {
       const promises = [];
 
       for (let idx = 0; idx < params.item_ids.length; idx++) {
-        promises.push(this.#mediator.send<{ id: string, name: string, amount: number }>(
+        promises.push(this.#mediator.send<{ id: string, name: string, amount: number, created_at: Date, updated_at: Date }>(
           new GetCatalogItemCommand(params.item_ids[idx]))
         );
       }
@@ -204,6 +204,8 @@ export default class SubscriptionService {
         items.push({
           id: catalog_item.id,
           name: catalog_item.name,
+          created_at: catalog_item.created_at,
+          updated_at: catalog_item.updated_at,
         });
       }
 

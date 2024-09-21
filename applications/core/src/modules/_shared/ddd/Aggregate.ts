@@ -13,7 +13,7 @@ export type RequiredProps<T extends AggregateProps> = Required<Pick<T, 'id' | 'c
 export default abstract class Aggregate<T extends AggregateProps> {
   readonly #id: string;
   readonly #created_at: Date;
-  readonly #updated_at: Date;
+  #updated_at: Date;
 
   constructor(props: AggregateProps) {
     this.#id = props.id || randomUUID();
@@ -31,6 +31,10 @@ export default abstract class Aggregate<T extends AggregateProps> {
 
   get updated_at() {
     return this.#updated_at;
+  }
+
+  protected update() {
+    this.#updated_at = new Date();
   }
 
   abstract toObject(): RequiredProps<T>;

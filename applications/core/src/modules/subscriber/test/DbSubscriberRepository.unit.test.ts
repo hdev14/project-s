@@ -296,7 +296,7 @@ describe('DbSubscriberRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const subscriber_props = {
+      const subscriber = new Subscriber({
         id: faker.string.uuid(),
         address: {
           street: faker.location.street(),
@@ -315,27 +315,27 @@ describe('DbSubscriberRepository unit tests', () => {
         subscriptions: [],
         created_at: faker.date.future(),
         updated_at: faker.date.future(),
-      };
+      });
 
-      const subscriber = new Subscriber(subscriber_props);
+      const subscriber_obj = subscriber.toObject();
 
       await repository.updateSubscriber(subscriber);
 
       expect(query_mock).toHaveBeenCalledWith(
         "UPDATE users SET document=$2,email=$3,phone_number=$4,updated_at=$5,street=$6,district=$7,state=$8,number=$9,complement=$10,payment_type=$11,credit_card_external_id=$12 WHERE type='customer' AND id=$1",
         [
-          subscriber_props.id,
-          subscriber_props.document,
-          subscriber_props.email,
-          subscriber_props.phone_number,
-          subscriber_props.updated_at,
-          subscriber_props.address.street,
-          subscriber_props.address.district,
-          subscriber_props.address.state,
-          subscriber_props.address.number,
-          subscriber_props.address.complement,
-          subscriber_props.payment_method.payment_type,
-          subscriber_props.payment_method.credit_card_external_id,
+          subscriber_obj.id,
+          subscriber_obj.document,
+          subscriber_obj.email,
+          subscriber_obj.phone_number,
+          subscriber_obj.updated_at,
+          subscriber_obj.address.street,
+          subscriber_obj.address.district,
+          subscriber_obj.address.state,
+          subscriber_obj.address.number,
+          subscriber_obj.address.complement,
+          subscriber_obj.payment_method.payment_type,
+          subscriber_obj.payment_method.credit_card_external_id,
         ],
       );
     });
@@ -344,7 +344,7 @@ describe('DbSubscriberRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const subscriber_props = {
+      const subscriber = new Subscriber({
         id: faker.string.uuid(),
         address: {
           street: faker.location.street(),
@@ -362,26 +362,26 @@ describe('DbSubscriberRepository unit tests', () => {
         subscriptions: [],
         created_at: faker.date.future(),
         updated_at: faker.date.future(),
-      };
+      });
 
-      const subscriber = new Subscriber(subscriber_props);
+      const subscriber_obj = subscriber.toObject();
 
       await repository.updateSubscriber(subscriber);
 
       expect(query_mock).toHaveBeenCalledWith(
         "UPDATE users SET document=$2,email=$3,phone_number=$4,updated_at=$5,street=$6,district=$7,state=$8,number=$9,complement=$10,payment_type=$11 WHERE type='customer' AND id=$1",
         [
-          subscriber_props.id,
-          subscriber_props.document,
-          subscriber_props.email,
-          subscriber_props.phone_number,
-          subscriber_props.updated_at,
-          subscriber_props.address.street,
-          subscriber_props.address.district,
-          subscriber_props.address.state,
-          subscriber_props.address.number,
-          subscriber_props.address.complement,
-          subscriber_props.payment_method.payment_type,
+          subscriber_obj.id,
+          subscriber_obj.document,
+          subscriber_obj.email,
+          subscriber_obj.phone_number,
+          subscriber_obj.updated_at,
+          subscriber_obj.address.street,
+          subscriber_obj.address.district,
+          subscriber_obj.address.state,
+          subscriber_obj.address.number,
+          subscriber_obj.address.complement,
+          subscriber_obj.payment_method.payment_type,
         ],
       );
     });

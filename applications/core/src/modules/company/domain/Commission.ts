@@ -29,6 +29,7 @@ export default class Commission extends Aggregate<CommissionProps> implements Ag
 
   set tax_type(value: TaxTypes) {
     this.#tax_type = value;
+    this.update();
   }
 
   set tax(value: number) {
@@ -36,6 +37,7 @@ export default class Commission extends Aggregate<CommissionProps> implements Ag
       throw new DomainError('tax_percentage_error');
     }
     this.#tax = value;
+    this.update();
   }
 
   calculate(paid_amount: number) {

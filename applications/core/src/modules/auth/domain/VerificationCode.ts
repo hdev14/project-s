@@ -28,6 +28,7 @@ export default class VerificationCode extends Aggregate<VerificationCodeProps> i
 
   expire() {
     this.#expired_at = new Date();
+    this.update();
   }
 
   isExpired() {

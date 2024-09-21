@@ -254,7 +254,7 @@ describe('DbCompanyRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const company_obj = {
+      const company = new Company({
         id: faker.string.uuid(),
         document: faker.string.numeric(14),
         name: faker.company.name(),
@@ -278,9 +278,9 @@ describe('DbCompanyRepository unit tests', () => {
           logo_url: faker.internet.url(),
         },
         employees: [],
-      };
+      });
 
-      const company = new Company(company_obj);
+      const company_obj = company.toObject();
 
       await repository.updateCompany(company);
 
@@ -301,8 +301,8 @@ describe('DbCompanyRepository unit tests', () => {
           company_obj.bank.agency,
           company_obj.bank.agency_digit,
           company_obj.bank.bank_code,
-          company_obj.brand.color,
-          company_obj.brand.logo_url,
+          company_obj.brand!.color,
+          company_obj.brand!.logo_url,
         ],
       );
     });
@@ -419,7 +419,7 @@ describe('DbCompanyRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const employee_props = {
+      const employee = new Employee({
         id: faker.string.uuid(),
         document: faker.string.numeric(11),
         email: faker.internet.email(),
@@ -427,21 +427,21 @@ describe('DbCompanyRepository unit tests', () => {
         deactivated_at: faker.date.anytime(),
         created_at: faker.date.anytime(),
         updated_at: faker.date.anytime(),
-      };
+      });
 
-      const employee = new Employee(employee_props);
+      const employee_obj = employee.toObject();
 
       await repository.updateEmployee(employee);
 
       expect(query_mock).toHaveBeenCalledWith(
         "UPDATE users SET name=$2,document=$3,email=$4,deactivated_at=$5,updated_at=$6 WHERE type='employee' AND id = $1",
         [
-          employee_props.id,
-          employee_props.name,
-          employee_props.document,
-          employee_props.email,
-          employee_props.deactivated_at,
-          employee_props.updated_at,
+          employee_obj.id,
+          employee_obj.name,
+          employee_obj.document,
+          employee_obj.email,
+          employee_obj.deactivated_at,
+          employee_obj.updated_at,
         ],
       );
     });

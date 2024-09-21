@@ -164,7 +164,7 @@ describe('DbServiceLogRepository unit tests', () => {
       query_mock
         .mockResolvedValueOnce({});
 
-      const service_log_props = {
+      const service_log = new ServiceLog({
         id: faker.string.uuid(),
         customer_id: faker.string.uuid(),
         tenant_id: faker.string.uuid(),
@@ -175,25 +175,25 @@ describe('DbServiceLogRepository unit tests', () => {
         service_id: faker.string.uuid(),
         created_at: faker.date.future(),
         updated_at: faker.date.future(),
-      };
+      });
 
-      const service_log = new ServiceLog(service_log_props);
+      const service_log_obj = service_log.toObject();
 
       await repository.createServiceLog(service_log);
 
       expect(query_mock).toHaveBeenCalledWith(
         'INSERT INTO service_logs (id,commission_amount,employee_id,service_id,customer_id,tenant_id,paid_amount,registed_at,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',
         [
-          service_log_props.id,
-          service_log_props.commission_amount,
-          service_log_props.employee_id,
-          service_log_props.service_id,
-          service_log_props.customer_id,
-          service_log_props.tenant_id,
-          service_log_props.paid_amount,
-          service_log_props.registed_at,
-          service_log_props.created_at,
-          service_log_props.updated_at,
+          service_log_obj.id,
+          service_log_obj.commission_amount,
+          service_log_obj.employee_id,
+          service_log_obj.service_id,
+          service_log_obj.customer_id,
+          service_log_obj.tenant_id,
+          service_log_obj.paid_amount,
+          service_log_obj.registed_at,
+          service_log_obj.created_at,
+          service_log_obj.updated_at,
         ],
       );
     });

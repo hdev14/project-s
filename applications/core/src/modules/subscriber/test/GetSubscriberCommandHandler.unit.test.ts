@@ -33,7 +33,9 @@ describe('GetSubscriberCommandHandler unit tests', () => {
         credit_card_external_id: faker.string.uuid(),
       },
       phone_number: faker.string.numeric(11),
-      subscriptions: []
+      subscriptions: [],
+      created_at: faker.date.future(),
+      updated_at: faker.date.future(),
     };
 
     subscriber_repository_mock.getSubcriberById.mockResolvedValueOnce(

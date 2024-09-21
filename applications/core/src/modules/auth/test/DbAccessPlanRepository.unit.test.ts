@@ -97,28 +97,7 @@ describe('DbAccessPlanRepository unit tests', () => {
 
   describe('DbAccessPlanRepository.createAccessPlan', () => {
     it('creates a new access plan', async () => {
-      const access_plan_obj = {
-        id: faker.string.uuid(),
-        active: true,
-        amount: faker.number.float(),
-        type: AccessPlanTypes.MONTHLY,
-        description: faker.lorem.lines(),
-      };
-
-      const access_plan = new AccessPlan(access_plan_obj);
-
-      await repository.createAccessPlan(access_plan);
-
-      expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO access_plans(id, active, amount, type, description) VALUES($1, $2, $3, $4, $5)',
-        [access_plan_obj.id, access_plan_obj.active, access_plan_obj.amount, access_plan_obj.type, access_plan_obj.description]
-      );
-    });
-  });
-
-  describe('DbAccessPlanRepository.updateAccessPlan', () => {
-    it('updates an access plan', async () => {
-      const access_plan_props = {
+      const access_plan = new AccessPlan({
         id: faker.string.uuid(),
         active: true,
         amount: faker.number.float(),
@@ -126,21 +105,52 @@ describe('DbAccessPlanRepository unit tests', () => {
         description: faker.lorem.lines(),
         created_at: faker.date.future(),
         updated_at: faker.date.future(),
-      };
+      });
 
-      const access_plan = new AccessPlan(access_plan_props);
+      const access_plan_obj = access_plan.toObject();
+
+      await repository.createAccessPlan(access_plan);
+
+      expect(query_mock).toHaveBeenCalledWith(
+        'INSERT INTO access_plans (id,amount,type,description,active,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+        [
+          access_plan_obj.id,
+          access_plan_obj.amount,
+          access_plan_obj.type,
+          access_plan_obj.description,
+          access_plan_obj.active,
+          access_plan_obj.created_at,
+          access_plan_obj.updated_at,
+        ]
+      );
+    });
+  });
+
+  describe('DbAccessPlanRepository.updateAccessPlan', () => {
+    it('updates an access plan', async () => {
+      const access_plan = new AccessPlan({
+        id: faker.string.uuid(),
+        active: true,
+        amount: faker.number.float(),
+        type: AccessPlanTypes.MONTHLY,
+        description: faker.lorem.lines(),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
+      });
+
+      const access_plan_obj = access_plan.toObject();
 
       await repository.updateAccessPlan(access_plan);
 
       expect(query_mock).toHaveBeenCalledWith(
         'UPDATE access_plans SET active=$2,amount=$3,type=$4,description=$5,updated_at=$6 WHERE id=$1',
         [
-          access_plan_props.id,
-          access_plan_props.active,
-          access_plan_props.amount,
-          access_plan_props.type,
-          access_plan_props.description,
-          access_plan_props.updated_at
+          access_plan_obj.id,
+          access_plan_obj.active,
+          access_plan_obj.amount,
+          access_plan_obj.type,
+          access_plan_obj.description,
+          access_plan_obj.updated_at
         ]
       );
     });

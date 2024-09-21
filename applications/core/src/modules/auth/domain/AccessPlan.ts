@@ -32,22 +32,27 @@ export default class AccessPlan extends Aggregate<AccessPlanProps> implements Ag
       throw new DomainError('negative_access_plan_amount');
     }
     this.#amount = value;
+    this.update();
   }
 
   set description(value: string | undefined) {
     this.#description = value;
+    this.update();
   }
 
   set type(value: AccessPlanTypes) {
     this.#type = value;
+    this.update();
   }
 
   activate() {
     this.#active = true;
+    this.update();
   }
 
   deactivate() {
     this.#active = false;
+    this.update();
   }
 
   isActive() {

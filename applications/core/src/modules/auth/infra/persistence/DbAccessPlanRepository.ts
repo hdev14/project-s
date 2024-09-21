@@ -1,6 +1,7 @@
 import AccessPlanRepository from "@auth/app/AccessPlanRepository";
 import AccessPlan, { AccessPlanProps } from "@auth/domain/AccessPlan";
 import Database from "@shared/Database";
+import DbUtils from "@shared/utils/DbUtils";
 import { injectable } from "inversify";
 import { Pool } from "pg";
 import 'reflect-metadata';
@@ -55,10 +56,12 @@ export default class DbAccessPlanRepository implements AccessPlanRepository {
   }
 
   async createAccessPlan(access_plan: AccessPlan): Promise<void> {
-    const query = 'INSERT INTO access_plans(id, active, amount, type, description) VALUES($1, $2, $3, $4, $5)';
     const data = access_plan.toObject()
-    const values = [data.id, data.active, data.amount, data.type, data.description];
-    await this.#db.query(query, values);
+    const values = Object.values(data);
+
+    const query = `INSERT INTO access_plans ${DbUtils.columns(data)} VALUES ${DbUtils.values(values)}`;
+
+    await this.#db.query(query, DbUtils.sanitizeValues(values));
   }
 
   async updateAccessPlan(access_plan: AccessPlan): Promise<void> {

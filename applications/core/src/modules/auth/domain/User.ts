@@ -32,10 +32,12 @@ export default class User extends Aggregate<UserProps> implements AggregateRoot 
 
   set email(value: string) {
     this.#email = value;
+    this.update();
   }
 
   set password(value: string) {
     this.#password = value;
+    this.update();
   }
 
   attachPolicy(policy: Policy) {
@@ -49,6 +51,8 @@ export default class User extends Aggregate<UserProps> implements AggregateRoot 
     if (!has_policy) {
       this.#policies.push(policy.toObject().slug);
     }
+
+    this.update();
   }
 
   dettachPolicy(policy: Policy) {
@@ -62,10 +66,12 @@ export default class User extends Aggregate<UserProps> implements AggregateRoot 
     }
 
     this.#policies = new_policy;
+    this.update();
   }
 
   changeAccessPlan(access_plan: AccessPlan) {
     this.#access_plan_id = access_plan.id;
+    this.update();
   }
 
   toObject(): RequiredProps<UserProps> {

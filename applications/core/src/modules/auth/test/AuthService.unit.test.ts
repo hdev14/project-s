@@ -523,13 +523,12 @@ describe('AuthService unit tests', () => {
 
       expect(error).toBeUndefined();
       expect(access_plan_repository_mock.updateAccessPlan).toHaveBeenCalled();
-      expect(access_plan_repository_mock.updateAccessPlan.mock.calls[0][0].toObject()).toEqual({
-        id: params.access_plan_id,
-        amount: params.amount,
-        description: params.description,
-        type: params.type,
-        active: params.active,
-      });
+      const obj = access_plan_repository_mock.updateAccessPlan.mock.calls[0][0].toObject();
+      expect(obj.id).toEqual(params.access_plan_id);
+      expect(obj.amount).toEqual(params.amount);
+      expect(obj.description).toEqual(params.description);
+      expect(obj.type).toEqual(params.type);
+      expect(obj.active).toEqual(params.active);
     });
 
     it('should return a domain error if amount is negative', async () => {

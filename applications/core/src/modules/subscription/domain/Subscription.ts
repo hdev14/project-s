@@ -57,6 +57,7 @@ export default class Subscription extends Aggregate<SubscriptionProps> implement
 
     this.#status = SubscriptionStatus.ACTIVE;
     this.#started_at = new Date();
+    this.update();
   }
 
   pause() {
@@ -77,6 +78,7 @@ export default class Subscription extends Aggregate<SubscriptionProps> implement
     }
 
     this.#status = SubscriptionStatus.PAUSED;
+    this.update();
   }
 
   cancel() {
@@ -89,6 +91,7 @@ export default class Subscription extends Aggregate<SubscriptionProps> implement
     }
 
     this.#status = SubscriptionStatus.CANCELED;
+    this.update();
   }
 
   toObject(): RequiredProps<SubscriptionProps> {

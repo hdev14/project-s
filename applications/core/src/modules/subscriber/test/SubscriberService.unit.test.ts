@@ -23,7 +23,7 @@ describe('SubscriberService unit tests', () => {
 
   describe('SubscriberService.getSubscriber', () => {
     it('returns a subscriber', async () => {
-      const subscriber_obj = {
+      const subscriber = new Subscriber({
         id: faker.string.uuid(),
         email: faker.internet.email(),
         document: faker.string.numeric(11),
@@ -40,17 +40,16 @@ describe('SubscriberService unit tests', () => {
           credit_card_external_id: faker.string.uuid(),
         },
         subscriptions: [],
-      };
-      subscriber_repository_mock.getSubcriberById.mockResolvedValueOnce(
-        new Subscriber(subscriber_obj)
-      );
+      });
+
+      subscriber_repository_mock.getSubcriberById.mockResolvedValueOnce(subscriber);
 
       const subscriber_id = faker.string.uuid();
 
       const [error, data] = await subscriber_service.getSubscriber({ subscriber_id });
 
       expect(error).toBeUndefined();
-      expect(data).toEqual(subscriber_obj);
+      expect(data).toEqual(subscriber.toObject());
     });
 
     it("returns a not found error if subscriber doesn't exist", async () => {

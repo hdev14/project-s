@@ -46,14 +46,17 @@ export default class Subscriber extends Aggregate<SubscriberProps> implements Ag
     this.#document = personal_info.document;
     this.#email = personal_info.email;
     this.#phone_number = personal_info.phone_number;
+    this.update();
   }
 
   changeAddress(address: Address) {
     this.#address = address;
+    this.update();
   }
 
   changePaymentMethod(payment_method: PaymentMethod) {
     this.#payment_method = payment_method;
+    this.update();
   }
 
   toObject(): RequiredProps<SubscriberProps> {

@@ -290,7 +290,7 @@ describe('CompanyService unit tests', () => {
 
   describe('CompanyService.getCompany', () => {
     it('returns a company', async () => {
-      const company_obj = {
+      const company = new Company({
         id: faker.string.uuid(),
         name: faker.company.name(),
         document: faker.string.numeric(14),
@@ -310,18 +310,16 @@ describe('CompanyService unit tests', () => {
           bank_code: faker.string.numeric(3),
         },
         employees: [],
-      };
+      });
 
-      company_repository_mock.getCompanyById.mockResolvedValueOnce(
-        new Company(company_obj)
-      );
+      company_repository_mock.getCompanyById.mockResolvedValueOnce(company);
 
       const company_id = faker.string.uuid();
 
       const [error, data] = await company_service.getCompany({ company_id });
 
       expect(error).toBeUndefined();
-      expect(data).toEqual(company_obj);
+      expect(data).toEqual(company.toObject());
     });
 
     it("returns a not found error if company doesn't exist", async () => {
@@ -908,7 +906,7 @@ describe('CompanyService unit tests', () => {
 
   describe('CompanyService.getCommission', () => {
     it('returns a commission', async () => {
-      const commission_props = {
+      const commission = new Commission({
         id: faker.string.uuid(),
         catalog_item_id: faker.string.uuid(),
         tax: faker.number.float(),
@@ -916,18 +914,16 @@ describe('CompanyService unit tests', () => {
         tenant_id: faker.string.uuid(),
         created_at: faker.date.future(),
         updated_at: faker.date.future()
-      };
+      });
 
-      commission_repository_mock.getCommissionById.mockResolvedValueOnce(
-        new Commission(commission_props)
-      );
+      commission_repository_mock.getCommissionById.mockResolvedValueOnce(commission);
 
       const commission_id = faker.string.uuid();
 
       const [error, data] = await company_service.getCommission({ commission_id });
 
       expect(error).toBeUndefined();
-      expect(data).toEqual(commission_props);
+      expect(data).toEqual(commission.toObject());
     });
 
     it("returns a not found error if commission doesn't exist", async () => {

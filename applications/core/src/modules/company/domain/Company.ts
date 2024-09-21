@@ -52,14 +52,17 @@ export default class Company extends Aggregate<CompanyProps> implements Aggregat
 
   set address(value: Address) {
     this.#address = value;
+    this.update();
   }
 
   set bank(value: Bank) {
     this.#bank = value;
+    this.update();
   }
 
   set brand(value: Brand) {
     this.#brand = value;
+    this.update();
   }
 
   toObject(): RequiredProps<CompanyProps> {

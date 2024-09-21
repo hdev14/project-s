@@ -269,7 +269,7 @@ describe('DbCatalogRepository unit tests', () => {
 
   describe('DbCatalogRepository.createCatalogItem', () => {
     it('should create a new catalog_item', async () => {
-      const catalog_item_props = {
+      const catalog_item = new CatalogItem({
         tenant_id: faker.string.uuid(),
         id: faker.string.uuid(),
         name: faker.commerce.productName(),
@@ -280,31 +280,31 @@ describe('DbCatalogRepository unit tests', () => {
         picture_url: faker.internet.url(),
         created_at: faker.date.future(),
         updated_at: faker.date.future(),
-      };
+      });
 
-      const catalog_item = new CatalogItem(catalog_item_props);
+      const catalog_item_obj = catalog_item.toObject();
 
       await repository.createCatalogItem(catalog_item);
 
       expect(query_mock).toHaveBeenCalledWith(
         'INSERT INTO catalog_items (id,name,description,attributes,is_service,tenant_id,amount,picture_url,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',
         [
-          catalog_item_props.id,
-          catalog_item_props.name,
-          catalog_item_props.description,
-          JSON.stringify(catalog_item_props.attributes),
-          catalog_item_props.is_service,
-          catalog_item_props.tenant_id,
-          catalog_item_props.amount,
-          catalog_item_props.picture_url,
-          catalog_item_props.created_at,
-          catalog_item_props.updated_at,
+          catalog_item_obj.id,
+          catalog_item_obj.name,
+          catalog_item_obj.description,
+          JSON.stringify(catalog_item_obj.attributes),
+          catalog_item_obj.is_service,
+          catalog_item_obj.tenant_id,
+          catalog_item_obj.amount,
+          catalog_item_obj.picture_url,
+          catalog_item_obj.created_at,
+          catalog_item_obj.updated_at,
         ]
       );
     });
 
     it('should create a new catalog_item without picture_url', async () => {
-      const catalog_item_props = {
+      const catalog_item = new CatalogItem({
         tenant_id: faker.string.uuid(),
         id: faker.string.uuid(),
         name: faker.commerce.productName(),
@@ -314,24 +314,24 @@ describe('DbCatalogRepository unit tests', () => {
         is_service: faker.datatype.boolean(),
         created_at: faker.date.future(),
         updated_at: faker.date.future(),
-      };
+      });
 
-      const catalog_item = new CatalogItem(catalog_item_props);
+      const catalog_item_obj = catalog_item.toObject();
 
       await repository.createCatalogItem(catalog_item);
 
       expect(query_mock).toHaveBeenCalledWith(
         'INSERT INTO catalog_items (id,name,description,attributes,is_service,tenant_id,amount,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)',
         [
-          catalog_item_props.id,
-          catalog_item_props.name,
-          catalog_item_props.description,
-          JSON.stringify(catalog_item_props.attributes),
-          catalog_item_props.is_service,
-          catalog_item_props.tenant_id,
-          catalog_item_props.amount,
-          catalog_item_props.created_at,
-          catalog_item_props.updated_at,
+          catalog_item_obj.id,
+          catalog_item_obj.name,
+          catalog_item_obj.description,
+          JSON.stringify(catalog_item_obj.attributes),
+          catalog_item_obj.is_service,
+          catalog_item_obj.tenant_id,
+          catalog_item_obj.amount,
+          catalog_item_obj.created_at,
+          catalog_item_obj.updated_at,
         ]
       );
     });
@@ -339,7 +339,7 @@ describe('DbCatalogRepository unit tests', () => {
 
   describe('DbCatalogRepository.updateCatalogItem', () => {
     it('should update a catalog_item', async () => {
-      const catalog_item_props = {
+      const catalog_item = new CatalogItem({
         tenant_id: faker.string.uuid(),
         id: faker.string.uuid(),
         name: faker.commerce.productName(),
@@ -350,30 +350,30 @@ describe('DbCatalogRepository unit tests', () => {
         picture_url: faker.internet.url(),
         created_at: faker.date.future(),
         updated_at: faker.date.future(),
-      };
+      });
 
-      const catalog_item = new CatalogItem(catalog_item_props);
+      const catalog_item_obj = catalog_item.toObject();
 
       await repository.updateCatalogItem(catalog_item);
 
       expect(query_mock).toHaveBeenCalledWith(
         'UPDATE catalog_items SET name=$2,description=$3,attributes=$4,is_service=$5,tenant_id=$6,amount=$7,picture_url=$8,updated_at=$9 WHERE id=$1',
         [
-          catalog_item_props.id,
-          catalog_item_props.name,
-          catalog_item_props.description,
-          JSON.stringify(catalog_item_props.attributes),
-          catalog_item_props.is_service,
-          catalog_item_props.tenant_id,
-          catalog_item_props.amount,
-          catalog_item_props.picture_url,
-          catalog_item_props.updated_at,
+          catalog_item_obj.id,
+          catalog_item_obj.name,
+          catalog_item_obj.description,
+          JSON.stringify(catalog_item_obj.attributes),
+          catalog_item_obj.is_service,
+          catalog_item_obj.tenant_id,
+          catalog_item_obj.amount,
+          catalog_item_obj.picture_url,
+          catalog_item_obj.updated_at,
         ]
       );
     });
 
     it('should update a catalog_item without picture_url', async () => {
-      const catalog_item_props = {
+      const catalog_item = new CatalogItem({
         tenant_id: faker.string.uuid(),
         id: faker.string.uuid(),
         name: faker.commerce.productName(),
@@ -383,23 +383,23 @@ describe('DbCatalogRepository unit tests', () => {
         is_service: faker.datatype.boolean(),
         created_at: faker.date.future(),
         updated_at: faker.date.future(),
-      };
+      });
 
-      const catalog_item = new CatalogItem(catalog_item_props);
+      const catalog_item_obj = catalog_item.toObject();
 
       await repository.updateCatalogItem(catalog_item);
 
       expect(query_mock).toHaveBeenCalledWith(
         'UPDATE catalog_items SET name=$2,description=$3,attributes=$4,is_service=$5,tenant_id=$6,amount=$7,updated_at=$8 WHERE id=$1',
         [
-          catalog_item_props.id,
-          catalog_item_props.name,
-          catalog_item_props.description,
-          JSON.stringify(catalog_item_props.attributes),
-          catalog_item_props.is_service,
-          catalog_item_props.tenant_id,
-          catalog_item_props.amount,
-          catalog_item_props.updated_at,
+          catalog_item_obj.id,
+          catalog_item_obj.name,
+          catalog_item_obj.description,
+          JSON.stringify(catalog_item_obj.attributes),
+          catalog_item_obj.is_service,
+          catalog_item_obj.tenant_id,
+          catalog_item_obj.amount,
+          catalog_item_obj.updated_at,
         ]
       );
     });

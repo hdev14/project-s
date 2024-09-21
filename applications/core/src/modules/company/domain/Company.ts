@@ -50,6 +50,10 @@ export default class Company extends Aggregate<CompanyProps> implements Aggregat
     }
   }
 
+  static fromObject(props: CompanyProps) {
+    return new Company(props);
+  }
+
   set address(value: Address) {
     this.#address = value;
     this.update();

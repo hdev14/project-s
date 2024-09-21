@@ -34,8 +34,8 @@ export default class DbPolicyRepository implements PolicyRepository {
         id: row.id,
         slug: row.slug,
         description: row.description,
-        created_at: row.created_at,
-        updated_at: row.updated_at,
+        created_at: new Date(row.created_at),
+        updated_at: new Date(row.updated_at),
       });
     }
 
@@ -51,12 +51,12 @@ export default class DbPolicyRepository implements PolicyRepository {
       return null;
     }
 
-    return new Policy({
+    return Policy.fromObject({
       id: row.id,
       slug: row.slug,
       description: row.description,
-      created_at: row.created_at,
-      updated_at: row.updated_at,
+      created_at: new Date(row.created_at),
+      updated_at: new Date(row.updated_at),
     });
   }
 }

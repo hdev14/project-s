@@ -27,13 +27,18 @@ export default class CatalogItem extends Aggregate<CatalogItemProps> {
     this.#description = props.description;
     this.#is_service = props.is_service;
     this.#tenant_id = props.tenant_id;
-    this.amount = props.amount;
     this.#picture_url = props.picture_url;
+    this.#amount = props.amount;
+    this.validateAmount();
 
     for (let idx = 0; idx < props.attributes.length; idx++) {
       const attribute = props.attributes[idx];
       this.#attributes.push(new Attribute(attribute.name, attribute.description));
     }
+  }
+
+  static fromObject(props: CatalogItemProps) {
+    return new CatalogItem(props);
   }
 
   set name(value: string) {
@@ -47,11 +52,8 @@ export default class CatalogItem extends Aggregate<CatalogItemProps> {
   }
 
   set amount(value: number) {
-    if (value <= 0) {
-      throw new DomainError('catalog_item_negative_amount');
-    }
-
     this.#amount = value;
+    this.validateAmount();
     this.update();
   }
 
@@ -68,6 +70,12 @@ export default class CatalogItem extends Aggregate<CatalogItemProps> {
   set picture_url(value: string | undefined) {
     this.#picture_url = value;
     this.update();
+  }
+
+  private validateAmount() {
+    if (this.#amount <= 0) {
+      throw new DomainError('catalog_item_negative_amount');
+    }
   }
 
   toObject(): RequiredProps<CatalogItemProps> {

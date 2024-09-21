@@ -52,8 +52,8 @@ export default class DbUserRepository implements UserRepository {
         policies,
         tenant_id: row.tenant_id,
         type: row.type,
-        created_at: row.created_at,
-        updated_at: row.updated_at,
+        created_at: new Date(row.created_at),
+        updated_at: new Date(row.updated_at),
       };
     }
 
@@ -111,7 +111,7 @@ export default class DbUserRepository implements UserRepository {
       }
     }
 
-    return new User({
+    return User.fromObject({
       id: result.rows[0].id,
       email: result.rows[0].email,
       password: result.rows[0].password,
@@ -119,8 +119,8 @@ export default class DbUserRepository implements UserRepository {
       policies,
       tenant_id: result.rows[0].tenant_id,
       type: result.rows[0].type,
-      created_at: result.rows[0].created_at,
-      updated_at: result.rows[0].updated_at,
+      created_at: new Date(result.rows[0].created_at),
+      updated_at: new Date(result.rows[0].updated_at),
     });
   }
 
@@ -137,7 +137,7 @@ export default class DbUserRepository implements UserRepository {
       policies.push(result.rows[idx].slug);
     }
 
-    return new User({
+    return User.fromObject({
       id: result.rows[0].id,
       email: result.rows[0].email,
       password: result.rows[0].password,
@@ -145,8 +145,8 @@ export default class DbUserRepository implements UserRepository {
       policies,
       tenant_id: result.rows[0].tenant_id,
       type: result.rows[0].type,
-      created_at: result.rows[0].created_at,
-      updated_at: result.rows[0].updated_at
+      created_at: new Date(result.rows[0].created_at),
+      updated_at: new Date(result.rows[0].updated_at)
     });
   }
 

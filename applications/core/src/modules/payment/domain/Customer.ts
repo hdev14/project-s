@@ -19,6 +19,10 @@ export default class Customer extends Aggregate<CustomerProps> {
     this.#credit_card_external_id = props.credit_card_external_id;
   }
 
+  static fromObject(props: CustomerProps) {
+    return new Customer(props);
+  }
+
   toObject(): RequiredProps<CustomerProps> {
     return {
       id: this.id,

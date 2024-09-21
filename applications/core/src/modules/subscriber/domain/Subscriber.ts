@@ -42,6 +42,10 @@ export default class Subscriber extends Aggregate<SubscriberProps> implements Ag
     }
   }
 
+  static fromObject(props: SubscriberProps) {
+    return new Subscriber(props);
+  }
+
   changePersonalInfo(personal_info: Pick<SubscriberProps, 'document' | 'email' | 'phone_number'>) {
     this.#document = personal_info.document;
     this.#email = personal_info.email;

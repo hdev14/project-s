@@ -48,13 +48,13 @@ export default class DbSubscriberRepository implements SubscriberRepository {
       [subscriber_row.id]
     );
 
-    return new Subscriber({
+    return Subscriber.fromObject({
       id: subscriber_row.id,
       email: subscriber_row.email,
       document: subscriber_row.document,
       phone_number: subscriber_row.phone_number,
-      created_at: subscriber_row.created_at,
-      updated_at: subscriber_row.updated_at,
+      created_at: new Date(subscriber_row.created_at),
+      updated_at: new Date(subscriber_row.updated_at),
       address: {
         street: subscriber_row.street,
         district: subscriber_row.district,
@@ -94,8 +94,8 @@ export default class DbSubscriberRepository implements SubscriberRepository {
         email: subscriber_row.email,
         document: subscriber_row.document,
         phone_number: subscriber_row.phone_number,
-        created_at: subscriber_row.created_at,
-        updated_at: subscriber_row.updated_at,
+        created_at: new Date(subscriber_row.created_at),
+        updated_at: new Date(subscriber_row.updated_at),
         address: {
           street: subscriber_row.street,
           district: subscriber_row.district,
@@ -122,9 +122,9 @@ export default class DbSubscriberRepository implements SubscriberRepository {
       if (subscription_row.subscriber_id === subscriber_id) {
         subscriptions.push({
           id: subscription_row.id,
-          started_at: subscription_row.started_at,
-          created_at: subscription_row.created_at,
-          updated_at: subscription_row.updated_at,
+          started_at: new Date(subscription_row.started_at),
+          created_at: new Date(subscription_row.created_at),
+          updated_at: new Date(subscription_row.updated_at),
         });
       }
     }

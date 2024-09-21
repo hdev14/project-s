@@ -19,6 +19,10 @@ export default class PaymentLog extends Aggregate<PaymentLogProps> implements Ag
     this.#payload = props.payload;
   }
 
+  static fromObject(props: PaymentLogProps) {
+    return new PaymentLog(props);
+  }
+
   toObject(): RequiredProps<PaymentLogProps> {
     return {
       id: this.id,

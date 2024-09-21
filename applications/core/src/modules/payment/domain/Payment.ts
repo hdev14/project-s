@@ -33,6 +33,10 @@ export default class Payment extends Aggregate<PaymentProps> implements Aggregat
     this.#customer = new Customer(props.customer);
   }
 
+  static fromObject(props: PaymentProps) {
+    return new Payment(props);
+  }
+
   cancel() { }
 
   pay() { }

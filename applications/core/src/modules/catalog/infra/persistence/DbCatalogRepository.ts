@@ -18,7 +18,7 @@ export default class DbCatalogRepository implements CatalogRepository {
   async getCatalogItemById(id: string): Promise<CatalogItem | null> {
     const result = await this.#db.query('SELECT * FROM catalog_items WHERE id=$1', [id]);
 
-    return result.rows.length === 0 ? null : new CatalogItem({
+    return result.rows.length === 0 ? null : CatalogItem.fromObject({
       id: result.rows[0].id,
       name: result.rows[0].name,
       description: result.rows[0].description,
@@ -26,8 +26,8 @@ export default class DbCatalogRepository implements CatalogRepository {
       attributes: result.rows[0].attributes,
       is_service: result.rows[0].is_service,
       tenant_id: result.rows[0].tenant_id,
-      created_at: result.rows[0].created_at,
-      updated_at: result.rows[0].updated_at,
+      created_at: new Date(result.rows[0].created_at),
+      updated_at: new Date(result.rows[0].updated_at),
     });
   }
 
@@ -47,8 +47,8 @@ export default class DbCatalogRepository implements CatalogRepository {
         attributes: row.attributes,
         picture_url: row.picture_url,
         tenant_id: row.tenant_id,
-        created_at: row.created_at,
-        updated_at: row.updated_at,
+        created_at: new Date(row.created_at),
+        updated_at: new Date(row.updated_at),
       });
     }
 

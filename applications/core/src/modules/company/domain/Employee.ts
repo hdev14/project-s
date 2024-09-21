@@ -21,6 +21,10 @@ export default class Employee extends Aggregate<EmployeeProps> {
     this.#deactivated_at = props.deactivated_at;
   }
 
+  static fromObject(props: EmployeeProps) {
+    return new Employee(props);
+  }
+
   set name(value: string) {
     this.#name = value;
     this.update();

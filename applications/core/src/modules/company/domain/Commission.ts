@@ -27,6 +27,10 @@ export default class Commission extends Aggregate<CommissionProps> implements Ag
     this.#tenant_id = props.tenant_id;
   }
 
+  static fromObject(props: CommissionProps) {
+    return new Commission(props);
+  }
+
   set tax_type(value: TaxTypes) {
     this.#tax_type = value;
     this.update();

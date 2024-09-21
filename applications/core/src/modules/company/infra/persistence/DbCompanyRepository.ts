@@ -28,14 +28,14 @@ export default class DbCompanyRepository implements CompanyRepository {
       return null;
     }
 
-    return new Employee({
+    return Employee.fromObject({
       id: result.rows[0].id,
       name: result.rows[0].name,
       document: result.rows[0].document,
       email: result.rows[0].email,
       deactivated_at: result.rows[0].deactivated_at,
-      created_at: result.rows[0].created_at,
-      updated_at: result.rows[0].updated_at,
+      created_at: new Date(result.rows[0].created_at),
+      updated_at: new Date(result.rows[0].updated_at),
     });
   }
 
@@ -116,7 +116,7 @@ export default class DbCompanyRepository implements CompanyRepository {
 
     const { rows: employee_rows } = await this.#db.query(`SELECT * FROM users WHERE tenant_id = $1`, [id]);
 
-    return new Company(this.mapCompany(company_rows[0], employee_rows));
+    return Company.fromObject(this.mapCompany(company_rows[0], employee_rows));
   }
 
   private mapCompany(company: any, employee_rows: any[]) {
@@ -125,8 +125,8 @@ export default class DbCompanyRepository implements CompanyRepository {
       document: company.document,
       name: company.name,
       access_plan_id: company.access_plan_id,
-      created_at: company.created_at,
-      updated_at: company.updated_at,
+      created_at: new Date(company.created_at),
+      updated_at: new Date(company.updated_at),
       bank: {
         account: company.account,
         account_digit: company.account_digit,
@@ -157,8 +157,8 @@ export default class DbCompanyRepository implements CompanyRepository {
           document: employee.document,
           email: employee.email,
           name: employee.name,
-          created_at: employee.created_at,
-          updated_at: employee.updated_at,
+          created_at: new Date(employee.created_at),
+          updated_at: new Date(employee.updated_at),
         });
       }
     }

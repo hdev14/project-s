@@ -18,6 +18,10 @@ export default class VerificationCode extends Aggregate<VerificationCodeProps> i
     this.#expired_at = props.expired_at;
   }
 
+  static fromObject(props: VerificationCodeProps) {
+    return new VerificationCode(props);
+  }
+
   get code() {
     return this.#code
   }

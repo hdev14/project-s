@@ -21,13 +21,13 @@ export default class DbVerificationCodeRepository implements VerificationCodeRep
       return null;
     }
 
-    return new VerificationCode({
+    return VerificationCode.fromObject({
       id: result.rows[0].id,
       code: result.rows[0].code,
       user_id: result.rows[0].user_id,
-      expired_at: result.rows[0].expired_at,
-      created_at: result.rows[0].created_at,
-      updated_at: result.rows[0].updated_at,
+      expired_at: new Date(result.rows[0].expired_at),
+      created_at: new Date(result.rows[0].created_at),
+      updated_at: new Date(result.rows[0].updated_at),
     });
   }
 

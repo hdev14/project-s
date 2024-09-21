@@ -27,6 +27,10 @@ export default class AccessPlan extends Aggregate<AccessPlanProps> implements Ag
     this.#active = props.active;
   }
 
+  static fromObject(props: AccessPlanProps) {
+    return new AccessPlan(props);
+  }
+
   set amount(value: number) {
     if (value < 0) {
       throw new DomainError('negative_access_plan_amount');

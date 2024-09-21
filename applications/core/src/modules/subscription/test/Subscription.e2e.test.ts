@@ -1016,6 +1016,8 @@ describe('Subscription E2E tests', () => {
         name: faker.commerce.product(),
         tenant_id: company.id!,
         picture_url: faker.internet.url(),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       });
 
       const recurrence_type = faker.helpers.enumValue(RecurrenceTypes);
@@ -1029,7 +1031,12 @@ describe('Subscription E2E tests', () => {
 
       expect(response.status).toEqual(201);
       expect(response.body).toHaveProperty('id');
-      expect(response.body.items[0]).toEqual({ name: catalog_item.name, id: catalog_item.id });
+      expect(response.body.items[0]).toEqual({
+        id: catalog_item.id,
+        name: catalog_item.name,
+        created_at: catalog_item.created_at!.toISOString(),
+        updated_at: catalog_item.updated_at!.toISOString(),
+      });
       expect(response.body.amount).toEqual(catalog_item.amount);
       expect(response.body.recurrence_type).toEqual(recurrence_type);
       expect(response.body.tenant_id).toEqual(company.id);
@@ -1064,6 +1071,8 @@ describe('Subscription E2E tests', () => {
         name: faker.commerce.product(),
         tenant_id: company.id!,
         picture_url: faker.internet.url(),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
       });
 
       const recurrence_type = faker.helpers.enumValue(RecurrenceTypes);
@@ -1079,7 +1088,12 @@ describe('Subscription E2E tests', () => {
 
       expect(response.status).toEqual(201);
       expect(response.body).toHaveProperty('id');
-      expect(response.body.items[0]).toEqual({ name: catalog_item.name, id: catalog_item.id });
+      expect(response.body.items[0]).toEqual({
+        id: catalog_item.id,
+        name: catalog_item.name,
+        created_at: catalog_item.created_at!.toISOString(),
+        updated_at: catalog_item.updated_at!.toISOString(),
+      });
       expect(response.body.amount).toEqual(catalog_item.amount);
       expect(response.body.recurrence_type).toEqual(recurrence_type);
       expect(response.body.tenant_id).toEqual(company.id);

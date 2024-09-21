@@ -30,6 +30,10 @@ export default class ServiceLog extends Aggregate<ServiceLogProps> implements Ag
     this.#registed_at = props.registed_at;
   }
 
+  static fromObject(props: ServiceLogProps) {
+    return new ServiceLog(props);
+  }
+
   toObject(): RequiredProps<ServiceLogProps> {
     return {
       id: this.id,

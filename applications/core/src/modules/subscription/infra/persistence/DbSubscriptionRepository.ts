@@ -36,15 +36,15 @@ export default class DbSubscriptionRepository implements SubscriptionRepository 
   async getSubscriptionById(id: string): Promise<Subscription | null> {
     const result = await this.#db.query('SELECT * FROM subscriptions WHERE id=$1', [id]);
 
-    return result.rows.length === 0 ? null : new Subscription({
+    return result.rows.length === 0 ? null : Subscription.fromObject({
       id: result.rows[0].id,
       status: result.rows[0].status,
       subscription_plan_id: result.rows[0].subscription_plan_id,
       subscriber_id: result.rows[0].subscriber_id,
-      started_at: result.rows[0].started_at,
+      started_at: new Date(result.rows[0].started_at),
       tenant_id: result.rows[0].tenant_id,
-      created_at: result.rows[0].created_at,
-      updated_at: result.rows[0].updated_at,
+      created_at: new Date(result.rows[0].created_at),
+      updated_at: new Date(result.rows[0].updated_at),
     });
   }
 
@@ -61,9 +61,9 @@ export default class DbSubscriptionRepository implements SubscriptionRepository 
         subscriber_id: subscription.subscriber_id,
         subscription_plan_id: subscription.subscription_plan_id,
         tenant_id: subscription.tenant_id,
-        started_at: subscription.started_at,
-        created_at: subscription.created_at,
-        updated_at: subscription.updated_at,
+        started_at: new Date(subscription.started_at),
+        created_at: new Date(subscription.created_at),
+        updated_at: new Date(subscription.updated_at),
       });
     }
 

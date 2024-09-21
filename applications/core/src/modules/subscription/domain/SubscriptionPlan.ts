@@ -33,6 +33,10 @@ export default class SubscriptionPlan extends Aggregate<SubscriptionPlanProps> i
     }
   }
 
+  static fromObject(props: SubscriptionPlanProps) {
+    return new SubscriptionPlan(props);
+  }
+
   // TODO
   // addCombo
   // withCombo

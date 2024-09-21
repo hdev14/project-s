@@ -12,6 +12,10 @@ export default class Item extends Aggregate<ItemProps> {
     this.#name = props.name;
   }
 
+  static fromObject(props: ItemProps) {
+    return new Item(props);
+  }
+
   toObject(): RequiredProps<ItemProps> {
     return {
       id: this.id,

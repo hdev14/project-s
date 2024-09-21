@@ -44,8 +44,8 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
         subscription_plan_obj.items.push({
           id: row.item_id,
           name: row.item_name,
-          created_at: row.item_created_at,
-          updated_at: row.item_updated_at,
+          created_at: new Date(row.item_created_at),
+          updated_at: new Date(row.item_updated_at),
         });
         continue;
       }
@@ -53,8 +53,8 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
       const items = row.item_id ? [{
         id: row.item_id,
         name: row.item_name,
-        created_at: row.item_created_at,
-        updated_at: row.item_updated_at,
+        created_at: new Date(row.item_created_at),
+        updated_at: new Date(row.item_updated_at),
       }] : [];
 
       subscription_plan_objs[row.id] = {
@@ -63,8 +63,8 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
         recurrence_type: row.recurrence_type,
         tenant_id: row.tenant_id,
         term_url: row.term_url,
-        created_at: row.created_at,
-        updated_at: row.updated_at,
+        created_at: new Date(row.created_at),
+        updated_at: new Date(row.updated_at),
         items,
       };
     }
@@ -126,19 +126,19 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
       items.push({
         id: item_row.id,
         name: item_row.name,
-        created_at: item_row.created_at,
-        updated_at: item_row.updated_at,
+        created_at: new Date(item_row.created_at),
+        updated_at: new Date(item_row.updated_at),
       });
     }
 
-    return new SubscriptionPlan({
+    return SubscriptionPlan.fromObject({
       id: subscription_plan_row.id,
       amount: subscription_plan_row.amount,
       recurrence_type: subscription_plan_row.recurrence_type,
       tenant_id: subscription_plan_row.tenant_id,
       term_url: subscription_plan_row.term_url,
-      created_at: subscription_plan_row.created_at,
-      updated_at: subscription_plan_row.updated_at,
+      created_at: new Date(subscription_plan_row.created_at),
+      updated_at: new Date(subscription_plan_row.updated_at),
       items,
     });
   }

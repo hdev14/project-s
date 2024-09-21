@@ -13,6 +13,10 @@ export default class Subscription extends Aggregate<SubscriptionProps> {
     this.#started_at = props.started_at;
   }
 
+  static fromObject(props: SubscriptionProps) {
+    return new Subscription(props);
+  }
+
   toObject(): RequiredProps<SubscriptionProps> {
     return {
       id: this.id,

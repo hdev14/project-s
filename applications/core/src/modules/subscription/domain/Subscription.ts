@@ -42,6 +42,10 @@ export default class Subscription extends Aggregate<SubscriptionProps> implement
     });
   }
 
+  static fromObject(props: SubscriptionProps) {
+    return new Subscription(props);
+  }
+
   active() {
     if (this.#status === SubscriptionStatus.ACTIVE) {
       throw new DomainError('subscription_actived');

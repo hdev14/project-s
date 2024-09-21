@@ -30,6 +30,10 @@ export default class User extends Aggregate<UserProps> implements AggregateRoot 
     this.#type = props.type;
   }
 
+  static fromObject(props: UserProps) {
+    return new User(props);
+  }
+
   set email(value: string) {
     this.#email = value;
     this.update();

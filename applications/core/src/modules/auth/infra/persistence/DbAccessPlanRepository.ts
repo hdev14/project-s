@@ -23,14 +23,14 @@ export default class DbAccessPlanRepository implements AccessPlanRepository {
 
     const row = result.rows[0];
 
-    return new AccessPlan({
+    return AccessPlan.fromObject({
       id: row.id,
       active: row.active,
       amount: row.amount,
       type: row.type,
       description: row.description,
-      created_at: row.created_at,
-      updated_at: row.updated_at,
+      created_at: new Date(row.created_at),
+      updated_at: new Date(row.updated_at),
     });
   }
 
@@ -47,8 +47,8 @@ export default class DbAccessPlanRepository implements AccessPlanRepository {
         amount: parseFloat(row.amount),
         type: row.type,
         description: row.description,
-        created_at: row.created_at,
-        updated_at: row.updated_at,
+        created_at: new Date(row.created_at),
+        updated_at: new Date(row.updated_at),
       });
     }
 

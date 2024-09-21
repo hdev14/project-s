@@ -18,6 +18,10 @@ export default class Policy extends Aggregate<PolicyProps> implements AggregateR
     this.#is_secret = props.is_secret;
   }
 
+  static fromObject(props: PolicyProps) {
+    return new Policy(props);
+  }
+
   toObject(): RequiredProps<PolicyProps> {
     return {
       id: this.id,

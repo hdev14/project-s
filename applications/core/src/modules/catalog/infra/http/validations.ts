@@ -3,7 +3,7 @@ import { Schema } from "express-validator";
 export const create_catalog_item_validation_schema: Schema = {
   name: {
     isString: true,
-    errorMessage: 'validation.email',
+    errorMessage: 'validation.text',
   },
   description: {
     isLength: { options: { min: 8 } },
@@ -29,10 +29,6 @@ export const create_catalog_item_validation_schema: Schema = {
     isBoolean: true,
     optional: true,
     errorMessage: 'validation.boolean'
-  },
-  picture_url: {
-    isURL: true,
-    errorMessage: 'validation.url'
   },
   tenant_id: {
     isUUID: true,
@@ -64,10 +60,5 @@ export const update_catalog_item_validation_schema: Schema = {
   'attributes.*.description': {
     isString: true,
     errorMessage: 'validation.text',
-  },
-  picture_url: {
-    isURL: true,
-    optional: true,
-    errorMessage: 'validation.url'
-  },
+  }
 };

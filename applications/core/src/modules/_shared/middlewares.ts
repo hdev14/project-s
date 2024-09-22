@@ -28,6 +28,10 @@ export function errorHandler(error: Error, _req: Request, res: Response, _next: 
 
 export function requestValidator(schema: Schema) {
   return async (req: Request, res: Response, next: NextFunction) => {
+    if (req.headers['content-type'] === 'multipart/form-data') {
+      req.body = JSON.parse(JSON.stringify(req.body));
+    }
+
     const results = await checkSchema(schema, ['body']).run(req);
 
     const errors: { message: string, field: string }[] = [];
@@ -68,7 +72,7 @@ export const upload = multer({ storage });
 
 export function deleteFiles() {
   return async (req: Request, res: Response, next: NextFunction) => {
-    next();
+    await next();
 
     if (req.file) {
       await unlink(req.file.path);

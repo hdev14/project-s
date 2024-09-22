@@ -2,11 +2,11 @@ import Logger from "@global/app/Logger";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/HttpStatusCodes";
-import { requestValidator, upload } from "@shared/middlewares";
+import { deleteFiles, requestValidator, upload } from "@shared/middlewares";
 import types from "@shared/types";
 import SubscriptionService from "@subscription/app/SubscriptionService";
 import { Request } from 'express';
-import { readFileSync, unlinkSync } from "fs";
+import { readFile } from "fs/promises";
 import { inject } from "inversify";
 import {
   BaseHttpController,
@@ -100,15 +100,14 @@ export default class SubscriptionController extends BaseHttpController {
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
-  @httpPost('/plans', upload.single('term_file'))
+  @httpPost('/plans', upload.single('term_file'), deleteFiles())
   async createSuscriptionPlan(@request() req: Request) {
     const { item_ids, recurrence_type, tenant_id } = req.body;
 
     let term_file: Buffer | undefined = undefined;
 
     if (req.file) {
-      term_file = readFileSync(req.file.path);
-      unlinkSync(req.file.path);
+      term_file = await readFile(req.file.path);
 
       if (req.file.mimetype !== 'application/pdf') {
         return this.json({ message: req.__('validation.pdf') }, HttpStatusCodes.BAD_REQUEST);

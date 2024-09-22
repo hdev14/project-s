@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import { NextFunction, Request, Response } from 'express';
 import { Schema, checkSchema } from 'express-validator';
+import { unlink } from 'fs/promises';
 import multer from 'multer';
 import { resolve } from 'path';
 import Logger from '../global/app/Logger';
@@ -64,3 +65,23 @@ const storage = multer.diskStorage({
 });
 
 export const upload = multer({ storage });
+
+export function deleteFiles() {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    next();
+
+    if (req.file) {
+      await unlink(req.file.path);
+    }
+
+    if (req.files && Array.isArray(req.files)) {
+      const promises = [];
+      for (let idx = 0; idx < req.files.length; idx++) {
+        const file = req.files[idx];
+        promises.push(unlink(file.path));
+      }
+
+      await Promise.all(promises);
+    }
+  }
+}

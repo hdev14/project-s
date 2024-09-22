@@ -903,7 +903,6 @@ describe('Subscription E2E tests', () => {
       expect(response.status).toEqual(422);
       expect(response.body.message).toEqual('Assinatura já está finalizada');
     });
-
   });
 
   describe('POST: /api/subscriptions/plans', () => {
@@ -1109,6 +1108,8 @@ describe('Subscription E2E tests', () => {
         item_id: catalog_item.id
       }).toExistsInTable('subscription_plan_items');
     });
+
+    it.todo('returns status code 400 if data is invalid');
   });
 
   describe('GET: /api/subscriptions/plans', () => {

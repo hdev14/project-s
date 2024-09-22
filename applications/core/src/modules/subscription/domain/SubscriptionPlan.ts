@@ -27,7 +27,6 @@ export default class SubscriptionPlan extends Aggregate<SubscriptionPlanProps> i
     this.#recurrence_type = props.recurrence_type;
     this.#term_url = props.term_url;
     this.#tenant_id = props.tenant_id;
-    // TODO: must have an item
     for (let idx = 0; idx < props.items.length; idx++) {
       this.#items.push(new Item(props.items[idx]));
     }
@@ -36,10 +35,6 @@ export default class SubscriptionPlan extends Aggregate<SubscriptionPlanProps> i
   static fromObject(props: SubscriptionPlanProps) {
     return new SubscriptionPlan(props);
   }
-
-  // TODO
-  // addCombo
-  // withCombo
 
   toObject(): RequiredProps<SubscriptionPlanProps> {
     const items = [];

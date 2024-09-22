@@ -1,5 +1,6 @@
 import { AttributeValue } from "@catalog/domain/Attribute";
 import CatalogItem, { CatalogItemProps } from "@catalog/domain/CatalogItem";
+import FileStorage from "@global/app/FileStorage";
 import Mediator from "@shared/Mediator";
 import UserExistsCommand from "@shared/commands/UserExistsCommand";
 import DomainError from "@shared/errors/DomainError";
@@ -28,7 +29,7 @@ export type CreateCatalogItemParams = {
   amount: number;
   attributes: Array<AttributeValue>;
   is_service: boolean;
-  picture_url?: string;
+  picture_file?: Buffer;
   tenant_id: string;
 };
 
@@ -40,13 +41,16 @@ export type UpdateCatalogItemParams = Partial<Omit<CreateCatalogItemParams, 'ten
 export default class CatalogService {
   #catalog_repository: CatalogRepository;
   #mediator: Mediator;
+  #file_storage: FileStorage;
 
   constructor(
     @inject(types.CatalogRepository) catalog_repository: CatalogRepository,
-    @inject(types.Mediator) mediator: Mediator
+    @inject(types.Mediator) mediator: Mediator,
+    @inject(types.FileStorage) file_storage: FileStorage
   ) {
     this.#catalog_repository = catalog_repository;
     this.#mediator = mediator;
+    this.#file_storage = file_storage;
   }
 
   async getCatalogItems(params: GetCatalogItemsParams): Promise<Either<GetCatalogItemsResult>> {
@@ -61,7 +65,27 @@ export default class CatalogService {
         return Either.left(new NotFoundError('notfound.company'));
       }
 
-      const catalog_item = new CatalogItem(Object.assign({}, params, { id: randomUUID() }));
+      const catalog_item_props: CatalogItemProps = {
+        id: randomUUID(),
+        name: params.name,
+        description: params.description,
+        amount: params.amount,
+        attributes: params.attributes,
+        is_service: params.is_service,
+        picture_url: undefined,
+        tenant_id: params.tenant_id,
+      };
+
+      if (params.picture_file) {
+        catalog_item_props.picture_url = await this.#file_storage.storeFile({
+          bucket_name: `tenant-${params.tenant_id}`,
+          file: params.picture_file,
+          folder: 'catalog_item_pictures',
+          name: `picture_${catalog_item_props.id}`,
+        });
+      }
+
+      const catalog_item = new CatalogItem(catalog_item_props);
 
       await this.#catalog_repository.createCatalogItem(catalog_item);
 
@@ -87,7 +111,15 @@ export default class CatalogService {
     catalog_item.name = params.name ?? obj.name;
     catalog_item.description = params.description ?? obj.description;
     catalog_item.attributes = params.attributes ?? obj.attributes;
-    catalog_item.picture_url = params.picture_url ?? obj.picture_url;
+
+    if (params.picture_file) {
+      catalog_item.picture_url = await this.#file_storage.storeFile({
+        bucket_name: `tenant-${obj.tenant_id}`,
+        file: params.picture_file,
+        folder: 'catalog_item_pictures',
+        name: `picture_${obj.id}`,
+      });
+    }
 
     await this.#catalog_repository.updateCatalogItem(catalog_item);
 

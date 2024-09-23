@@ -3,6 +3,7 @@ import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/HttpStatusCodes";
 import { deleteFiles, requestValidator, upload } from "@shared/middlewares";
+import { Policies } from "@shared/Principal";
 import types from "@shared/types";
 import SubscriptionService from "@subscription/app/SubscriptionService";
 import { Request } from 'express';
@@ -18,7 +19,7 @@ import {
 } from "inversify-express-utils";
 import { create_subscription_validation_schema } from "./validations";
 
-@controller('/api/subscriptions')
+@controller('/api/subscriptions', types.AuthMiddleware)
 export default class SubscriptionController extends BaseHttpController {
   constructor(
     @inject(types.SubscriptionService) readonly subscription_service: SubscriptionService,
@@ -29,7 +30,11 @@ export default class SubscriptionController extends BaseHttpController {
   }
 
   @httpPost('/', requestValidator(create_subscription_validation_schema))
-  async createSubscriptions(@request() req: Request) {
+  async createSubscription(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.CREATE_SUBSCRIPTION)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
     const {
       subscriber_id,
       subscription_plan_id,
@@ -51,6 +56,10 @@ export default class SubscriptionController extends BaseHttpController {
 
   @httpPatch('/:subscription_id/activations')
   async activeSubscription(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.UPDATE_SUBSCRIPTION)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
     const { subscription_id } = req.params;
 
     const [error] = await this.subscription_service.activeSubscription({ subscription_id });
@@ -68,6 +77,10 @@ export default class SubscriptionController extends BaseHttpController {
 
   @httpPatch('/:subscription_id/pauses')
   async pauseSubscription(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.UPDATE_SUBSCRIPTION)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
     const { subscription_id } = req.params;
 
     const [error] = await this.subscription_service.pauseSubscription({ subscription_id });
@@ -85,6 +98,10 @@ export default class SubscriptionController extends BaseHttpController {
 
   @httpPatch('/:subscription_id/cancellations')
   async cancelSubscription(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.UPDATE_SUBSCRIPTION)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
     const { subscription_id } = req.params;
 
     const [error] = await this.subscription_service.cancelSubscription({ subscription_id });
@@ -102,6 +119,10 @@ export default class SubscriptionController extends BaseHttpController {
 
   @httpPost('/plans', upload.single('term_file'), deleteFiles())
   async createSuscriptionPlan(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.CREATE_SUBSCRIPTION_PLAN)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
     const { item_ids, recurrence_type, tenant_id } = req.body;
 
     let term_file: Buffer | undefined = undefined;
@@ -130,6 +151,10 @@ export default class SubscriptionController extends BaseHttpController {
 
   @httpGet('/plans')
   async getSubscriptionPlans(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.LIST_SUBSCRIPTION_PLANS)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
     const { tenant_id, page, limit } = req.query;
     const params = (page && limit) ? ({
       tenant_id: tenant_id!.toString(),
@@ -146,6 +171,10 @@ export default class SubscriptionController extends BaseHttpController {
 
   @httpGet('/')
   async getSubscriptions(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.LIST_SUBSCRIPTIONS)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
     const { tenant_id, page, limit } = req.query;
     const params = (page && limit) ? ({
       tenant_id: tenant_id!.toString(),

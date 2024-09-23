@@ -1,8 +1,10 @@
+import AuthTokenManager from '@auth/app/AuthTokenManager';
 import AuthModule from '@auth/infra/AuthModule';
 import CatalogModule from '@catalog/infra/CatalogModule';
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import FileStorage from '@global/app/FileStorage';
 import GlobalModule from '@global/infra/GlobalModule';
+import { Policies } from '@shared/Principal';
 import cleanUpDatabase from '@shared/test_utils/cleanUpDatabase';
 import CatalogItemFactory from '@shared/test_utils/factories/CatalogItemFactory';
 import SubscriptionFactory from '@shared/test_utils/factories/SubscriptionFactory';
@@ -31,6 +33,7 @@ describe('Subscription E2E tests', () => {
       new SubscriptionModule(),
     ]
   });
+  const auth_token_manager = application.container.get<AuthTokenManager>(types.AuthTokenManager);
   const request = supertest(application.server);
   const user_factory = new UserFactory();
   const subscription_plan_factory = new SubscriptionPlanFactory();
@@ -40,6 +43,13 @@ describe('Subscription E2E tests', () => {
   afterEach(cleanUpDatabase);
 
   describe('POST: /api/subscriptions', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.CREATE_SUBSCRIPTION],
+    });
+
     it("returns status code 404 if subscriber doesn't exist", async () => {
       const company = await user_factory.createOne({
         id: faker.string.uuid(),
@@ -71,6 +81,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .post('/api/subscriptions')
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({
           subscriber_id: faker.string.uuid(),
           subscription_plan_id: subscription_plan.id,
@@ -120,6 +131,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .post('/api/subscriptions')
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({
           subscriber_id: subscriber.id,
           subscription_plan_id: subscription_plan.id,
@@ -150,6 +162,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .post('/api/subscriptions')
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({
           subscriber_id: subscriber.id,
           subscription_plan_id: faker.string.uuid(),
@@ -170,6 +183,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .post('/api/subscriptions')
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send(data);
 
       expect(response.status).toEqual(400);
@@ -221,6 +235,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .post('/api/subscriptions')
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send(data);
 
       expect(response.status).toEqual(201);
@@ -234,10 +249,18 @@ describe('Subscription E2E tests', () => {
   });
 
   describe('PACTH: /api/subscriptions/:subscription_id/activations', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.UPDATE_SUBSCRIPTION],
+    });
+
     it("returns status code 404 subscription doesn't exist", async () => {
       const response = await request
         .patch(`/api/subscriptions/${faker.string.uuid()}/activations`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({});
 
       expect(response.status).toEqual(404);
@@ -291,6 +314,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .patch(`/api/subscriptions/${subscription.id}/activations`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({});
 
       expect(response.status).toEqual(204);
@@ -344,6 +368,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .patch(`/api/subscriptions/${subscription.id}/activations`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({});
 
       expect(response.status).toEqual(422);
@@ -397,6 +422,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .patch(`/api/subscriptions/${subscription.id}/activations`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({});
 
       expect(response.status).toEqual(422);
@@ -450,6 +476,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .patch(`/api/subscriptions/${subscription.id}/activations`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({});
 
       expect(response.status).toEqual(422);
@@ -458,10 +485,18 @@ describe('Subscription E2E tests', () => {
   });
 
   describe('PACTH: /api/subscriptions/:subscription_id/pauses', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.UPDATE_SUBSCRIPTION],
+    });
+
     it("returns status code 404 subscription doesn't exist", async () => {
       const response = await request
         .patch(`/api/subscriptions/${faker.string.uuid()}/pauses`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({});
 
       expect(response.status).toEqual(404);
@@ -515,6 +550,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .patch(`/api/subscriptions/${subscription.id}/pauses`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({});
 
       expect(response.status).toEqual(204);
@@ -568,6 +604,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .patch(`/api/subscriptions/${subscription.id}/pauses`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({});
 
       expect(response.status).toEqual(422);
@@ -621,6 +658,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .patch(`/api/subscriptions/${subscription.id}/pauses`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({});
 
       expect(response.status).toEqual(422);
@@ -674,6 +712,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .patch(`/api/subscriptions/${subscription.id}/pauses`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({});
 
       expect(response.status).toEqual(422);
@@ -727,6 +766,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .patch(`/api/subscriptions/${subscription.id}/pauses`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({});
 
       expect(response.status).toEqual(422);
@@ -735,10 +775,18 @@ describe('Subscription E2E tests', () => {
   });
 
   describe('PACTH: /api/subscriptions/:subscription_id/cancellations', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.UPDATE_SUBSCRIPTION],
+    });
+
     it("returns status code 404 subscription doesn't exist", async () => {
       const response = await request
         .patch(`/api/subscriptions/${faker.string.uuid()}/cancellations`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({});
 
       expect(response.status).toEqual(404);
@@ -792,6 +840,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .patch(`/api/subscriptions/${subscription.id}/cancellations`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({});
 
       expect(response.status).toEqual(204);
@@ -845,6 +894,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .patch(`/api/subscriptions/${subscription.id}/cancellations`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({});
 
       expect(response.status).toEqual(422);
@@ -898,6 +948,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .patch(`/api/subscriptions/${subscription.id}/cancellations`)
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send({});
 
       expect(response.status).toEqual(422);
@@ -906,6 +957,13 @@ describe('Subscription E2E tests', () => {
   });
 
   describe('POST: /api/subscriptions/plans', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.CREATE_SUBSCRIPTION_PLAN],
+    });
+
     const company_id = faker.string.uuid();
 
     beforeAll(async () => {
@@ -919,6 +977,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .post('/api/subscriptions/plans')
         .set('Content-Type', 'multipart/form-data')
+        .auth(token, { type: 'bearer' })
         .field('item_ids[]', faker.string.uuid())
         .field('recurrence_type', faker.helpers.enumValue(RecurrenceTypes))
         .field('tenant_id', faker.string.uuid())
@@ -953,6 +1012,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .post('/api/subscriptions/plans')
         .set('Content-Type', 'multipart/form-data')
+        .auth(token, { type: 'bearer' })
         .field('item_ids[]', catalog_item.id!)
         .field('recurrence_type', faker.helpers.enumValue(RecurrenceTypes))
         .field('tenant_id', faker.string.uuid())
@@ -987,6 +1047,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .post('/api/subscriptions/plans')
         .set('Content-Type', 'multipart/form-data')
+        .auth(token, { type: 'bearer' })
         .field('item_ids[]', catalog_item.id!)
         .field('item_ids[]', faker.string.uuid())
         .field('recurrence_type', faker.helpers.enumValue(RecurrenceTypes))
@@ -1024,6 +1085,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .post('/api/subscriptions/plans')
         .set('Content-Type', 'multipart/form-data')
+        .auth(token, { type: 'bearer' })
         .field('item_ids[]', catalog_item.id!)
         .field('recurrence_type', recurrence_type)
         .field('tenant_id', company.id!);
@@ -1080,6 +1142,7 @@ describe('Subscription E2E tests', () => {
       const response = await request
         .post('/api/subscriptions/plans')
         .set('Content-Type', 'multipart/form-data')
+        .auth(token, { type: 'bearer' })
         .field('item_ids[]', catalog_item.id!)
         .field('recurrence_type', recurrence_type)
         .field('tenant_id', company.id!)
@@ -1113,6 +1176,13 @@ describe('Subscription E2E tests', () => {
   });
 
   describe('GET: /api/subscriptions/plans', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.LIST_SUBSCRIPTION_PLANS],
+    });
+
     it('should return all subscriptions', async () => {
       const company = await user_factory.createOne({
         id: faker.string.uuid(),
@@ -1168,6 +1238,7 @@ describe('Subscription E2E tests', () => {
         .get('/api/subscriptions/plans')
         .query({ tenant_id: company.id })
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send();
 
       expect(response.status).toEqual(200);
@@ -1230,6 +1301,7 @@ describe('Subscription E2E tests', () => {
         .get('/api/subscriptions/plans')
         .query({ page: 1, limit: 1, tenant_id: company.id })
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send();
 
       expect(response.status).toEqual(200);
@@ -1241,6 +1313,7 @@ describe('Subscription E2E tests', () => {
         .get('/api/subscriptions/plans')
         .query({ page: 1, limit: 2, tenant_id: company.id })
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send();
 
       expect(response.status).toEqual(200);
@@ -1252,6 +1325,7 @@ describe('Subscription E2E tests', () => {
         .get('/api/subscriptions/plans')
         .query({ page: 2, limit: 2, tenant_id: company.id })
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send();
 
       expect(response.status).toEqual(200);
@@ -1262,6 +1336,13 @@ describe('Subscription E2E tests', () => {
   });
 
   describe('GET: /api/subscriptions', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.LIST_SUBSCRIPTIONS],
+    });
+
     it('should return all subscriptions', async () => {
       const subscriber = await user_factory.createOne({
         id: faker.string.uuid(),
@@ -1333,6 +1414,7 @@ describe('Subscription E2E tests', () => {
         .get('/api/subscriptions')
         .query({ tenant_id: company.id })
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send();
 
       expect(response.status).toEqual(200);
@@ -1411,6 +1493,7 @@ describe('Subscription E2E tests', () => {
         .get('/api/subscriptions')
         .query({ page: 1, limit: 1, tenant_id: company.id })
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send();
 
       expect(response.status).toEqual(200);
@@ -1422,6 +1505,7 @@ describe('Subscription E2E tests', () => {
         .get('/api/subscriptions')
         .query({ page: 1, limit: 2, tenant_id: company.id })
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send();
 
       expect(response.status).toEqual(200);
@@ -1433,6 +1517,7 @@ describe('Subscription E2E tests', () => {
         .get('/api/subscriptions')
         .query({ page: 2, limit: 2, tenant_id: company.id })
         .set('Content-Type', 'application/json')
+        .auth(token, { type: 'bearer' })
         .send();
 
       expect(response.status).toEqual(200);

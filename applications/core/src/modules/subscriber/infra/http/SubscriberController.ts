@@ -2,6 +2,7 @@ import Logger from "@global/app/Logger";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/HttpStatusCodes";
 import { requestValidator } from "@shared/middlewares";
+import { Policies } from "@shared/Principal";
 import types from "@shared/types";
 import SubscriberService from "@subscriber/app/SubscriberService";
 import { Request } from 'express';
@@ -21,7 +22,7 @@ import {
   update_subscriber_perfonal_info_validation_schema
 } from "./validations";
 
-@controller('/api/subscribers')
+@controller('/api/subscribers', types.AuthMiddleware)
 export default class SubscriberController extends BaseHttpController {
   constructor(
     @inject(types.SubscriberService) readonly subscriber_service: SubscriberService,
@@ -33,6 +34,10 @@ export default class SubscriberController extends BaseHttpController {
 
   @httpPost('/', requestValidator(create_subscriber_validation_schema))
   async createSubscriber(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.CREATE_SUBSCRIBER)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
     const {
       address,
       document,
@@ -52,6 +57,10 @@ export default class SubscriberController extends BaseHttpController {
 
   @httpGet('/:subscriber_id')
   async getSubscriber(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.GET_SUBSCRIBER)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
     const { subscriber_id } = req.params;
 
     const [error, data] = await this.subscriber_service.getSubscriber({
@@ -70,6 +79,10 @@ export default class SubscriberController extends BaseHttpController {
     requestValidator(update_subscriber_address_validation_schema)
   )
   async updateSubscriberAddress(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.UPDATE_SUBSCRIBER)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
     const { subscriber_id } = req.params;
     const {
       district,
@@ -100,6 +113,10 @@ export default class SubscriberController extends BaseHttpController {
     requestValidator(update_subscriber_perfonal_info_validation_schema)
   )
   async updateSubscriberPersonalInfo(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.UPDATE_SUBSCRIBER)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
     const { subscriber_id } = req.params;
     const {
       document,
@@ -126,6 +143,10 @@ export default class SubscriberController extends BaseHttpController {
     requestValidator(update_subscriber_payment_method_validation_schema)
   )
   async updateSubscriberPaymentMethod(@request() req: Request) {
+    if (!await this.httpContext.user.isInRole(Policies.UPDATE_SUBSCRIBER)) {
+      return this.statusCode(HttpStatusCodes.FORBIDDEN);
+    }
+
     const { subscriber_id } = req.params;
     const { payment_type, credit_card_token } = req.body;
 

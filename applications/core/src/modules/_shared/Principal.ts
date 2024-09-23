@@ -16,6 +16,17 @@ export enum Policies {
   UPDATE_CATALOG_ITEM = 'update_catalog_item',
   CREATE_CATALOG_ITEM = 'create_catalog_item',
   LIST_CATALOG_ITEMS = 'list_catalog_items',
+  /* TODO payment */
+  /* subscriber */
+  CREATE_SUBSCRIBER = 'create_subscriber',
+  GET_SUBSCRIBER = 'get_subscriber',
+  UPDATE_SUBSCRIBER = 'update_subscriber',
+  /* subscription */
+  CREATE_SUBSCRIPTION = 'create_subscription',
+  UPDATE_SUBSCRIPTION = 'update_subscription',
+  LIST_SUBSCRIPTIONS = 'list_subscriptions',
+  CREATE_SUBSCRIPTION_PLAN = 'create_subscription_plan',
+  LIST_SUBSCRIPTION_PLANS = 'list_subscription_plans',
 }
 
 export class Principal implements interfaces.Principal {

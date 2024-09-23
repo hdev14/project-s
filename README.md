@@ -1,6 +1,8 @@
 # Project S [Build in Public]
 This is an idea of SaaS to manage service and product subscriptions. The project is design to support mult-tenant users and it is being implemented with the best software's practices, such as DDD, TDD, Hexagonal Architecutre, Clean Architecture and Modular Architecture.
 
+[System Design (WIP)](https://excalidraw.com/#json=-9EoHMp9-sZsnnsJgxSZs,kU7PZsPbZowNREkOI3vlvg)
+
 1. [Setup](#setup)
 2. [Architecture & Code Design](#architecture--code-design)
 3. [Automated Tests](#automated-tests)

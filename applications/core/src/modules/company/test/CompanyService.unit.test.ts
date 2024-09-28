@@ -8,6 +8,7 @@ import Employee from "@company/domain/Employee";
 import ServiceLog from "@company/domain/ServiceLog";
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import EmailService from "@global/app/EmailService";
+import FileStorage from "@global/app/FileStorage";
 import CreateUserCommand from "@shared/commands/CreateUserCommand";
 import AlreadyRegisteredError from "@shared/errors/AlreadyRegisteredError";
 import DomainError from "@shared/errors/DomainError";
@@ -22,6 +23,7 @@ describe('CompanyService unit tests', () => {
   const company_repository_mock = mock<CompanyRepository>();
   const service_log_repository_mock = mock<ServiceLogRepository>();
   const commission_repository_mock = mock<CommissionRepository>();
+  const file_storage_mock = mock<FileStorage>();
 
   const company_service = new CompanyService(
     mediator_mock,
@@ -29,6 +31,7 @@ describe('CompanyService unit tests', () => {
     company_repository_mock,
     service_log_repository_mock,
     commission_repository_mock,
+    file_storage_mock,
   );
 
   describe('CompanyService.createCompany', () => {
@@ -67,6 +70,32 @@ describe('CompanyService unit tests', () => {
       expect(mediator_mock.send).toHaveBeenCalledTimes(1);
       const mediator_command = mediator_mock.send.mock.calls[0][0];
       expect(mediator_command).toBeInstanceOf(CreateUserCommand);
+    });
+
+    it("should create a new bucket with the company id", async () => {
+      const [error, data] = await company_service.createCompany({
+        name: faker.company.name(),
+        email: faker.internet.email(),
+        document: faker.string.numeric(14),
+        access_plan_id: faker.string.uuid(),
+        address: {
+          district: faker.location.secondaryAddress(),
+          number: faker.string.numeric(),
+          state: faker.location.state(),
+          street: faker.location.street(),
+          complement: faker.string.sample(),
+        },
+        bank: {
+          account: faker.string.numeric(5),
+          account_digit: faker.string.numeric(1),
+          agency: faker.string.numeric(4),
+          agency_digit: faker.string.numeric(1),
+          bank_code: faker.string.numeric(3),
+        }
+      });
+
+      expect(error).toBeUndefined();
+      expect(file_storage_mock.createBucket).toHaveBeenCalledWith(`tenant-${data!.id}`);
     });
 
     it("should return a not found error if access plan doesn't exist", async () => {
@@ -475,7 +504,7 @@ describe('CompanyService unit tests', () => {
       const params = {
         company_id: faker.string.uuid(),
         color: faker.color.rgb(),
-        logo_url: faker.internet.url(),
+        logo_file: Buffer.from([]),
       };
 
       const [error] = await company_service.updateCompanyBrand(params);
@@ -484,44 +513,52 @@ describe('CompanyService unit tests', () => {
     });
 
     it("updates a the company brand", async () => {
-      company_repository_mock.getCompanyById.mockResolvedValueOnce(
-        new Company({
-          id: faker.string.uuid(),
-          name: faker.company.name(),
-          document: faker.string.numeric(14),
-          access_plan_id: faker.string.uuid(),
-          address: {
-            district: faker.location.secondaryAddress(),
-            number: faker.string.numeric(),
-            state: faker.location.state(),
-            street: faker.location.street(),
-            complement: faker.string.sample(),
-          },
-          bank: {
-            account: faker.string.numeric(5),
-            account_digit: faker.string.numeric(1),
-            agency: faker.string.numeric(4),
-            agency_digit: faker.string.numeric(1),
-            bank_code: faker.string.numeric(3),
-          },
-          employees: [],
-        })
-      );
+      const company = new Company({
+        id: faker.string.uuid(),
+        name: faker.company.name(),
+        document: faker.string.numeric(14),
+        access_plan_id: faker.string.uuid(),
+        address: {
+          district: faker.location.secondaryAddress(),
+          number: faker.string.numeric(),
+          state: faker.location.state(),
+          street: faker.location.street(),
+          complement: faker.string.sample(),
+        },
+        bank: {
+          account: faker.string.numeric(5),
+          account_digit: faker.string.numeric(1),
+          agency: faker.string.numeric(4),
+          agency_digit: faker.string.numeric(1),
+          bank_code: faker.string.numeric(3),
+        },
+        employees: [],
+      });
+      company_repository_mock.getCompanyById.mockResolvedValueOnce(company);
+
+      const logo_url = faker.internet.url();
+      file_storage_mock.storeFile.mockResolvedValueOnce(logo_url);
 
       const params = {
         company_id: faker.string.uuid(),
         color: faker.color.rgb(),
-        logo_url: faker.internet.url(),
+        logo_file: Buffer.from([]),
       };
 
       const [error] = await company_service.updateCompanyBrand(params);
 
       expect(error).toBeUndefined();
       expect(company_repository_mock.updateCompany).toHaveBeenCalledTimes(1);
-      const company = company_repository_mock.updateCompany.mock.calls[0][0].toObject();
-      expect(company.brand).toEqual({
+      expect(file_storage_mock.storeFile).toHaveBeenCalledWith({
+        bucket_name: `tenant-${company.id}`,
+        file: params.logo_file,
+        folder: 'logos',
+        name: `logo_${company.id}`,
+      })
+      const company_obj = company_repository_mock.updateCompany.mock.calls[0][0].toObject();
+      expect(company_obj.brand).toEqual({
         color: params.color,
-        logo_url: params.logo_url,
+        logo_url: logo_url,
       });
     });
   });

@@ -1,9 +1,10 @@
 import Bank, { BankValue } from "@company/domain/Bank";
-import Brand, { BrandValue } from "@company/domain/Brand";
+import Brand from "@company/domain/Brand";
 import Commission, { CommissionProps, TaxTypes } from "@company/domain/Commission";
 import Employee, { EmployeeProps } from "@company/domain/Employee";
 import ServiceLog, { ServiceLogProps } from "@company/domain/ServiceLog";
 import EmailService from "@global/app/EmailService";
+import FileStorage from "@global/app/FileStorage";
 import Address, { AddressValue } from "@shared/Address";
 import Mediator from "@shared/Mediator";
 import { Policies } from "@shared/Principal";
@@ -54,10 +55,11 @@ export type UpdateCompanyBankParams = {
   company_id: string;
 } & Partial<BankValue>;
 
-// TODO: change logo to input a file instead of a url
 export type UpdateCompanyBrandParams = {
   company_id: string;
-} & BrandValue;
+  color: string;
+  logo_file: Buffer;
+};
 
 export type CreateEmployeeParams = {
   name: string;
@@ -112,6 +114,7 @@ export default class CompanyService {
   #company_repository: CompanyRepository;
   #service_log_repository: ServiceLogRepository;
   #commission_repository: CommissionRepository;
+  #file_storage: FileStorage;
 
   constructor(
     @inject(types.Mediator) mediator: Mediator,
@@ -119,15 +122,16 @@ export default class CompanyService {
     @inject(types.CompanyRepository) company_repository: CompanyRepository,
     @inject(types.ServiceLogRepository) service_log_repository: ServiceLogRepository,
     @inject(types.CommissionRepository) commission_repository: CommissionRepository,
+    @inject(types.FileStorage) file_storage: FileStorage,
   ) {
     this.#mediator = mediator;
     this.#email_service = email_service;
     this.#company_repository = company_repository;
     this.#service_log_repository = service_log_repository;
     this.#commission_repository = commission_repository;
+    this.#file_storage = file_storage;
   }
 
-  // TODO: create a bucket for the company
   async createCompany(params: CreateCompanyParams): Promise<Either<CompanyProps>> {
     try {
       const exists = await this.#company_repository.documentExists(params.document);
@@ -164,6 +168,8 @@ export default class CompanyService {
       });
 
       await this.#company_repository.updateCompany(company);
+
+      await this.#file_storage.createBucket(`tenant-${company.id}`);
 
       await this.#email_service.send({
         email: params.email,
@@ -246,16 +252,14 @@ export default class CompanyService {
       return Either.left(new NotFoundError('notfound.company'));
     }
 
-    const current_brand = company.toObject().brand;
+    const logo_url = await this.#file_storage.storeFile({
+      bucket_name: `tenant-${company.id}`,
+      file: params.logo_file,
+      folder: 'logos',
+      name: `logo_${company.id}`,
+    });
 
-    if (!current_brand) {
-      company.brand = new Brand(params.color, params.logo_url);
-    } else {
-      company.brand = new Brand(
-        params.color ?? current_brand.color,
-        params.logo_url ?? current_brand.logo_url
-      );
-    }
+    company.brand = new Brand(params.color, logo_url);
 
     await this.#company_repository.updateCompany(company);
 

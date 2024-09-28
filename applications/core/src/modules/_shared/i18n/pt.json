@@ -37,5 +37,6 @@
   "subscription_canceled": "Assinatura já está cancelada",
   "subscription_pending": "Assinatura pendente",
   "subscription_paused": "Assinatura já está pausada",
-  "validation.pdf": "O arquivo precisa ser um PDF"
+  "validation.pdf": "O arquivo precisa ser um PDF",
+  "validation.logo_file": "A imagem do logo é obrigatória"
 }

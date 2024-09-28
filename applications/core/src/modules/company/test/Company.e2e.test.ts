@@ -6,6 +6,7 @@ import CatalogModule from '@catalog/infra/CatalogModule';
 import { TaxTypes } from '@company/domain/Commission';
 import CompanyModule from '@company/infra/CompanyModule';
 import { faker } from '@faker-js/faker';
+import FileStorage from '@global/app/FileStorage';
 import GlobalModule from '@global/infra/GlobalModule';
 import { Policies } from '@shared/Principal';
 import cleanUpDatabase from '@shared/test_utils/cleanUpDatabase';
@@ -19,6 +20,7 @@ import '@shared/test_utils/matchers/toBeNullInDatabase';
 import '@shared/test_utils/matchers/toEqualInDatabase';
 import types from '@shared/types';
 import UserTypes from '@shared/UserTypes';
+import { resolve } from 'path';
 import Application from 'src/Application';
 import supertest from 'supertest';
 
@@ -544,23 +546,28 @@ describe('Company E2E tests', () => {
       policies: [],
     });
 
+    const company_id = faker.string.uuid();
+
+    beforeAll(async () => {
+      const storage = application.container.get<FileStorage>(types.FileStorage);
+      await storage.createBucket(`tenant-${company_id}`);
+    });
+
     it("returns status code 404 if company doesn't exist", async () => {
       const response = await request
         .patch(`/api/companies/${faker.string.uuid()}/brands`)
-        .set('Content-Type', 'application/json')
+        .set('Content-Type', 'multipart/form-data')
         .auth(token, { type: 'bearer' })
-        .send({
-          color: faker.color.rgb(),
-          logo_url: faker.internet.url(),
-        });
+        .field('color', faker.color.rgb())
+        .attach('logo_file', resolve(__dirname, './fixtures/test.png'), 'test.png');
 
       expect(response.status).toEqual(404);
       expect(response.body.message).toEqual('Empresa não encontrada');
     });
 
-    it("returns status code 400 if data is invalid", async () => {
+    it("returns status code 400 if color is invalid", async () => {
       const company = await user_factory.createOne({
-        id: faker.string.uuid(),
+        id: company_id,
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
         type: UserTypes.COMPANY,
@@ -568,38 +575,55 @@ describe('Company E2E tests', () => {
 
       const response = await request
         .patch(`/api/companies/${company.id}/brands`)
-        .set('Content-Type', 'application/json')
+        .set('Content-Type', 'multipart/form-data')
         .auth(token, { type: 'bearer' })
-        .send({
-          color: faker.string.sample(),
-          logo_url: faker.number.float(),
-        });
+        .field('color', faker.string.sample())
+        .attach('logo_file', resolve(__dirname, './fixtures/test.png'), 'test.png');
+
 
       expect(response.status).toEqual(400);
-      expect(response.body.errors).toHaveLength(2);
+      expect(response.body.errors).toHaveLength(1);
+    });
+
+    it("returns status code 400 if logo_file is empty", async () => {
+      const company = await user_factory.createOne({
+        id: company_id,
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
+      });
+
+      const response = await request
+        .patch(`/api/companies/${company.id}/brands`)
+        .set('Content-Type', 'multipart/form-data')
+        .auth(token, { type: 'bearer' })
+        .field('color', faker.color.rgb());
+
+
+      expect(response.status).toEqual(400);
+      expect(response.body.message).toEqual('A imagem do logo é obrigatória');
     });
 
     it("updates company's brand", async () => {
       const company = await user_factory.createOne({
-        id: faker.string.uuid(),
+        id: company_id,
         email: faker.internet.email(),
         password: faker.string.alphanumeric(10),
         type: UserTypes.COMPANY,
       });
 
-      const data = {
-        color: faker.color.rgb(),
-        logo_url: faker.internet.url(),
-      };
+      const color = faker.color.rgb();
 
       const response = await request
         .patch(`/api/companies/${company.id}/brands`)
-        .set('Content-Type', 'application/json')
+        .set('Content-Type', 'multipart/form-data')
         .auth(token, { type: 'bearer' })
-        .send(data);
+        .field('color', color)
+        .attach('logo_file', resolve(__dirname, './fixtures/test.png'), 'test.png');
 
       expect(response.status).toEqual(204);
-      await expect(data).toEqualInDatabase('users', company.id!);
+      await expect({ color }).toEqualInDatabase('users', company.id!);
+      await expect('logo_url').not.toBeNullInDatabase('users', company.id!);
     });
   });
 

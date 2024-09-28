@@ -76,10 +76,6 @@ export const update_company_brand_validation_schema: Schema = {
     isHexColor: true,
     errorMessage: 'validation.color',
   },
-  logo_url: {
-    isURL: true,
-    errorMessage: 'validation.url'
-  },
 };
 
 export const create_service_log_validation_schema: Schema = {

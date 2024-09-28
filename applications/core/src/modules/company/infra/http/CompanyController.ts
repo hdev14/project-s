@@ -4,9 +4,10 @@ import AlreadyRegisteredError from "@shared/errors/AlreadyRegisteredError";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/HttpStatusCodes";
-import { requestValidator } from "@shared/middlewares";
+import { deleteFiles, requestValidator, upload } from "@shared/middlewares";
 import types from "@shared/types";
 import { Request } from 'express';
+import { readFile } from "fs/promises";
 import { inject } from "inversify";
 import {
   BaseHttpController,
@@ -155,15 +156,24 @@ export default class CompanyController extends BaseHttpController {
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
-  @httpPatch('/:company_id/brands', requestValidator(update_company_brand_validation_schema))
+  @httpPatch(
+    '/:company_id/brands',
+    upload.single('logo_file'),
+    requestValidator(update_company_brand_validation_schema),
+    deleteFiles()
+  )
   async updateCompanyBrand(@request() req: Request) {
     const { company_id } = req.params;
-    const { color, logo_url } = req.body;
+    const { color } = req.body;
+
+    if (!req.file) {
+      return this.json({ message: req.__('validation.logo_file') }, HttpStatusCodes.BAD_REQUEST);
+    }
 
     const [error] = await this.company_service.updateCompanyBrand({
       company_id,
       color,
-      logo_url,
+      logo_file: await readFile(req.file.path),
     });
 
     if (error instanceof NotFoundError) {

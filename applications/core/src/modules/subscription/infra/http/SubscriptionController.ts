@@ -17,7 +17,7 @@ import {
   httpPost,
   request
 } from "inversify-express-utils";
-import { create_subscription_validation_schema } from "./validations";
+import { create_subscription_plan_validation_schema, create_subscription_validation_schema } from "./validations";
 
 @controller('/api/subscriptions', types.AuthMiddleware)
 export default class SubscriptionController extends BaseHttpController {
@@ -117,7 +117,12 @@ export default class SubscriptionController extends BaseHttpController {
     return this.statusCode(HttpStatusCodes.NO_CONTENT);
   }
 
-  @httpPost('/plans', upload.single('term_file'), deleteFiles())
+  @httpPost(
+    '/plans',
+    upload.single('term_file'),
+    requestValidator(create_subscription_plan_validation_schema),
+    deleteFiles()
+  )
   async createSuscriptionPlan(@request() req: Request) {
     if (!await this.httpContext.user.isInRole(Policies.CREATE_SUBSCRIPTION_PLAN)) {
       return this.statusCode(HttpStatusCodes.FORBIDDEN);

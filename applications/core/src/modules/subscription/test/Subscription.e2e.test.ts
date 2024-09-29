@@ -1164,7 +1164,18 @@ describe('Subscription E2E tests', () => {
       }).toExistsInTable('subscription_plan_items');
     });
 
-    it.todo('returns status code 400 if data is invalid');
+    it('returns status code 400 if data is invalid', async () => {
+      const response = await request
+        .post('/api/subscriptions/plans')
+        .set('Content-Type', 'multipart/form-data')
+        .auth(token, { type: 'bearer' })
+        .field('item_ids[]', faker.string.sample())
+        .field('recurrence_type', faker.number.int())
+        .field('tenant_id', faker.string.sample())
+
+      expect(response.status).toEqual(400);
+      expect(response.body.errors).toHaveLength(3);
+    });
   });
 
   describe('GET: /api/subscriptions/plans', () => {

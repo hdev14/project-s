@@ -6,7 +6,7 @@ import Database from "@shared/Database";
 const connect_spy = jest.spyOn(Database, 'connect');
 const query_mock = jest.fn();
 
-describe.skip('DbPaymentRepository unit tests', () => {
+describe('DbPaymentRepository unit tests', () => {
   connect_spy.mockImplementation(() => ({ query: query_mock }) as never);
   const repository = new DbPaymentRepository();
 
@@ -20,54 +20,132 @@ describe.skip('DbPaymentRepository unit tests', () => {
 
   describe('DbPaymentRepository.createPayment', () => {
     it('should create a new payment', async () => {
-      const items = [
-        { id: faker.string.uuid(), name: faker.commerce.product() },
-        { id: faker.string.uuid(), name: faker.commerce.product() }
-      ];
-
-      const payment_obj = {
+      const payment_props = {
         id: faker.string.uuid(),
         amount: faker.number.float(),
         tax: faker.number.float(),
         status: faker.helpers.enumValue(PaymentStatus),
         subscription_id: faker.string.uuid(),
+        created_at: new Date(),
+        updated_at: new Date(),
         customer: {
           id: faker.string.uuid(),
           documnt: faker.string.numeric(11),
           email: faker.internet.email(),
           credit_card_external_id: faker.string.uuid(),
         },
-        logs: [{
-          id: faker.string.uuid(),
-          external_id: faker.string.uuid(),
-          payload: JSON.stringify({}),
-        }],
       };
 
-      const payment = new Payment(payment_obj);
+      const payment = new Payment(payment_props);
 
       await repository.createPayment(payment);
 
-      // expect(query_mock).toHaveBeenNthCalledWith(
-      //   1,
-      //   'INSERT INTO subscription_plans (id,amount,tenant_id,recurrence_type,term_url) VALUES ($1,$2,$3,$4,$5)',
-      //   [
-      //     payment_obj.id,
-      //     payment_obj.amount,
-      //     payment_obj.tenant_id,
-      //     payment_obj.recurrence_type,
-      //     payment_obj.term_url,
-      //   ]
-      // );;
-      // expect(query_mock).toHaveBeenNthCalledWith(
-      //   2,
-      //   'INSERT INTO subscription_plan_items (subscription_plan_id, item_id) VALUES ($1,$2), ($1,$3)',
-      //   [
-      //     payment_obj.id,
-      //     items[0].id,
-      //     items[1].id,
-      //   ]
-      // );
+      expect(query_mock).toHaveBeenCalledWith(
+        'INSERT INTO payments (id,amount,tax,status,subscription_id,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+        [
+          payment_props.id,
+          payment_props.amount,
+          payment_props.tax,
+          payment_props.status,
+          payment_props.subscription_id,
+          payment_props.created_at,
+          payment_props.updated_at,
+        ]
+      );
+    });
+  });
+
+  describe('DbPaymentRepository.updatePayment', () => {
+    it('should update a payment', async () => {
+      const payment_props = {
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        tax: faker.number.float(),
+        status: faker.helpers.enumValue(PaymentStatus),
+        subscription_id: faker.string.uuid(),
+        created_at: new Date(),
+        updated_at: new Date(),
+        customer: {
+          id: faker.string.uuid(),
+          documnt: faker.string.numeric(11),
+          email: faker.internet.email(),
+          credit_card_external_id: faker.string.uuid(),
+        },
+      };
+
+      const payment = new Payment(payment_props);
+
+      await repository.updatePayment(payment);
+
+      expect(query_mock).toHaveBeenCalledWith(
+        'UPDATE payments SET amount=$2,tax=$3,status=$4,subscription_id=$5,updated_at=$6 WHERE id=$1',
+        [
+          payment_props.id,
+          payment_props.amount,
+          payment_props.tax,
+          payment_props.status,
+          payment_props.subscription_id,
+          payment_props.updated_at,
+        ]
+      );
+    });
+  });
+
+  describe('DbPaymentRepository.getPaymentById', () => {
+    it("returns NULL if payment doesn't exist", async () => {
+      query_mock.mockResolvedValueOnce({ rows: [] });
+
+      const payment_id = faker.string.uuid();
+
+      const payment = await repository.getPaymentById(payment_id);
+
+      expect(payment).toBeNull();
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT * FROM payments WHERE id=$1',
+        [payment_id]
+      );
+    });
+
+    it("returns a payment", async () => {
+      const payment_row = {
+        id: faker.string.uuid(),
+        amount: faker.number.float().toString(),
+        tax: faker.number.float().toString(),
+        status: faker.helpers.enumValue(PaymentStatus),
+        subscription_id: faker.string.uuid(),
+        created_at: new Date(),
+        updated_at: new Date(),
+      };
+      query_mock
+        .mockResolvedValueOnce({
+          rows: [payment_row]
+        })
+        .mockResolvedValueOnce({
+          rows: [{
+            id: faker.string.uuid(),
+            documnt: faker.string.numeric(11),
+            email: faker.internet.email(),
+            credit_card_external_id: faker.string.uuid(),
+            created_at: new Date(),
+            updated_at: new Date(),
+          }]
+        });
+
+      const payment_id = faker.string.uuid();
+
+      const payment = await repository.getPaymentById(payment_id);
+
+      expect(payment).toBeInstanceOf(Payment);
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        'SELECT * FROM payments WHERE id=$1',
+        [payment_id],
+      );
+      expect(query_mock).toHaveBeenNthCalledWith(
+        2,
+        'SELECT u.id,u.document,u.email,u.credit_card_external_id,u.created_at,u.updated_at FROM subscriptions s JOIN users u ON s.subscriber_id = u.id WHERE id=$1',
+        [payment_row.subscription_id],
+      );
     });
   });
 });

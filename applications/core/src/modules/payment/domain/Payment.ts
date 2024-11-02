@@ -37,11 +37,17 @@ export default class Payment extends Aggregate<PaymentProps> implements Aggregat
     return new Payment(props);
   }
 
-  cancel() { }
+  cancel() {
+    this.update();
+  }
 
-  pay() { }
+  pay() {
+    this.update();
+  }
 
-  reject() { }
+  reject() {
+    this.update();
+  }
 
   toObject(): RequiredProps<PaymentProps> {
     return {
@@ -53,6 +59,6 @@ export default class Payment extends Aggregate<PaymentProps> implements Aggregat
       customer: this.#customer.toObject(),
       created_at: this.created_at,
       updated_at: this.updated_at
-    }
+    };
   }
 }

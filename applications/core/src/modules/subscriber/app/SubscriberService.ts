@@ -145,9 +145,9 @@ export default class SubscriberService {
         return Either.left(new NotFoundError('notfound.subscriber'));
       }
 
-      let credit_card_external_id: string | undefined;
-
       const subscriber_obj = subscriber.toObject();
+
+      let credit_card_external_id: string | undefined;
 
       if (params.payment_type === PaymentTypes.CREDIT_CARD) {
         credit_card_external_id = await this.#mediator.send<string>(

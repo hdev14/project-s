@@ -38,14 +38,17 @@ export default class Payment extends Aggregate<PaymentProps> implements Aggregat
   }
 
   cancel() {
+    this.#status = PaymentStatus.CANCELED;
     this.update();
   }
 
   pay() {
+    this.#status = PaymentStatus.PAID;
     this.update();
   }
 
   reject() {
+    this.#status = PaymentStatus.REJECTED;
     this.update();
   }
 

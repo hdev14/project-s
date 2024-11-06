@@ -34,7 +34,10 @@ export default class DbPaymentRepository implements PaymentRepository {
 
     const values = Object.values(data);
 
-    await this.#db.query(`INSERT INTO payments ${DbUtils.columns(data)} VALUES ${DbUtils.values(values)}`, DbUtils.sanitizeValues(values));
+    await this.#db.query(
+      `INSERT INTO payments ${DbUtils.columns(data)} VALUES ${DbUtils.values(values)}`,
+      DbUtils.sanitizeValues(values)
+    );
   }
 
   async updatePayment(payment: Payment): Promise<void> {
@@ -82,8 +85,8 @@ export default class DbPaymentRepository implements PaymentRepository {
         documnt: customer_row.document,
         email: customer_row.email,
         credit_card_external_id: customer_row.credit_card_external_id,
-        created_at: customer_row.created_at,
-        updated_at: customer_row.updated_at,
+        created_at: new Date(customer_row.created_at),
+        updated_at: new Date(customer_row.updated_at),
       },
       created_at: new Date(payment_row.created_at),
       updated_at: new Date(payment_row.updated_at),

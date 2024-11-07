@@ -1,0 +1,14 @@
+FROM node:latest
+
+WORKDIR /usr/core/
+
+COPY ./applications/core/package.json .
+COPY ./package-lock.json .
+
+RUN npm install
+
+COPY ./applications/core .
+
+EXPOSE 8080
+
+CMD ["npm", "run", "start:dev"]

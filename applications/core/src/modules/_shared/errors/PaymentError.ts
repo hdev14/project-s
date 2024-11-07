@@ -1,7 +1,7 @@
 export default class PaymentError extends Error {
   readonly payload?: Record<string, any>;
 
-  constructor(message: string, payload?: Record<string, any>) {
+  constructor(message: string, payload?: Record<string, any> | any) {
     super(message);
     this.name = this.constructor.name;
     this.payload = payload;

@@ -124,11 +124,10 @@ export default class MercadoPago implements PaymentGateway {
     });
 
     if (response.status >= 400) {
-      const data: any = await response.json();
-      throw new PaymentError('Transaction error', data);
+      throw new PaymentError('Transaction error', await response.json());
     }
 
-    const data: any = await response.json() as PaymentResponseData;
+    const data = await response.json() as PaymentResponseData;
 
     return new PaymentLog({
       external_id: data.id,
@@ -156,8 +155,7 @@ export default class MercadoPago implements PaymentGateway {
     });
 
     if (response.status >= 400) {
-      const data: any = await response.json();
-      throw new PaymentError('Create customer error', data);
+      throw new PaymentError('Create customer error', await response.json());
     }
 
     const data = await response.json() as CustomerResponseData;
@@ -182,8 +180,7 @@ export default class MercadoPago implements PaymentGateway {
     });
 
     if (response.status >= 400) {
-      const data: any = await response.json();
-      throw new PaymentError('Credit card error', data);
+      throw new PaymentError('Credit card error', await response.json());
     }
 
     const data = await response.json() as CreditCardResponseData;

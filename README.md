@@ -25,7 +25,6 @@ cp applications/platform/.env.example applications/platform/.env
 ```
 
 ### Docker
-- setup
 
 The project has a docker-compose.yml that is perfect to setup every thing you thing to run the project localy. So all you need is just exec the command below:
 

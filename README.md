@@ -12,11 +12,26 @@ This is an idea of SaaS to manage service and product subscriptions. The project
 7. [Technologies](#main-technologies)
 
 ## Setup
-- initial setup and configs
+
+### Envs
+
+First of all, you have to make a copy of the .env.example in each workspace.
+
+E.g:
+```bash
+cp applications/core/.env.example applications/core/.env
+cp applications/backoffice/.env.example applications/backoffice/.env
+cp applications/platform/.env.example applications/platform/.env
+```
 
 ### Docker
 - setup
-- docker compose
+
+The project has a docker-compose.yml that is perfect to setup every thing you thing to run the project localy. So all you need is just exec the command below:
+
+`docker compose up --build`
+
+>Obs.: You must follow all the setup section mention early to run this command.
 
 ### Database Migration
 - setup

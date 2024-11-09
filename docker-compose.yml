@@ -19,8 +19,31 @@ services:
       cd ./applications/core &&
       npm run start:dev"
     
-  # backoffice:
-  # platform:
+  backoffice:
+    image: node:latest
+    depends_on:
+      - core
+    ports:
+      - 3001:3001
+    volumes: *app-volumne
+    command: >
+      bash -c "cd ./usr/project-s/ && 
+      npm install --workspace=applications/backoffice --loglevel verbose && 
+      cd ./applications/backoffice &&
+      npm run dev"
+
+  platform:
+    image: node:latest
+    depends_on:
+      - core
+    ports:
+      - 3002:3002
+    volumes: *app-volumne
+    command: >
+      bash -c "cd ./usr/project-s/ && 
+      npm install --workspace=applications/platform --loglevel verbose && 
+      cd ./applications/platform &&
+      npm run dev"
 
   database:
     hostname: database

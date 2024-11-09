@@ -1,3 +1,6 @@
+x-application-volumn: &app-volumne
+  - ".:/usr/project-s"
+
 services:
   # TODO: add apps
   core:
@@ -9,8 +12,7 @@ services:
       # - redis
     ports:
       - 8080:8080
-    volumes:
-      - ".:/usr/project-s"
+    volumes: *app-volumne
     command: >
       bash -c "cd ./usr/project-s/ && 
       npm install --workspace=applications/core --loglevel verbose && 

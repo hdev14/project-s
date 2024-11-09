@@ -2,8 +2,9 @@ x-application-volumn: &app-volumne
   - ".:/usr/project-s"
 
 services:
-  # TODO: add apps
   core:
+    hostname: core
+    container_name: app-core
     image: node:latest
     depends_on:
       - database
@@ -20,6 +21,7 @@ services:
       npm run start:dev"
     
   backoffice:
+    container_name: app-backoffice
     image: node:latest
     depends_on:
       - core
@@ -33,6 +35,7 @@ services:
       npm run dev"
 
   platform:
+    container_name: app-platform
     image: node:latest
     depends_on:
       - core
@@ -47,6 +50,7 @@ services:
 
   database:
     hostname: database
+    container_name: database
     image: postgres
     ports:
       - 5432:5432
@@ -54,11 +58,15 @@ services:
       - POSTGRES_USER=local
       - POSTGRES_PASSWORD=local
   maildev:
+    hostname: maildev
+    container_name: smtp-service
     image: maildev/maildev
     ports:
       - "1080:1080" # http://localhost:1080
       - "1025:1025"
   storage:
+    hostname: storage
+    container_name: storage-service
     image: quay.io/minio/minio
     ports:
       - '9000:9000'

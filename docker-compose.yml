@@ -1,11 +1,26 @@
 services:
   # TODO: add apps
-  # core:
+  core:
+    image: node:latest
+    depends_on:
+      - database
+      - maildev
+      - storage
+      # - redis
+    ports:
+      - 8080:8080
+    volumes:
+      - ".:/usr/project-s"
+    command: >
+      bash -c "cd ./usr/project-s/ && 
+      npm install --workspace=applications/core --loglevel verbose && 
+      cd ./applications/core &&
+      npm run start:dev"
+    
   # backoffice:
   # platform:
 
   database:
-    container_name: database
     hostname: database
     image: postgres
     ports:
@@ -32,9 +47,9 @@ services:
 
   # https://hub.docker.com/_/redis/
   # redis
-
 volumes:
   storage:
     driver: local
+    
 
   

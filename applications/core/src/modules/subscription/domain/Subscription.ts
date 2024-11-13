@@ -13,6 +13,7 @@ export type SubscriptionProps = AggregateProps<{
   subscriber_id: string;
   subscription_plan_id: string;
   started_at?: Date;
+  billing_day: number;
   status: SubscriptionStatus;
   tenant_id: string;
 }>;
@@ -21,6 +22,7 @@ export default class Subscription extends Aggregate<SubscriptionProps> implement
   #subscriber_id: string;
   #subscription_plan_id: string;
   #started_at?: Date;
+  #billing_day: number;
   #status: SubscriptionStatus;
   #tenant_id: string;
 
@@ -31,14 +33,19 @@ export default class Subscription extends Aggregate<SubscriptionProps> implement
     this.#started_at = props.started_at;
     this.#status = props.status;
     this.#tenant_id = props.tenant_id;
+    if (props.billing_day < 0 || props.billing_day > 31) {
+      throw new DomainError('subscription.billing_day');
+    }
+    this.#billing_day = props.billing_day;
   }
 
-  static createPending(params: Pick<SubscriptionProps, 'subscriber_id' | 'subscription_plan_id' | 'tenant_id'>): Subscription {
+  static createPending(params: Pick<SubscriptionProps, 'subscriber_id' | 'subscription_plan_id' | 'tenant_id' | 'billing_day'>): Subscription {
     return new Subscription({
       subscriber_id: params.subscriber_id,
       subscription_plan_id: params.subscription_plan_id,
       tenant_id: params.tenant_id,
       status: SubscriptionStatus.PENDING,
+      billing_day: params.billing_day,
     });
   }
 
@@ -104,6 +111,7 @@ export default class Subscription extends Aggregate<SubscriptionProps> implement
       subscriber_id: this.#subscriber_id,
       subscription_plan_id: this.#subscription_plan_id,
       started_at: this.#started_at,
+      billing_day: this.#billing_day,
       status: this.#status,
       tenant_id: this.#tenant_id,
       created_at: this.created_at,

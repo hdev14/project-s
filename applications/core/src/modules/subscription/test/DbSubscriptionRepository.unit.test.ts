@@ -32,6 +32,7 @@ describe('DbSubscriptionRepository unit tests', () => {
         started_at: faker.date.future(),
         created_at: faker.date.future(),
         updated_at: faker.date.future(),
+        billing_day: faker.number.int({ max: 31 })
       };
 
       const subscription = new Subscription(subscription_props);
@@ -39,12 +40,13 @@ describe('DbSubscriptionRepository unit tests', () => {
       await repository.createSubscription(subscription);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO subscriptions (id,subscriber_id,subscription_plan_id,started_at,status,tenant_id,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)',
+        'INSERT INTO subscriptions (id,subscriber_id,subscription_plan_id,started_at,billing_day,status,tenant_id,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)',
         [
           subscription_props.id,
           subscription_props.subscriber_id,
           subscription_props.subscription_plan_id,
           subscription_props.started_at,
+          subscription_props.billing_day,
           subscription_props.status,
           subscription_props.tenant_id,
           subscription_props.created_at,
@@ -65,6 +67,7 @@ describe('DbSubscriptionRepository unit tests', () => {
         tenant_id: faker.string.uuid(),
         created_at: faker.date.future(),
         updated_at: faker.date.future(),
+        billing_day: faker.number.int({ max: 31 })
       };
 
       const subscription = new Subscription(subscription_props);
@@ -72,11 +75,12 @@ describe('DbSubscriptionRepository unit tests', () => {
       await repository.createSubscription(subscription);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO subscriptions (id,subscriber_id,subscription_plan_id,status,tenant_id,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+        'INSERT INTO subscriptions (id,subscriber_id,subscription_plan_id,billing_day,status,tenant_id,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)',
         [
           subscription_props.id,
           subscription_props.subscriber_id,
           subscription_props.subscription_plan_id,
+          subscription_props.billing_day,
           subscription_props.status,
           subscription_props.tenant_id,
           subscription_props.created_at,
@@ -100,6 +104,7 @@ describe('DbSubscriptionRepository unit tests', () => {
         started_at: faker.date.future(),
         created_at: faker.date.future(),
         updated_at: faker.date.future(),
+        billing_day: faker.number.int({ max: 31 })
       };
 
       const subscription = new Subscription(subscription_props);
@@ -107,12 +112,13 @@ describe('DbSubscriptionRepository unit tests', () => {
       await repository.updateSubscription(subscription);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'UPDATE subscriptions SET subscriber_id=$2,subscription_plan_id=$3,started_at=$4,status=$5,tenant_id=$6,updated_at=$7 WHERE id = $1',
+        'UPDATE subscriptions SET subscriber_id=$2,subscription_plan_id=$3,started_at=$4,billing_day=$5,status=$6,tenant_id=$7,updated_at=$8 WHERE id = $1',
         [
           subscription_props.id,
           subscription_props.subscriber_id,
           subscription_props.subscription_plan_id,
           subscription_props.started_at,
+          subscription_props.billing_day,
           subscription_props.status,
           subscription_props.tenant_id,
           subscription_props.updated_at,
@@ -132,6 +138,7 @@ describe('DbSubscriptionRepository unit tests', () => {
         tenant_id: faker.string.uuid(),
         created_at: faker.date.future(),
         updated_at: faker.date.future(),
+        billing_day: faker.number.int({ max: 31 })
       };
 
       const subscription = new Subscription(subscription_props);
@@ -139,11 +146,12 @@ describe('DbSubscriptionRepository unit tests', () => {
       await repository.updateSubscription(subscription);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'UPDATE subscriptions SET subscriber_id=$2,subscription_plan_id=$3,status=$4,tenant_id=$5,updated_at=$6 WHERE id = $1',
+        'UPDATE subscriptions SET subscriber_id=$2,subscription_plan_id=$3,billing_day=$4,status=$5,tenant_id=$6,updated_at=$7 WHERE id = $1',
         [
           subscription_props.id,
           subscription_props.subscriber_id,
           subscription_props.subscription_plan_id,
+          subscription_props.billing_day,
           subscription_props.status,
           subscription_props.tenant_id,
           subscription_props.updated_at,
@@ -175,6 +183,7 @@ describe('DbSubscriptionRepository unit tests', () => {
             started_at: faker.date.anytime(),
             status: faker.helpers.enumValue(SubscriptionStatus),
             tenant_id: faker.string.uuid(),
+            billing_day: faker.number.int({ max: 31 })
           }
         ]
       });
@@ -196,6 +205,7 @@ describe('DbSubscriptionRepository unit tests', () => {
           started_at: faker.date.anytime(),
           status: faker.helpers.enumValue(SubscriptionStatus),
           tenant_id: faker.string.uuid(),
+          billing_day: faker.number.int({ max: 31 })
         },
         {
           id: faker.string.uuid(),
@@ -204,6 +214,7 @@ describe('DbSubscriptionRepository unit tests', () => {
           started_at: faker.date.anytime(),
           status: faker.helpers.enumValue(SubscriptionStatus),
           tenant_id: faker.string.uuid(),
+          billing_day: faker.number.int({ max: 31 })
         },
       ];
 
@@ -227,6 +238,7 @@ describe('DbSubscriptionRepository unit tests', () => {
           started_at: faker.date.anytime(),
           status: faker.helpers.enumValue(SubscriptionStatus),
           tenant_id: faker.string.uuid(),
+          billing_day: faker.number.int({ max: 31 })
         },
       ];
 
@@ -268,6 +280,7 @@ describe('DbSubscriptionRepository unit tests', () => {
           started_at: faker.date.anytime(),
           status: faker.helpers.enumValue(SubscriptionStatus),
           tenant_id: faker.string.uuid(),
+          billing_day: faker.number.int({ max: 31 })
         },
       ];
 

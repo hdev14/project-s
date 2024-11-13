@@ -15,7 +15,6 @@ describe("Architecture Boundaries", () => {
     'catalog'
   ];
 
-
   test.each(modules)("Module(%s): domain logic should not depends on application logic", async (module) => {
     const rule = filesOfProject(path.resolve(__dirname, '..', 'tsconfig.json'))
       .inFolder(`${module}/domain`)

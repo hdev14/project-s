@@ -32,6 +32,7 @@ describe('SubscriptionService unit tests', () => {
         subscriber_id: faker.string.uuid(),
         subscription_plan_id: faker.string.uuid(),
         tenant_id: faker.string.uuid(),
+        billing_day: faker.number.int({ max: 31 })
       });
 
       expect(data).toBeUndefined();
@@ -50,6 +51,7 @@ describe('SubscriptionService unit tests', () => {
         subscriber_id: faker.string.uuid(),
         subscription_plan_id: faker.string.uuid(),
         tenant_id: faker.string.uuid(),
+        billing_day: faker.number.int({ max: 31 })
       });
 
       expect(data).toBeUndefined();
@@ -70,6 +72,7 @@ describe('SubscriptionService unit tests', () => {
         subscriber_id: faker.string.uuid(),
         subscription_plan_id: faker.string.uuid(),
         tenant_id: faker.string.uuid(),
+        billing_day: faker.number.int({ max: 31 })
       };
       const [error, data] = await subscription_service.createSubscription(params);
 
@@ -101,6 +104,7 @@ describe('SubscriptionService unit tests', () => {
         subscriber_id,
         subscription_plan_id,
         tenant_id: faker.string.uuid(),
+        billing_day: faker.number.int({ max: 31 })
       };
 
       const [error, data] = await subscription_service.createSubscription(params);
@@ -135,6 +139,7 @@ describe('SubscriptionService unit tests', () => {
           subscriber_id: faker.string.uuid(),
           subscription_plan_id: faker.string.uuid(),
           tenant_id: faker.string.uuid(),
+          billing_day: faker.number.int({ max: 31 })
         })
       );
 
@@ -156,6 +161,7 @@ describe('SubscriptionService unit tests', () => {
           subscriber_id: faker.string.uuid(),
           subscription_plan_id: faker.string.uuid(),
           tenant_id: faker.string.uuid(),
+          billing_day: faker.number.int({ max: 31 })
         })
       );
 
@@ -174,6 +180,7 @@ describe('SubscriptionService unit tests', () => {
           subscriber_id: faker.string.uuid(),
           subscription_plan_id: faker.string.uuid(),
           tenant_id: faker.string.uuid(),
+          billing_day: faker.number.int({ max: 31 }),
         })
       );
 
@@ -192,6 +199,7 @@ describe('SubscriptionService unit tests', () => {
           subscriber_id: faker.string.uuid(),
           subscription_plan_id: faker.string.uuid(),
           tenant_id: faker.string.uuid(),
+          billing_day: faker.number.int({ max: 31 })
         })
       );
 
@@ -224,6 +232,7 @@ describe('SubscriptionService unit tests', () => {
           subscriber_id: faker.string.uuid(),
           subscription_plan_id: faker.string.uuid(),
           tenant_id: faker.string.uuid(),
+          billing_day: faker.number.int({ max: 31 })
         })
       );
 
@@ -244,6 +253,7 @@ describe('SubscriptionService unit tests', () => {
           subscriber_id: faker.string.uuid(),
           subscription_plan_id: faker.string.uuid(),
           tenant_id: faker.string.uuid(),
+          billing_day: faker.number.int({ max: 31 })
         })
       );
 
@@ -262,6 +272,7 @@ describe('SubscriptionService unit tests', () => {
           subscriber_id: faker.string.uuid(),
           subscription_plan_id: faker.string.uuid(),
           tenant_id: faker.string.uuid(),
+          billing_day: faker.number.int({ max: 31 })
         })
       );
 
@@ -280,6 +291,7 @@ describe('SubscriptionService unit tests', () => {
           subscriber_id: faker.string.uuid(),
           subscription_plan_id: faker.string.uuid(),
           tenant_id: faker.string.uuid(),
+          billing_day: faker.number.int({ max: 31 }),
         })
       );
 
@@ -298,6 +310,7 @@ describe('SubscriptionService unit tests', () => {
           subscriber_id: faker.string.uuid(),
           subscription_plan_id: faker.string.uuid(),
           tenant_id: faker.string.uuid(),
+          billing_day: faker.number.int({ max: 31 })
         })
       );
 
@@ -330,6 +343,7 @@ describe('SubscriptionService unit tests', () => {
           subscriber_id: faker.string.uuid(),
           subscription_plan_id: faker.string.uuid(),
           tenant_id: faker.string.uuid(),
+          billing_day: faker.number.int({ max: 31 })
         })
       );
 
@@ -350,6 +364,7 @@ describe('SubscriptionService unit tests', () => {
           subscriber_id: faker.string.uuid(),
           subscription_plan_id: faker.string.uuid(),
           tenant_id: faker.string.uuid(),
+          billing_day: faker.number.int({ max: 31 })
         })
       );
 
@@ -368,6 +383,7 @@ describe('SubscriptionService unit tests', () => {
           subscriber_id: faker.string.uuid(),
           subscription_plan_id: faker.string.uuid(),
           tenant_id: faker.string.uuid(),
+          billing_day: faker.number.int({ max: 31 }),
         })
       );
 
@@ -609,6 +625,7 @@ describe('SubscriptionService unit tests', () => {
             tenant_id: faker.string.uuid(),
             created_at: faker.date.future(),
             updated_at: faker.date.future(),
+            billing_day: faker.number.int({ max: 31 }),
           },
           {
             id: faker.string.uuid(),
@@ -618,6 +635,7 @@ describe('SubscriptionService unit tests', () => {
             tenant_id: faker.string.uuid(),
             created_at: faker.date.future(),
             updated_at: faker.date.future(),
+            billing_day: faker.number.int({ max: 31 }),
           },
         ],
         page_result: {

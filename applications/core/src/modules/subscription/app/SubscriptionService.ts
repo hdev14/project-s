@@ -21,6 +21,7 @@ export type CreateSubscriptionParams = {
   subscriber_id: string;
   subscription_plan_id: string;
   tenant_id: string;
+  billing_day: number;
 };
 
 export type ActiveSubscriptionParams = {
@@ -82,33 +83,42 @@ export default class SubscriptionService {
   }
 
   async createSubscription(params: CreateSubscriptionParams): Promise<Either<SubscriptionProps>> {
-    const subscriber = await this.#mediator.send<any>(new GetSubscriberCommand(params.subscriber_id));
+    try {
+      const subscriber = await this.#mediator.send<any>(new GetSubscriberCommand(params.subscriber_id));
 
-    if (!subscriber) {
-      return Either.left(new NotFoundError('notfound.subscriber'));
+      if (!subscriber) {
+        return Either.left(new NotFoundError('notfound.subscriber'));
+      }
+
+      const has_company = await this.#mediator.send<boolean>(new UserExistsCommand(params.tenant_id));
+
+      if (!has_company) {
+        return Either.left(new NotFoundError('notfound.company'));
+      }
+
+      const subscription_plan = await this.#subscription_plan_repository.getSubscriptionPlanById(params.subscription_plan_id);
+
+      if (!subscription_plan) {
+        return Either.left(new NotFoundError('notfound.subscription_plan'));
+      }
+
+      const subscription = Subscription.createPending({
+        subscription_plan_id: subscription_plan.id,
+        subscriber_id: subscriber.id,
+        tenant_id: params.tenant_id,
+        billing_day: params.billing_day,
+      });
+
+      await this.#subscription_repository.createSubscription(subscription);
+
+      return Either.right(subscription.toObject());
+    } catch (error) {
+      if (error instanceof DomainError) {
+        return Either.left(error);
+      }
+
+      throw error;
     }
-
-    const has_company = await this.#mediator.send<boolean>(new UserExistsCommand(params.tenant_id));
-
-    if (!has_company) {
-      return Either.left(new NotFoundError('notfound.company'));
-    }
-
-    const subscription_plan = await this.#subscription_plan_repository.getSubscriptionPlanById(params.subscription_plan_id);
-
-    if (!subscription_plan) {
-      return Either.left(new NotFoundError('notfound.subscription_plan'));
-    }
-
-    const subscription = Subscription.createPending({
-      subscription_plan_id: subscription_plan.id,
-      subscriber_id: subscriber.id,
-      tenant_id: params.tenant_id,
-    });
-
-    await this.#subscription_repository.createSubscription(subscription);
-
-    return Either.right(subscription.toObject());
   }
 
   async activeSubscription(params: ActiveSubscriptionParams): Promise<Either<void>> {

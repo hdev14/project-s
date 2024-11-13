@@ -39,16 +39,22 @@ export default class SubscriptionController extends BaseHttpController {
       subscriber_id,
       subscription_plan_id,
       tenant_id,
+      billing_day,
     } = req.body;
 
     const [error, data] = await this.subscription_service.createSubscription({
       subscriber_id,
       subscription_plan_id,
-      tenant_id
+      tenant_id,
+      billing_day: parseInt(billing_day, 10),
     });
 
     if (error instanceof NotFoundError) {
       return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    if (error instanceof DomainError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.UNPROCESSABLE_CONTENT);
     }
 
     return this.json(data, HttpStatusCodes.CREATED);

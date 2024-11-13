@@ -19,7 +19,6 @@ services:
       npm install --workspace=applications/core --loglevel verbose && 
       cd ./applications/core &&
       npm run start:dev"
-    
   backoffice:
     container_name: app-backoffice
     image: node:latest
@@ -33,7 +32,6 @@ services:
       npm install --workspace=applications/backoffice --loglevel verbose && 
       cd ./applications/backoffice &&
       npm run dev"
-
   platform:
     container_name: app-platform
     image: node:latest
@@ -47,7 +45,6 @@ services:
       npm install --workspace=applications/platform --loglevel verbose && 
       cd ./applications/platform &&
       npm run dev"
-
   database:
     hostname: database
     container_name: database

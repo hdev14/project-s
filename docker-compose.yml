@@ -74,9 +74,30 @@ services:
     volumes:
       - 'storage:/data'
     command: ["server", "/data", "--console-address", ":9001"]
+  jeager:
+   hostname: jeager
+   container_name: tracing-service
+   image: jaegertracing/all-in-one
+   ports:
+     - '16686:16686' # http://localhost:16686
+     - '4317:4317'
+     - '4318:4318'
+     - '9411:9411'
+
+  # docker run --rm -v ${PWD}/prometheus.yml:/prometheus/prometheus.yml -p 9090:9090 prom/prometheus --enable-feature=otlp-write-receive
+  prometheus:
+    hostname: prometheus
+    container_name: metrics-service
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - '9090:9090' # http://localhost:9090
+    command: 
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --enable-feature=otlp-write-receive
 
   # TODO: https://hub.docker.com/_/redis/
-  # TODO: add OTLP collector service
 volumes:
   storage:
     driver: local

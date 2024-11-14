@@ -5,7 +5,7 @@
   "main": "./build/index.js",
   "type": "commonjs",
   "scripts": {
-    "start:dev": "npx dotenv -e .env -- npx ts-node -r tsconfig-paths/register ./src/index.ts",
+    "start:dev": "npx dotenv -e .env -- npx ts-node -r ./src/open_telemetry.ts -r tsconfig-paths/register ./src/index.ts",
     "test:unit": "jest unit --passWithNoTests --watch --silent=false --config=jest.unit.config.js",
     "test:e2e": "npx dotenv -e .env.test -- npx jest e2e --detectOpenHandles --passWithNoTests --watch --silent=false --config=jest.e2e.config.js",
     "test:cov": "npx dotenv -e .env.test -- npx jest --coverage --detectOpenHandles --passWithNoTests --silent=false --config=jest.coverage.config.js",
@@ -51,6 +51,11 @@
     "typescript-eslint": "^8.12.2"
   },
   "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.52.1",
+    "@opentelemetry/sdk-metrics": "^1.27.0",
+    "@opentelemetry/sdk-node": "^0.54.2",
+    "@opentelemetry/sdk-trace-node": "^1.27.0",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.6",
     "emailjs": "^4.0.3",

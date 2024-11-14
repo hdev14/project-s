@@ -1,3 +1,4 @@
+import FileStorage from "@global/app/FileStorage";
 import Mediator from "@shared/Mediator";
 import Module from "@shared/Module";
 import types from "@shared/types";
@@ -8,7 +9,6 @@ import Logger from "../app/Logger";
 import MinIOStorage from "./MinIOStorage";
 import SMTPService from "./SMTPService";
 import WinstonLogger from "./WinstonLogger";
-import FileStorage from "@global/app/FileStorage";
 
 export default class GlobalModule implements Module {
   init(): ContainerModule {
@@ -16,6 +16,7 @@ export default class GlobalModule implements Module {
       bind<EmailService>(types.EmailService).to(SMTPService).inSingletonScope();
       bind<Mediator>(types.Mediator).to(GlobalMediator).inSingletonScope();
       bind<Logger>(types.Logger).to(WinstonLogger).inSingletonScope();
+      // bind<Logger>(types.Logger).to(OpenTelemetryLogger).inSingletonScope();
       bind<FileStorage>(types.FileStorage).to(MinIOStorage).inSingletonScope();
     });
 

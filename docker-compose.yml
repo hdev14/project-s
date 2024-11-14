@@ -75,14 +75,14 @@ services:
       - 'storage:/data'
     command: ["server", "/data", "--console-address", ":9001"]
   jeager:
-   hostname: jeager
-   container_name: tracing-service
-   image: jaegertracing/all-in-one
-   ports:
-     - '16686:16686' # http://localhost:16686
-     - '4317:4317'
-     - '4318:4318'
-     - '9411:9411'
+    hostname: jeager
+    container_name: tracing-service
+    image: jaegertracing/all-in-one
+    ports:
+      - '16686:16686' # http://localhost:16686
+      - '4317:4317'
+      - '4318:4318'
+      - '9411:9411'
   prometheus:
     hostname: prometheus
     container_name: metrics-service

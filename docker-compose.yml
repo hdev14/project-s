@@ -75,8 +75,8 @@ services:
       - 'storage:/data'
     command: ["server", "/data", "--console-address", ":9001"]
 
-  # https://hub.docker.com/_/redis/
-  # redis
+  # TODO: https://hub.docker.com/_/redis/
+  # TODO: add OTLP collector service
 volumes:
   storage:
     driver: local

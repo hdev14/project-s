@@ -24,4 +24,6 @@ export default {
   SubscriptionPlanRepository: Symbol.for('SubscriptionPlanRepository'),
   SubscriptionRepository: Symbol.for('SubscriptionRepository'),
   FileStorage: Symbol.for('FileStorage'),
+  NewableQueue: Symbol.for('Newable<Queue>'),
+  NewableConsumer: Symbol.for('Newable<Consumer>'),
 };

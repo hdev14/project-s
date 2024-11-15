@@ -1,11 +1,16 @@
+import Consumer from "@global/app/Consumer";
 import FileStorage from "@global/app/FileStorage";
+import Queue from "@global/app/Queue";
 import Mediator from "@shared/Mediator";
 import Module from "@shared/Module";
 import types from "@shared/types";
-import { ContainerModule } from "inversify";
+import { Processor } from "bullmq";
+import { ContainerModule, interfaces } from "inversify";
 import EmailService from "../app/EmailService";
 import GlobalMediator from "../app/GlobalMediator";
 import Logger from "../app/Logger";
+import BullMQConsumer from "./BullMQConsumer";
+import BullMQueue from "./BullMQueue";
 import MinIOStorage from "./MinIOStorage";
 import SMTPService from "./SMTPService";
 import WinstonLogger from "./WinstonLogger";
@@ -18,6 +23,8 @@ export default class GlobalModule implements Module {
       bind<Logger>(types.Logger).to(WinstonLogger).inSingletonScope();
       // bind<Logger>(types.Logger).to(OpenTelemetryLogger).inSingletonScope();
       bind<FileStorage>(types.FileStorage).to(MinIOStorage).inSingletonScope();
+      bind<interfaces.Newable<Queue>>(types.NewableQueue).toConstructor(BullMQueue);
+      bind<interfaces.Newable<Consumer<Parameters<Processor>>>>(types.NewableConsumer).toConstructor(BullMQConsumer);
     });
 
     return module;

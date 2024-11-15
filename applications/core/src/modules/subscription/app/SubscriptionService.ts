@@ -41,7 +41,6 @@ export type CreateSubscriptionPlanParams = {
   recurrence_type: RecurrenceTypes;
   tenant_id: string;
   term_file?: Buffer;
-  billing_day: number;
 };
 
 export type GetSubscriptionPlansParams = {
@@ -115,6 +114,8 @@ export default class SubscriptionService {
     });
 
     await this.#subscription_repository.createSubscription(subscription);
+
+    // TODO: send it to payment subscription queue
 
     return Either.right(subscription.toObject());
   }
@@ -223,7 +224,6 @@ export default class SubscriptionService {
         items,
         recurrence_type: params.recurrence_type,
         tenant_id: params.tenant_id,
-        billing_day: params.billing_day,
       };
 
       if (params.term_file) {

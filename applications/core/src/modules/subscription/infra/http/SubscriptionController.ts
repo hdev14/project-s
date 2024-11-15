@@ -128,7 +128,7 @@ export default class SubscriptionController extends BaseHttpController {
       return this.statusCode(HttpStatusCodes.FORBIDDEN);
     }
 
-    const { item_ids, recurrence_type, tenant_id, billing_day } = req.body;
+    const { item_ids, recurrence_type, tenant_id } = req.body;
 
     let term_file: Buffer | undefined = undefined;
 
@@ -145,7 +145,6 @@ export default class SubscriptionController extends BaseHttpController {
       recurrence_type,
       tenant_id,
       term_file,
-      billing_day: parseInt(billing_day, 10)
     });
 
     if (error instanceof NotFoundError) {

@@ -91,7 +91,6 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
         created_at: new Date(row.created_at),
         updated_at: new Date(row.updated_at),
         items,
-        billing_day: row.billing_day,
       };
     }
     return subscription_plan_objs;
@@ -172,14 +171,13 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
       created_at: new Date(subscription_plan_row.created_at),
       updated_at: new Date(subscription_plan_row.updated_at),
       items,
-      billing_day: subscription_plan_row.billing_day,
     });
   }
 
   async createSubscriptionPlan(subscription_plan: SubscriptionPlan): Promise<void> {
-    const { id, amount, tenant_id, recurrence_type, term_url, billing_day, items, created_at, updated_at } = subscription_plan.toObject();
+    const { id, amount, tenant_id, recurrence_type, term_url, items, created_at, updated_at } = subscription_plan.toObject();
 
-    const data = { id, amount, tenant_id, recurrence_type, term_url, billing_day, created_at, updated_at };
+    const data = { id, amount, tenant_id, recurrence_type, term_url, created_at, updated_at };
     const values = Object.values(data);
 
     await this.#db.query(

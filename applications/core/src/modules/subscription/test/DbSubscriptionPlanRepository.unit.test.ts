@@ -289,7 +289,6 @@ describe('DbSubscriptionPlanRepository unit tests', () => {
         term_url: faker.internet.url(),
         created_at: faker.date.future(),
         updated_at: faker.date.future(),
-        billing_day: faker.number.int({ max: 31 }),
       };
 
       const subscription_plan = new SubscriptionPlan(subscription_plan_props);
@@ -298,14 +297,13 @@ describe('DbSubscriptionPlanRepository unit tests', () => {
 
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
-        'INSERT INTO subscription_plans (id,amount,tenant_id,recurrence_type,term_url,billing_day,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)',
+        'INSERT INTO subscription_plans (id,amount,tenant_id,recurrence_type,term_url,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7)',
         [
           subscription_plan_props.id,
           subscription_plan_props.amount,
           subscription_plan_props.tenant_id,
           subscription_plan_props.recurrence_type,
           subscription_plan_props.term_url,
-          subscription_plan_props.billing_day,
           subscription_plan_props.created_at,
           subscription_plan_props.updated_at,
         ]

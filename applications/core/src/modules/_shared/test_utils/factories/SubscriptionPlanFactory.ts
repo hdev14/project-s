@@ -4,14 +4,13 @@ import Factory from "./Factory";
 
 export default class SubscriptionPlanFactory implements Factory<SubscriptionPlanProps> {
   async createOne(item: SubscriptionPlanProps): Promise<SubscriptionPlanProps> {
-    const { amount, items, recurrence_type, tenant_id, id, term_url, billing_day } = item;
+    const { amount, items, recurrence_type, tenant_id, id, term_url } = item;
     const data = {
       id,
       amount,
       recurrence_type,
       tenant_id,
       term_url,
-      billing_day,
     };
     const values = Object.values(data);
 

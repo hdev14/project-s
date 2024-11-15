@@ -172,6 +172,106 @@ describe('DbSubscriptionPlanRepository unit tests', () => {
     });
   });
 
+  describe('DbSubscriptionPlanRepository.getActiveSubscriptionPlans', () => {
+    const unique_subscription_plan_id = faker.string.uuid();
+
+    it('returns a list of subscription plans when the limit of pagination is 1 and the page is 1', async () => {
+      query_mock
+        .mockResolvedValueOnce({ rows: [{ total: 2 }] })
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              id: unique_subscription_plan_id,
+              amount: faker.number.float(),
+              recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+              term_url: faker.internet.url(),
+              tenant_id: faker.string.uuid(),
+              item_id: faker.string.uuid(),
+              name: faker.commerce.product(),
+            },
+            {
+              id: unique_subscription_plan_id,
+              amount: faker.number.float(),
+              recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+              term_url: faker.internet.url(),
+              tenant_id: faker.string.uuid(),
+              item_id: faker.string.uuid(),
+              name: faker.commerce.product(),
+            },
+          ]
+        });
+
+      const page_options = {
+        limit: 1,
+        page: 1,
+      };
+
+      const { results, page_result } = await repository.getActiveSubscriptionPlans(page_options);
+
+      expect(results).toHaveLength(1);
+      expect(page_result!.next_page).toEqual(2);
+      expect(page_result!.total_of_pages).toEqual(2);
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        'SELECT COUNT(sp.id) as total FROM subscription_plans sp JOIN subscriptions s ON s.subscription_plan_id = sp.id AND s.status = "active"',
+        []
+      );
+      expect(query_mock).toHaveBeenNthCalledWith(
+        2,
+        'SELECT sp.id,sp.amount,sp.recurrence_type,sp.term_url,sp.tenant_id,sp.billing_day,sp.created_at,sp.updated_at,ci.id as item_id,ci.name as item_name,ci.created_at as item_created_at,ci.updated_at as item_updated_at FROM subscription_plans sp JOIN subscriptions s ON s.subscription_plan_id = sp.id AND s.status = "active" LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id LIMIT $1 OFFSET $2',
+        [page_options.limit, 0],
+      );
+    });
+
+    it('returns a list of subscription plans when the limit of pagination is 1 and the page is 2', async () => {
+      query_mock
+        .mockResolvedValueOnce({ rows: [{ total: 2 }] })
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              id: unique_subscription_plan_id,
+              amount: faker.number.float(),
+              recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+              term_url: faker.internet.url(),
+              tenant_id: faker.string.uuid(),
+              item_id: faker.string.uuid(),
+              name: faker.commerce.product(),
+            },
+            {
+              id: unique_subscription_plan_id,
+              amount: faker.number.float(),
+              recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+              term_url: faker.internet.url(),
+              tenant_id: faker.string.uuid(),
+              item_id: faker.string.uuid(),
+              name: faker.commerce.product(),
+            },
+          ]
+        });
+
+      const page_options = {
+        limit: 1,
+        page: 2,
+      };
+
+      const { results, page_result } = await repository.getActiveSubscriptionPlans(page_options);
+
+      expect(results).toHaveLength(1);
+      expect(page_result!.next_page).toEqual(-1);
+      expect(page_result!.total_of_pages).toEqual(2);
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        'SELECT COUNT(sp.id) as total FROM subscription_plans sp JOIN subscriptions s ON s.subscription_plan_id = sp.id AND s.status = "active"',
+        []
+      );
+      expect(query_mock).toHaveBeenNthCalledWith(
+        2,
+        'SELECT sp.id,sp.amount,sp.recurrence_type,sp.term_url,sp.tenant_id,sp.billing_day,sp.created_at,sp.updated_at,ci.id as item_id,ci.name as item_name,ci.created_at as item_created_at,ci.updated_at as item_updated_at FROM subscription_plans sp JOIN subscriptions s ON s.subscription_plan_id = sp.id AND s.status = "active" LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id LIMIT $1 OFFSET $2',
+        [page_options.limit, 1],
+      );
+    });
+  });
+
   describe('DbSubscriptionPlanRepository.getSubscriptionPlanById', () => {
     it('returns a subscription plan', async () => {
       query_mock

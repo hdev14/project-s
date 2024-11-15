@@ -1,13 +1,20 @@
 
 import Database from "@shared/Database";
 import DbUtils from "@shared/utils/DbUtils";
-import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
+import Pagination, { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
 import { SubscriptionPlanRepository, SubscriptionPlansFilter } from "@subscription/app/SubscriptionPlanRepository";
 import { ItemProps } from "@subscription/domain/Item";
 import SubscriptionPlan, { SubscriptionPlanProps } from "@subscription/domain/SubscriptionPlan";
 import { injectable } from "inversify";
 import { Pool } from "pg";
 import 'reflect-metadata';
+
+type GetSubscriptionPaginatedOptions = {
+  main_query: string;
+  count_query: string;
+  page_options: PageOptions;
+  values?: unknown[];
+};
 
 @injectable()
 export default class DbSubscriptionPlanRepository implements SubscriptionPlanRepository {
@@ -26,15 +33,33 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
     'ci.created_at as item_created_at',
     'ci.updated_at as item_updated_at',
   ];
-  #select_subscription_plans = `SELECT ${this.#columns.toString()} FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id`;
 
   constructor() {
     this.#db = Database.connect();
   }
 
+  async getActiveSubscriptionPlans(page_options: PageOptions): Promise<PaginatedResult<SubscriptionPlanProps>> {
+    const { rows = [], page_result } = await this.getSubscriptionPlansPaginated({
+      main_query: `SELECT ${this.#columns.toString()} FROM subscription_plans sp JOIN subscriptions s ON s.subscription_plan_id = sp.id AND s.status = "active" LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id`,
+      count_query: 'SELECT COUNT(sp.id) as total FROM subscription_plans sp JOIN subscriptions s ON s.subscription_plan_id = sp.id AND s.status = "active"',
+      values: [],
+      page_options,
+    });
+
+    const subscription_plan_objs: Record<string, SubscriptionPlanProps> = this.mapSubscriptionPlans(rows);
+
+    return { results: Object.values(subscription_plan_objs), page_result };
+  }
+
   async getSubscriptionPlans(filter: SubscriptionPlansFilter): Promise<PaginatedResult<SubscriptionPlanProps>> {
     const { rows = [], page_result } = await this.selectSubscriptionPlans(filter);
 
+    const subscription_plan_objs: Record<string, SubscriptionPlanProps> = this.mapSubscriptionPlans(rows);
+
+    return { results: Object.values(subscription_plan_objs), page_result };
+  }
+
+  private mapSubscriptionPlans(rows: any[]) {
     const subscription_plan_objs: Record<string, SubscriptionPlanProps> = {};
 
     for (let idx = 0; idx < rows.length; idx++) {
@@ -70,38 +95,46 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
         billing_day: row.billing_day,
       };
     }
-
-    return { results: Object.values(subscription_plan_objs), page_result };
+    return subscription_plan_objs;
   }
 
   private async selectSubscriptionPlans(filter: SubscriptionPlansFilter) {
-    const query = this.#select_subscription_plans + ' WHERE sp.tenant_id=$1';
+    const query = `SELECT ${this.#columns.toString()} FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id WHERE sp.tenant_id=$1`;
     const values: unknown[] = [filter.tenant_id];
 
     if (filter.page_options) {
-      const count_query = 'SELECT COUNT(id) as total FROM subscription_plans WHERE tenant_id=$1';
-      const offset = Pagination.calculateOffset(filter.page_options);
-
-      const count_result = await this.#db.query(count_query, DbUtils.sanitizeValues(values));
-
-      const paginated_query = query + ' LIMIT $2 OFFSET $3';
-
-      const { rows } = await this.#db.query(
-        paginated_query,
-        DbUtils.sanitizeValues(values.concat([filter.page_options.limit, offset]))
-      );
-
-      const page_result = (count_result.rows[0].total !== undefined && count_result.rows[0].total > 0)
-        ? Pagination.calculatePageResult(count_result.rows[0].total, filter!.page_options!)
-        : undefined;
-
-      return { rows, page_result };
+      return await this.getSubscriptionPlansPaginated({
+        main_query: query,
+        count_query: 'SELECT COUNT(id) as total FROM subscription_plans WHERE tenant_id=$1',
+        page_options: filter.page_options,
+        values,
+      });
     }
 
     const { rows } = await this.#db.query(query, DbUtils.sanitizeValues(values));
 
-    return { rows };
+    return { rows, page_result: undefined };
 
+  }
+
+  private async getSubscriptionPlansPaginated(options: GetSubscriptionPaginatedOptions) {
+    const values = options.values || [];
+    const offset = Pagination.calculateOffset(options.page_options);
+
+    const count_result = await this.#db.query(options.count_query, DbUtils.sanitizeValues(values));
+
+    const paginated_query = options.main_query + (values && values.length ? ' LIMIT $2 OFFSET $3' : ' LIMIT $1 OFFSET $2');
+
+    const { rows } = await this.#db.query(
+      paginated_query,
+      DbUtils.sanitizeValues(values.concat([options.page_options.limit, offset]))
+    );
+
+    const page_result = (count_result.rows[0].total !== undefined && count_result.rows[0].total > 0)
+      ? Pagination.calculatePageResult(count_result.rows[0].total, options.page_options)
+      : undefined;
+
+    return { rows, page_result };
   }
 
   async getSubscriptionPlanById(id: string): Promise<SubscriptionPlan | null> {

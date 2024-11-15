@@ -258,8 +258,8 @@ export default class SubscriptionService {
   }
 
   async payActiveSubscriptions(): Promise<Either<void>> {
-    // TODO: get all active subscription (with subscription plan) paginated
-    // TODO: for each batch (define quantity) of subscriptions, check if the subscription can be pay (monthly, aanually)
+    // TODO: get all active subscription plan paginated
+    // TODO: for each batch (define quantity) of subscription plans, check if the subscription can be pay (monthly, aanually)
     // TODO: send all subscription to the pay active subscription queue this.#payment_queue.addMessages()
     return Either.left(new Error());
   }

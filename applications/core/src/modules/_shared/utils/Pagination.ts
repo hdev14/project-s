@@ -14,10 +14,10 @@ export type PaginatedResult<T> = {
 }
 
 export default class Pagination {
-  static calculateOffset(pagination: PageOptions) {
-    const result = pagination.page - 1;
+  static calculateOffset(page_options: PageOptions) {
+    const result = page_options.page - 1;
 
-    return result < 0 ? 0 : result * pagination.limit;
+    return result < 0 ? 0 : result * page_options.limit;
   }
 
   static calculatePageResult(total: number, pagination: PageOptions): PageResult {

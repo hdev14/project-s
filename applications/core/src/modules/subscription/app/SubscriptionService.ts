@@ -5,12 +5,12 @@ import UserExistsCommand from "@shared/commands/UserExistsCommand";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import Mediator from "@shared/Mediator";
-import Queue from "@shared/Queue";
+import Queue, { Message } from "@shared/Queue";
 import types from "@shared/types";
 import Either from "@shared/utils/Either";
 import { PageOptions, PageResult } from "@shared/utils/Pagination";
 import { ItemProps } from "@subscription/domain/Item";
-import Subscription, { SubscriptionProps } from "@subscription/domain/Subscription";
+import Subscription, { SubscriptionProps, SubscriptionStatus } from "@subscription/domain/Subscription";
 import SubscriptionPlan, { RecurrenceTypes, SubscriptionPlanProps } from "@subscription/domain/SubscriptionPlan";
 import { randomUUID } from "crypto";
 import { inject, injectable, interfaces } from "inversify";
@@ -66,11 +66,13 @@ export type GetSubscriptionsResult = {
 
 @injectable()
 export default class SubscriptionService {
+  static SUBSCRIPTION_BATCH_NUMBER = 10;
+
   #mediator: Mediator;
   #subscription_plan_repository: SubscriptionPlanRepository;
   #subscription_repository: SubscriptionRepository;
   #file_storage: FileStorage;
-  #payment_queue?: Queue;
+  #payment_subscription_queue: Queue;
 
   constructor(
     @inject(types.Mediator) mediator: Mediator,
@@ -83,7 +85,7 @@ export default class SubscriptionService {
     this.#subscription_plan_repository = subscription_plan_repository;
     this.#subscription_repository = subscription_repository;
     this.#file_storage = file_storage;
-    // this.#payment_queue = new Queue({ queue: process.env.PAYMENT_QUEUE, attempts: 3 });
+    this.#payment_subscription_queue = new Queue({ queue: process.env.PAYMENT_SUBSCRIPTION_QUEUE, attempts: 3 });
   }
 
   async createSubscription(params: CreateSubscriptionParams): Promise<Either<SubscriptionProps>> {
@@ -258,9 +260,62 @@ export default class SubscriptionService {
   }
 
   async payActiveSubscriptions(): Promise<Either<void>> {
-    // TODO: get all active subscription plan paginated
-    // TODO: for each batch (define quantity) of subscription plans, check if the subscription can be pay (monthly, aanually)
-    // TODO: send all subscription to the pay active subscription queue this.#payment_queue.addMessages()
-    return Either.left(new Error());
+    const current_date = new Date();
+    let next_page = 1;
+
+    do {
+      const { results, page_result } = await this.#subscription_repository.getSubscriptions({
+        status: SubscriptionStatus.ACTIVE,
+        page_options: {
+          limit: SubscriptionService.SUBSCRIPTION_BATCH_NUMBER,
+          page: next_page,
+        }
+      });
+
+      const subscription_plan_ids: string[] = [];
+
+      for (let idx = 0; idx < results.length; idx++) {
+        subscription_plan_ids.push(results[idx].subscription_plan_id);
+      }
+
+      const subscription_plans = await this.#subscription_plan_repository.getSubscriptionPlansByIds(subscription_plan_ids);
+
+      const subscription_plans_map = new Map();
+
+      for (let idx = 0; idx < subscription_plans.length; idx++) {
+        const sp = subscription_plans[idx];
+        subscription_plans_map.set(sp.id, sp);
+      }
+
+      const messages: Message[] = [];
+
+      for (let idx = 0; idx < results.length; idx++) {
+        const subscription = results[idx];
+
+        const subscription_plan = subscription_plans_map.get(subscription.subscription_plan_id);
+
+        if (
+          subscription_plan!.recurrence_type === RecurrenceTypes.MONTHLY
+          && subscription_plan!.billing_day === current_date.getDate()
+        ) {
+          messages.push({
+            id: randomUUID(),
+            name: 'PayActiveSubscription',
+            payload: {
+              subscription_id: subscription.id,
+              subscriber_id: subscription.subscriber_id,
+              tenant_id: subscription!.tenant_id,
+              amount: subscription_plan!.amount,
+            }
+          })
+        }
+      }
+
+      await this.#payment_subscription_queue.addMessages(messages);
+
+      next_page = page_result!.next_page;
+    } while (next_page !== -1);
+
+    return Either.right();
   }
 }

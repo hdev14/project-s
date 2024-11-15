@@ -2,7 +2,7 @@ import { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
 import Subscription, { SubscriptionProps, SubscriptionStatus } from "@subscription/domain/Subscription";
 
 export type SubscriptionsFilter = {
-  tenant_id: string;
+  tenant_id?: string;
   status?: SubscriptionStatus;
   page_options?: PageOptions;
 }

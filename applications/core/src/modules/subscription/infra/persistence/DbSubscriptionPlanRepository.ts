@@ -34,22 +34,21 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
     'ci.updated_at as item_updated_at',
   ];
 
+  #select_subscription_plans = `SELECT ${this.#columns.toString()} FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id`;
+
   constructor() {
     this.#db = Database.connect();
   }
 
-  async getActiveSubscriptionPlans(page_options: PageOptions): Promise<PaginatedResult<SubscriptionPlanProps>> {
-    const { rows = [], page_result } = await this.getSubscriptionPlansPaginated({
-      main_query: `SELECT ${this.#columns.toString()} FROM subscription_plans sp JOIN subscriptions s ON s.subscription_plan_id = sp.id AND s.status = "active" LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id`,
-      count_query: 'SELECT COUNT(sp.id) as total FROM subscription_plans sp JOIN subscriptions s ON s.subscription_plan_id = sp.id AND s.status = "active"',
-      values: [],
-      page_options,
-    });
+  async getSubscriptionPlansByIds(ids: string[]): Promise<SubscriptionPlanProps[]> {
+    const { rows } = await this.#db.query(
+      `${this.#select_subscription_plans} WHERE id ${DbUtils.inOperator(ids)}`,
+      DbUtils.sanitizeValues(ids),
+    );
 
-    const subscription_plan_objs: Record<string, SubscriptionPlanProps> = this.mapSubscriptionPlans(rows);
-
-    return { results: Object.values(subscription_plan_objs), page_result };
+    return Object.values(this.mapSubscriptionPlans(rows));
   }
+
 
   async getSubscriptionPlans(filter: SubscriptionPlansFilter): Promise<PaginatedResult<SubscriptionPlanProps>> {
     const { rows = [], page_result } = await this.selectSubscriptionPlans(filter);
@@ -99,7 +98,7 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
   }
 
   private async selectSubscriptionPlans(filter: SubscriptionPlansFilter) {
-    const query = `SELECT ${this.#columns.toString()} FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id WHERE sp.tenant_id=$1`;
+    const query = `${this.#select_subscription_plans} WHERE sp.tenant_id=$1`;
     const values: unknown[] = [filter.tenant_id];
 
     if (filter.page_options) {
@@ -130,9 +129,7 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
       DbUtils.sanitizeValues(values.concat([options.page_options.limit, offset]))
     );
 
-    const page_result = (count_result.rows[0].total !== undefined && count_result.rows[0].total > 0)
-      ? Pagination.calculatePageResult(count_result.rows[0].total, options.page_options)
-      : undefined;
+    const page_result = Pagination.calculatePageResult(count_result.rows[0].total, options.page_options);
 
     return { rows, page_result };
   }

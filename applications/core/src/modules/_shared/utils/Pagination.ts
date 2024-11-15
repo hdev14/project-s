@@ -21,6 +21,10 @@ export default class Pagination {
   }
 
   static calculatePageResult(total: number, pagination: PageOptions): PageResult {
+    if (total === 0) {
+      return { total_of_pages: 0, next_page: 0 }
+    }
+
     const total_of_pages = Math.ceil(total / pagination.limit);
     const next_page = pagination.page < total_of_pages ? pagination.page + 1 : -1;
 

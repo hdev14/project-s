@@ -1,4 +1,5 @@
 import FileStorage from "@global/app/FileStorage";
+import Queue from "@global/app/Queue";
 import GetCatalogItemCommand from "@shared/commands/GetCatalogItemCommand";
 import GetSubscriberCommand from "@shared/commands/GetSubscriberCommand";
 import UserExistsCommand from "@shared/commands/UserExistsCommand";
@@ -12,7 +13,7 @@ import { ItemProps } from "@subscription/domain/Item";
 import Subscription, { SubscriptionProps } from "@subscription/domain/Subscription";
 import SubscriptionPlan, { RecurrenceTypes, SubscriptionPlanProps } from "@subscription/domain/SubscriptionPlan";
 import { randomUUID } from "crypto";
-import { inject, injectable } from "inversify";
+import { inject, injectable, interfaces } from "inversify";
 import 'reflect-metadata';
 import { SubscriptionPlanRepository } from "./SubscriptionPlanRepository";
 import SubscriptionRepository from "./SubscriptionRepository";
@@ -69,17 +70,20 @@ export default class SubscriptionService {
   #subscription_plan_repository: SubscriptionPlanRepository;
   #subscription_repository: SubscriptionRepository;
   #file_storage: FileStorage;
+  #payment_queue: Queue;
 
   constructor(
     @inject(types.Mediator) mediator: Mediator,
     @inject(types.SubscriptionPlanRepository) subscription_plan_repository: SubscriptionPlanRepository,
     @inject(types.SubscriptionRepository) subscription_repository: SubscriptionRepository,
     @inject(types.FileStorage) file_storage: FileStorage,
+    @inject(types.NewableQueue) Queue: interfaces.Newable<Queue>,
   ) {
     this.#mediator = mediator;
     this.#subscription_plan_repository = subscription_plan_repository;
     this.#subscription_repository = subscription_repository;
     this.#file_storage = file_storage;
+    this.#payment_queue = new Queue({ queue: process.env.PAYMENT_QUEUE, attempts: 3 });
   }
 
   async createSubscription(params: CreateSubscriptionParams): Promise<Either<SubscriptionProps>> {
@@ -258,5 +262,12 @@ export default class SubscriptionService {
   async getSubscriptions(params: GetSubscriptionsParams): Promise<Either<GetSubscriptionsResult>> {
     const result = await this.#subscription_repository.getSubscriptions(params);
     return Either.right(result);
+  }
+
+  async payActiveSubscriptions(): Promise<Either<void>> {
+    // TODO: get all active subscription (with subscription plan) paginated
+    // TODO: for each batch (define quantity) of subscriptions, check if the subscription can be pay (monthly, aanually)
+    // TODO: send all subscription to the pay active subscription queue this.#payment_queue.addMessages()
+    return Either.left(new Error());
   }
 }

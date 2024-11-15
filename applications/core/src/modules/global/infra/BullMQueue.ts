@@ -1,4 +1,4 @@
-import Queue, { Message, QueueOptions } from "@global/app/Queue";
+import Queue, { Message, QueueOptions } from "@shared/Queue";
 import bullmq from 'bullmq';
 import { injectable } from "inversify";
 import 'reflect-metadata';

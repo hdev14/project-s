@@ -1,5 +1,5 @@
-import Consumer, { ConsumerOptions } from '@global/app/Consumer';
 import Logger from '@global/app/Logger';
+import Consumer, { ConsumerOptions } from '@shared/Consumer';
 import types from '@shared/types';
 import { Processor, Worker } from 'bullmq';
 import { inject, injectable } from 'inversify';

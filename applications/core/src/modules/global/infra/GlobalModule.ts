@@ -1,8 +1,8 @@
-import Consumer from "@global/app/Consumer";
 import FileStorage from "@global/app/FileStorage";
-import Queue from "@global/app/Queue";
+import Consumer from "@shared/Consumer";
 import Mediator from "@shared/Mediator";
 import Module from "@shared/Module";
+import Queue from "@shared/Queue";
 import types from "@shared/types";
 import { Processor } from "bullmq";
 import { ContainerModule, interfaces } from "inversify";

@@ -5,6 +5,7 @@ import UserExistsCommand from '@shared/commands/UserExistsCommand';
 import DomainError from '@shared/errors/DomainError';
 import NotFoundError from '@shared/errors/NotFoundError';
 import Mediator from '@shared/Mediator';
+import Queue from '@shared/Queue';
 import { SubscriptionPlanRepository } from '@subscription/app/SubscriptionPlanRepository';
 import SubscriptionRepository from '@subscription/app/SubscriptionRepository';
 import SubscriptionService from "@subscription/app/SubscriptionService";
@@ -17,11 +18,14 @@ describe('SubscriptionService unit tests', () => {
   const subscription_plan_repository_mock = mock<SubscriptionPlanRepository>();
   const subscription_repository_mock = mock<SubscriptionRepository>();
   const file_storage_mock = mock<FileStorage>();
+  const queue_mock = mock<Queue>();
+  const queue_constructor_mock = jest.fn().mockImplementation(() => queue_mock);
   const subscription_service = new SubscriptionService(
     mediator_mock,
     subscription_plan_repository_mock,
     subscription_repository_mock,
     file_storage_mock,
+    queue_constructor_mock
   );
 
   describe('SubscriptionService.createSubscription', () => {
@@ -663,6 +667,10 @@ describe('SubscriptionService unit tests', () => {
       });
       expect(subscription_repository_mock.getSubscriptions).toHaveBeenCalledWith(params);
     });
+  });
+
+  describe('SubscriptionService.payActiveSubscriptions', () => {
+    it.todo('WIP');
   });
 });
 

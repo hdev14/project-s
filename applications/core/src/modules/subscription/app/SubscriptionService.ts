@@ -1,11 +1,11 @@
 import FileStorage from "@global/app/FileStorage";
-import Queue from "@global/app/Queue";
 import GetCatalogItemCommand from "@shared/commands/GetCatalogItemCommand";
 import GetSubscriberCommand from "@shared/commands/GetSubscriberCommand";
 import UserExistsCommand from "@shared/commands/UserExistsCommand";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import Mediator from "@shared/Mediator";
+import Queue from "@shared/Queue";
 import types from "@shared/types";
 import Either from "@shared/utils/Either";
 import { PageOptions, PageResult } from "@shared/utils/Pagination";

@@ -73,16 +73,25 @@ export default class DbSubscriptionRepository implements SubscriptionRepository 
   }
 
   private async selectSubscriptions(filter: SubscriptionsFilter) {
-    const query = 'SELECT * FROM subscriptions WHERE tenant_id=$1';
-    const values: any[] = [filter.tenant_id];
+    const where_clause = `WHERE ${DbUtils.andOperator({ tenant_id: filter.tenant_id, status: filter.status })}`;
+    const query = `SELECT * FROM subscriptions ${where_clause}`;
+
+    const values: any[] = [filter.tenant_id, filter.status];
 
     if (filter.page_options) {
       const offset = Pagination.calculateOffset(filter.page_options);
-      const count_result = await this.#db.query('SELECT count(id) as total FROM subscriptions WHERE tenant_id=$1', values);
 
-      const paginated_query = `${query} LIMIT $2 OFFSET $3`;
+      const count_result = await this.#db.query(
+        `SELECT count(id) as total FROM subscriptions ${where_clause}`,
+        DbUtils.sanitizeValues(values)
+      );
 
-      const result = await this.#db.query(paginated_query, values.concat([filter.page_options.limit, offset]));
+      const paginated_query = !filter.status ? `${query} LIMIT $2 OFFSET $3` : `${query} LIMIT $3 OFFSET $4`;
+
+      const result = await this.#db.query(
+        paginated_query,
+        DbUtils.sanitizeValues(values.concat([filter.page_options.limit, offset]))
+      );
 
       const page_result = (count_result.rows[0].total !== undefined && count_result.rows[0].total > 0)
         ? Pagination.calculatePageResult(count_result.rows[0].total, filter!.page_options!)
@@ -91,7 +100,7 @@ export default class DbSubscriptionRepository implements SubscriptionRepository 
       return { rows: result.rows, page_result };
     }
 
-    const { rows } = await this.#db.query(query, values);
+    const { rows } = await this.#db.query(query, DbUtils.sanitizeValues(values));
 
     return { rows };
   }

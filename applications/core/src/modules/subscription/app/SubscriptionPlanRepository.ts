@@ -13,4 +13,5 @@ export interface SubscriptionPlanRepository {
   getSubscriptionPlanById(id: string): Promise<SubscriptionPlan | null>;
   createSubscriptionPlan(subscription_plan: SubscriptionPlan): Promise<void>;
   getSubscriptionPlansByIds(ids: string[]): Promise<SubscriptionPlanProps[]>;
+  updateSubscriptionPlan(subscription_plan: SubscriptionPlan): Promise<void>;
 }

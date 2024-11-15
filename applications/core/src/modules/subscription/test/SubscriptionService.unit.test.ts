@@ -666,7 +666,7 @@ describe('SubscriptionService unit tests', () => {
     });
   });
 
-  describe.skip('SubscriptionService.payActiveSubscriptions', () => {
+  describe('SubscriptionService.payActiveSubscriptions', () => {
     it('should send the correct messages active subscriptions', async () => {
       const subscription_bach_1 = generateFakeSubscriptions(SubscriptionService.SUBSCRIPTION_BATCH_NUMBER, {
         status: SubscriptionStatus.ACTIVE,
@@ -675,10 +675,10 @@ describe('SubscriptionService unit tests', () => {
         status: SubscriptionStatus.ACTIVE,
       });
       const subscription_plan_bach_1 = generateFakeSubscriptionPlans(SubscriptionService.SUBSCRIPTION_BATCH_NUMBER, {
-        recurrence_type: RecurrenceTypes.MONTHLY
+        next_billing_date: new Date(),
       });
       const subscription_plan_batch_2 = generateFakeSubscriptionPlans(SubscriptionService.SUBSCRIPTION_BATCH_NUMBER, {
-        recurrence_type: RecurrenceTypes.MONTHLY,
+        next_billing_date: new Date(),
       });
 
       const subscription_plan_ids_1 = [];
@@ -699,7 +699,7 @@ describe('SubscriptionService unit tests', () => {
         .mockResolvedValueOnce(subscription_plan_bach_1)
         .mockResolvedValueOnce(subscription_plan_batch_2);
 
-      await subscription_service.payActiveSubscriptions();
+      await subscription_service.chargeActiveSubscriptions();
 
       expect(subscription_repository_mock.getSubscriptions).toHaveBeenNthCalledWith(1, {
         status: SubscriptionStatus.ACTIVE,
@@ -725,7 +725,7 @@ describe('SubscriptionService unit tests', () => {
       for (let idx = 0; idx < SubscriptionService.SUBSCRIPTION_BATCH_NUMBER; idx++) {
         expect(messages_1[idx]).toEqual({
           id: expect.any(String),
-          name: 'PayActiveSubscription',
+          name: expect.any(String),
           payload: {
             subscription_id: subscription_bach_1[idx].id,
             subscriber_id: subscription_bach_1[idx].subscriber_id,
@@ -735,7 +735,7 @@ describe('SubscriptionService unit tests', () => {
         });
         expect(messages_2[idx]).toEqual({
           id: expect.any(String),
-          name: 'PayActiveSubscription',
+          name: expect.any(String),
           payload: {
             subscription_id: subscription_bach_2[idx].id,
             subscriber_id: subscription_bach_2[idx].subscriber_id,

@@ -5,7 +5,7 @@ export const shorthands: ColumnDefinitions | undefined = undefined;
 export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.addColumn('subscription_plans', {
     next_billing_date: {
-      type: 'timestamp',
+      type: 'date',
       notNull: false,
     }
   });

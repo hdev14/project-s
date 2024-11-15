@@ -40,6 +40,10 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
     this.#db = Database.connect();
   }
 
+  updateSubscriptionPlan(subscription_plan: SubscriptionPlan): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+
   async getSubscriptionPlansByIds(ids: string[]): Promise<SubscriptionPlanProps[]> {
     const { rows } = await this.#db.query(
       `${this.#select_subscription_plans} WHERE id ${DbUtils.inOperator(ids)}`,

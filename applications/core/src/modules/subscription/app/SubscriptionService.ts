@@ -259,8 +259,9 @@ export default class SubscriptionService {
     return Either.right(result);
   }
 
-  async payActiveSubscriptions(): Promise<Either<void>> {
+  async chargeActiveSubscriptions(): Promise<Either<void>> {
     const current_date = new Date();
+
     let next_page = 1;
 
     do {
@@ -280,11 +281,11 @@ export default class SubscriptionService {
 
       const subscription_plans = await this.#subscription_plan_repository.getSubscriptionPlansByIds(subscription_plan_ids);
 
-      const subscription_plans_map = new Map();
+      const subscription_plans_map = new Map<string, SubscriptionPlanProps>();
 
       for (let idx = 0; idx < subscription_plans.length; idx++) {
         const sp = subscription_plans[idx];
-        subscription_plans_map.set(sp.id, sp);
+        subscription_plans_map.set(sp.id!, sp);
       }
 
       const messages: Message[] = [];
@@ -294,13 +295,17 @@ export default class SubscriptionService {
 
         const subscription_plan = subscription_plans_map.get(subscription.subscription_plan_id);
 
-        if (
-          subscription_plan!.recurrence_type === RecurrenceTypes.MONTHLY
-          && subscription_plan!.billing_day === current_date.getDate()
-        ) {
+        const hasSameDate = (
+          subscription_plan!.next_billing_date &&
+          subscription_plan!.next_billing_date.getDate() === current_date.getDate() &&
+          subscription_plan!.next_billing_date.getMonth() === current_date.getMonth() &&
+          subscription_plan!.next_billing_date.getFullYear() === current_date.getFullYear()
+        );
+
+        if (hasSameDate) {
           messages.push({
             id: randomUUID(),
-            name: 'PayActiveSubscription',
+            name: 'ChargeActiveSubscription',
             payload: {
               subscription_id: subscription.id,
               subscriber_id: subscription.subscriber_id,

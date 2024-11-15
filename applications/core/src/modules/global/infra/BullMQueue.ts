@@ -1,6 +1,9 @@
 import Queue, { Message, QueueOptions } from "@global/app/Queue";
 import bullmq from 'bullmq';
+import { injectable } from "inversify";
+import 'reflect-metadata';
 
+@injectable()
 export default class BullMQueue extends Queue {
   private readonly queue: bullmq.Queue;
 

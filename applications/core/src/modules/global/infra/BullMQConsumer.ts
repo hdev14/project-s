@@ -1,7 +1,15 @@
 import Consumer, { ConsumerOptions } from '@global/app/Consumer';
+import Logger from '@global/app/Logger';
+import types from '@shared/types';
 import { Processor, Worker } from 'bullmq';
+import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
 
+@injectable()
 export default class BullMQConsumer extends Consumer<Parameters<Processor>> {
+  @inject(types.Logger)
+  private logger!: Logger;
+
   constructor(options: ConsumerOptions<Parameters<Processor>>) {
     super(options);
 
@@ -17,12 +25,12 @@ export default class BullMQConsumer extends Consumer<Parameters<Processor>> {
       },
     );
 
-    worker.on('completed', (job) => console.info(
-      `Completed job ${job.id} successfully.`,
-    ));
+    worker.on('completed', (job) => {
+      this.logger.info(`Completed job ${job.id} successfully.`, job);
+    });
 
-    worker.on('failed', (job, err) => console.error(
-      `Failed job ${job?.id} with ${err}`
-    ));
+    worker.on('failed', (job, error) => {
+      this.logger.error(error, job);
+    });
   }
 }

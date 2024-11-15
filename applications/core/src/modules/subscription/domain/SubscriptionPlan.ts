@@ -12,6 +12,7 @@ export type SubscriptionPlanProps = AggregateProps<{
   recurrence_type: RecurrenceTypes;
   term_url?: string;
   tenant_id: string;
+  next_billing_date?: Date;
 }>;
 
 export default class SubscriptionPlan extends Aggregate<SubscriptionPlanProps> implements AggregateRoot {
@@ -20,6 +21,7 @@ export default class SubscriptionPlan extends Aggregate<SubscriptionPlanProps> i
   #recurrence_type: RecurrenceTypes;
   #term_url?: string;
   #tenant_id: string;
+  #next_billing_date?: Date;
 
   constructor(props: SubscriptionPlanProps) {
     super(props);
@@ -30,6 +32,11 @@ export default class SubscriptionPlan extends Aggregate<SubscriptionPlanProps> i
     for (let idx = 0; idx < props.items.length; idx++) {
       this.#items.push(new Item(props.items[idx]));
     }
+    this.#next_billing_date = props.next_billing_date;
+  }
+
+  updateNextBillingDate() {
+    // TODO: update next billing date using recurrence_type
   }
 
   static fromObject(props: SubscriptionPlanProps) {
@@ -49,6 +56,7 @@ export default class SubscriptionPlan extends Aggregate<SubscriptionPlanProps> i
       term_url: this.#term_url,
       items,
       tenant_id: this.#tenant_id,
+      next_billing_date: this.#next_billing_date,
       created_at: this.created_at,
       updated_at: this.updated_at,
     };

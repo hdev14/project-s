@@ -64,7 +64,7 @@ describe('DbSubscriptionPlanRepository unit tests', () => {
       expect(results[0].items).toHaveLength(2);
       expect(results[1].items).toHaveLength(1);
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT sp.id,sp.amount,sp.recurrence_type,sp.term_url,sp.tenant_id,sp.billing_day,sp.created_at,sp.updated_at,ci.id as item_id,ci.name as item_name,ci.created_at as item_created_at,ci.updated_at as item_updated_at FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id WHERE sp.tenant_id=$1',
+        'SELECT sp.id,sp.amount,sp.recurrence_type,sp.term_url,sp.tenant_id,sp.next_billing_date,sp.created_at,sp.updated_at,ci.id as item_id,ci.name as item_name,ci.created_at as item_created_at,ci.updated_at as item_updated_at FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id WHERE sp.tenant_id=$1',
         [filter.tenant_id],
       );
     });
@@ -115,7 +115,7 @@ describe('DbSubscriptionPlanRepository unit tests', () => {
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT sp.id,sp.amount,sp.recurrence_type,sp.term_url,sp.tenant_id,sp.billing_day,sp.created_at,sp.updated_at,ci.id as item_id,ci.name as item_name,ci.created_at as item_created_at,ci.updated_at as item_updated_at FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id WHERE sp.tenant_id=$1 LIMIT $2 OFFSET $3',
+        'SELECT sp.id,sp.amount,sp.recurrence_type,sp.term_url,sp.tenant_id,sp.next_billing_date,sp.created_at,sp.updated_at,ci.id as item_id,ci.name as item_name,ci.created_at as item_created_at,ci.updated_at as item_updated_at FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id WHERE sp.tenant_id=$1 LIMIT $2 OFFSET $3',
         [filter.tenant_id, filter.page_options.limit, 0],
       );
     });
@@ -166,7 +166,7 @@ describe('DbSubscriptionPlanRepository unit tests', () => {
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
-        'SELECT sp.id,sp.amount,sp.recurrence_type,sp.term_url,sp.tenant_id,sp.billing_day,sp.created_at,sp.updated_at,ci.id as item_id,ci.name as item_name,ci.created_at as item_created_at,ci.updated_at as item_updated_at FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id WHERE sp.tenant_id=$1 LIMIT $2 OFFSET $3',
+        'SELECT sp.id,sp.amount,sp.recurrence_type,sp.term_url,sp.tenant_id,sp.next_billing_date,sp.created_at,sp.updated_at,ci.id as item_id,ci.name as item_name,ci.created_at as item_created_at,ci.updated_at as item_updated_at FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id WHERE sp.tenant_id=$1 LIMIT $2 OFFSET $3',
         [filter.tenant_id, filter.page_options.limit, 1],
       );
     });
@@ -203,7 +203,7 @@ describe('DbSubscriptionPlanRepository unit tests', () => {
 
       expect(subscription_plans).toHaveLength(2);
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT sp.id,sp.amount,sp.recurrence_type,sp.term_url,sp.tenant_id,sp.billing_day,sp.created_at,sp.updated_at,ci.id as item_id,ci.name as item_name,ci.created_at as item_created_at,ci.updated_at as item_updated_at FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id WHERE id IN ($1,$2)',
+        'SELECT sp.id,sp.amount,sp.recurrence_type,sp.term_url,sp.tenant_id,sp.next_billing_date,sp.created_at,sp.updated_at,ci.id as item_id,ci.name as item_name,ci.created_at as item_created_at,ci.updated_at as item_updated_at FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id WHERE id IN ($1,$2)',
         ids,
       );
     });

@@ -1,16 +1,16 @@
 import Queue, { Message, QueueOptions } from "@shared/Queue";
-import bullmq from 'bullmq';
+import { Queue as BMQueue } from 'bullmq';
 import { injectable } from "inversify";
 import 'reflect-metadata';
 
 @injectable()
 export default class BullMQueue extends Queue {
-  private readonly queue: bullmq.Queue;
+  private readonly queue: BMQueue;
 
   constructor(options: QueueOptions) {
     super(options);
 
-    this.queue = new bullmq.Queue(this.options.queue, {
+    this.queue = new BMQueue(this.options.queue, {
       connection: {
         host: process.env.REDIS_HOST,
         port: parseInt(process.env.REDIS_PORT!, 10),

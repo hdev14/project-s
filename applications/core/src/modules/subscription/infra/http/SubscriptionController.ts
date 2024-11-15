@@ -39,22 +39,16 @@ export default class SubscriptionController extends BaseHttpController {
       subscriber_id,
       subscription_plan_id,
       tenant_id,
-      billing_day,
     } = req.body;
 
     const [error, data] = await this.subscription_service.createSubscription({
       subscriber_id,
       subscription_plan_id,
       tenant_id,
-      billing_day: parseInt(billing_day, 10),
     });
 
     if (error instanceof NotFoundError) {
       return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
-    }
-
-    if (error instanceof DomainError) {
-      return this.json({ message: req.__(error.message) }, HttpStatusCodes.UNPROCESSABLE_CONTENT);
     }
 
     return this.json(data, HttpStatusCodes.CREATED);
@@ -134,7 +128,7 @@ export default class SubscriptionController extends BaseHttpController {
       return this.statusCode(HttpStatusCodes.FORBIDDEN);
     }
 
-    const { item_ids, recurrence_type, tenant_id } = req.body;
+    const { item_ids, recurrence_type, tenant_id, billing_day } = req.body;
 
     let term_file: Buffer | undefined = undefined;
 
@@ -151,10 +145,15 @@ export default class SubscriptionController extends BaseHttpController {
       recurrence_type,
       tenant_id,
       term_file,
+      billing_day: parseInt(billing_day, 10)
     });
 
     if (error instanceof NotFoundError) {
       return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    if (error instanceof DomainError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.UNPROCESSABLE_CONTENT);
     }
 
     return this.json(data, HttpStatusCodes.CREATED);

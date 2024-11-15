@@ -13,11 +13,7 @@ export const create_subscription_validation_schema: Schema = {
   tenant_id: {
     isUUID: true,
     errorMessage: 'validation.id'
-  },
-  billing_day: {
-    isInt: true,
-    errorMessage: 'validation.number',
-  },
+  }
 };
 
 export const create_subscription_plan_validation_schema: Schema = {
@@ -38,5 +34,9 @@ export const create_subscription_plan_validation_schema: Schema = {
   tenant_id: {
     isUUID: true,
     errorMessage: 'validation.id'
-  }
+  },
+  billing_day: {
+    isInt: true,
+    errorMessage: 'validation.number',
+  },
 };

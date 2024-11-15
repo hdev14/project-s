@@ -22,7 +22,6 @@ export type CreateSubscriptionParams = {
   subscriber_id: string;
   subscription_plan_id: string;
   tenant_id: string;
-  billing_day: number;
 };
 
 export type ActiveSubscriptionParams = {
@@ -42,6 +41,7 @@ export type CreateSubscriptionPlanParams = {
   recurrence_type: RecurrenceTypes;
   tenant_id: string;
   term_file?: Buffer;
+  billing_day: number;
 };
 
 export type GetSubscriptionPlansParams = {
@@ -70,7 +70,7 @@ export default class SubscriptionService {
   #subscription_plan_repository: SubscriptionPlanRepository;
   #subscription_repository: SubscriptionRepository;
   #file_storage: FileStorage;
-  #payment_queue: Queue;
+  #payment_queue?: Queue;
 
   constructor(
     @inject(types.Mediator) mediator: Mediator,
@@ -83,46 +83,38 @@ export default class SubscriptionService {
     this.#subscription_plan_repository = subscription_plan_repository;
     this.#subscription_repository = subscription_repository;
     this.#file_storage = file_storage;
-    this.#payment_queue = new Queue({ queue: process.env.PAYMENT_QUEUE, attempts: 3 });
+    // this.#payment_queue = new Queue({ queue: process.env.PAYMENT_QUEUE, attempts: 3 });
   }
 
   async createSubscription(params: CreateSubscriptionParams): Promise<Either<SubscriptionProps>> {
-    try {
-      const subscriber = await this.#mediator.send<any>(new GetSubscriberCommand(params.subscriber_id));
 
-      if (!subscriber) {
-        return Either.left(new NotFoundError('notfound.subscriber'));
-      }
+    const subscriber = await this.#mediator.send<any>(new GetSubscriberCommand(params.subscriber_id));
 
-      const has_company = await this.#mediator.send<boolean>(new UserExistsCommand(params.tenant_id));
-
-      if (!has_company) {
-        return Either.left(new NotFoundError('notfound.company'));
-      }
-
-      const subscription_plan = await this.#subscription_plan_repository.getSubscriptionPlanById(params.subscription_plan_id);
-
-      if (!subscription_plan) {
-        return Either.left(new NotFoundError('notfound.subscription_plan'));
-      }
-
-      const subscription = Subscription.createPending({
-        subscription_plan_id: subscription_plan.id,
-        subscriber_id: subscriber.id,
-        tenant_id: params.tenant_id,
-        billing_day: params.billing_day,
-      });
-
-      await this.#subscription_repository.createSubscription(subscription);
-
-      return Either.right(subscription.toObject());
-    } catch (error) {
-      if (error instanceof DomainError) {
-        return Either.left(error);
-      }
-
-      throw error;
+    if (!subscriber) {
+      return Either.left(new NotFoundError('notfound.subscriber'));
     }
+
+    const has_company = await this.#mediator.send<boolean>(new UserExistsCommand(params.tenant_id));
+
+    if (!has_company) {
+      return Either.left(new NotFoundError('notfound.company'));
+    }
+
+    const subscription_plan = await this.#subscription_plan_repository.getSubscriptionPlanById(params.subscription_plan_id);
+
+    if (!subscription_plan) {
+      return Either.left(new NotFoundError('notfound.subscription_plan'));
+    }
+
+    const subscription = Subscription.createPending({
+      subscription_plan_id: subscription_plan.id,
+      subscriber_id: subscriber.id,
+      tenant_id: params.tenant_id,
+    });
+
+    await this.#subscription_repository.createSubscription(subscription);
+
+    return Either.right(subscription.toObject());
   }
 
   async activeSubscription(params: ActiveSubscriptionParams): Promise<Either<void>> {
@@ -229,6 +221,7 @@ export default class SubscriptionService {
         items,
         recurrence_type: params.recurrence_type,
         tenant_id: params.tenant_id,
+        billing_day: params.billing_day,
       };
 
       if (params.term_file) {
@@ -246,7 +239,7 @@ export default class SubscriptionService {
 
       return Either.right(subscription_plan.toObject());
     } catch (error) {
-      if (error instanceof NotFoundError) {
+      if (error instanceof NotFoundError || error instanceof DomainError) {
         return Either.left(error);
       }
 

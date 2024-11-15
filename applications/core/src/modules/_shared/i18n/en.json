@@ -38,5 +38,5 @@
   "subscription_paused": "The subscription is paused",
   "validation.pdf": "The file must be a PDF",
   "validation.logo_file": "The logo image is required",
-  "subscription.billing_day": "Invalid billing day"
+  "subscription_plan.billing_day": "Invalid billing day"
 }

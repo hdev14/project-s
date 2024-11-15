@@ -1,4 +1,5 @@
 import Aggregate, { AggregateProps, AggregateRoot, RequiredProps } from "@shared/ddd/Aggregate";
+import DomainError from "@shared/errors/DomainError";
 import Item, { ItemProps } from "./Item";
 
 export enum RecurrenceTypes {
@@ -12,6 +13,7 @@ export type SubscriptionPlanProps = AggregateProps<{
   recurrence_type: RecurrenceTypes;
   term_url?: string;
   tenant_id: string;
+  billing_day: number;
 }>;
 
 export default class SubscriptionPlan extends Aggregate<SubscriptionPlanProps> implements AggregateRoot {
@@ -20,6 +22,7 @@ export default class SubscriptionPlan extends Aggregate<SubscriptionPlanProps> i
   #recurrence_type: RecurrenceTypes;
   #term_url?: string;
   #tenant_id: string;
+  #billing_day: number;
 
   constructor(props: SubscriptionPlanProps) {
     super(props);
@@ -30,6 +33,10 @@ export default class SubscriptionPlan extends Aggregate<SubscriptionPlanProps> i
     for (let idx = 0; idx < props.items.length; idx++) {
       this.#items.push(new Item(props.items[idx]));
     }
+    if (props.billing_day < 0 || props.billing_day > 31) {
+      throw new DomainError('subscription_plan.billing_day');
+    }
+    this.#billing_day = props.billing_day;
   }
 
   static fromObject(props: SubscriptionPlanProps) {
@@ -49,6 +56,7 @@ export default class SubscriptionPlan extends Aggregate<SubscriptionPlanProps> i
       term_url: this.#term_url,
       items,
       tenant_id: this.#tenant_id,
+      billing_day: this.#billing_day,
       created_at: this.created_at,
       updated_at: this.updated_at,
     };

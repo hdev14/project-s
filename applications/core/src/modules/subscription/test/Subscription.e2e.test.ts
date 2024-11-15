@@ -75,6 +75,7 @@ describe('Subscription E2E tests', () => {
         items: [{ id: catalog_item.id, name: catalog_item.name }],
         recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
         tenant_id: company.id!,
+        billing_day: faker.number.int({ min: 1, max: 31 }),
       });
 
       const response = await request
@@ -121,6 +122,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const subscription_plan = await subscription_plan_factory.createOne({
+        billing_day: faker.number.int({ min: 1, max: 31 }),
         id: faker.string.uuid(),
         amount: faker.number.float(),
         items: [{ id: catalog_item.id, name: catalog_item.name }],
@@ -180,7 +182,6 @@ describe('Subscription E2E tests', () => {
         subscriber_id: faker.number.int(),
         subscription_plan_id: faker.number.float(),
         tenant_id: faker.string.sample(),
-        billing_day: faker.string.sample(),
       };
 
       const response = await request
@@ -190,58 +191,7 @@ describe('Subscription E2E tests', () => {
         .send(data);
 
       expect(response.status).toEqual(400);
-      expect(response.body.errors).toHaveLength(4);
-    });
-
-    it("returns status code 422 if billing_day is invalid", async () => {
-      const subscriber = await user_factory.createOne({
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        document: faker.string.numeric(11),
-        password: faker.string.alphanumeric(11),
-        type: UserTypes.CUSTOMER,
-      });
-
-      const company = await user_factory.createOne({
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        document: faker.string.numeric(14),
-        password: faker.string.alphanumeric(11),
-        type: UserTypes.COMPANY,
-      });
-
-      const catalog_item = await catalog_item_factory.createOne({
-        id: faker.string.uuid(),
-        amount: faker.number.float(),
-        attributes: [{ name: faker.commerce.productAdjective(), description: faker.string.sample() }],
-        description: faker.commerce.productDescription(),
-        is_service: faker.datatype.boolean(),
-        name: faker.commerce.product(),
-        tenant_id: company.id!,
-        picture_url: faker.internet.url(),
-      });
-
-      const subscription_plan = await subscription_plan_factory.createOne({
-        id: faker.string.uuid(),
-        amount: faker.number.float(),
-        items: [{ id: catalog_item.id, name: catalog_item.name }],
-        recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
-        tenant_id: company.id!,
-      });
-
-      const response = await request
-        .post('/api/subscriptions')
-        .set('Content-Type', 'application/json')
-        .auth(token, { type: 'bearer' })
-        .send({
-          subscriber_id: subscriber.id,
-          subscription_plan_id: subscription_plan.id,
-          tenant_id: company.id,
-          billing_day: faker.number.int({ min: 32 })
-        });
-
-      expect(response.status).toEqual(422);
-      expect(response.body.message).toEqual('Data de cobrança inválida');
+      expect(response.body.errors).toHaveLength(3);
     });
 
     it("returns status code 201 after subscription creation", async () => {
@@ -273,6 +223,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const subscription_plan = await subscription_plan_factory.createOne({
+        billing_day: faker.number.int({ min: 1, max: 31 }),
         id: faker.string.uuid(),
         amount: faker.number.float(),
         items: [{ id: catalog_item.id, name: catalog_item.name }],
@@ -284,7 +235,6 @@ describe('Subscription E2E tests', () => {
         subscriber_id: subscriber.id,
         subscription_plan_id: subscription_plan.id,
         tenant_id: company.id,
-        billing_day: faker.number.int({ min: 1, max: 31 })
       };
 
       const response = await request
@@ -299,7 +249,6 @@ describe('Subscription E2E tests', () => {
       expect(response.body.subscriber_id).toEqual(data.subscriber_id);
       expect(response.body.subscription_plan_id).toEqual(data.subscription_plan_id);
       expect(response.body.tenant_id).toEqual(data.tenant_id);
-      expect(response.body.billing_day).toEqual(data.billing_day);
       expect(data).toEqualInDatabase('subscriptions', response.body.id);
     });
   });
@@ -352,6 +301,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const subscription_plan = await subscription_plan_factory.createOne({
+        billing_day: faker.number.int({ min: 1, max: 31 }),
         id: faker.string.uuid(),
         amount: faker.number.float(),
         items: [{ id: catalog_item.id, name: catalog_item.name }],
@@ -362,7 +312,6 @@ describe('Subscription E2E tests', () => {
       const subscription = await subscription_factory.createOne({
         id: faker.string.uuid(),
         status: SubscriptionStatus.PENDING,
-        billing_day: faker.number.int({ min: 1, max: 31 }),
         subscriber_id: subscriber.id!,
         subscription_plan_id: subscription_plan.id!,
         tenant_id: company.id!,
@@ -407,6 +356,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const subscription_plan = await subscription_plan_factory.createOne({
+        billing_day: faker.number.int({ min: 1, max: 31 }),
         id: faker.string.uuid(),
         amount: faker.number.float(),
         items: [{ id: catalog_item.id, name: catalog_item.name }],
@@ -417,7 +367,6 @@ describe('Subscription E2E tests', () => {
       const subscription = await subscription_factory.createOne({
         id: faker.string.uuid(),
         status: SubscriptionStatus.ACTIVE,
-        billing_day: faker.number.int({ min: 1, max: 31 }),
         subscriber_id: subscriber.id!,
         subscription_plan_id: subscription_plan.id!,
         tenant_id: company.id!,
@@ -462,6 +411,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const subscription_plan = await subscription_plan_factory.createOne({
+        billing_day: faker.number.int({ min: 1, max: 31 }),
         id: faker.string.uuid(),
         amount: faker.number.float(),
         items: [{ id: catalog_item.id, name: catalog_item.name }],
@@ -472,7 +422,6 @@ describe('Subscription E2E tests', () => {
       const subscription = await subscription_factory.createOne({
         id: faker.string.uuid(),
         status: SubscriptionStatus.CANCELED,
-        billing_day: faker.number.int({ min: 1, max: 31 }),
         subscriber_id: subscriber.id!,
         subscription_plan_id: subscription_plan.id!,
         tenant_id: company.id!,
@@ -517,6 +466,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const subscription_plan = await subscription_plan_factory.createOne({
+        billing_day: faker.number.int({ min: 1, max: 31 }),
         id: faker.string.uuid(),
         amount: faker.number.float(),
         items: [{ id: catalog_item.id, name: catalog_item.name }],
@@ -527,7 +477,6 @@ describe('Subscription E2E tests', () => {
       const subscription = await subscription_factory.createOne({
         id: faker.string.uuid(),
         status: SubscriptionStatus.FINISHED,
-        billing_day: faker.number.int({ min: 1, max: 31 }),
         subscriber_id: subscriber.id!,
         subscription_plan_id: subscription_plan.id!,
         tenant_id: company.id!,
@@ -592,6 +541,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const subscription_plan = await subscription_plan_factory.createOne({
+        billing_day: faker.number.int({ min: 1, max: 31 }),
         id: faker.string.uuid(),
         amount: faker.number.float(),
         items: [{ id: catalog_item.id, name: catalog_item.name }],
@@ -602,7 +552,6 @@ describe('Subscription E2E tests', () => {
       const subscription = await subscription_factory.createOne({
         id: faker.string.uuid(),
         status: SubscriptionStatus.ACTIVE,
-        billing_day: faker.number.int({ min: 1, max: 31 }),
         subscriber_id: subscriber.id!,
         subscription_plan_id: subscription_plan.id!,
         tenant_id: company.id!,
@@ -647,6 +596,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const subscription_plan = await subscription_plan_factory.createOne({
+        billing_day: faker.number.int({ min: 1, max: 31 }),
         id: faker.string.uuid(),
         amount: faker.number.float(),
         items: [{ id: catalog_item.id, name: catalog_item.name }],
@@ -657,7 +607,6 @@ describe('Subscription E2E tests', () => {
       const subscription = await subscription_factory.createOne({
         id: faker.string.uuid(),
         status: SubscriptionStatus.PAUSED,
-        billing_day: faker.number.int({ min: 1, max: 31 }),
         subscriber_id: subscriber.id!,
         subscription_plan_id: subscription_plan.id!,
         tenant_id: company.id!,
@@ -702,6 +651,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const subscription_plan = await subscription_plan_factory.createOne({
+        billing_day: faker.number.int({ min: 1, max: 31 }),
         id: faker.string.uuid(),
         amount: faker.number.float(),
         items: [{ id: catalog_item.id, name: catalog_item.name }],
@@ -712,7 +662,6 @@ describe('Subscription E2E tests', () => {
       const subscription = await subscription_factory.createOne({
         id: faker.string.uuid(),
         status: SubscriptionStatus.CANCELED,
-        billing_day: faker.number.int({ min: 1, max: 31 }),
         subscriber_id: subscriber.id!,
         subscription_plan_id: subscription_plan.id!,
         tenant_id: company.id!,
@@ -757,6 +706,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const subscription_plan = await subscription_plan_factory.createOne({
+        billing_day: faker.number.int({ min: 1, max: 31 }),
         id: faker.string.uuid(),
         amount: faker.number.float(),
         items: [{ id: catalog_item.id, name: catalog_item.name }],
@@ -767,7 +717,6 @@ describe('Subscription E2E tests', () => {
       const subscription = await subscription_factory.createOne({
         id: faker.string.uuid(),
         status: SubscriptionStatus.FINISHED,
-        billing_day: faker.number.int({ min: 1, max: 31 }),
         subscriber_id: subscriber.id!,
         subscription_plan_id: subscription_plan.id!,
         tenant_id: company.id!,
@@ -812,6 +761,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const subscription_plan = await subscription_plan_factory.createOne({
+        billing_day: faker.number.int({ min: 1, max: 31 }),
         id: faker.string.uuid(),
         amount: faker.number.float(),
         items: [{ id: catalog_item.id, name: catalog_item.name }],
@@ -822,7 +772,6 @@ describe('Subscription E2E tests', () => {
       const subscription = await subscription_factory.createOne({
         id: faker.string.uuid(),
         status: SubscriptionStatus.PENDING,
-        billing_day: faker.number.int({ min: 1, max: 31 }),
         subscriber_id: subscriber.id!,
         subscription_plan_id: subscription_plan.id!,
         tenant_id: company.id!,
@@ -887,6 +836,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const subscription_plan = await subscription_plan_factory.createOne({
+        billing_day: faker.number.int({ min: 1, max: 31 }),
         id: faker.string.uuid(),
         amount: faker.number.float(),
         items: [{ id: catalog_item.id, name: catalog_item.name }],
@@ -897,7 +847,6 @@ describe('Subscription E2E tests', () => {
       const subscription = await subscription_factory.createOne({
         id: faker.string.uuid(),
         status: SubscriptionStatus.ACTIVE,
-        billing_day: faker.number.int({ min: 1, max: 31 }),
         subscriber_id: subscriber.id!,
         subscription_plan_id: subscription_plan.id!,
         tenant_id: company.id!,
@@ -942,6 +891,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const subscription_plan = await subscription_plan_factory.createOne({
+        billing_day: faker.number.int({ min: 1, max: 31 }),
         id: faker.string.uuid(),
         amount: faker.number.float(),
         items: [{ id: catalog_item.id, name: catalog_item.name }],
@@ -952,7 +902,6 @@ describe('Subscription E2E tests', () => {
       const subscription = await subscription_factory.createOne({
         id: faker.string.uuid(),
         status: SubscriptionStatus.CANCELED,
-        billing_day: faker.number.int({ min: 1, max: 31 }),
         subscriber_id: subscriber.id!,
         subscription_plan_id: subscription_plan.id!,
         tenant_id: company.id!,
@@ -997,6 +946,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const subscription_plan = await subscription_plan_factory.createOne({
+        billing_day: faker.number.int({ min: 1, max: 31 }),
         id: faker.string.uuid(),
         amount: faker.number.float(),
         items: [{ id: catalog_item.id, name: catalog_item.name }],
@@ -1007,7 +957,6 @@ describe('Subscription E2E tests', () => {
       const subscription = await subscription_factory.createOne({
         id: faker.string.uuid(),
         status: SubscriptionStatus.FINISHED,
-        billing_day: faker.number.int({ min: 1, max: 31 }),
         subscriber_id: subscriber.id!,
         subscription_plan_id: subscription_plan.id!,
         tenant_id: company.id!,
@@ -1047,6 +996,7 @@ describe('Subscription E2E tests', () => {
         .field('item_ids[]', faker.string.uuid())
         .field('recurrence_type', faker.helpers.enumValue(RecurrenceTypes))
         .field('tenant_id', faker.string.uuid())
+        .field('billing_day', faker.number.int({ min: 1, max: 31 }))
         .attach('term_file', resolve(__dirname, './fixtures/test.png'), 'test.png');
 
       expect(response.status).toEqual(400);
@@ -1080,6 +1030,7 @@ describe('Subscription E2E tests', () => {
         .field('item_ids[]', catalog_item.id!)
         .field('recurrence_type', faker.helpers.enumValue(RecurrenceTypes))
         .field('tenant_id', faker.string.uuid())
+        .field('billing_day', faker.number.int({ min: 1, max: 31 }))
         .attach('term_file', resolve(__dirname, './fixtures/test.pdf'), 'test.pdf');
 
       expect(response.status).toEqual(404);
@@ -1114,6 +1065,7 @@ describe('Subscription E2E tests', () => {
         .field('item_ids[]', faker.string.uuid())
         .field('recurrence_type', faker.helpers.enumValue(RecurrenceTypes))
         .field('tenant_id', company.id!)
+        .field('billing_day', faker.number.int({ min: 1, max: 31 }))
         .attach('term_file', resolve(__dirname, './fixtures/test.pdf'), 'test.pdf');
 
       expect(response.status).toEqual(404);
@@ -1143,6 +1095,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const recurrence_type = faker.helpers.enumValue(RecurrenceTypes);
+      const billing_day = faker.number.int({ min: 1, max: 31 });
 
       const response = await request
         .post('/api/subscriptions/plans')
@@ -1150,7 +1103,8 @@ describe('Subscription E2E tests', () => {
         .auth(token, { type: 'bearer' })
         .field('item_ids[]', catalog_item.id!)
         .field('recurrence_type', recurrence_type)
-        .field('tenant_id', company.id!);
+        .field('tenant_id', company.id!)
+        .field('billing_day', billing_day);
 
       expect(response.status).toEqual(201);
       expect(response.body).toHaveProperty('id');
@@ -1163,12 +1117,14 @@ describe('Subscription E2E tests', () => {
       expect(response.body.amount).toEqual(catalog_item.amount);
       expect(response.body.recurrence_type).toEqual(recurrence_type);
       expect(response.body.tenant_id).toEqual(company.id);
+      expect(response.body.billing_day).toEqual(billing_day);
       expect(response.body.term_url).toBeUndefined();
       expect({
         amount: catalog_item.amount,
         tenant_id: company.id,
         term_url: null,
         recurrence_type,
+        billing_day,
       }).toEqualInDatabase('subscription_plans', response.body.id);
       expect({
         subscription_plan_id: response.body.id,
@@ -1199,6 +1155,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const recurrence_type = faker.helpers.enumValue(RecurrenceTypes);
+      const billing_day = faker.number.int({ min: 1, max: 31 });
 
       const response = await request
         .post('/api/subscriptions/plans')
@@ -1207,6 +1164,7 @@ describe('Subscription E2E tests', () => {
         .field('item_ids[]', catalog_item.id!)
         .field('recurrence_type', recurrence_type)
         .field('tenant_id', company.id!)
+        .field('billing_day', billing_day)
         .attach('term_file', resolve(__dirname, './fixtures/test.pdf'), 'test.pdf');
 
       expect(response.status).toEqual(201);
@@ -1219,6 +1177,7 @@ describe('Subscription E2E tests', () => {
       });
       expect(response.body.amount).toEqual(catalog_item.amount);
       expect(response.body.recurrence_type).toEqual(recurrence_type);
+      expect(response.body.billing_day).toEqual(billing_day);
       expect(response.body.tenant_id).toEqual(company.id);
       expect(response.body.term_url).toEqual(`http://localhost:9000/tenant-${company.id}/subscription_terms/term_${response.body.id}.pdf`);
       expect({
@@ -1226,6 +1185,7 @@ describe('Subscription E2E tests', () => {
         tenant_id: company.id,
         term_url: response.body.term_url,
         recurrence_type,
+        billing_day,
       }).toEqualInDatabase('subscription_plans', response.body.id);
       expect({
         subscription_plan_id: response.body.id,
@@ -1241,9 +1201,48 @@ describe('Subscription E2E tests', () => {
         .field('item_ids[]', faker.string.sample())
         .field('recurrence_type', faker.number.int())
         .field('tenant_id', faker.string.sample())
+        .field('billing_day', faker.string.sample())
 
       expect(response.status).toEqual(400);
-      expect(response.body.errors).toHaveLength(3);
+      expect(response.body.errors).toHaveLength(4);
+    });
+
+    it("returns status code 422 if billing_day is invalid", async () => {
+      const company = await user_factory.createOne({
+        id: company_id,
+        email: faker.internet.email(),
+        document: faker.string.numeric(14),
+        password: faker.string.alphanumeric(11),
+        type: UserTypes.COMPANY,
+      });
+
+      const catalog_item = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float({ fractionDigits: 2 }),
+        attributes: [{ name: faker.commerce.productAdjective(), description: faker.string.sample() }],
+        description: faker.commerce.productDescription(),
+        is_service: faker.datatype.boolean(),
+        name: faker.commerce.product(),
+        tenant_id: company.id!,
+        picture_url: faker.internet.url(),
+        created_at: faker.date.future(),
+        updated_at: faker.date.future(),
+      });
+
+      const recurrence_type = faker.helpers.enumValue(RecurrenceTypes);
+      const billing_day = faker.number.int() * -1;
+
+      const response = await request
+        .post('/api/subscriptions/plans')
+        .set('Content-Type', 'multipart/form-data')
+        .auth(token, { type: 'bearer' })
+        .field('item_ids[]', catalog_item.id!)
+        .field('recurrence_type', recurrence_type)
+        .field('tenant_id', company.id!)
+        .field('billing_day', billing_day);
+
+      expect(response.status).toEqual(422);
+      expect(response.body.message).toEqual('Data de cobrança inválida');
     });
   });
 
@@ -1282,6 +1281,7 @@ describe('Subscription E2E tests', () => {
           items: [{ id: catalog_item.id, name: catalog_item.name }],
           recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
           tenant_id: company.id!,
+          billing_day: faker.number.int({ min: 1, max: 31 })
         },
         {
           id: faker.string.uuid(),
@@ -1289,6 +1289,7 @@ describe('Subscription E2E tests', () => {
           items: [{ id: catalog_item.id, name: catalog_item.name }],
           recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
           tenant_id: company.id!,
+          billing_day: faker.number.int({ min: 1, max: 31 })
         },
         {
           id: faker.string.uuid(),
@@ -1296,6 +1297,7 @@ describe('Subscription E2E tests', () => {
           items: [{ id: catalog_item.id, name: catalog_item.name }],
           recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
           tenant_id: company.id!,
+          billing_day: faker.number.int({ min: 1, max: 31 })
         },
         {
           id: faker.string.uuid(),
@@ -1303,6 +1305,7 @@ describe('Subscription E2E tests', () => {
           items: [{ id: catalog_item.id, name: catalog_item.name }],
           recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
           tenant_id: company.id!,
+          billing_day: faker.number.int({ min: 1, max: 31 })
         },
       ]);
 
@@ -1345,6 +1348,7 @@ describe('Subscription E2E tests', () => {
           items: [{ id: catalog_item.id, name: catalog_item.name }],
           recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
           tenant_id: company.id!,
+          billing_day: faker.number.int({ min: 1, max: 31 })
         },
         {
           id: faker.string.uuid(),
@@ -1352,6 +1356,7 @@ describe('Subscription E2E tests', () => {
           items: [{ id: catalog_item.id, name: catalog_item.name }],
           recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
           tenant_id: company.id!,
+          billing_day: faker.number.int({ min: 1, max: 31 })
         },
         {
           id: faker.string.uuid(),
@@ -1359,6 +1364,7 @@ describe('Subscription E2E tests', () => {
           items: [{ id: catalog_item.id, name: catalog_item.name }],
           recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
           tenant_id: company.id!,
+          billing_day: faker.number.int({ min: 1, max: 31 })
         },
         {
           id: faker.string.uuid(),
@@ -1366,6 +1372,7 @@ describe('Subscription E2E tests', () => {
           items: [{ id: catalog_item.id, name: catalog_item.name }],
           recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
           tenant_id: company.id!,
+          billing_day: faker.number.int({ min: 1, max: 31 })
         },
       ]);
 
@@ -1444,6 +1451,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const subscription_plan = await subscription_plan_factory.createOne({
+        billing_day: faker.number.int({ min: 1, max: 31 }),
         id: faker.string.uuid(),
         amount: faker.number.float(),
         items: [{ id: catalog_item.id, name: catalog_item.name }],
@@ -1458,7 +1466,6 @@ describe('Subscription E2E tests', () => {
           subscriber_id: subscriber.id!,
           subscription_plan_id: subscription_plan.id!,
           tenant_id: company.id!,
-          billing_day: faker.number.int({ min: 1, max: 32 })
         },
         {
           id: faker.string.uuid(),
@@ -1466,7 +1473,6 @@ describe('Subscription E2E tests', () => {
           subscriber_id: subscriber.id!,
           subscription_plan_id: subscription_plan.id!,
           tenant_id: company.id!,
-          billing_day: faker.number.int({ min: 1, max: 32 })
         },
         {
           id: faker.string.uuid(),
@@ -1474,7 +1480,6 @@ describe('Subscription E2E tests', () => {
           subscriber_id: subscriber.id!,
           subscription_plan_id: subscription_plan.id!,
           tenant_id: company.id!,
-          billing_day: faker.number.int({ min: 1, max: 32 })
         },
         {
           id: faker.string.uuid(),
@@ -1482,7 +1487,6 @@ describe('Subscription E2E tests', () => {
           subscriber_id: subscriber.id!,
           subscription_plan_id: subscription_plan.id!,
           tenant_id: company.id!,
-          billing_day: faker.number.int({ min: 1, max: 32 })
         },
       ]);
 
@@ -1527,6 +1531,7 @@ describe('Subscription E2E tests', () => {
       });
 
       const subscription_plan = await subscription_plan_factory.createOne({
+        billing_day: faker.number.int({ min: 1, max: 31 }),
         id: faker.string.uuid(),
         amount: faker.number.float(),
         items: [{ id: catalog_item.id, name: catalog_item.name }],
@@ -1541,7 +1546,6 @@ describe('Subscription E2E tests', () => {
           subscriber_id: subscriber.id!,
           subscription_plan_id: subscription_plan.id!,
           tenant_id: company.id!,
-          billing_day: faker.number.int({ min: 1, max: 32 })
         },
         {
           id: faker.string.uuid(),
@@ -1549,7 +1553,6 @@ describe('Subscription E2E tests', () => {
           subscriber_id: subscriber.id!,
           subscription_plan_id: subscription_plan.id!,
           tenant_id: company.id!,
-          billing_day: faker.number.int({ min: 1, max: 32 })
         },
         {
           id: faker.string.uuid(),
@@ -1557,7 +1560,6 @@ describe('Subscription E2E tests', () => {
           subscriber_id: subscriber.id!,
           subscription_plan_id: subscription_plan.id!,
           tenant_id: company.id!,
-          billing_day: faker.number.int({ min: 1, max: 32 })
         },
         {
           id: faker.string.uuid(),
@@ -1565,7 +1567,6 @@ describe('Subscription E2E tests', () => {
           subscriber_id: subscriber.id!,
           subscription_plan_id: subscription_plan.id!,
           tenant_id: company.id!,
-          billing_day: faker.number.int({ min: 1, max: 32 })
         },
       ]);
 

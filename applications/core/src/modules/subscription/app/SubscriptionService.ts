@@ -71,7 +71,7 @@ export default class SubscriptionService {
   #subscription_plan_repository: SubscriptionPlanRepository;
   #subscription_repository: SubscriptionRepository;
   #file_storage: FileStorage;
-  #payment_subscription_queue: Queue;
+  #payment_queue: Queue;
 
   constructor(
     @inject(types.Mediator) mediator: Mediator,
@@ -84,7 +84,7 @@ export default class SubscriptionService {
     this.#subscription_plan_repository = subscription_plan_repository;
     this.#subscription_repository = subscription_repository;
     this.#file_storage = file_storage;
-    this.#payment_subscription_queue = new Queue({ queue: process.env.PAYMENT_SUBSCRIPTION_QUEUE, attempts: 3 });
+    this.#payment_queue = new Queue({ queue: process.env.PAYMENT_QUEUE, attempts: 3 });
   }
 
   async createSubscription(params: CreateSubscriptionParams): Promise<Either<SubscriptionProps>> {
@@ -316,7 +316,7 @@ export default class SubscriptionService {
         }
       }
 
-      await this.#payment_subscription_queue.addMessages(messages);
+      await this.#payment_queue.addMessages(messages);
 
       next_page = page_result!.next_page;
     } while (next_page !== -1);

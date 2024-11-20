@@ -26,4 +26,5 @@ export default {
   FileStorage: Symbol.for('FileStorage'),
   NewableQueue: Symbol.for('Newable<Queue>'),
   NewableConsumer: Symbol.for('Newable<Consumer>'),
+  PaymentService: Symbol.for('PaymentService'),
 };

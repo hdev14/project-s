@@ -22,6 +22,26 @@ export default class PaymentModule implements Module {
         );
         return mediator;
       });
+      // TODO
+      // onActivation<PaymentService>(types.PaymentService, (context, payment_service) => {
+      //   const PaymentConsumer = context.container.get<interfaces.Newable<Consumer<Parameters<Processor>>>>(types.NewableConsumer);
+
+      //   new PaymentConsumer({
+      //     queue_name: process.env.PAYMENT_QUEUE,
+      //     handler: async (job: Job<any, any, string>, token?: string) => {
+      //       console.log(job);
+      //       console.log(token);
+      //       await payment_service.createPayment({
+      //         subscription_id: job.data.subscription_id,
+      //         customer_id: job.data.subscriber_id,
+      //         tenant_id: job.data.tenant_id,
+      //         amount: job.data.amount,
+      //       });
+      //     }
+      //   });
+
+      //   return payment_service;
+      // });
     });
 
     return module;

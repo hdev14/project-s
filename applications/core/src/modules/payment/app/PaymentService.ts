@@ -12,12 +12,23 @@ type GetPaymentLogsParams = {
   page_options?: PageOptions;
 }
 
+type CreatePaymentParams = {
+  subscription_id: string;
+  customer_id: string;
+  tenant_id: string;
+  amount: number;
+};
+
 export default class PaymentService {
   async getSubscriptionPayments(params: GetSubscriptionPaymentsParams): Promise<Either<PaymentProps[]>> {
     return Either.left(new Error());
   }
 
   async getPaymentLogs(params: GetPaymentLogsParams): Promise<Either<PaymentLogProps[]>> {
+    return Either.left(new Error());
+  }
+
+  async createPayment(params: CreatePaymentParams): Promise<Either<void>> {
     return Either.left(new Error());
   }
 }

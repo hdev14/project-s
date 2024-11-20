@@ -1,4 +1,6 @@
+import { injectable } from "inversify";
 import { Pool } from "pg";
+import 'reflect-metadata';
 import Database from "./Database";
 import DbUtils from "./utils/DbUtils";
 import Pagination, { PageOptions } from "./utils/Pagination";
@@ -10,6 +12,7 @@ type GetRowsPaginatedOptions = {
   values?: unknown[];
 };
 
+@injectable()
 export default abstract class DefaultRepository {
   #db: Pool;
 

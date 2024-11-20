@@ -11,6 +11,7 @@ import { InversifyExpressServer } from 'inversify-express-utils';
 import path from 'path';
 
 
+
 export type ApplicationOptions = {
   modules: Array<Module>;
 };

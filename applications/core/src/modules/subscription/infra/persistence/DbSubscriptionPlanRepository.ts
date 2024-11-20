@@ -40,8 +40,12 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
     this.#db = Database.connect();
   }
 
-  updateSubscriptionPlan(subscription_plan: SubscriptionPlan): Promise<void> {
-    throw new Error("Method not implemented.");
+  async updateSubscriptionPlan(subscription_plan: SubscriptionPlan): Promise<void> {
+    const { id, amount, recurrence_type, tenant_id, term_url, next_billing_date, updated_at } = subscription_plan.toObject();
+    const data = { id, amount, recurrence_type, tenant_id, term_url, next_billing_date, updated_at };
+    const values = Object.values(data);
+
+    await this.#db.query(`UPDATE subscription_plans SET ${DbUtils.setColumns(data)} WHERE id=$1`, DbUtils.sanitizeValues(values));
   }
 
   async getSubscriptionPlansByIds(ids: string[]): Promise<SubscriptionPlanProps[]> {

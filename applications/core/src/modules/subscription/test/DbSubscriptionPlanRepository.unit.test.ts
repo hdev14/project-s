@@ -319,4 +319,64 @@ describe('DbSubscriptionPlanRepository unit tests', () => {
       );
     });
   });
+
+  describe('DbSubscriptionPlanRepository.updateSubscriptionPlan', () => {
+    it('should update a subscription plan', async () => {
+      const subscription_plan_props = {
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        items: [],
+        recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+        tenant_id: faker.string.uuid(),
+        term_url: faker.internet.url(),
+        next_billing_date: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
+      };
+
+      const subscription_plan = new SubscriptionPlan(subscription_plan_props);
+
+      await repository.updateSubscriptionPlan(subscription_plan);
+
+      expect(query_mock).toHaveBeenCalledWith(
+        'UPDATE subscription_plans SET amount=$2,recurrence_type=$3,tenant_id=$4,term_url=$5,next_billing_date=$6,updated_at=$7 WHERE id=$1',
+        [
+          subscription_plan_props.id,
+          subscription_plan_props.amount,
+          subscription_plan_props.recurrence_type,
+          subscription_plan_props.tenant_id,
+          subscription_plan_props.term_url,
+          subscription_plan_props.next_billing_date,
+          subscription_plan_props.updated_at,
+        ]
+      );
+    });
+
+    it('should update only required props', async () => {
+      const subscription_plan_props = {
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        items: [],
+        recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+        tenant_id: faker.string.uuid(),
+        created_at: new Date(),
+        updated_at: new Date(),
+      };
+
+      const subscription_plan = new SubscriptionPlan(subscription_plan_props);
+
+      await repository.updateSubscriptionPlan(subscription_plan);
+
+      expect(query_mock).toHaveBeenCalledWith(
+        'UPDATE subscription_plans SET amount=$2,recurrence_type=$3,tenant_id=$4,updated_at=$5 WHERE id=$1',
+        [
+          subscription_plan_props.id,
+          subscription_plan_props.amount,
+          subscription_plan_props.recurrence_type,
+          subscription_plan_props.tenant_id,
+          subscription_plan_props.updated_at,
+        ]
+      );
+    });
+  });
 });

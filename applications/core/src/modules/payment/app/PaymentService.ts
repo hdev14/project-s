@@ -8,7 +8,7 @@ type GetSubscriptionPaymentsParams = {
 }
 
 type GetPaymentLogsParams = {
-  payment_id?: string;
+  payment_id: string;
   page_options?: PageOptions;
 }
 
@@ -19,7 +19,9 @@ type CreatePaymentParams = {
   amount: number;
 };
 
-type ProcessPaymentParams = {};
+type ProcessPaymentParams = {
+  payment_id: string;
+};
 
 export default class PaymentService {
   async getSubscriptionPayments(params: GetSubscriptionPaymentsParams): Promise<Either<PaymentProps[]>> {

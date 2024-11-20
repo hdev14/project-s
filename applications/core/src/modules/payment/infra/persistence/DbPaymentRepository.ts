@@ -28,6 +28,7 @@ export default class DbPaymentRepository implements PaymentRepository {
       tax: obj.tax,
       status: obj.status,
       subscription_id: obj.subscription_id,
+      tenant_id: obj.tenant_id,
       created_at: obj.created_at,
       updated_at: obj.updated_at,
     };
@@ -79,6 +80,7 @@ export default class DbPaymentRepository implements PaymentRepository {
       amount: parseFloat(payment_row.amount),
       status: payment_row.status,
       subscription_id: payment_row.subscription_id,
+      tenant_id: payment_row.tenant_id,
       tax: parseFloat(payment_row.tax),
       customer: {
         id: customer_row.id,

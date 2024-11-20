@@ -1,24 +1,15 @@
 
-import Database from "@shared/Database";
+import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
-import Pagination, { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
+import { PaginatedResult } from "@shared/utils/Pagination";
 import { SubscriptionPlanRepository, SubscriptionPlansFilter } from "@subscription/app/SubscriptionPlanRepository";
 import { ItemProps } from "@subscription/domain/Item";
 import SubscriptionPlan, { SubscriptionPlanProps } from "@subscription/domain/SubscriptionPlan";
 import { injectable } from "inversify";
-import { Pool } from "pg";
 import 'reflect-metadata';
 
-type GetSubscriptionPaginatedOptions = {
-  main_query: string;
-  count_query: string;
-  page_options: PageOptions;
-  values?: unknown[];
-};
-
 @injectable()
-export default class DbSubscriptionPlanRepository implements SubscriptionPlanRepository {
-  #db: Pool;
+export default class DbSubscriptionPlanRepository extends DefaultRepository implements SubscriptionPlanRepository {
   #columns = [
     'sp.id',
     'sp.amount',
@@ -36,20 +27,16 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
 
   #select_subscription_plans = `SELECT ${this.#columns.toString()} FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id`;
 
-  constructor() {
-    this.#db = Database.connect();
-  }
-
   async updateSubscriptionPlan(subscription_plan: SubscriptionPlan): Promise<void> {
     const { id, amount, recurrence_type, tenant_id, term_url, next_billing_date, updated_at } = subscription_plan.toObject();
     const data = { id, amount, recurrence_type, tenant_id, term_url, next_billing_date, updated_at };
     const values = Object.values(data);
 
-    await this.#db.query(`UPDATE subscription_plans SET ${DbUtils.setColumns(data)} WHERE id=$1`, DbUtils.sanitizeValues(values));
+    await this.db.query(`UPDATE subscription_plans SET ${DbUtils.setColumns(data)} WHERE id=$1`, DbUtils.sanitizeValues(values));
   }
 
   async getSubscriptionPlansByIds(ids: string[]): Promise<SubscriptionPlanProps[]> {
-    const { rows } = await this.#db.query(
+    const { rows } = await this.db.query(
       `${this.#select_subscription_plans} WHERE id ${DbUtils.inOperator(ids)}`,
       DbUtils.sanitizeValues(ids),
     );
@@ -112,7 +99,7 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
     const values: unknown[] = [filter.tenant_id];
 
     if (filter.page_options) {
-      return await this.getSubscriptionPlansPaginated({
+      return await this.getRowsPaginated({
         main_query: query,
         count_query: 'SELECT COUNT(id) as total FROM subscription_plans WHERE tenant_id=$1',
         page_options: filter.page_options,
@@ -120,32 +107,13 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
       });
     }
 
-    const { rows } = await this.#db.query(query, DbUtils.sanitizeValues(values));
+    const { rows } = await this.db.query(query, DbUtils.sanitizeValues(values));
 
     return { rows, page_result: undefined };
-
-  }
-
-  private async getSubscriptionPlansPaginated(options: GetSubscriptionPaginatedOptions) {
-    const values = options.values || [];
-    const offset = Pagination.calculateOffset(options.page_options);
-
-    const count_result = await this.#db.query(options.count_query, DbUtils.sanitizeValues(values));
-
-    const paginated_query = options.main_query + (values && values.length ? ' LIMIT $2 OFFSET $3' : ' LIMIT $1 OFFSET $2');
-
-    const { rows } = await this.#db.query(
-      paginated_query,
-      DbUtils.sanitizeValues(values.concat([options.page_options.limit, offset]))
-    );
-
-    const page_result = Pagination.calculatePageResult(count_result.rows[0].total, options.page_options);
-
-    return { rows, page_result };
   }
 
   async getSubscriptionPlanById(id: string): Promise<SubscriptionPlan | null> {
-    const { rows: subscription_plan_rows = [] } = await this.#db.query(
+    const { rows: subscription_plan_rows = [] } = await this.db.query(
       'SELECT * FROM subscription_plans WHERE id=$1',
       [id]
     );
@@ -156,7 +124,7 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
 
     const subscription_plan_row = subscription_plan_rows[0];
 
-    const { rows: item_rows = [] } = await this.#db.query(
+    const { rows: item_rows = [] } = await this.db.query(
       'SELECT ci.id,ci.name,ci.created_at,ci.updated_at FROM subscription_plan_items JOIN catalog_items ci ON item_id = ci.id WHERE subscription_plan_id = $1',
       [id],
     );
@@ -194,14 +162,14 @@ export default class DbSubscriptionPlanRepository implements SubscriptionPlanRep
     const data = { id, amount, tenant_id, recurrence_type, term_url, next_billing_date, created_at, updated_at };
     const values = Object.values(data);
 
-    await this.#db.query(
+    await this.db.query(
       `INSERT INTO subscription_plans ${DbUtils.columns(data)} VALUES ${DbUtils.values(values)}`,
       DbUtils.sanitizeValues(values),
     );
 
     const { ids, string_values } = DbUtils.manyToManyValues(items)
 
-    await this.#db.query(
+    await this.db.query(
       `INSERT INTO subscription_plan_items (subscription_plan_id, item_id) VALUES ${string_values}`,
       [id].concat(ids),
     );

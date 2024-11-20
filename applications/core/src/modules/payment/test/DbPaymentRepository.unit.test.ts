@@ -26,6 +26,7 @@ describe('DbPaymentRepository unit tests', () => {
         tax: faker.number.float(),
         status: faker.helpers.enumValue(PaymentStatus),
         subscription_id: faker.string.uuid(),
+        tenant_id: faker.string.uuid(),
         created_at: new Date(),
         updated_at: new Date(),
         customer: {
@@ -41,13 +42,14 @@ describe('DbPaymentRepository unit tests', () => {
       await repository.createPayment(payment);
 
       expect(query_mock).toHaveBeenCalledWith(
-        'INSERT INTO payments (id,amount,tax,status,subscription_id,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+        'INSERT INTO payments (id,amount,tax,status,subscription_id,tenant_id,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)',
         [
           payment_props.id,
           payment_props.amount,
           payment_props.tax,
           payment_props.status,
           payment_props.subscription_id,
+          payment_props.tenant_id,
           payment_props.created_at,
           payment_props.updated_at,
         ]
@@ -63,6 +65,7 @@ describe('DbPaymentRepository unit tests', () => {
         tax: faker.number.float(),
         status: faker.helpers.enumValue(PaymentStatus),
         subscription_id: faker.string.uuid(),
+        tenant_id: faker.string.uuid(),
         created_at: new Date(),
         updated_at: new Date(),
         customer: {

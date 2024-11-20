@@ -153,6 +153,7 @@ describe('MercadoPago unit tests', () => {
         amount: faker.number.float(),
         status: faker.helpers.enumValue(PaymentStatus),
         subscription_id: faker.string.uuid(),
+        tenant_id: faker.string.uuid(),
         tax: faker.number.float(),
         customer: {
           id: faker.string.uuid(),
@@ -217,6 +218,7 @@ describe('MercadoPago unit tests', () => {
             amount: faker.number.float(),
             status: faker.helpers.enumValue(PaymentStatus),
             subscription_id: faker.string.uuid(),
+            tenant_id: faker.string.uuid(),
             tax: faker.number.float(),
             customer: {
               id: faker.string.uuid(),

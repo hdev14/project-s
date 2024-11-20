@@ -14,6 +14,7 @@ export type PaymentProps = AggregateProps<{
   tax: number;
   status: PaymentStatus;
   subscription_id: string;
+  tenant_id: string;
   customer: CustomerProps;
 }>;
 
@@ -21,7 +22,8 @@ export default class Payment extends Aggregate<PaymentProps> implements Aggregat
   #amount: number;
   #tax: number;
   #status: PaymentStatus;
-  #subcription_id: string;
+  #subscription_id: string;
+  #tenant_id: string;
   #customer: Customer;
 
   constructor(props: PaymentProps) {
@@ -29,7 +31,8 @@ export default class Payment extends Aggregate<PaymentProps> implements Aggregat
     this.#amount = props.amount;
     this.#tax = props.tax;
     this.#status = props.status;
-    this.#subcription_id = props.subscription_id;
+    this.#subscription_id = props.subscription_id;
+    this.#tenant_id = props.tenant_id;
     this.#customer = new Customer(props.customer);
   }
 
@@ -58,7 +61,8 @@ export default class Payment extends Aggregate<PaymentProps> implements Aggregat
       amount: this.#amount,
       tax: this.#tax,
       status: this.#status,
-      subscription_id: this.#subcription_id,
+      subscription_id: this.#subscription_id,
+      tenant_id: this.#tenant_id,
       customer: this.#customer.toObject(),
       created_at: this.created_at,
       updated_at: this.updated_at

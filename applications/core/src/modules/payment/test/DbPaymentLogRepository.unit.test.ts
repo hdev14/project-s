@@ -47,7 +47,7 @@ describe('DbPaymentLogRepository unit tests', () => {
     });
   });
 
-  describe('DbPaymentLogRepository.getPaymentLogsByPaymentId', () => {
+  describe('DbPaymentLogRepository.getPaymentLogs', () => {
     it("returns a list of payment's logs", async () => {
       query_mock.mockResolvedValueOnce({
         rows: [
@@ -78,13 +78,58 @@ describe('DbPaymentLogRepository unit tests', () => {
         ]
       });
 
-      const payment_id = faker.string.uuid();
-      const payment_logs = await repository.getPaymentLogsByPaymentId(payment_id);
+      const filter = {
+        payment_id: faker.string.uuid(),
+      };
 
-      expect(payment_logs).toHaveLength(3);
+      const { results, page_result } = await repository.getPaymentLogs(filter);
+
+      expect(results).toHaveLength(3);
+      expect(page_result).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT * FROM payment_logs WHERE payment_id=$1',
-        [payment_id],
+        [filter.payment_id],
+      );
+    });
+
+    it("returns a list of payment's logs paginated when the limit of pagination is 1 and the page is 1", async () => {
+      query_mock
+        .mockResolvedValueOnce({ rows: [{ total: 2 }] })
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              id: faker.string.uuid(),
+              external_id: faker.string.uuid(),
+              payload: JSON.stringify({ test: faker.string.sample() }),
+              payment_id: faker.string.uuid(),
+              created_at: new Date(),
+              updated_at: new Date(),
+            },
+          ]
+        });
+
+      const filter = {
+        payment_id: faker.string.uuid(),
+        page_options: {
+          limit: 1,
+          page: 1,
+        }
+      };
+
+      const { results, page_result } = await repository.getPaymentLogs(filter);
+
+      expect(results).toHaveLength(1);
+      expect(page_result!.next_page).toEqual(2);
+      expect(page_result!.total_of_pages).toEqual(2);
+      expect(query_mock).toHaveBeenNthCalledWith(
+        1,
+        'SELECT COUNT(id) as total FROM payment_logs WHERE payment_id=$1',
+        [filter.payment_id]
+      );
+      expect(query_mock).toHaveBeenNthCalledWith(
+        2,
+        'SELECT * FROM payment_logs WHERE payment_id=$1 LIMIT $2 OFFSET $3',
+        [filter.payment_id, filter.page_options.limit, 0],
       );
     });
   });

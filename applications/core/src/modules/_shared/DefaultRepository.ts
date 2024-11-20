@@ -1,0 +1,45 @@
+import { Pool } from "pg";
+import Database from "./Database";
+import DbUtils from "./utils/DbUtils";
+import Pagination, { PageOptions } from "./utils/Pagination";
+
+type GetRowsPaginatedOptions = {
+  main_query: string;
+  count_query: string;
+  page_options: PageOptions;
+  values?: unknown[];
+};
+
+export default abstract class DefaultRepository {
+  #db: Pool;
+
+  constructor() {
+    this.#db = Database.connect();
+  }
+
+  protected get db() {
+    return this.#db;
+  }
+
+  protected async getRowsPaginated(options: GetRowsPaginatedOptions) {
+    const values = options.values || [];
+    const offset = Pagination.calculateOffset(options.page_options);
+
+    const count_result = await this.#db.query(options.count_query, DbUtils.sanitizeValues(values));
+
+    const paginated_query = options.main_query + (
+      values && values.length
+        ? ` LIMIT $${values.length + 1} OFFSET $${values.length + 2}`
+        : ' LIMIT $1 OFFSET $2'
+    );
+
+    const { rows } = await this.#db.query(
+      paginated_query,
+      DbUtils.sanitizeValues(values.concat([options.page_options.limit, offset]))
+    );
+
+    const page_result = Pagination.calculatePageResult(count_result.rows[0].total, options.page_options);
+
+    return { rows, page_result };
+  }
+}

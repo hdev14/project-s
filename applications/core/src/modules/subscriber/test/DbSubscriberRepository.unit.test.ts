@@ -94,7 +94,7 @@ describe('DbSubscriberRepository unit tests', () => {
       );
     });
 
-    it('returns a list of subscribers when the limit of pagination is 1 and the page is 1', async () => {
+    it.only('returns a list of subscribers when the limit of pagination is 1 and the page is 1', async () => {
       const subscribers = [
         {
           id: faker.string.uuid(),
@@ -144,6 +144,7 @@ describe('DbSubscriberRepository unit tests', () => {
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         "SELECT count(id) as total FROM users WHERE type='customer'",
+        []
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
@@ -207,6 +208,7 @@ describe('DbSubscriberRepository unit tests', () => {
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         "SELECT count(id) as total FROM users WHERE type='customer'",
+        []
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,

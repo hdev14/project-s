@@ -164,6 +164,7 @@ describe('DbCompanyRepository unit tests', () => {
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         "SELECT count(id) as total FROM users WHERE type='company'",
+        [],
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,
@@ -235,6 +236,7 @@ describe('DbCompanyRepository unit tests', () => {
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         "SELECT count(id) as total FROM users WHERE type='company'",
+        []
       );
       expect(query_mock).toHaveBeenNthCalledWith(
         2,

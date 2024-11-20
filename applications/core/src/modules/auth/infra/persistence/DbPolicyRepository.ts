@@ -1,19 +1,12 @@
 import PolicyRepository, { PolicyFilter } from "@auth/app/PolicyRepository";
 import Policy, { PolicyProps } from "@auth/domain/Policy";
-import Database from "@shared/Database";
+import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
 import { injectable } from "inversify";
-import { Pool } from "pg";
 import 'reflect-metadata';
 
 @injectable()
-export default class DbPolicyRepository implements PolicyRepository {
-  #db: Pool;
-
-  constructor() {
-    this.#db = Database.connect();
-  }
-
+export default class DbPolicyRepository extends DefaultRepository implements PolicyRepository {
   async getPolicies(filter?: PolicyFilter): Promise<Array<PolicyProps>> {
     let query = 'SELECT * FROM policies';
     let values: unknown[] = [];
@@ -24,7 +17,7 @@ export default class DbPolicyRepository implements PolicyRepository {
       query += ` WHERE slug ${in_operator}`;
     }
 
-    const result = await this.#db.query(query, values);
+    const result = await this.db.query(query, values);
 
     const policies = [];
 
@@ -43,7 +36,7 @@ export default class DbPolicyRepository implements PolicyRepository {
   }
 
   async getPolicyBySlug(slug: string): Promise<Policy | null> {
-    const result = await this.#db.query('SELECT * FROM policies WHERE slug=$1', [slug]);
+    const result = await this.db.query('SELECT * FROM policies WHERE slug=$1', [slug]);
 
     const row = result.rows[0];
 

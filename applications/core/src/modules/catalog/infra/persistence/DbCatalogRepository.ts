@@ -1,22 +1,15 @@
 import CatalogRepository, { CatalogItemsFilter } from "@catalog/app/CatalogRepository";
 import CatalogItem, { CatalogItemProps } from "@catalog/domain/CatalogItem";
-import Database from "@shared/Database";
+import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
-import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
+import { PaginatedResult } from "@shared/utils/Pagination";
 import { injectable } from "inversify";
-import { Pool } from "pg";
 import 'reflect-metadata';
 
 @injectable()
-export default class DbCatalogRepository implements CatalogRepository {
-  #db: Pool;
-
-  constructor() {
-    this.#db = Database.connect();
-  }
-
+export default class DbCatalogRepository extends DefaultRepository implements CatalogRepository {
   async getCatalogItemById(id: string): Promise<CatalogItem | null> {
-    const result = await this.#db.query('SELECT * FROM catalog_items WHERE id=$1', [id]);
+    const result = await this.db.query('SELECT * FROM catalog_items WHERE id=$1', [id]);
 
     return result.rows.length === 0 ? null : CatalogItem.fromObject({
       id: result.rows[0].id,
@@ -65,29 +58,20 @@ export default class DbCatalogRepository implements CatalogRepository {
       const values: unknown[] = [filter.tenant_id];
 
       if (filter.page_options) {
-        const offset = Pagination.calculateOffset(filter.page_options);
-        const count_result = await this.#db.query(count_query, DbUtils.sanitizeValues(values));
-
-        const paginated_query = filter.tenant_id ? query + ' LIMIT $2 OFFSET $3' : query + ' LIMIT $1 OFFSET $2';
-
-        const { rows } = await this.#db.query(
-          paginated_query,
-          DbUtils.sanitizeValues(values.concat([filter.page_options.limit, offset]))
-        );
-
-        const page_result = (count_result.rows[0].total !== undefined && count_result.rows[0].total > 0)
-          ? Pagination.calculatePageResult(count_result.rows[0].total, filter!.page_options!)
-          : undefined;
-
-        return { rows, page_result };
+        return this.getRowsPaginated({
+          main_query: query,
+          count_query,
+          page_options: filter.page_options,
+          values,
+        });
       }
 
-      const { rows } = await this.#db.query(query, DbUtils.sanitizeValues(values));
-      return { rows };
+      const { rows } = await this.db.query(query, DbUtils.sanitizeValues(values));
+      return { rows, page_result: undefined };
     }
 
-    const { rows } = await this.#db.query(select_catalog_items);
-    return { rows };
+    const { rows } = await this.db.query(select_catalog_items);
+    return { rows, page_result: undefined };
   }
 
   async createCatalogItem(catalog_item: CatalogItem): Promise<void> {
@@ -95,7 +79,7 @@ export default class DbCatalogRepository implements CatalogRepository {
     const data = Object.assign(catalog_item_obj, { attributes: JSON.stringify(catalog_item_obj.attributes) })
     const values = Object.values(data);
 
-    await this.#db.query(
+    await this.db.query(
       `INSERT INTO catalog_items ${DbUtils.columns(data)} VALUES ${DbUtils.values(values)}`,
       DbUtils.sanitizeValues(values),
     );
@@ -107,7 +91,7 @@ export default class DbCatalogRepository implements CatalogRepository {
     const query = `UPDATE catalog_items SET ${DbUtils.setColumns(data)} WHERE id=$1`;
     const values = DbUtils.sanitizeValues(Object.values(data));
 
-    await this.#db.query(query, values);
+    await this.db.query(query, values);
   }
 
   async deleteCatalogItem(id: string): Promise<void> {
@@ -116,7 +100,7 @@ export default class DbCatalogRepository implements CatalogRepository {
       deleted_at: Date.now(),
     };
 
-    await this.#db.query(
+    await this.db.query(
       `UPDATE catalog_items SET ${DbUtils.setColumns(data)} WHERE id=$1`,
       DbUtils.sanitizeValues(Object.values(Object.values(data)))
     );

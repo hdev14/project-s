@@ -1,25 +1,19 @@
 import Employee from "@company/domain/Employee";
-import Database from "@shared/Database";
+import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
-import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
+import { PaginatedResult } from "@shared/utils/Pagination";
 import { injectable } from "inversify";
-import { Pool } from "pg";
 import 'reflect-metadata';
 import CompanyRepository, { CompaniesFilter } from "../../app/CompanyRepository";
 import Company, { CompanyProps } from "../../domain/Company";
 
 @injectable()
-export default class DbCompanyRepository implements CompanyRepository {
-  #db: Pool;
+export default class DbCompanyRepository extends DefaultRepository implements CompanyRepository {
   #select_companies_query = "SELECT * FROM users WHERE type='company'";
   #count_query = "SELECT count(id) as total FROM users WHERE type='company'";
 
-  constructor() {
-    this.#db = Database.connect();
-  }
-
   async getEmployeeById(id: string): Promise<Employee | null> {
-    const result = await this.#db.query(
+    const result = await this.db.query(
       "SELECT * FROM users WHERE type='employee' AND id = $1",
       [id]
     );
@@ -41,14 +35,14 @@ export default class DbCompanyRepository implements CompanyRepository {
 
   async updateEmployee(employee: Employee): Promise<void> {
     const data = Object.assign({}, employee.toObject(), { created_at: undefined });
-    await this.#db.query(
+    await this.db.query(
       `UPDATE users SET ${DbUtils.setColumns(data)} WHERE type='employee' AND id = $1`,
       DbUtils.sanitizeValues(Object.values(data))
     );
   }
 
   async documentExists(document: string): Promise<boolean> {
-    const result = await this.#db.query(`${this.#count_query} AND document = $1`, [document]);
+    const result = await this.db.query(`${this.#count_query} AND document = $1`, [document]);
 
     return Boolean(parseInt(result.rows[0].total));
   }
@@ -62,7 +56,7 @@ export default class DbCompanyRepository implements CompanyRepository {
       company_ids.push(company_rows[idx].id);
     }
 
-    const { rows: employee_rows } = await this.#db.query(
+    const { rows: employee_rows } = await this.db.query(
       `SELECT * FROM users WHERE tenant_id ${DbUtils.inOperator(company_ids)}`,
       company_ids
     );
@@ -78,43 +72,36 @@ export default class DbCompanyRepository implements CompanyRepository {
 
   private async selectCompanies(filter?: CompaniesFilter) {
     if (filter && filter.page_options) {
-      const offset = Pagination.calculateOffset(filter.page_options);
-      const count_result = await this.#db.query(this.#count_query);
-
-      const paginated_query = `${this.#select_companies_query} LIMIT $1 OFFSET $2`;
-
-      const result = await this.#db.query(paginated_query, [filter.page_options.limit, offset]);
-
-      const page_result = (count_result.rows[0].total !== undefined && count_result.rows[0].total > 0)
-        ? Pagination.calculatePageResult(count_result.rows[0].total, filter!.page_options!)
-        : undefined;
-
-      return { rows: result.rows, page_result };
+      return this.getRowsPaginated({
+        main_query: this.#select_companies_query,
+        count_query: this.#count_query,
+        page_options: filter.page_options,
+      });
     }
 
-    const { rows } = await this.#db.query(this.#select_companies_query);
+    const { rows } = await this.db.query(this.#select_companies_query);
 
-    return { rows };
+    return { rows, page_result: undefined };
   }
 
   async updateCompany(company: Company): Promise<void> {
     const { id, document, name, address, bank, brand, access_plan_id } = company.toObject();
     const data = Object.assign({}, { id, document, name, access_plan_id }, address, bank, brand);
 
-    await this.#db.query(
+    await this.db.query(
       `UPDATE users SET ${DbUtils.setColumns(data)} WHERE type='company' AND id = $1`,
       DbUtils.sanitizeValues(Object.values(data))
     );
   }
 
   async getCompanyById(id: string): Promise<Company | null> {
-    const { rows: company_rows } = await this.#db.query(`${this.#select_companies_query} AND id = $1`, [id]);
+    const { rows: company_rows } = await this.db.query(`${this.#select_companies_query} AND id = $1`, [id]);
 
     if (company_rows.length === 0) {
       return null;
     }
 
-    const { rows: employee_rows } = await this.#db.query(`SELECT * FROM users WHERE tenant_id = $1`, [id]);
+    const { rows: employee_rows } = await this.db.query(`SELECT * FROM users WHERE tenant_id = $1`, [id]);
 
     return Company.fromObject(this.mapCompany(company_rows[0], employee_rows));
   }

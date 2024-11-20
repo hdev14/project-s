@@ -1,11 +1,9 @@
 import PaymentRepository from "@payment/app/PaymentRepository";
 import Payment from "@payment/domain/Payment";
-import Database from "@shared/Database";
+import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
-import { Pool } from "pg";
 
-export default class DbPaymentRepository implements PaymentRepository {
-  #db: Pool;
+export default class DbPaymentRepository extends DefaultRepository implements PaymentRepository {
   #customer_columns = [
     'u.id',
     'u.document',
@@ -14,10 +12,6 @@ export default class DbPaymentRepository implements PaymentRepository {
     'u.created_at',
     'u.updated_at',
   ];
-
-  constructor() {
-    this.#db = Database.connect();
-  }
 
   async createPayment(payment: Payment): Promise<void> {
     const obj = payment.toObject();
@@ -35,7 +29,7 @@ export default class DbPaymentRepository implements PaymentRepository {
 
     const values = Object.values(data);
 
-    await this.#db.query(
+    await this.db.query(
       `INSERT INTO payments ${DbUtils.columns(data)} VALUES ${DbUtils.values(values)}`,
       DbUtils.sanitizeValues(values)
     );
@@ -53,14 +47,14 @@ export default class DbPaymentRepository implements PaymentRepository {
       updated_at: obj.updated_at,
     };
 
-    await this.#db.query(
+    await this.db.query(
       `UPDATE payments SET ${DbUtils.setColumns(data)} WHERE id=$1`,
       DbUtils.sanitizeValues(Object.values(data))
     );
   }
 
   async getPaymentById(id: string): Promise<Payment | null> {
-    const payment_result = await this.#db.query('SELECT * FROM payments WHERE id=$1', [id]);
+    const payment_result = await this.db.query('SELECT * FROM payments WHERE id=$1', [id]);
 
     if (payment_result.rows.length === 0) {
       return null;
@@ -68,7 +62,7 @@ export default class DbPaymentRepository implements PaymentRepository {
 
     const payment_row = payment_result.rows[0];
 
-    const customer_result = await this.#db.query(
+    const customer_result = await this.db.query(
       `SELECT ${this.#customer_columns.toString()} FROM subscriptions s JOIN users u ON s.subscriber_id = u.id WHERE id=$1`,
       [payment_row.subscription_id]
     );

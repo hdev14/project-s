@@ -1,21 +1,14 @@
 import AccessPlanRepository from "@auth/app/AccessPlanRepository";
 import AccessPlan, { AccessPlanProps } from "@auth/domain/AccessPlan";
-import Database from "@shared/Database";
+import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
 import { injectable } from "inversify";
-import { Pool } from "pg";
 import 'reflect-metadata';
 
 @injectable()
-export default class DbAccessPlanRepository implements AccessPlanRepository {
-  #db: Pool;
-
-  constructor() {
-    this.#db = Database.connect();
-  }
-
+export default class DbAccessPlanRepository extends DefaultRepository implements AccessPlanRepository {
   async getAccessPlanById(id: string): Promise<AccessPlan | null> {
-    const result = await this.#db.query('SELECT * FROM access_plans WHERE id = $1', [id]);
+    const result = await this.db.query('SELECT * FROM access_plans WHERE id = $1', [id]);
 
     if (result.rows.length === 0) {
       return null;
@@ -35,7 +28,7 @@ export default class DbAccessPlanRepository implements AccessPlanRepository {
   }
 
   async getAccessPlans(): Promise<Array<AccessPlanProps>> {
-    const result = await this.#db.query('SELECT * FROM access_plans');
+    const result = await this.db.query('SELECT * FROM access_plans');
 
     const access_plans = [];
 
@@ -61,7 +54,7 @@ export default class DbAccessPlanRepository implements AccessPlanRepository {
 
     const query = `INSERT INTO access_plans ${DbUtils.columns(data)} VALUES ${DbUtils.values(values)}`;
 
-    await this.#db.query(query, DbUtils.sanitizeValues(values));
+    await this.db.query(query, DbUtils.sanitizeValues(values));
   }
 
   async updateAccessPlan(access_plan: AccessPlan): Promise<void> {
@@ -75,6 +68,6 @@ export default class DbAccessPlanRepository implements AccessPlanRepository {
       data.description,
       data.updated_at,
     ];
-    await this.#db.query(query, values);
+    await this.db.query(query, values);
   }
 }

@@ -1,21 +1,14 @@
 import VerificationCodeRepository from "@auth/app/VerificationCodeRepository";
 import VerificationCode from "@auth/domain/VerificationCode";
-import Database from "@shared/Database";
+import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
 import { injectable } from "inversify";
-import { Pool } from "pg";
 import 'reflect-metadata';
 
 @injectable()
-export default class DbVerificationCodeRepository implements VerificationCodeRepository {
-  #db: Pool;
-
-  constructor() {
-    this.#db = Database.connect();
-  }
-
+export default class DbVerificationCodeRepository extends DefaultRepository implements VerificationCodeRepository {
   async getVerificationCodeByCode(code: string): Promise<VerificationCode | null> {
-    const result = await this.#db.query('SELECT * FROM verification_codes WHERE code = $1', [code]);
+    const result = await this.db.query('SELECT * FROM verification_codes WHERE code = $1', [code]);
 
     if (result.rows.length === 0) {
       return null;
@@ -38,7 +31,7 @@ export default class DbVerificationCodeRepository implements VerificationCodeRep
 
     const query = `INSERT INTO verification_codes ${DbUtils.columns(verification_code_obj)} VALUES ${DbUtils.values(values)}`;
 
-    await this.#db.query(query, DbUtils.sanitizeValues(values));
+    await this.db.query(query, DbUtils.sanitizeValues(values));
   }
 
   async updateVerificationCode(verification_code: VerificationCode): Promise<void> {
@@ -46,6 +39,6 @@ export default class DbVerificationCodeRepository implements VerificationCodeRep
 
     const query = `UPDATE verification_codes SET ${DbUtils.setColumns(verification_code_obj)} WHERE id = $1`;
 
-    await this.#db.query(query, DbUtils.sanitizeValues(Object.values(verification_code_obj)));
+    await this.db.query(query, DbUtils.sanitizeValues(Object.values(verification_code_obj)));
   }
 }

@@ -1,24 +1,17 @@
-import Database from "@shared/Database";
+import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
-import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
+import { PaginatedResult } from "@shared/utils/Pagination";
 import SubscriptionRepository, { SubscriptionsFilter } from "@subscription/app/SubscriptionRepository";
 import Subscription, { SubscriptionProps } from "@subscription/domain/Subscription";
 import { injectable } from "inversify";
-import { Pool } from "pg";
 import 'reflect-metadata';
 
 @injectable()
-export default class DbSubscriptionRepository implements SubscriptionRepository {
-  #db: Pool;
-
-  constructor() {
-    this.#db = Database.connect();
-  }
-
+export default class DbSubscriptionRepository extends DefaultRepository implements SubscriptionRepository {
   async createSubscription(subscription: Subscription): Promise<void> {
     const subscription_obj = subscription.toObject();
     const values = Object.values(subscription_obj);
-    await this.#db.query(
+    await this.db.query(
       `INSERT INTO subscriptions ${DbUtils.columns(subscription_obj)} VALUES ${DbUtils.values(values)}`,
       DbUtils.sanitizeValues(values)
     );
@@ -27,14 +20,14 @@ export default class DbSubscriptionRepository implements SubscriptionRepository 
   async updateSubscription(subscription: Subscription): Promise<void> {
     const subscription_obj = Object.assign({}, subscription.toObject(), { created_at: undefined });
 
-    await this.#db.query(
+    await this.db.query(
       `UPDATE subscriptions SET ${DbUtils.setColumns(subscription_obj)} WHERE id = $1`,
       DbUtils.sanitizeValues(Object.values(subscription_obj))
     );
   }
 
   async getSubscriptionById(id: string): Promise<Subscription | null> {
-    const result = await this.#db.query('SELECT * FROM subscriptions WHERE id=$1', [id]);
+    const result = await this.db.query('SELECT * FROM subscriptions WHERE id=$1', [id]);
 
     return result.rows.length === 0 ? null : Subscription.fromObject({
       id: result.rows[0].id,
@@ -74,33 +67,19 @@ export default class DbSubscriptionRepository implements SubscriptionRepository 
     const where_clause = `WHERE ${DbUtils.andOperator({ tenant_id: filter.tenant_id, status: filter.status })}`;
     const query = `SELECT * FROM subscriptions ${where_clause}`;
 
-    const values: any[] = [filter.tenant_id, filter.status];
+    const values: unknown[] = [filter.tenant_id, filter.status];
 
     if (filter.page_options) {
-      const offset = Pagination.calculateOffset(filter.page_options);
-
-      const count_result = await this.#db.query(
-        `SELECT count(id) as total FROM subscriptions ${where_clause}`,
-        DbUtils.sanitizeValues(values)
-      );
-
-      const paginated_query = !filter.status ? `${query} LIMIT $2 OFFSET $3` : `${query} LIMIT $3 OFFSET $4`;
-
-      const result = await this.#db.query(
-        paginated_query,
-        DbUtils.sanitizeValues(values.concat([filter.page_options.limit, offset]))
-      );
-
-      const page_result = (count_result.rows[0].total !== undefined && count_result.rows[0].total > 0)
-        ? Pagination.calculatePageResult(count_result.rows[0].total, filter!.page_options!)
-        : undefined;
-
-      return { rows: result.rows, page_result };
+      return this.getRowsPaginated({
+        main_query: query,
+        count_query: `SELECT count(id) as total FROM subscriptions ${where_clause}`,
+        page_options: filter.page_options,
+        values,
+      });
     }
 
-    const { rows } = await this.#db.query(query, DbUtils.sanitizeValues(values));
+    const { rows } = await this.db.query(query, DbUtils.sanitizeValues(values));
 
-    return { rows };
+    return { rows, page_result: undefined };
   }
-
 }

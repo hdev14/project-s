@@ -1,21 +1,14 @@
 import CommissionRepository from "@company/app/CommissionRepository";
 import Commission from "@company/domain/Commission";
-import Database from "@shared/Database";
+import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
 import { injectable } from "inversify";
-import { Pool } from "pg";
 import 'reflect-metadata';
 
 @injectable()
-export default class DbCommissionRepository implements CommissionRepository {
-  #db: Pool;
-
-  constructor() {
-    this.#db = Database.connect();
-  }
-
+export default class DbCommissionRepository extends DefaultRepository implements CommissionRepository {
   async getCommissionByCatalogItemId(id: string): Promise<Commission | null> {
-    const { rows } = await this.#db.query('SELECT * FROM commissions WHERE catalog_item_id = $1', [id]);
+    const { rows } = await this.db.query('SELECT * FROM commissions WHERE catalog_item_id = $1', [id]);
 
     if (rows.length === 0) {
       return null;
@@ -35,7 +28,7 @@ export default class DbCommissionRepository implements CommissionRepository {
   async createCommission(commission: Commission): Promise<void> {
     const commission_obj = commission.toObject();
     const values = Object.values(commission_obj);
-    await this.#db.query(
+    await this.db.query(
       `INSERT INTO commissions ${DbUtils.columns(commission_obj)} VALUES ${DbUtils.values(values)}`,
       values
     );
@@ -44,14 +37,14 @@ export default class DbCommissionRepository implements CommissionRepository {
   async updateCommission(commission: Commission): Promise<void> {
     const commission_obj = Object.assign({}, commission.toObject(), { created_at: undefined });
 
-    await this.#db.query(
+    await this.db.query(
       `UPDATE commissions SET ${DbUtils.setColumns(commission_obj)} WHERE id = $1`,
       DbUtils.sanitizeValues(Object.values(commission_obj))
     );
   }
 
   async getCommissionById(id: string): Promise<Commission | null> {
-    const { rows } = await this.#db.query('SELECT * FROM commissions WHERE id = $1', [id]);
+    const { rows } = await this.db.query('SELECT * FROM commissions WHERE id = $1', [id]);
 
     if (rows.length === 0) {
       return null;

@@ -1,16 +1,14 @@
-import Database from "@shared/Database";
+import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
-import Pagination, { PaginatedResult } from "@shared/utils/Pagination";
+import { PaginatedResult } from "@shared/utils/Pagination";
 import SubscriberRepository, { SubscribersFilter } from "@subscriber/app/SubscriberRepository";
 import Subscriber, { SubscriberProps } from "@subscriber/domain/Subscriber";
 import { SubscriptionProps } from "@subscriber/domain/Subscription";
 import { injectable } from "inversify";
-import { Pool } from "pg";
 import 'reflect-metadata';
 
 @injectable()
-export default class DbSubscriberRepository implements SubscriberRepository {
-  #db: Pool;
+export default class DbSubscriberRepository extends DefaultRepository implements SubscriberRepository {
   #subscriber_columns = [
     'id',
     'email',
@@ -27,12 +25,8 @@ export default class DbSubscriberRepository implements SubscriberRepository {
     'updated_at',
   ];
 
-  constructor() {
-    this.#db = Database.connect();
-  }
-
   async getSubcriberById(id: string): Promise<Subscriber | null> {
-    const subscriber_result = await this.#db.query(
+    const subscriber_result = await this.db.query(
       `SELECT ${this.#subscriber_columns.toString()} FROM users WHERE type='customer' AND id=$1`,
       [id]
     );
@@ -43,7 +37,7 @@ export default class DbSubscriberRepository implements SubscriberRepository {
 
     const subscriber_row = subscriber_result.rows[0];
 
-    const subscriptions_result = await this.#db.query(
+    const subscriptions_result = await this.db.query(
       'SELECT * FROM subscriptions WHERE subscriber_id=$1',
       [subscriber_row.id]
     );
@@ -79,7 +73,7 @@ export default class DbSubscriberRepository implements SubscriberRepository {
       subscriber_ids.push(rows[idx].id);
     }
 
-    const { rows: subscription_rows } = await this.#db.query(
+    const { rows: subscription_rows } = await this.db.query(
       `SELECT * FROM subscriptions WHERE subscriber_id ${DbUtils.inOperator(subscriber_ids)}`,
       subscriber_ids
     );
@@ -136,34 +130,23 @@ export default class DbSubscriberRepository implements SubscriberRepository {
     const query = `SELECT ${this.#subscriber_columns.toString()} FROM users WHERE type='customer'`;
 
     if (filter && filter.page_options) {
-      const offset = Pagination.calculateOffset(filter.page_options);
-      const count_query = "SELECT count(id) as total FROM users WHERE type='customer'";
-      const count_result = await this.#db.query(count_query);
-
-      const paginated_query = query + ' LIMIT $1 OFFSET $2';
-
-      const { rows } = await this.#db.query(
-        paginated_query,
-        DbUtils.sanitizeValues([filter.page_options.limit, offset])
-      );
-
-      const page_result = (count_result.rows[0].total !== undefined && count_result.rows[0].total > 0)
-        ? Pagination.calculatePageResult(count_result.rows[0].total, filter!.page_options!)
-        : undefined;
-
-      return { rows, page_result };
+      return this.getRowsPaginated({
+        main_query: query,
+        count_query: "SELECT count(id) as total FROM users WHERE type='customer'",
+        page_options: filter.page_options,
+      });
     }
 
-    const { rows } = await this.#db.query(query);
+    const { rows } = await this.db.query(query);
 
-    return { rows };
+    return { rows, page_result: undefined };
   }
 
   async updateSubscriber(subscriber: Subscriber): Promise<void> {
     const { id, document, email, phone_number, address, payment_method, updated_at } = subscriber.toObject();
     const data = Object.assign({}, { id, document, email, phone_number, updated_at }, address, payment_method);
 
-    await this.#db.query(
+    await this.db.query(
       `UPDATE users SET ${DbUtils.setColumns(data)} WHERE type='customer' AND id=$1`,
       DbUtils.sanitizeValues(Object.values(data))
     );

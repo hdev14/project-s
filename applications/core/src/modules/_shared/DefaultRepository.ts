@@ -26,16 +26,17 @@ export default abstract class DefaultRepository {
     const offset = Pagination.calculateOffset(options.page_options);
 
     const count_result = await this.#db.query(options.count_query, DbUtils.sanitizeValues(values));
+    const sanitized_values = DbUtils.sanitizeValues(values);
 
     const paginated_query = options.main_query + (
-      values && values.length
-        ? ` LIMIT $${values.length + 1} OFFSET $${values.length + 2}`
+      sanitized_values.length > 0
+        ? ` LIMIT $${sanitized_values.length + 1} OFFSET $${sanitized_values.length + 2}`
         : ' LIMIT $1 OFFSET $2'
     );
 
     const { rows } = await this.#db.query(
       paginated_query,
-      DbUtils.sanitizeValues(values.concat([options.page_options.limit, offset]))
+      sanitized_values.concat([options.page_options.limit, offset])
     );
 
     const page_result = Pagination.calculatePageResult(count_result.rows[0].total, options.page_options);

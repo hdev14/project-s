@@ -19,6 +19,8 @@ type CreatePaymentParams = {
   amount: number;
 };
 
+type ProcessPaymentParams = {};
+
 export default class PaymentService {
   async getSubscriptionPayments(params: GetSubscriptionPaymentsParams): Promise<Either<PaymentProps[]>> {
     return Either.left(new Error());
@@ -29,6 +31,10 @@ export default class PaymentService {
   }
 
   async createPayment(params: CreatePaymentParams): Promise<Either<void>> {
+    return Either.left(new Error());
+  }
+
+  async processPayment(params: ProcessPaymentParams): Promise<Either<void>> {
     return Either.left(new Error());
   }
 }

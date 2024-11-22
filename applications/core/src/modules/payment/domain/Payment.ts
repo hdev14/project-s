@@ -16,6 +16,7 @@ export type PaymentProps = AggregateProps<{
   subscription_id: string;
   tenant_id: string;
   customer: CustomerProps;
+  reason?: string;
 }>;
 
 export default class Payment extends Aggregate<PaymentProps> implements AggregateRoot {
@@ -25,6 +26,7 @@ export default class Payment extends Aggregate<PaymentProps> implements Aggregat
   #subscription_id: string;
   #tenant_id: string;
   #customer: Customer;
+  #reason?: string;
 
   constructor(props: PaymentProps) {
     super(props);
@@ -34,14 +36,16 @@ export default class Payment extends Aggregate<PaymentProps> implements Aggregat
     this.#subscription_id = props.subscription_id;
     this.#tenant_id = props.tenant_id;
     this.#customer = new Customer(props.customer);
+    this.#reason = props.reason;
   }
 
   static fromObject(props: PaymentProps) {
     return new Payment(props);
   }
 
-  cancel() {
+  cancel(reason: string) {
     this.#status = PaymentStatus.CANCELED;
+    this.#reason = reason;
     this.update();
   }
 
@@ -50,8 +54,9 @@ export default class Payment extends Aggregate<PaymentProps> implements Aggregat
     this.update();
   }
 
-  reject() {
+  reject(reason: string) {
     this.#status = PaymentStatus.REJECTED;
+    this.#reason = reason;
     this.update();
   }
 
@@ -64,6 +69,7 @@ export default class Payment extends Aggregate<PaymentProps> implements Aggregat
       subscription_id: this.#subscription_id,
       tenant_id: this.#tenant_id,
       customer: this.#customer.toObject(),
+      reason: this.#reason,
       created_at: this.created_at,
       updated_at: this.updated_at
     };

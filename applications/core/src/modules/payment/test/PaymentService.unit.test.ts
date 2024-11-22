@@ -57,11 +57,41 @@ describe('PaymentService unit tests', () => {
 
       expect(error).toBeUndefined();
       expect(data).toHaveLength(2);
-    })
+    });
   });
 
   describe('PaymentService.getPaymentLogs', () => {
+    it('should return a result with payment logs and page result', async () => {
+      payment_log_repository_mock.getPaymentLogs.mockResolvedValueOnce({
+        results: [{
+          id: faker.string.uuid(),
+          external_id: faker.string.uuid(),
+          payment_id: faker.string.uuid(),
+          payload: JSON.stringify({}),
+        }],
+        page_result: {
+          next_page: 2,
+          total_of_pages: 2,
+        }
+      });
 
+      const params = {
+        payment_id: faker.string.uuid(),
+        page_options: {
+          limit: faker.number.int(),
+          page: faker.number.int(),
+        }
+      };
+
+      const [error, data] = await payment_service.getPaymentLogs(params);
+
+      expect(error).toBeUndefined();
+      expect(data!.results).toHaveLength(1);
+      expect(data!.page_result).toEqual({
+        next_page: 2,
+        total_of_pages: 2,
+      });
+    })
   });
 
   describe('PaymentService.createPayment', () => {

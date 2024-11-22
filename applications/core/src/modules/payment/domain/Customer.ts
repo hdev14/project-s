@@ -4,7 +4,7 @@ export type CustomerProps = AggregateProps<{
   id?: string;
   documnt: string;
   email: string;
-  credit_card_external_id: string | undefined;
+  credit_card_external_id?: string;
 }>;
 
 export default class Customer extends Aggregate<CustomerProps> {

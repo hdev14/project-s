@@ -104,7 +104,7 @@ describe('DbPaymentRepository unit tests', () => {
 
       expect(payment).toBeNull();
       expect(query_mock).toHaveBeenCalledWith(
-        'SELECT * FROM payments WHERE id=$1',
+        'SELECT p.id,p.amount,p.status,p.subscription_id,p.tenant_id,p.created_at,p.updated_at,u.id as user_id,u.document,u.email,u.created_at as user_created_at,u.updated_at as user_updated_at FROM payments p JOIN subscriptions s ON p.subscription_id = s.id JOIN users u ON s.subscriber_id = u.id WHERE p.id=$1',
         [payment_id]
       );
     });
@@ -112,12 +112,18 @@ describe('DbPaymentRepository unit tests', () => {
     it("returns a payment", async () => {
       const payment_row = {
         id: faker.string.uuid(),
-        amount: faker.number.float().toString(),
-        tax: faker.number.float().toString(),
+        amount: faker.number.float(),
+        tax: faker.number.float(),
         status: faker.helpers.enumValue(PaymentStatus),
         subscription_id: faker.string.uuid(),
+        tenant_id: faker.string.uuid(),
         created_at: new Date(),
         updated_at: new Date(),
+        user_id: faker.string.uuid(),
+        documnt: faker.string.numeric(11),
+        email: faker.internet.email(),
+        user_created_at: new Date(),
+        user_updated_at: new Date(),
       };
       query_mock
         .mockResolvedValueOnce({
@@ -139,15 +145,72 @@ describe('DbPaymentRepository unit tests', () => {
       const payment = await repository.getPaymentById(payment_id);
 
       expect(payment).toBeInstanceOf(Payment);
-      expect(query_mock).toHaveBeenNthCalledWith(
-        1,
-        'SELECT * FROM payments WHERE id=$1',
-        [payment_id],
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT p.id,p.amount,p.status,p.subscription_id,p.tenant_id,p.created_at,p.updated_at,u.id as user_id,u.document,u.email,u.created_at as user_created_at,u.updated_at as user_updated_at FROM payments p JOIN subscriptions s ON p.subscription_id = s.id JOIN users u ON s.subscriber_id = u.id WHERE p.id=$1',
+        [payment_id]
       );
-      expect(query_mock).toHaveBeenNthCalledWith(
-        2,
-        'SELECT u.id,u.document,u.email,u.credit_card_external_id,u.created_at,u.updated_at FROM subscriptions s JOIN users u ON s.subscriber_id = u.id WHERE id=$1',
-        [payment_row.subscription_id],
+    });
+  });
+
+  describe('DbPaymentRepository.getPayments', () => {
+    it('returns a list of payments', async () => {
+      query_mock.mockResolvedValueOnce({
+        rows: [
+          {
+            id: faker.string.uuid(),
+            amount: faker.number.float(),
+            tax: faker.number.float(),
+            status: faker.helpers.enumValue(PaymentStatus),
+            subscription_id: faker.string.uuid(),
+            tenant_id: faker.string.uuid(),
+            created_at: new Date(),
+            updated_at: new Date(),
+            user_id: faker.string.uuid(),
+            documnt: faker.string.numeric(11),
+            email: faker.internet.email(),
+            user_created_at: new Date(),
+            user_updated_at: new Date(),
+          },
+          {
+            id: faker.string.uuid(),
+            amount: faker.number.float(),
+            tax: faker.number.float(),
+            status: faker.helpers.enumValue(PaymentStatus),
+            subscription_id: faker.string.uuid(),
+            tenant_id: faker.string.uuid(),
+            created_at: new Date(),
+            updated_at: new Date(),
+            user_id: faker.string.uuid(),
+            documnt: faker.string.numeric(11),
+            email: faker.internet.email(),
+            user_created_at: new Date(),
+            user_updated_at: new Date(),
+          }
+        ]
+      });
+
+      const subscription_id = faker.string.uuid();
+
+      const payments = await repository.getPayments({ subscription_id });
+
+      expect(payments).toHaveLength(2);
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT p.id,p.amount,p.status,p.subscription_id,p.tenant_id,p.created_at,p.updated_at,u.id as user_id,u.document,u.email,u.created_at as user_created_at,u.updated_at as user_updated_at FROM payments p JOIN subscriptions s ON p.subscription_id = s.id JOIN users u ON s.subscriber_id = u.id WHERE p.subscription_id=$1',
+        [subscription_id]
+      );
+    });
+
+    it("returns a empty list if there is no payments", async () => {
+      query_mock.mockResolvedValueOnce({ rows: [] });
+
+      const subscription_id = faker.string.uuid();
+
+      const payments = await repository.getPayments({ subscription_id });
+
+      expect(payments).toHaveLength(0);
+      expect(query_mock).toHaveBeenCalledWith(
+        'SELECT p.id,p.amount,p.status,p.subscription_id,p.tenant_id,p.created_at,p.updated_at,u.id as user_id,u.document,u.email,u.created_at as user_created_at,u.updated_at as user_updated_at FROM payments p JOIN subscriptions s ON p.subscription_id = s.id JOIN users u ON s.subscriber_id = u.id WHERE p.subscription_id=$1',
+        [subscription_id]
       );
     });
   });

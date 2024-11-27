@@ -1,16 +1,23 @@
 import { faker } from "@faker-js/faker";
+import PaymentGateway from "@payment/app/PaymentGateway";
 import PaymentLogRepository from "@payment/app/PaymentLogRepository";
 import PaymentRepository from "@payment/app/PaymentRepository";
 import PaymentService from "@payment/app/PaymentService";
 import { PaymentStatus } from "@payment/domain/Payment";
+import NotFoundError from "@shared/errors/NotFoundError";
+import Mediator from "@shared/Mediator";
 import { mock } from "jest-mock-extended";
 
 describe('PaymentService unit tests', () => {
   const payment_repository_mock = mock<PaymentRepository>();
   const payment_log_repository_mock = mock<PaymentLogRepository>();
+  const mediator_mock = mock<Mediator>();
+  const payment_gateway_mock = mock<PaymentGateway>();
   const payment_service = new PaymentService(
     payment_repository_mock,
-    payment_log_repository_mock
+    payment_log_repository_mock,
+    mediator_mock,
+    payment_gateway_mock,
   );
 
   describe('PaymentService.getSubscriptionPayments', () => {
@@ -95,7 +102,46 @@ describe('PaymentService unit tests', () => {
   });
 
   describe('PaymentService.createPayment', () => {
+    it("should return a not found error if subscriber doesn't exist", async () => {
+      mediator_mock.send.mockResolvedValueOnce(null);
 
+      const [error, data] = await payment_service.createPayment({
+        amount: faker.number.float(),
+        customer_id: faker.string.uuid(),
+        subscription_id: faker.string.uuid(),
+        tenant_id: faker.string.uuid(),
+      });
+
+      expect(data).toBeUndefined();
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error!.message).toEqual('notfound.subscriber');
+    });
+
+    it('creates a new pending payment after call PaymentGateway.makeTransaction method', async () => {
+      mediator_mock.send.mockResolvedValueOnce({
+        id: faker.string.uuid(),
+        document: faker.string.numeric(11),
+        email: faker.internet.email(),
+        payment_method: {
+          payment_type: faker.helpers.arrayElement(['credit_card', 'pix', 'boleto']),
+          credit_card_external_id: faker.string.uuid(),
+        },
+      });
+
+      const [error, data] = await payment_service.createPayment({
+        amount: faker.number.float(),
+        customer_id: faker.string.uuid(),
+        subscription_id: faker.string.uuid(),
+        tenant_id: faker.string.uuid(),
+      });
+
+      expect(data).toBeUndefined();
+      expect(error).toBeUndefined();
+      expect(mediator_mock.send).toHaveBeenCalledTimes(1);
+      expect(payment_gateway_mock.makeTransaction).toHaveBeenCalledTimes(1);
+      expect(payment_repository_mock.createPayment).toHaveBeenCalledTimes(1);
+      expect(payment_log_repository_mock.createPaymentLog).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('PaymentService.processPayment', () => {

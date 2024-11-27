@@ -11,7 +11,7 @@ import { Policies } from "@shared/Principal";
 import UserTypes from "@shared/UserTypes";
 import CreateUserCommand from "@shared/commands/CreateUserCommand";
 import GetCatalogItemCommand from "@shared/commands/GetCatalogItemCommand";
-import UserExistsCommand from "@shared/commands/UserExistsCommand";
+import GetUserCommand from "@shared/commands/GetUserCommand";
 import AlreadyRegisteredError from "@shared/errors/AlreadyRegisteredError";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
@@ -267,7 +267,7 @@ export default class CompanyService {
   }
 
   async createEmployee(params: CreateEmployeeParams): Promise<Either<EmployeeProps>> {
-    if (!await this.#mediator.send<boolean>(new UserExistsCommand(params.tenant_id))) {
+    if (!await this.#mediator.send<any>(new GetUserCommand(params.tenant_id))) {
       return Either.left(new NotFoundError('notfound.company'));
     }
 
@@ -313,13 +313,13 @@ export default class CompanyService {
 
   async createServiceLog(params: CreateServiceLogParams): Promise<Either<ServiceLogProps>> {
     try {
-      const has_employee = await this.#mediator.send<boolean>(new UserExistsCommand(params.employee_id));
+      const has_employee = await this.#mediator.send<any>(new GetUserCommand(params.employee_id));
 
       if (!has_employee) {
         return Either.left(new NotFoundError('notfound.employee'));
       }
 
-      const has_customer = await this.#mediator.send<boolean>(new UserExistsCommand(params.customer_id));
+      const has_customer = await this.#mediator.send<any>(new GetUserCommand(params.customer_id));
 
       if (!has_customer) {
         return Either.left(new NotFoundError('notfound.customer'));

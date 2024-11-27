@@ -1,7 +1,7 @@
 import FileStorage from "@global/app/FileStorage";
 import GetCatalogItemCommand from "@shared/commands/GetCatalogItemCommand";
 import GetSubscriberCommand from "@shared/commands/GetSubscriberCommand";
-import UserExistsCommand from "@shared/commands/UserExistsCommand";
+import GetUserCommand from "@shared/commands/GetUserCommand";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import Mediator from "@shared/Mediator";
@@ -95,9 +95,9 @@ export default class SubscriptionService {
       return Either.left(new NotFoundError('notfound.subscriber'));
     }
 
-    const has_company = await this.#mediator.send<boolean>(new UserExistsCommand(params.tenant_id));
+    const company = await this.#mediator.send<any>(new GetUserCommand(params.tenant_id));
 
-    if (!has_company) {
+    if (!company) {
       return Either.left(new NotFoundError('notfound.company'));
     }
 
@@ -110,7 +110,7 @@ export default class SubscriptionService {
     const subscription = Subscription.createPending({
       subscription_plan_id: subscription_plan.id,
       subscriber_id: subscriber.id,
-      tenant_id: params.tenant_id,
+      tenant_id: company.id,
     });
 
     await this.#subscription_repository.createSubscription(subscription);
@@ -198,9 +198,9 @@ export default class SubscriptionService {
 
       const catalog_items = await Promise.all(promises);
 
-      const tenant_exists = await this.#mediator.send<boolean>(new UserExistsCommand(params.tenant_id));
+      const company = await this.#mediator.send<any>(new GetUserCommand(params.tenant_id));
 
-      if (!tenant_exists) {
+      if (!company) {
         return Either.left(new NotFoundError('notfound.company'));
       }
 
@@ -223,12 +223,12 @@ export default class SubscriptionService {
         amount,
         items,
         recurrence_type: params.recurrence_type,
-        tenant_id: params.tenant_id,
+        tenant_id: company.id,
       };
 
       if (params.term_file) {
         subscription_plan_obj.term_url = await this.#file_storage.storeFile({
-          bucket_name: `tenant-${params.tenant_id}`,
+          bucket_name: `tenant-${company.id}`,
           file: params.term_file,
           folder: 'subscription_terms',
           name: `term_${subscription_plan_obj.id}.pdf`,

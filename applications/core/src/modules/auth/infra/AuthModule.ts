@@ -3,15 +3,15 @@ import AuthService from "@auth/app/AuthService";
 import AuthTokenManager from "@auth/app/AuthTokenManager";
 import CreateUserCommandHandler from "@auth/app/CreateUserCommandHandler";
 import Encryptor from "@auth/app/Encryptor";
+import GetUserCommandHandler from "@auth/app/GetUserCommandHandler";
 import PolicyRepository from "@auth/app/PolicyRepository";
-import UserExistsCommandHandler from "@auth/app/UserExistsCommandHandler";
 import UserRepository from "@auth/app/UserRepository";
 import VerificationCodeRepository from "@auth/app/VerificationCodeRepository";
 import AuthMiddleware from "@shared/AuthMiddleware";
 import Mediator from "@shared/Mediator";
 import Module from "@shared/Module";
 import CreateUserCommand from "@shared/commands/CreateUserCommand";
-import UserExistsCommand from "@shared/commands/UserExistsCommand";
+import GetUserCommand from "@shared/commands/GetUserCommand";
 import types from "@shared/types";
 import { ContainerModule } from "inversify";
 import BcryptEncryptor from "./auth/BcryptEncryptor";
@@ -38,8 +38,8 @@ export default class AuthModule implements Module {
       bind<VerificationCodeRepository>(types.VerificationCodeRepository).to(DbVerificationCodeRepository).inSingletonScope();
       onActivation<Mediator>(types.Mediator, (_context, mediator) => {
         mediator.register(
-          UserExistsCommand.name,
-          new UserExistsCommandHandler(user_repository),
+          GetUserCommand.name,
+          new GetUserCommandHandler(user_repository),
         );
         mediator.register(
           CreateUserCommand.name,

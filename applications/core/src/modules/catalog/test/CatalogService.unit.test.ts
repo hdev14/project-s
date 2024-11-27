@@ -3,7 +3,7 @@ import CatalogService from '@catalog/app/CatalogService';
 import CatalogItem from '@catalog/domain/CatalogItem';
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import FileStorage from '@global/app/FileStorage';
-import UserExistsCommand from '@shared/commands/UserExistsCommand';
+import GetUserCommand from '@shared/commands/GetUserCommand';
 import DomainError from '@shared/errors/DomainError';
 import NotFoundError from '@shared/errors/NotFoundError';
 import Mediator from '@shared/Mediator';
@@ -60,7 +60,7 @@ describe('CatalogService unit tests', () => {
 
   describe('CatalogService.createCatalogItem', () => {
     it('creates a new catalog item', async () => {
-      mediator_mock.send.mockResolvedValueOnce(true);
+      mediator_mock.send.mockResolvedValueOnce({ id: faker.string.uuid() });
 
       const params = {
         name: faker.commerce.productName(),
@@ -85,7 +85,7 @@ describe('CatalogService unit tests', () => {
     });
 
     it("results a not found error if tenant doesn't exist", async () => {
-      mediator_mock.send.mockResolvedValueOnce(false);
+      mediator_mock.send.mockResolvedValueOnce(null);
 
       const params = {
         name: faker.commerce.productName(),
@@ -101,11 +101,11 @@ describe('CatalogService unit tests', () => {
       expect(data).toBeUndefined();
       expect(error).toBeInstanceOf(NotFoundError);
       expect(mediator_mock.send).toHaveBeenCalledTimes(1);
-      expect(mediator_mock.send.mock.calls[0][0]).toBeInstanceOf(UserExistsCommand);
+      expect(mediator_mock.send.mock.calls[0][0]).toBeInstanceOf(GetUserCommand);
     });
 
     it("results a domain error if amount is negative", async () => {
-      mediator_mock.send.mockResolvedValueOnce(true);
+      mediator_mock.send.mockResolvedValueOnce({ id: faker.string.uuid() });
 
       const params = {
         name: faker.commerce.productName(),
@@ -123,7 +123,7 @@ describe('CatalogService unit tests', () => {
     });
 
     it('creates a new catalog item with a picture', async () => {
-      mediator_mock.send.mockResolvedValueOnce(true);
+      mediator_mock.send.mockResolvedValueOnce({ id: faker.string.uuid() });
 
       const params = {
         name: faker.commerce.productName(),

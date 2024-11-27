@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker/locale/pt_BR';
 import FileStorage from '@global/app/FileStorage';
 import GetSubscriberCommand from '@shared/commands/GetSubscriberCommand';
-import UserExistsCommand from '@shared/commands/UserExistsCommand';
+import GetUserCommand from '@shared/commands/GetUserCommand';
 import DomainError from '@shared/errors/DomainError';
 import NotFoundError from '@shared/errors/NotFoundError';
 import Mediator from '@shared/Mediator';
@@ -90,7 +90,7 @@ describe('SubscriptionService unit tests', () => {
     it("throws a not found error if tenant doesn't exist", async () => {
       mediator_mock.send
         .mockResolvedValueOnce({ id: faker.string.uuid() })
-        .mockResolvedValueOnce(false);
+        .mockResolvedValueOnce(null);
 
       const [error, data] = await subscription_service.createSubscription({
         subscriber_id: faker.string.uuid(),
@@ -102,13 +102,13 @@ describe('SubscriptionService unit tests', () => {
       expect(error).toBeInstanceOf(NotFoundError);
       expect(error!.message).toEqual('notfound.company');
       const param = mediator_mock.send.mock.calls[1][0];
-      expect(param).toBeInstanceOf(UserExistsCommand);
+      expect(param).toBeInstanceOf(GetUserCommand);
     });
 
     it("throws a not found error if subscription plan doesn't exist", async () => {
       mediator_mock.send
         .mockResolvedValueOnce({ id: faker.string.uuid() })
-        .mockResolvedValueOnce(true);
+        .mockResolvedValueOnce({ id: faker.string.uuid() });
 
       subscription_plan_repository_mock.getSubscriptionPlanById.mockResolvedValueOnce(null);
 
@@ -129,10 +129,11 @@ describe('SubscriptionService unit tests', () => {
     it('creates a new pending subscription', async () => {
       const subscriber_id = faker.string.uuid();
       const subscription_plan_id = faker.string.uuid();
+      const tenant_id = faker.string.uuid();
 
       mediator_mock.send
         .mockResolvedValueOnce({ id: subscriber_id })
-        .mockResolvedValueOnce(true);
+        .mockResolvedValueOnce({ id: tenant_id });
 
       subscription_plan_repository_mock.getSubscriptionPlanById.mockResolvedValueOnce(
         new SubscriptionPlan({
@@ -158,7 +159,7 @@ describe('SubscriptionService unit tests', () => {
       expect(data!.status).toEqual(SubscriptionStatus.PENDING);
       expect(data!.subscriber_id).toEqual(subscriber_id);
       expect(data!.subscription_plan_id).toEqual(subscription_plan_id);
-      expect(data!.tenant_id).toEqual(params.tenant_id);
+      expect(data!.tenant_id).toEqual(tenant_id);
       expect(subscription_repository_mock.createSubscription).toHaveBeenCalled();
     });
   });
@@ -448,7 +449,7 @@ describe('SubscriptionService unit tests', () => {
     it("returns a not found error if tenant doesn't exist", async () => {
       mediator_mock.send
         .mockResolvedValueOnce({ id: faker.string.uuid() })
-        .mockResolvedValueOnce(false);
+        .mockResolvedValueOnce(null);
 
       const [error, data] = await subscription_service.createSubscriptionPlan({
         item_ids: [faker.string.uuid()],
@@ -478,11 +479,12 @@ describe('SubscriptionService unit tests', () => {
           updated_at: faker.date.future(),
         }
       ];
+      const tenant_id = faker.string.uuid();
 
       mediator_mock.send
         .mockResolvedValueOnce(catalog_items[0])
         .mockResolvedValueOnce(catalog_items[1])
-        .mockResolvedValueOnce(true);
+        .mockResolvedValueOnce({ id: tenant_id });
 
       const params = {
         item_ids: [faker.string.uuid(), faker.string.uuid()],
@@ -496,7 +498,7 @@ describe('SubscriptionService unit tests', () => {
       expect(error).toBeUndefined();
       expect(data).toHaveProperty('id');
       expect(data!.amount).toEqual(catalog_items[0].amount + catalog_items[1].amount);
-      expect(data!.tenant_id).toEqual(params.tenant_id);
+      expect(data!.tenant_id).toEqual(tenant_id);
       expect(data!.recurrence_type).toEqual(params.recurrence_type);
       expect(data!.term_url).toBeUndefined();
       expect(data!.items).toEqual([
@@ -533,11 +535,12 @@ describe('SubscriptionService unit tests', () => {
           updated_at: faker.date.future(),
         }
       ];
+      const tenant_id = faker.string.uuid();
 
       mediator_mock.send
         .mockResolvedValueOnce(catalog_items[0])
         .mockResolvedValueOnce(catalog_items[1])
-        .mockResolvedValueOnce(true);
+        .mockResolvedValueOnce({ id: tenant_id });
 
       const term_url = faker.internet.url();
       file_storage_mock.storeFile.mockResolvedValueOnce(term_url);
@@ -555,7 +558,7 @@ describe('SubscriptionService unit tests', () => {
       expect(error).toBeUndefined();
       expect(data).toHaveProperty('id');
       expect(data!.amount).toEqual(catalog_items[0].amount + catalog_items[1].amount);
-      expect(data!.tenant_id).toEqual(params.tenant_id);
+      expect(data!.tenant_id).toEqual(tenant_id);
       expect(data!.recurrence_type).toEqual(params.recurrence_type);
       expect(data!.term_url).toEqual(term_url);
       expect(data!.items).toEqual([
@@ -577,7 +580,7 @@ describe('SubscriptionService unit tests', () => {
       const subscription_plan = subscription_plan_repository_mock.createSubscriptionPlan.mock.calls[0][0];
 
       expect(file_storage_mock.storeFile).toHaveBeenCalledWith({
-        bucket_name: `tenant-${params.tenant_id}`,
+        bucket_name: `tenant-${tenant_id}`,
         folder: 'subscription_terms',
         name: `term_${subscription_plan.id}.pdf`,
         file: params.term_file,

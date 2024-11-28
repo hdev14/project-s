@@ -39,7 +39,6 @@ import Application from "./Application";
 
     process.on('SIGTERM', () => {
       logger.info('SIGTERM received');
-      // TODO: disconnect database
       server_instance.close(() => {
         logger.info('Http server closed!');
       });

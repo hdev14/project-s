@@ -17,6 +17,7 @@ import Application from "./Application";
 
   try {
     Database.connect();
+
     const application = new Application({
       modules: [
         new GlobalModule(),

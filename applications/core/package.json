@@ -2,10 +2,10 @@
   "name": "core",
   "version": "1.0.0",
   "description": "Main backend application with all logic to manage subscription operations",
-  "main": "./build/index.js",
+  "main": "./build/main.js",
   "type": "commonjs",
   "scripts": {
-    "start:dev": "npx dotenv -e .env -- npx ts-node -r ./src/open_telemetry.ts -r tsconfig-paths/register ./src/index.ts",
+    "start:dev": "npx dotenv -e .env -- npx ts-node -r ./src/open_telemetry.ts -r tsconfig-paths/register ./src/main.ts",
     "test:unit": "jest unit --passWithNoTests --watch --silent=false --config=jest.unit.config.js",
     "test:e2e": "npx dotenv -e .env.test -- npx jest e2e --detectOpenHandles --passWithNoTests --watch --silent=false --config=jest.e2e.config.js",
     "test:cov": "npx dotenv -e .env.test -- npx jest --coverage --detectOpenHandles --passWithNoTests --silent=false --config=jest.coverage.config.js",

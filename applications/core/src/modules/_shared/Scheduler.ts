@@ -13,6 +13,7 @@ type CronOptions = {
 export default class Scheduler {
   private static instance?: Scheduler;
   private crons: Map<string, CronOptions> = new Map();
+  private tasks: cron.ScheduledTask[] = [];
 
   private constructor() { }
 
@@ -38,7 +39,7 @@ export default class Scheduler {
     this.crons.set(name, cron_job);
   }
 
-  init() {
+  start() {
     for (const [key, value] of this.crons.entries()) {
       const task = cron.schedule(value.cron_schedule, value.execute, {
         name: key,
@@ -46,6 +47,14 @@ export default class Scheduler {
       });
 
       task.start();
+
+      this.tasks.push(task);
+    }
+  }
+
+  stop() {
+    for (let idx = 0; idx < this.tasks.length; idx++) {
+      this.tasks[idx].stop();
     }
   }
 }

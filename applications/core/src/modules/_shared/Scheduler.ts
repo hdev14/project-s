@@ -27,9 +27,14 @@ export default class Scheduler {
   }
 
   add(name: string, cron_job: CronOptions) {
+    if (!cron.validate(cron_job.cron_schedule)) {
+      throw new Error('Cron string is invalid')
+    }
+
     if (this.crons.has(name)) {
       throw new Error('Cron already added');
     }
+
     this.crons.set(name, cron_job);
   }
 

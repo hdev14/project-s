@@ -3,7 +3,8 @@ import PaymentGateway from "@payment/app/PaymentGateway";
 import PaymentLogRepository from "@payment/app/PaymentLogRepository";
 import PaymentRepository from "@payment/app/PaymentRepository";
 import PaymentService from "@payment/app/PaymentService";
-import { PaymentStatus } from "@payment/domain/Payment";
+import Payment, { PaymentStatus } from "@payment/domain/Payment";
+import UpdateSubscriptionCommand from "@shared/commands/UpdateSubscriptionCommand";
 import NotFoundError from "@shared/errors/NotFoundError";
 import Mediator from "@shared/Mediator";
 import { mock } from "jest-mock-extended";
@@ -145,6 +146,122 @@ describe('PaymentService unit tests', () => {
   });
 
   describe('PaymentService.processPayment', () => {
+    it("throws a not found error if payment doesn't exist", async () => {
+      payment_repository_mock.getPaymentById.mockResolvedValueOnce(null);
 
+      const [error] = await payment_service.processPayment({
+        payload: {},
+        external_id: faker.string.uuid(),
+        payment_id: faker.string.uuid(),
+        status: faker.helpers.enumValue(PaymentStatus),
+        reason: faker.lorem.paragraph(),
+      });
+
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error!.message).toEqual('notfound.payment');
+    });
+
+    it("updates payment status to paid", async () => {
+      const payment = new Payment({
+        amount: faker.number.float(),
+        status: PaymentStatus.PENDING,
+        subscription_id: faker.string.uuid(),
+        tax: faker.number.float(),
+        tenant_id: faker.string.uuid(),
+        customer: {
+          documnt: faker.string.numeric(11),
+          email: faker.internet.email(),
+        }
+      });
+
+      const pay_spy = jest.spyOn(payment, 'pay');
+
+      payment_repository_mock.getPaymentById.mockResolvedValueOnce(payment);
+
+      const [error] = await payment_service.processPayment({
+        payload: {},
+        external_id: faker.string.uuid(),
+        payment_id: faker.string.uuid(),
+        status: PaymentStatus.PAID,
+        reason: faker.lorem.paragraph(),
+      });
+
+      expect(error).toBeUndefined();
+      expect(pay_spy).toHaveBeenCalled();
+      expect(payment_repository_mock.updatePayment).toHaveBeenCalled();
+      expect(payment_log_repository_mock.createPaymentLog).toHaveBeenCalled();
+      expect(mediator_mock.send).toHaveBeenCalled();
+      expect(mediator_mock.send.mock.calls[0][0]).toBeInstanceOf(UpdateSubscriptionCommand);
+    });
+
+    it("updates payment status to reject", async () => {
+      const payment = new Payment({
+        amount: faker.number.float(),
+        status: PaymentStatus.PENDING,
+        subscription_id: faker.string.uuid(),
+        tax: faker.number.float(),
+        tenant_id: faker.string.uuid(),
+        customer: {
+          documnt: faker.string.numeric(11),
+          email: faker.internet.email(),
+        }
+      });
+
+      const reject_spy = jest.spyOn(payment, 'reject');
+
+      payment_repository_mock.getPaymentById.mockResolvedValueOnce(payment);
+
+      const params = {
+        payload: {},
+        external_id: faker.string.uuid(),
+        payment_id: faker.string.uuid(),
+        status: PaymentStatus.REJECTED,
+        reason: faker.lorem.paragraph(),
+      };
+
+      const [error] = await payment_service.processPayment(params);
+
+      expect(error).toBeUndefined();
+      expect(reject_spy).toHaveBeenCalledWith(params.reason);
+      expect(payment_repository_mock.updatePayment).toHaveBeenCalled();
+      expect(payment_log_repository_mock.createPaymentLog).toHaveBeenCalled();
+      expect(mediator_mock.send).toHaveBeenCalled();
+      expect(mediator_mock.send.mock.calls[0][0]).toBeInstanceOf(UpdateSubscriptionCommand);
+    });
+
+    it("updates payment status to cancel", async () => {
+      const payment = new Payment({
+        amount: faker.number.float(),
+        status: PaymentStatus.PENDING,
+        subscription_id: faker.string.uuid(),
+        tax: faker.number.float(),
+        tenant_id: faker.string.uuid(),
+        customer: {
+          documnt: faker.string.numeric(11),
+          email: faker.internet.email(),
+        }
+      });
+
+      const cancel_spy = jest.spyOn(payment, 'cancel');
+
+      payment_repository_mock.getPaymentById.mockResolvedValueOnce(payment);
+
+      const params = {
+        payload: {},
+        external_id: faker.string.uuid(),
+        payment_id: faker.string.uuid(),
+        status: PaymentStatus.CANCELED,
+        reason: faker.lorem.paragraph(),
+      };
+
+      const [error] = await payment_service.processPayment(params);
+
+      expect(error).toBeUndefined();
+      expect(cancel_spy).toHaveBeenCalledWith(params.reason);
+      expect(payment_repository_mock.updatePayment).toHaveBeenCalled();
+      expect(payment_log_repository_mock.createPaymentLog).toHaveBeenCalled();
+      expect(mediator_mock.send).toHaveBeenCalled();
+      expect(mediator_mock.send.mock.calls[0][0]).toBeInstanceOf(UpdateSubscriptionCommand);
+    });
   });
 });

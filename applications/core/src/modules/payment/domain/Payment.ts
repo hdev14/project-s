@@ -6,6 +6,7 @@ export enum PaymentStatus {
   PAID = 'paid',
   REJECTED = 'rejected',
   CANCELED = 'canceled',
+  // TODO: add chargeback and refund?
 }
 
 export type PaymentProps = AggregateProps<{

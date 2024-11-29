@@ -1,6 +1,7 @@
 import Payment, { PaymentProps, PaymentStatus } from "@payment/domain/Payment";
-import { PaymentLogProps } from "@payment/domain/PaymentLog";
+import PaymentLog, { PaymentLogProps } from "@payment/domain/PaymentLog";
 import GetSubscriberCommand from "@shared/commands/GetSubscriberCommand";
+import UpdateSubscriptionCommand from "@shared/commands/UpdateSubscriptionCommand";
 import NotFoundError from "@shared/errors/NotFoundError";
 import Mediator from "@shared/Mediator";
 import Either from "@shared/utils/Either";
@@ -27,6 +28,10 @@ type CreatePaymentParams = {
 
 type ProcessPaymentParams = {
   payment_id: string;
+  external_id: string;
+  status: PaymentStatus;
+  reason?: string;
+  payload: Record<string, any>;
 };
 
 export type GetPaymentLogsResult = {
@@ -98,6 +103,44 @@ export default class PaymentService {
   }
 
   async processPayment(params: ProcessPaymentParams): Promise<Either<void>> {
-    return Either.left(new Error());
+    const payment = await this.#payment_repository.getPaymentById(params.payment_id);
+
+    if (!payment) {
+      return Either.left(new NotFoundError('notfound.payment'));
+    }
+
+    if (params.status === PaymentStatus.PAID) {
+      payment.pay();
+    }
+
+    if (params.status === PaymentStatus.REJECTED) {
+      payment.reject(params.reason!);
+    }
+
+    if (params.status === PaymentStatus.CANCELED) {
+      payment.cancel(params.reason!);
+    }
+
+    const payment_log = new PaymentLog({
+      external_id: params.external_id,
+      payload: JSON.stringify(params.payload),
+      payment_id: payment.id,
+    });
+
+    await this.#payment_repository.updatePayment(payment);
+    await this.#payment_log_repository.createPaymentLog(payment_log);
+
+    const payment_obj = payment.toObject();
+
+    await this.#mediator.send(
+      new UpdateSubscriptionCommand({
+        customer_email: payment_obj.customer.email,
+        subscription_id: payment_obj.subscription_id,
+        pause_subscription: payment_obj.status !== PaymentStatus.PAID,
+        reason: payment_obj.reason,
+      })
+    );
+
+    return Either.right();
   }
 }

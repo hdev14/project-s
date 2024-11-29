@@ -17,7 +17,7 @@ const configuration: Partial<NodeSDKConfiguration> = {
   ],
 };
 
-if (process.env.NODE_ENV === 'test') {
+if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
   Object.assign(configuration, {
     traceExporter: new ConsoleSpanExporter(),
     metricReader: new PeriodicExportingMetricReader({

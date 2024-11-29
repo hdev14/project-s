@@ -46,8 +46,8 @@ export default class DbUserRepository extends DefaultRepository implements UserR
         policies,
         tenant_id: row.tenant_id,
         type: row.type,
-        created_at: new Date(row.created_at),
-        updated_at: new Date(row.updated_at),
+        created_at: row.created_at,
+        updated_at: row.updated_at,
       };
     }
 
@@ -103,8 +103,8 @@ export default class DbUserRepository extends DefaultRepository implements UserR
       policies,
       tenant_id: result.rows[0].tenant_id,
       type: result.rows[0].type,
-      created_at: new Date(result.rows[0].created_at),
-      updated_at: new Date(result.rows[0].updated_at),
+      created_at: result.rows[0].created_at,
+      updated_at: result.rows[0].updated_at,
     });
   }
 
@@ -129,8 +129,8 @@ export default class DbUserRepository extends DefaultRepository implements UserR
       policies,
       tenant_id: result.rows[0].tenant_id,
       type: result.rows[0].type,
-      created_at: new Date(result.rows[0].created_at),
-      updated_at: new Date(result.rows[0].updated_at)
+      created_at: result.rows[0].created_at,
+      updated_at: result.rows[0].updated_at
     });
   }
 

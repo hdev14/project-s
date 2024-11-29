@@ -27,9 +27,9 @@ export default class DbCompanyRepository extends DefaultRepository implements Co
       name: result.rows[0].name,
       document: result.rows[0].document,
       email: result.rows[0].email,
-      deactivated_at: result.rows[0].deactivated_at && new Date(result.rows[0].deactivated_at),
-      created_at: new Date(result.rows[0].created_at),
-      updated_at: new Date(result.rows[0].updated_at),
+      deactivated_at: result.rows[0].deactivated_at,
+      created_at: result.rows[0].created_at,
+      updated_at: result.rows[0].updated_at,
     });
   }
 
@@ -112,8 +112,8 @@ export default class DbCompanyRepository extends DefaultRepository implements Co
       document: company.document,
       name: company.name,
       access_plan_id: company.access_plan_id,
-      created_at: new Date(company.created_at),
-      updated_at: new Date(company.updated_at),
+      created_at: company.created_at,
+      updated_at: company.updated_at,
       bank: {
         account: company.account,
         account_digit: company.account_digit,
@@ -144,8 +144,8 @@ export default class DbCompanyRepository extends DefaultRepository implements Co
           document: employee.document,
           email: employee.email,
           name: employee.name,
-          created_at: new Date(employee.created_at),
-          updated_at: new Date(employee.updated_at),
+          created_at: employee.created_at,
+          updated_at: employee.updated_at,
         });
       }
     }

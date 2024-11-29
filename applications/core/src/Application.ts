@@ -20,6 +20,7 @@ export default class Application {
 
   constructor({ modules }: ApplicationOptions) {
     this.#container = this.setupModules(modules);
+
     const server = new InversifyExpressServer(
       this.#container,
       null,

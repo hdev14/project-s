@@ -64,8 +64,8 @@ export default class DbSubscriptionPlanRepository extends DefaultRepository impl
         subscription_plan_obj.items.push({
           id: row.item_id,
           name: row.item_name,
-          created_at: new Date(row.item_created_at),
-          updated_at: new Date(row.item_updated_at),
+          created_at: row.item_created_at,
+          updated_at: row.item_updated_at,
         });
         continue;
       }
@@ -73,8 +73,8 @@ export default class DbSubscriptionPlanRepository extends DefaultRepository impl
       const items = row.item_id ? [{
         id: row.item_id,
         name: row.item_name,
-        created_at: new Date(row.item_created_at),
-        updated_at: new Date(row.item_updated_at),
+        created_at: row.item_created_at,
+        updated_at: row.item_updated_at,
       }] : [];
 
       subscription_plan_objs[row.id] = {
@@ -83,12 +83,10 @@ export default class DbSubscriptionPlanRepository extends DefaultRepository impl
         recurrence_type: row.recurrence_type,
         tenant_id: row.tenant_id,
         term_url: row.term_url,
-        created_at: new Date(row.created_at),
-        updated_at: new Date(row.updated_at),
+        created_at: row.created_at,
+        updated_at: row.updated_at,
         items,
-        next_billing_date: row.next_billing_date
-          ? new Date(row.next_billing_date)
-          : undefined,
+        next_billing_date: row.next_billing_date,
       };
     }
     return subscription_plan_objs;
@@ -136,8 +134,8 @@ export default class DbSubscriptionPlanRepository extends DefaultRepository impl
       items.push({
         id: item_row.id,
         name: item_row.name,
-        created_at: new Date(item_row.created_at),
-        updated_at: new Date(item_row.updated_at),
+        created_at: item_row.created_at,
+        updated_at: item_row.updated_at,
       });
     }
 
@@ -147,12 +145,10 @@ export default class DbSubscriptionPlanRepository extends DefaultRepository impl
       recurrence_type: subscription_plan_row.recurrence_type,
       tenant_id: subscription_plan_row.tenant_id,
       term_url: subscription_plan_row.term_url,
-      created_at: new Date(subscription_plan_row.created_at),
-      updated_at: new Date(subscription_plan_row.updated_at),
+      created_at: subscription_plan_row.created_at,
+      updated_at: subscription_plan_row.updated_at,
       items,
       next_billing_date: subscription_plan_row.next_billing_date
-        ? new Date(subscription_plan_row.next_billing_date)
-        : undefined,
     });
   }
 

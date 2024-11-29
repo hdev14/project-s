@@ -19,13 +19,13 @@ export default class DbServiceLogRepository extends DefaultRepository implements
         id: row.id,
         customer_id: row.customer_id,
         paid_amount: parseFloat(row.paid_amount),
-        registed_at: new Date(row.registed_at),
+        registed_at: row.registed_at,
         tenant_id: row.tenant_id,
         commission_amount: parseFloat(row.commission_amount),
         employee_id: row.employee_id,
         service_id: row.service_id,
-        created_at: new Date(row.created_at),
-        updated_at: new Date(row.updated_at),
+        created_at: row.created_at,
+        updated_at: row.updated_at,
       });
     }
 

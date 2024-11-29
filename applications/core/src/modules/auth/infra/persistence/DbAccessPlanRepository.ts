@@ -22,8 +22,8 @@ export default class DbAccessPlanRepository extends DefaultRepository implements
       amount: parseFloat(row.amount),
       type: row.type,
       description: row.description,
-      created_at: new Date(row.created_at),
-      updated_at: new Date(row.updated_at),
+      created_at: row.created_at,
+      updated_at: row.updated_at,
     });
   }
 
@@ -40,8 +40,8 @@ export default class DbAccessPlanRepository extends DefaultRepository implements
         amount: parseFloat(row.amount),
         type: row.type,
         description: row.description,
-        created_at: new Date(row.created_at),
-        updated_at: new Date(row.updated_at),
+        created_at: row.created_at,
+        updated_at: row.updated_at,
       });
     }
 

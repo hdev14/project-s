@@ -71,7 +71,7 @@ const storage = multer.diskStorage({
 export const upload = multer({ storage });
 
 export function deleteFiles() {
-  return async (req: Request, res: Response, next: NextFunction) => {
+  return async (req: Request, _res: Response, next: NextFunction) => {
     await next();
 
     if (req.file) {

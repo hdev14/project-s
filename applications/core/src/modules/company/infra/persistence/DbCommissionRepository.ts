@@ -20,8 +20,8 @@ export default class DbCommissionRepository extends DefaultRepository implements
       tax: parseFloat(rows[0].tax),
       tax_type: rows[0].tax_type,
       tenant_id: rows[0].tenant_id,
-      created_at: new Date(rows[0].created_at),
-      updated_at: new Date(rows[0].updated_at),
+      created_at: rows[0].created_at,
+      updated_at: rows[0].updated_at,
     });
   }
 
@@ -56,8 +56,8 @@ export default class DbCommissionRepository extends DefaultRepository implements
       tax: parseFloat(rows[0].tax),
       tax_type: rows[0].tax_type,
       tenant_id: rows[0].tenant_id,
-      created_at: new Date(rows[0].created_at),
-      updated_at: new Date(rows[0].updated_at),
+      created_at: rows[0].created_at,
+      updated_at: rows[0].updated_at,
     });
   }
 }

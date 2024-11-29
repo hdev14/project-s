@@ -39,11 +39,11 @@ export default class DbPaymentRepository extends DefaultRepository implements Pa
           documnt: row.document,
           email: row.email,
           credit_card_external_id: row.credit_card_external_id,
-          created_at: new Date(row.user_created_at),
-          updated_at: new Date(row.user_updated_at),
+          created_at: row.user_created_at,
+          updated_at: row.user_updated_at,
         },
-        created_at: new Date(row.created_at),
-        updated_at: new Date(row.updated_at),
+        created_at: row.created_at,
+        updated_at: row.updated_at,
       });
     }
 
@@ -111,11 +111,11 @@ export default class DbPaymentRepository extends DefaultRepository implements Pa
         documnt: row.document,
         email: row.email,
         credit_card_external_id: row.credit_card_external_id,
-        created_at: new Date(row.user_created_at),
-        updated_at: new Date(row.user_updated_at),
+        created_at: row.user_created_at,
+        updated_at: row.user_updated_at,
       },
-      created_at: new Date(row.created_at),
-      updated_at: new Date(row.updated_at),
+      created_at: row.created_at,
+      updated_at: row.updated_at,
     });
   }
 }

@@ -10,6 +10,7 @@ export default class BullMQueue extends Queue {
   constructor(options: QueueOptions) {
     super(options);
 
+    // TODO: fix promise open
     this.queue = new BMQueue(this.options.queue, {
       connection: {
         host: process.env.REDIS_HOST,

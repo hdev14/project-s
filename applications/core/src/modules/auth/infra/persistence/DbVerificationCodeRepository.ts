@@ -18,9 +18,9 @@ export default class DbVerificationCodeRepository extends DefaultRepository impl
       id: result.rows[0].id,
       code: result.rows[0].code,
       user_id: result.rows[0].user_id,
-      expired_at: new Date(result.rows[0].expired_at),
-      created_at: new Date(result.rows[0].created_at),
-      updated_at: new Date(result.rows[0].updated_at),
+      expired_at: result.rows[0].expired_at,
+      created_at: result.rows[0].created_at,
+      updated_at: result.rows[0].updated_at,
     });
   }
 

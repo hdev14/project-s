@@ -27,8 +27,8 @@ export default class DbPaymentLogRepository extends DefaultRepository implements
         external_id: row.external_id,
         payload: row.payload,
         payment_id: row.payment_id,
-        created_at: new Date(row.created_at),
-        updated_at: new Date(row.updated_at),
+        created_at: row.created_at,
+        updated_at: row.updated_at,
       });
     }
 

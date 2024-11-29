@@ -19,8 +19,8 @@ export default class DbCatalogRepository extends DefaultRepository implements Ca
       attributes: result.rows[0].attributes,
       is_service: result.rows[0].is_service,
       tenant_id: result.rows[0].tenant_id,
-      created_at: new Date(result.rows[0].created_at),
-      updated_at: new Date(result.rows[0].updated_at),
+      created_at: result.rows[0].created_at,
+      updated_at: result.rows[0].updated_at,
     });
   }
 
@@ -40,8 +40,8 @@ export default class DbCatalogRepository extends DefaultRepository implements Ca
         attributes: row.attributes,
         picture_url: row.picture_url,
         tenant_id: row.tenant_id,
-        created_at: new Date(row.created_at),
-        updated_at: new Date(row.updated_at),
+        created_at: row.created_at,
+        updated_at: row.updated_at,
       });
     }
 

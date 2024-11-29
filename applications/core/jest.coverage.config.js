@@ -13,6 +13,7 @@ module.exports = {
     clearMocks: true,
     setupFilesAfterEnv: ["<rootDir>/src/test_setup.ts"],
     testMatch: [
+      "**/*.e2e.test.ts",
       "**/*.int.test.ts",
       "**/*.unit.test.ts"
     ]

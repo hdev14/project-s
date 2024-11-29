@@ -26,7 +26,7 @@ export default class SubscriptionController extends BaseHttpController {
     @inject(types.Logger) readonly logger: Logger
   ) {
     super();
-    this.logger.info("Subscriptions's APIs enabled");
+    this.logger.info("Subscriptions' APIs enabled");
   }
 
   @httpPost('/', requestValidator(create_subscription_validation_schema))

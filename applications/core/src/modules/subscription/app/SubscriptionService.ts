@@ -66,12 +66,11 @@ export type GetSubscriptionsResult = {
 @injectable()
 export default class SubscriptionService {
   static SUBSCRIPTION_BATCH_NUMBER = 50;
-
-  #mediator: Mediator;
-  #subscription_plan_repository: SubscriptionPlanRepository;
-  #subscription_repository: SubscriptionRepository;
-  #file_storage: FileStorage;
-  #payment_queue: Queue;
+  readonly #mediator: Mediator;
+  readonly #subscription_plan_repository: SubscriptionPlanRepository;
+  readonly #subscription_repository: SubscriptionRepository;
+  readonly #file_storage: FileStorage;
+  readonly #payment_queue: Queue;
 
   constructor(
     @inject(types.Mediator) mediator: Mediator,

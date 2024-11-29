@@ -8,7 +8,7 @@ import 'reflect-metadata';
 @injectable()
 export default class BullMQConsumer extends Consumer<Parameters<Processor>> {
   @inject(types.Logger)
-  private logger!: Logger;
+  logger!: Logger;
 
   constructor(options: ConsumerOptions<Parameters<Processor>>) {
     super(options);

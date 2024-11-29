@@ -44,9 +44,9 @@ type UpdateSubscriberPaymentMethod = {
 
 @injectable()
 export default class SubscriberService {
-  #subscriber_repository: SubscriberRepository;
-  #mediator: Mediator;
-  #email_service: EmailService;
+  readonly #subscriber_repository: SubscriberRepository;
+  readonly #mediator: Mediator;
+  readonly #email_service: EmailService;
 
   constructor(
     @inject(types.SubscriberRepository) subscriber_repository: SubscriberRepository,

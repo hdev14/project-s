@@ -6,7 +6,7 @@ import 'reflect-metadata';
 // https://min.io/docs/minio/linux/developers/javascript/API.html#javascript-client-api-reference
 @injectable()
 export default class MinIOStorage implements FileStorage {
-  #client: minio.Client;
+  readonly #client: minio.Client;
 
   constructor() {
     this.#client = new minio.Client({

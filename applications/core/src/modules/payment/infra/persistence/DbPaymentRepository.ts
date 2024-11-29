@@ -4,7 +4,7 @@ import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
 
 export default class DbPaymentRepository extends DefaultRepository implements PaymentRepository {
-  #columns = [
+  readonly #columns = [
     "p.id",
     "p.amount",
     "p.status",
@@ -18,7 +18,7 @@ export default class DbPaymentRepository extends DefaultRepository implements Pa
     "u.created_at as user_created_at",
     "u.updated_at as user_updated_at"
   ];
-  #select_payments = `SELECT ${this.#columns.toString()} FROM payments p JOIN subscriptions s ON p.subscription_id = s.id JOIN users u ON s.subscriber_id = u.id`;
+  readonly #select_payments = `SELECT ${this.#columns.toString()} FROM payments p JOIN subscriptions s ON p.subscription_id = s.id JOIN users u ON s.subscriber_id = u.id`;
 
   async getPayments(filter: PaymentsFilter): Promise<PaymentProps[]> {
     const result = await this.db.query(this.#select_payments + ' WHERE p.subscription_id=$1', [filter.subscription_id]);

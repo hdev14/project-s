@@ -10,7 +10,7 @@ import 'reflect-metadata';
 
 @injectable()
 export default class DbSubscriptionPlanRepository extends DefaultRepository implements SubscriptionPlanRepository {
-  #columns = [
+  readonly #columns = [
     'sp.id',
     'sp.amount',
     'sp.recurrence_type',
@@ -25,7 +25,7 @@ export default class DbSubscriptionPlanRepository extends DefaultRepository impl
     'ci.updated_at as item_updated_at',
   ];
 
-  #select_subscription_plans = `SELECT ${this.#columns.toString()} FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id`;
+  readonly #select_subscription_plans = `SELECT ${this.#columns.toString()} FROM subscription_plans sp LEFT JOIN subscription_plan_items spi ON spi.subscription_plan_id = sp.id LEFT JOIN catalog_items ci ON spi.item_id = ci.id`;
 
   async updateSubscriptionPlan(subscription_plan: SubscriptionPlan): Promise<void> {
     const { id, amount, recurrence_type, tenant_id, term_url, next_billing_date, updated_at } = subscription_plan.toObject();

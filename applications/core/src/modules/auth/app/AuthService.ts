@@ -84,13 +84,13 @@ export type ResetPasswordParams = {
 
 @injectable()
 export default class AuthService {
-  #encryptor: Encryptor;
-  #auth_token_manager: AuthTokenManager;
-  #user_repository: UserRepository;
-  #policy_repository: PolicyRepository;
-  #access_plan_repository: AccessPlanRepository;
-  #verification_code_repository: VerificationCodeRepository;
-  #email_service: EmailService;
+  readonly #encryptor: Encryptor;
+  readonly #auth_token_manager: AuthTokenManager;
+  readonly #user_repository: UserRepository;
+  readonly #policy_repository: PolicyRepository;
+  readonly #access_plan_repository: AccessPlanRepository;
+  readonly #verification_code_repository: VerificationCodeRepository;
+  readonly #email_service: EmailService;
 
   constructor(
     @inject(types.Encryptor) encryptor: Encryptor,

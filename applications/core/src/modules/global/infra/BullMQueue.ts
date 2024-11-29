@@ -5,13 +5,12 @@ import 'reflect-metadata';
 
 @injectable()
 export default class BullMQueue extends Queue {
-  private readonly queue: BMQueue;
+  readonly #queue: BMQueue;
 
   constructor(options: QueueOptions) {
     super(options);
 
-    // TODO: fix promise open
-    this.queue = new BMQueue(this.options.queue, {
+    this.#queue = new BMQueue(this.options.queue, {
       connection: {
         host: process.env.REDIS_HOST,
         port: parseInt(process.env.REDIS_PORT!, 10),
@@ -23,7 +22,7 @@ export default class BullMQueue extends Queue {
   }
 
   public async addMessage(message: Message): Promise<void> {
-    await this.queue.add(message.name, message);
+    await this.#queue.add(message.name, message);
   }
 
   public async addMessages(messages: Message[]): Promise<void> {
@@ -34,6 +33,6 @@ export default class BullMQueue extends Queue {
       jobs.push({ name: message.name, data: message });
     }
 
-    await this.queue.addBulk(jobs);
+    await this.#queue.addBulk(jobs);
   }
 }

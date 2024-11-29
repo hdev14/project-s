@@ -7,7 +7,7 @@ import UserRepository from "./UserRepository";
 
 @injectable()
 export default class GetUserCommandHandler implements Handler<GetUserCommand, any> {
-  #user_repository: UserRepository;
+  readonly #user_repository: UserRepository;
 
   constructor(@inject(types.UserRepository) user_repository: UserRepository) {
     this.#user_repository = user_repository;

@@ -15,8 +15,8 @@ export type ApplicationOptions = {
 };
 
 export default class Application {
-  #server: express.Application;
-  #container: Container;
+  readonly #server: express.Application;
+  readonly #container: Container;
 
   constructor({ modules }: ApplicationOptions) {
     this.#container = this.setupModules(modules);

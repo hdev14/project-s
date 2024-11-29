@@ -39,9 +39,9 @@ export type UpdateCatalogItemParams = Partial<Omit<CreateCatalogItemParams, 'ten
 
 @injectable()
 export default class CatalogService {
-  #catalog_repository: CatalogRepository;
-  #mediator: Mediator;
-  #file_storage: FileStorage;
+  readonly #catalog_repository: CatalogRepository;
+  readonly #mediator: Mediator;
+  readonly #file_storage: FileStorage;
 
   constructor(
     @inject(types.CatalogRepository) catalog_repository: CatalogRepository,

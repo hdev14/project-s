@@ -8,7 +8,7 @@ import 'reflect-metadata';
 
 @injectable()
 export default class DbUserRepository extends DefaultRepository implements UserRepository {
-  #columns = [
+  readonly #columns = [
     'u.id',
     'u.email',
     'u.password',
@@ -19,8 +19,8 @@ export default class DbUserRepository extends DefaultRepository implements UserR
     'u.created_at',
     'u.updated_at',
   ];
-  #select_users_query = `SELECT ${this.#columns.toString()} FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id`;
-  #count_select_users_query = 'SELECT count(id) as total FROM users';
+  readonly #select_users_query = `SELECT ${this.#columns.toString()} FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id`;
+  readonly #count_select_users_query = 'SELECT count(id) as total FROM users';
 
   async getUsers(filter?: UsersFilter): Promise<PaginatedResult<UserProps>> {
     const { rows, page_result } = await this.selectUsers(filter);

@@ -3,7 +3,7 @@ import SaveCreditCardCommand from "@shared/commands/SaveCreditCardCommand";
 import PaymentGateway from "./PaymentGateway";
 
 export default class SaveCreditCardCommandHandler implements Handler<SaveCreditCardCommand, string> {
-  #payment_gateway: PaymentGateway;
+  readonly #payment_gateway: PaymentGateway;
 
   constructor(payment_gateway: PaymentGateway) {
     this.#payment_gateway = payment_gateway;

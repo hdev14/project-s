@@ -109,12 +109,12 @@ export type GetCommissionsParams = {
 
 @injectable()
 export default class CompanyService {
-  #mediator: Mediator;
-  #email_service: EmailService;
-  #company_repository: CompanyRepository;
-  #service_log_repository: ServiceLogRepository;
-  #commission_repository: CommissionRepository;
-  #file_storage: FileStorage;
+  readonly #mediator: Mediator;
+  readonly #email_service: EmailService;
+  readonly #company_repository: CompanyRepository;
+  readonly #service_log_repository: ServiceLogRepository;
+  readonly #commission_repository: CommissionRepository;
+  readonly #file_storage: FileStorage;
 
   constructor(
     @inject(types.Mediator) mediator: Mediator,

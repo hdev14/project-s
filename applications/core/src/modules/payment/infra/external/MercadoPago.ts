@@ -82,11 +82,11 @@ type PaymentResponseData = {
 }
 
 export default class MercadoPago implements PaymentGateway {
-  #base_url: string;
-  #client_id: string;
+  readonly #base_url: string;
+  readonly #client_id: string;
+  readonly #webhook_url: string;
   #access_token: string | null = null;
   #token_expired_at: Date = new Date();
-  #webhook_url: string;
 
   constructor() {
     this.#base_url = process.env.MP_BASE_URL!;

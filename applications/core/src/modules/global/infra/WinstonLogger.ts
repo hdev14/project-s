@@ -5,7 +5,7 @@ import Logger from '../app/Logger';
 
 @injectable()
 export default class WinstonLogger implements Logger {
-  #logger: winston.Logger;
+  readonly #logger: winston.Logger;
 
   constructor() {
     this.#logger = winston.createLogger({

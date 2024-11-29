@@ -7,8 +7,8 @@ import 'reflect-metadata';
 
 @injectable()
 export default class FakePaymentGateway implements PaymentGateway {
-  #customer_results: RegisterCustomerResult[] = [];
-  #credit_card_datas: { id: string, customer_id: string, card_token: string }[] = [];
+  readonly #customer_results: RegisterCustomerResult[] = [];
+  readonly #credit_card_datas: { id: string, customer_id: string, card_token: string }[] = [];
 
   makeTransaction(payment: Payment): Promise<PaymentLog> {
     console.log('Making faker transaction', payment);

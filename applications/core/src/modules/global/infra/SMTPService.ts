@@ -6,7 +6,7 @@ import 'reflect-metadata';
 
 @injectable()
 export default class SMTPService implements EmailService {
-  #smtp_client: nodemailer.Transporter;
+  readonly #smtp_client: nodemailer.Transporter;
 
   constructor() {
     const config = {

@@ -5,10 +5,8 @@ import 'reflect-metadata';
 
 @injectable()
 export default class BcryptEncryptor implements Encryptor {
-  private readonly SALT = 10;
-
   createHash(value: string): string {
-    return bcrypt.hashSync(value, this.SALT);
+    return bcrypt.hashSync(value, 10);
   }
 
   compareHash(value: string, hash: string): boolean {

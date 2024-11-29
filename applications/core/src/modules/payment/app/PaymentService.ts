@@ -40,10 +40,10 @@ export type GetPaymentLogsResult = {
 };
 
 export default class PaymentService {
-  #payment_repository: PaymentRepository;
-  #payment_log_repository: PaymentLogRepository;
-  #mediator: Mediator;
-  #payment_gateway: PaymentGateway;
+  readonly #payment_repository: PaymentRepository;
+  readonly #payment_log_repository: PaymentLogRepository;
+  readonly #mediator: Mediator;
+  readonly #payment_gateway: PaymentGateway;
 
   constructor(
     payment_repository: PaymentRepository,

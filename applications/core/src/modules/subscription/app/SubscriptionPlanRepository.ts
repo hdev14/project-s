@@ -6,8 +6,6 @@ export type SubscriptionPlansFilter = {
   page_options?: PageOptions;
 };
 
-
-
 export interface SubscriptionPlanRepository {
   getSubscriptionPlans(filter: SubscriptionPlansFilter): Promise<PaginatedResult<SubscriptionPlanProps>>;
   getSubscriptionPlanById(id: string): Promise<SubscriptionPlan | null>;

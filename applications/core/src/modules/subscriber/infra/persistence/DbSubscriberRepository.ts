@@ -9,7 +9,7 @@ import 'reflect-metadata';
 
 @injectable()
 export default class DbSubscriberRepository extends DefaultRepository implements SubscriberRepository {
-  #subscriber_columns = [
+  readonly #subscriber_columns = [
     'id',
     'email',
     'document',

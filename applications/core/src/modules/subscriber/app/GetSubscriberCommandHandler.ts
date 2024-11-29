@@ -4,7 +4,7 @@ import { SubscriberProps } from "@subscriber/domain/Subscriber";
 import SubscriberRepository from "./SubscriberRepository";
 
 export default class GetSubscriberCommandHandler implements Handler<GetSubscriberCommand, SubscriberProps | null> {
-  #subscriber_repository: SubscriberRepository;
+  readonly #subscriber_repository: SubscriberRepository;
 
   constructor(subscriber_repository: SubscriberRepository) {
     this.#subscriber_repository = subscriber_repository;

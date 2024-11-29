@@ -14,7 +14,7 @@ type GetRowsPaginatedOptions = {
 
 @injectable()
 export default abstract class DefaultRepository {
-  #db: Pool;
+  readonly #db: Pool;
 
   constructor() {
     this.#db = Database.connect();

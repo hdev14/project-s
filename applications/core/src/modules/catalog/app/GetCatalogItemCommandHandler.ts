@@ -6,7 +6,7 @@ import Handler from "@shared/Handler";
 import CatalogRepository from "./CatalogRepository";
 
 export default class GetCatalogItemCommandHandler implements Handler<GetCatalogItemCommand, CatalogItemProps> {
-  #catalog_repository: CatalogRepository;
+  readonly #catalog_repository: CatalogRepository;
 
   constructor(catalog_repository: CatalogRepository) {
     this.#catalog_repository = catalog_repository;

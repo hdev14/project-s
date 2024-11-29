@@ -13,7 +13,7 @@ import process from "process";
 import Application from "./Application";
 
 (async function main() {
-  const schedule = Scheduler.getInstance();
+  const scheduler = Scheduler.getInstance();
 
   try {
     Database.connect();
@@ -32,7 +32,7 @@ import Application from "./Application";
 
     const logger = application.container.get<Logger>(types.Logger);
 
-    schedule.start();
+    scheduler.start();
 
     const server_instance = application.server.listen(process.env.SERVER_PORT, () => {
       logger.info('Server is running!');
@@ -46,7 +46,7 @@ import Application from "./Application";
     });
   } catch (error) {
     console.error(error);
-    schedule.stop();
+    scheduler.stop();
     await Database.disconnect();
   }
 })();

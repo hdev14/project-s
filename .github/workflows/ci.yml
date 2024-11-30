@@ -23,5 +23,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install Deps & Tests
-        run: npm ci && npm run -w applications/core test:cov
+      - name: Install Deps
+        run: npm ci
+
+      - name: Run Database Migrations
+        run: npm run -w applications/core db:migrate up
+
+      - name: Test Coverage
+        run: npm run -w applications/core test:cov

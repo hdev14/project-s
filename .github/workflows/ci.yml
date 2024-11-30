@@ -3,7 +3,7 @@ name: Continuous Integration
 on: push
 
 jobs:
-  test:
+  coverage:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -21,3 +21,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+
+      - name: Install Deps & Tests
+        run: npm ci
+        run: npm run test:cov

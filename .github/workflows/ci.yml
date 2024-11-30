@@ -3,7 +3,8 @@ name: Continuous Integration
 on: push
 
 jobs:
-  coverage:
+  core-coverage:
+    name: Core Coverage
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -23,4 +24,4 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install Deps & Tests
-        run: ls && npm ci && npm run test:cov
+        run: npm ci && npm run -w applications/core test:cov

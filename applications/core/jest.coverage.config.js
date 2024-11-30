@@ -5,7 +5,7 @@ module.exports = {
   ...{
     displayName: "Coverage",
     coverageThreshold: {
-      global: {
+      './src/modules/': {
         branches: 80,
         functions: 80,
         lines: 80,

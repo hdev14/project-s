@@ -4,6 +4,13 @@ module.exports = {
   ...rootConfig,
   ...{
     displayName: "Coverage",
+    coverageThreshold: {
+      global: {
+        branches: 80,
+        functions: 80,
+        lines: 80,
+      },
+    },
     collectCoverageFrom: [
       'src/modules/**/*.{ts,js}',
       '!**/node_modules/**',

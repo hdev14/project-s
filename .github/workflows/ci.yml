@@ -27,7 +27,7 @@ jobs:
         run: npm ci
 
       - name: Run Database Migrations
-        run: npm run -w applications/core db:migrate up
+        run: npm run -w applications/core test:db:migrate up
 
       - name: Test Coverage
         run: npm run -w applications/core test:cov

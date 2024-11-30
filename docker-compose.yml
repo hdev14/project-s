@@ -15,10 +15,7 @@ services:
       - 8080:8080
     volumes: *app-volumne
     command: >
-      bash -c "cd ./usr/project-s/ && 
-      npm install --workspace=applications/core --loglevel verbose && 
-      cd ./applications/core &&
-      npm run start:dev"
+      bash -c "cd ./usr/project-s/ &&  npm install --workspace=applications/core --loglevel verbose &&  cd ./applications/core && npm run start:dev"
   backoffice:
     container_name: app-backoffice
     image: node:latest
@@ -28,10 +25,7 @@ services:
       - 3001:3001
     volumes: *app-volumne
     command: >
-      bash -c "cd ./usr/project-s/ && 
-      npm install --workspace=applications/backoffice --loglevel verbose && 
-      cd ./applications/backoffice &&
-      npm run dev"
+      bash -c "cd ./usr/project-s/ &&  npm install --workspace=applications/backoffice --loglevel verbose &&  cd ./applications/backoffice && npm run dev"
   platform:
     container_name: app-platform
     image: node:latest
@@ -41,10 +35,7 @@ services:
       - 3002:3002
     volumes: *app-volumne
     command: >
-      bash -c "cd ./usr/project-s/ && 
-      npm install --workspace=applications/platform --loglevel verbose && 
-      cd ./applications/platform &&
-      npm run dev"
+      bash -c "cd ./usr/project-s/ &&  npm install --workspace=applications/platform --loglevel verbose &&  cd ./applications/platform && npm run dev"
   database:
     hostname: database
     container_name: database
@@ -73,7 +64,8 @@ services:
       - MINIO_ROOT_PASSWORD=12345678
     volumes:
       - 'storage:/data'
-    command: ["server", "/data", "--console-address", ":9001"]
+    # TODO: add default credentials for tests
+    command: [ "server", "/data", "--console-address", ":9001" ]
   jeager:
     hostname: jeager
     container_name: tracing-service
@@ -91,7 +83,7 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - '9090:9090' # http://localhost:9090
-    command: 
+    command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --enable-feature=otlp-write-receive
   redis:
@@ -102,15 +94,7 @@ services:
       - 6379:6379
     volumes:
       - redis_volume:/data
-    command:
-      [
-        "redis-server",
-        "--save",
-        "60",
-        "1",
-        "--loglevel",
-        "warning"
-      ]
+    command: [ "redis-server", "--save", "60", "1", "--loglevel", "warning" ]
   redis-commander:
     container_name: redis-commander
     hostname: redis-commander
@@ -126,6 +110,3 @@ volumes:
   redis_volume:
   storage:
     driver: local
-    
-
-  

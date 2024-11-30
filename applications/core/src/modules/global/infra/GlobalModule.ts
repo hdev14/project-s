@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import FileStorage from "@global/app/FileStorage";
 import Consumer from "@shared/Consumer";
 import Mediator from "@shared/Mediator";
@@ -17,7 +18,7 @@ import WinstonLogger from "./WinstonLogger";
 
 export default class GlobalModule implements Module {
   init(): ContainerModule {
-    const module = new ContainerModule((bind) => {
+    const module = new ContainerModule((bind, _unbind, _isBound, _rebind, _unbindAsync, _onActivation, _onDeactivation) => {
       bind<EmailService>(types.EmailService).to(SMTPService).inSingletonScope();
       bind<Mediator>(types.Mediator).to(GlobalMediator).inSingletonScope();
       bind<Logger>(types.Logger).to(WinstonLogger).inSingletonScope();

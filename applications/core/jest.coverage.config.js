@@ -8,7 +8,8 @@ module.exports = {
       'src/modules/**/*.{ts,js}',
       '!**/node_modules/**',
       '!**/__tests__/**',
-      '!**/__mocks__/**'
+      '!**/__mocks__/**',
+      '!**/test_utils/**'
     ],
     clearMocks: true,
     setupFilesAfterEnv: ["<rootDir>/src/test_setup.ts"],

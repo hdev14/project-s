@@ -4,9 +4,6 @@ on:
   workflow_dispatch:
     branches: [ main ]
 
-env:
-  NODE_VERSION: latest
-
 jobs:
   lint:
     name: Code Lint
@@ -14,10 +11,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Use Node.js $NODE_VERSION
+      - name: Use Node.js latest
         uses: actions/setup-node@v4
         with:
-          node-version: $NODE_VERSION
+          node-version: latest
       - name: Install Deps
         run: npm ci
       - name: Linting
@@ -33,10 +30,10 @@ jobs:
       - name: Docker compose
         run: docker compose up database redis maildev storage --build -d
 
-      - name: Use Node.js $NODE_VERSION
+      - name: Use Node.js latest
         uses: actions/setup-node@v4
         with:
-          node-version: $NODE_VERSION
+          node-version: latest
 
       - name: Install Deps
         run: npm ci

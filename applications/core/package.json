@@ -11,7 +11,8 @@
     "test:cov": "npx dotenv -e .env.test -- npx jest --coverage --detectOpenHandles --forceExit --passWithNoTests --silent=false --config=jest.coverage.config.js",
     "test:arch": "npx jest arch --passWithNoTests --silent=false",
     "db:migrate": "node-pg-migrate --migration-file-language ts --migrations-dir ./src/migrations --envPath .env --tsconfig ./tsconfig.json --template-file-name ./migration-template.ts",
-    "test:db:migrate": "node-pg-migrate --migration-file-language ts --migrations-dir ./src/migrations --envPath .env.test --tsconfig ./tsconfig.json --template-file-name ./migration-template.ts"
+    "test:db:migrate": "node-pg-migrate --migration-file-language ts --migrations-dir ./src/migrations --envPath .env.test --tsconfig ./tsconfig.json --template-file-name ./migration-template.ts",
+    "lint": "npx eslint ./src/**/*.ts --color"
   },
   "keywords": [
     "backend",

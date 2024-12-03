@@ -4,15 +4,28 @@ on:
   workflow_dispatch:
     branches: [ main ]
 
+env:
+  NODE_VERSION: latest
+
 jobs:
-  core-coverage:
+  lint:
+    name: Code Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Use Node.js $NODE_VERSION
+        uses: actions/setup-node@v4
+        with:
+          node-version: $NODE_VERSION
+      - name: Install Deps
+        run: npm ci
+      - name: Linting
+        run: npm run -w applications/core lint
+  
+  coverage:
     name: Core Coverage
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [latest]
-        redis-version: [7]
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -20,10 +33,10 @@ jobs:
       - name: Docker compose
         run: docker compose up database redis maildev storage --build -d
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js $NODE_VERSION
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: $NODE_VERSION
 
       - name: Install Deps
         run: npm ci

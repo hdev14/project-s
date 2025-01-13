@@ -1,13 +1,37 @@
 import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
-import { PaginatedResult } from "@shared/utils/Pagination";
-import SubscriptionRepository, { SubscriptionsFilter } from "@subscription/app/SubscriptionRepository";
-import Subscription, { SubscriptionProps } from "@subscription/domain/Subscription";
+import { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
+import SubscriptionRepository, { ActiveSubscription, SubscriptionsFilter } from "@subscription/app/SubscriptionRepository";
+import Subscription, { SubscriptionProps, SubscriptionStatus } from "@subscription/domain/Subscription";
 import { injectable } from "inversify";
 import 'reflect-metadata';
 
 @injectable()
 export default class DbSubscriptionRepository extends DefaultRepository implements SubscriptionRepository {
+  async getCurrentActiveSubscription(page_options: PageOptions): Promise<PaginatedResult<ActiveSubscription>> {
+    const { rows, page_result } = await this.getRowsPaginated({
+      main_query: "SELECT s.id,s.subscriber_id,s.tenant_id,sp.amount FROM subscriptions s JOIN subscription_plans sp ON s.status = $1 AND sp.next_billing_date = $2",
+      count_query: "SELECT count(s.id) as total FROM subscriptions s JOIN subscription_plans sp ON s.status = $1 AND sp.next_billing_date = $2",
+      page_options: page_options,
+      values: [SubscriptionStatus.ACTIVE, new Date()],
+    });
+
+    const results: ActiveSubscription[] = [];
+
+    for (let idx = 0; idx < rows.length; idx++) {
+      const row = rows[idx];
+
+      results.push({
+        id: row.id,
+        amount: parseFloat(row.amount),
+        subscriber_id: row.subscriber_id,
+        tenant_id: row.tenant_id,
+      });
+    }
+
+    return { results, page_result }
+  }
+
   async createSubscription(subscription: Subscription): Promise<void> {
     const subscription_obj = subscription.toObject();
     const values = Object.values(subscription_obj);

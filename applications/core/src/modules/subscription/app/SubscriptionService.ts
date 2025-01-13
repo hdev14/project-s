@@ -257,6 +257,7 @@ export default class SubscriptionService {
     return Either.right(result);
   }
 
+  // TODO: move logic into the job
   async chargeActiveSubscriptions(): Promise<Either<void>> {
     const current_date = new Date();
 

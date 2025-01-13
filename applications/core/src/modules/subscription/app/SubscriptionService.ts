@@ -70,20 +70,20 @@ export default class SubscriptionService {
   readonly #subscription_plan_repository: SubscriptionPlanRepository;
   readonly #subscription_repository: SubscriptionRepository;
   readonly #file_storage: FileStorage;
-  readonly #payment_queue: Queue;
+  readonly #queue_constructor: interfaces.Newable<Queue>;
 
   constructor(
     @inject(types.Mediator) mediator: Mediator,
     @inject(types.SubscriptionPlanRepository) subscription_plan_repository: SubscriptionPlanRepository,
     @inject(types.SubscriptionRepository) subscription_repository: SubscriptionRepository,
     @inject(types.FileStorage) file_storage: FileStorage,
-    @inject(types.NewableQueue) Queue: interfaces.Newable<Queue>,
+    @inject(types.NewableQueue) queue_constructor: interfaces.Newable<Queue>,
   ) {
     this.#mediator = mediator;
     this.#subscription_plan_repository = subscription_plan_repository;
     this.#subscription_repository = subscription_repository;
     this.#file_storage = file_storage;
-    this.#payment_queue = new Queue({ queue: process.env.PAYMENT_QUEUE, attempts: 3 });
+    this.#queue_constructor = queue_constructor;
   }
 
   async createSubscription(params: CreateSubscriptionParams): Promise<Either<SubscriptionProps>> {
@@ -262,6 +262,8 @@ export default class SubscriptionService {
 
     let next_page = 1;
 
+    const payment_queue = new this.#queue_constructor({ queue: process.env.PAYMENT_QUEUE, attempts: 3 });
+
     do {
       const { results, page_result } = await this.#subscription_repository.getSubscriptions({
         status: SubscriptionStatus.ACTIVE,
@@ -314,10 +316,12 @@ export default class SubscriptionService {
         }
       }
 
-      await this.#payment_queue.addMessages(messages);
+      await payment_queue.addMessages(messages);
 
       next_page = page_result!.next_page;
     } while (next_page !== -1);
+
+    // TODO: close queue connection;
 
     return Either.right();
   }

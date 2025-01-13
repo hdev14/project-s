@@ -7,9 +7,15 @@ export type SubscriptionsFilter = {
   page_options?: PageOptions;
 }
 
+export type ActiveSubscriptionsFilter = {
+  next_billing_date: Date;
+  page_options?: PageOptions;
+};
+
 export default interface SubscriptionRepository {
   createSubscription(subscription: Subscription): Promise<void>;
   updateSubscription(subscription: Subscription): Promise<void>;
   getSubscriptionById(id: string): Promise<Subscription | null>;
   getSubscriptions(filter: SubscriptionsFilter): Promise<PaginatedResult<SubscriptionProps>>;
+  getActiveSubscriptions(filter: ActiveSubscriptionsFilter): Promise<PaginatedResult<SubscriptionProps>>;
 }

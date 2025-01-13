@@ -87,7 +87,6 @@ export default class SubscriptionService {
   }
 
   async createSubscription(params: CreateSubscriptionParams): Promise<Either<SubscriptionProps>> {
-
     const subscriber = await this.#mediator.send<any>(new GetSubscriberCommand(params.subscriber_id));
 
     if (!subscriber) {
@@ -311,7 +310,7 @@ export default class SubscriptionService {
               tenant_id: subscription!.tenant_id,
               amount: subscription_plan!.amount,
             }
-          })
+          });
         }
       }
 

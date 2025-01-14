@@ -8,15 +8,13 @@ import { interfaces } from "inversify";
 import { SubscriptionPlanRepository } from "./SubscriptionPlanRepository";
 import SubscriptionRepository from "./SubscriptionRepository";
 
-const AT_EVERY_DAY = '0 0 */1 * *';
-
-// TODO: add logic to charge each subscription
 export default class ChargeSubscriptionJob implements CronJob {
+  static AT_EVERY_DAY = '0 0 */1 * *';
   subscription_repository!: SubscriptionRepository;
   subscription_plan_repository!: SubscriptionPlanRepository;
   queue_constructor!: interfaces.Newable<Queue>;
 
-  @Cron(AT_EVERY_DAY)
+  @Cron(ChargeSubscriptionJob.AT_EVERY_DAY)
   async execute(): Promise<void> {
     const current_date = new Date();
 
@@ -81,6 +79,6 @@ export default class ChargeSubscriptionJob implements CronJob {
       next_page = page_result!.next_page;
     } while (next_page !== -1);
 
-    // TODO: close queue connection;
+    await payment_queue.close();
   }
 }

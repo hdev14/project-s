@@ -21,4 +21,6 @@ export default abstract class Queue {
 
   abstract addMessage(message: Message): Promise<void>;
   abstract addMessages(messages: Message[]): Promise<void>;
+
+  abstract close(): Promise<void>;
 }

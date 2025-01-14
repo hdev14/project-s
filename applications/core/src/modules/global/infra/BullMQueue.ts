@@ -21,11 +21,11 @@ export default class BullMQueue extends Queue {
     });
   }
 
-  public async addMessage(message: Message): Promise<void> {
+  async addMessage(message: Message): Promise<void> {
     await this.#queue.add(message.name, message);
   }
 
-  public async addMessages(messages: Message[]): Promise<void> {
+  async addMessages(messages: Message[]): Promise<void> {
     const jobs = [];
 
     for (let idx = 0; idx < messages.length; idx++) {
@@ -34,5 +34,9 @@ export default class BullMQueue extends Queue {
     }
 
     await this.#queue.addBulk(jobs);
+  }
+
+  async close() {
+    await this.#queue.close();
   }
 }

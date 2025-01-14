@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker/locale/pt_BR';
+import EmailService from '@global/app/EmailService';
 import { SubscriptionPlanRepository } from "@subscription/app/SubscriptionPlanRepository";
 import SubscriptionRepository from "@subscription/app/SubscriptionRepository";
 import UpdateSubscriptionCommandHandler from "@subscription/app/UpdateSubscriptionCommandHandler";
@@ -9,11 +10,11 @@ import { mock } from "jest-mock-extended";
 describe('UpdateSubscriptionCommandHandler unit tests', () => {
   const subscription_repository_mock = mock<SubscriptionRepository>();
   const subscription_plan_repository_mock = mock<SubscriptionPlanRepository>();
-  // const email_service_mock = mock<EmailService>();
+  const email_service_mock = mock<EmailService>();
   const handler = new UpdateSubscriptionCommandHandler(
     subscription_repository_mock,
     subscription_plan_repository_mock,
-    // email_service_mock
+    email_service_mock
   );
 
   it('pause subscription', async () => {
@@ -73,7 +74,6 @@ describe('UpdateSubscriptionCommandHandler unit tests', () => {
 
     expect(subscription_plan_repository_mock.getSubscriptionPlanById).toHaveBeenCalledWith(subscription.toObject().subscription_plan_id);
     expect(subscription_plan_repository_mock.updateSubscriptionPlan).toHaveBeenCalledTimes(1);
-
     const new_next_billing_date = subscription_plan_repository_mock.updateSubscriptionPlan.mock.calls[0][0].toObject().next_billing_date!
     expect(new_next_billing_date.getFullYear()).toEqual(next_billing_date.getFullYear() + 1);
     expect(new_next_billing_date.getMonth()).toEqual(next_billing_date.getMonth());
@@ -115,5 +115,67 @@ describe('UpdateSubscriptionCommandHandler unit tests', () => {
     expect(new_next_billing_date.getMonth()).toEqual(next_billing_date.getMonth() + 1);
   });
 
-  it.todo('send a email when the subscription was paused');
+  it('send an email when the subscription was paused', async () => {
+    const subscription = new Subscription({
+      status: SubscriptionStatus.ACTIVE,
+      subscriber_id: faker.string.uuid(),
+      subscription_plan_id: faker.string.uuid(),
+      tenant_id: faker.string.uuid(),
+    });
+
+    subscription_repository_mock.getSubscriptionById.mockResolvedValueOnce(subscription);
+
+    const command = {
+      customer_email: faker.internet.email(),
+      name: faker.person.fullName(),
+      subscription_id: faker.string.uuid(),
+      pause_subscription: true,
+      reason: faker.string.sample(),
+    };
+
+    await handler.handle(command);
+
+    expect(email_service_mock.send).toHaveBeenCalledWith({
+      email: command.customer_email,
+      title: 'Assinatura Pausada',
+      message: `Sua assinatura foi pausada pelo seguinte motivo: ${command.reason}`,
+    });
+  });
+
+  it('send an email when the subscription was renewed', async () => {
+    const subscription = new Subscription({
+      status: SubscriptionStatus.PAUSED,
+      subscriber_id: faker.string.uuid(),
+      subscription_plan_id: faker.string.uuid(),
+      tenant_id: faker.string.uuid(),
+    });
+
+    const subscription_plan = new SubscriptionPlan({
+      amount: faker.number.float(),
+      items: [],
+      recurrence_type: RecurrenceTypes.MONTHLY,
+      tenant_id: faker.string.uuid(),
+      next_billing_date: faker.date.past(),
+    });
+
+    subscription_repository_mock.getSubscriptionById.mockResolvedValueOnce(subscription);
+    subscription_plan_repository_mock.getSubscriptionPlanById.mockResolvedValueOnce(subscription_plan);
+
+
+    const command = {
+      customer_email: faker.internet.email(),
+      name: faker.person.fullName(),
+      subscription_id: faker.string.uuid(),
+      pause_subscription: false,
+      reason: faker.string.sample(),
+    };
+
+    await handler.handle(command);
+
+    expect(email_service_mock.send).toHaveBeenCalledWith({
+      email: command.customer_email,
+      title: 'Assinatura Renovada',
+      message: `Sua assinatura foi renovada com sucesso`,
+    });
+  });
 });

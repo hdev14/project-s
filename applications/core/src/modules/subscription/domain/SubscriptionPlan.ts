@@ -36,15 +36,15 @@ export default class SubscriptionPlan extends Aggregate<SubscriptionPlanProps> i
   }
 
   updateNextBillingDate() {
-    const new_date = new Date(this.#next_billing_date!);
+    const new_billing_date = new Date(this.#next_billing_date!);
 
     if (this.#recurrence_type === RecurrenceTypes.ANNUALLY) {
-      new_date.setMonth(new_date.getMonth() + 12);
+      new_billing_date.setMonth(new_billing_date.getMonth() + 12);
     } else {
-      new_date.setMonth(new_date.getMonth() + 1);
+      new_billing_date.setMonth(new_billing_date.getMonth() + 1);
     }
 
-    this.#next_billing_date = new_date;
+    this.#next_billing_date = new_billing_date;
     this.update();
   }
 

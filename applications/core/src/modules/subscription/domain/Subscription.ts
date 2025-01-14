@@ -98,6 +98,10 @@ export default class Subscription extends Aggregate<SubscriptionProps> implement
     this.update();
   }
 
+  isPaused() {
+    return this.#status === SubscriptionStatus.PAUSED;
+  }
+
   toObject(): RequiredProps<SubscriptionProps> {
     return {
       id: this.id,

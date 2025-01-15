@@ -1,6 +1,6 @@
 import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
-import { PaginatedResult } from "@shared/utils/Pagination";
+import Page from "@shared/utils/Page";
 import SubscriberRepository, { SubscribersFilter } from "@subscriber/app/SubscriberRepository";
 import Subscriber, { SubscriberProps } from "@subscriber/domain/Subscriber";
 import { SubscriptionProps } from "@subscriber/domain/Subscription";
@@ -64,7 +64,7 @@ export default class DbSubscriberRepository extends DefaultRepository implements
     });
   }
 
-  async getSubscribers(filter?: SubscribersFilter): Promise<PaginatedResult<SubscriberProps>> {
+  async getSubscribers(filter?: SubscribersFilter): Promise<Page<SubscriberProps>> {
     const { rows, page_result } = await this.selectSubscribers(filter);
 
     const subscriber_ids = [];
@@ -78,12 +78,12 @@ export default class DbSubscriberRepository extends DefaultRepository implements
       subscriber_ids
     );
 
-    const results = [];
+    const result = [];
 
     for (let idx = 0; idx < rows.length; idx++) {
       const subscriber_row = rows[idx];
 
-      results.push({
+      result.push(Subscriber.fromObject({
         id: subscriber_row.id,
         email: subscriber_row.email,
         document: subscriber_row.document,
@@ -102,10 +102,10 @@ export default class DbSubscriberRepository extends DefaultRepository implements
           credit_card_external_id: subscriber_row.credit_card_external_id,
         },
         subscriptions: this.mapSubscriptions(subscription_rows, subscriber_row.id),
-      });
+      }));
     }
 
-    return { results, page_result };
+    return new Page(result, page_result);
   }
 
   private mapSubscriptions(subscription_rows: any[], subscriber_id: string) {

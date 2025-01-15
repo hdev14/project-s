@@ -1,7 +1,8 @@
 
 import DefaultRepository from "@shared/DefaultRepository";
+import Collection from "@shared/utils/Collection";
 import DbUtils from "@shared/utils/DbUtils";
-import { PaginatedResult } from "@shared/utils/Pagination";
+import Page from "@shared/utils/Page";
 import { SubscriptionPlanRepository, SubscriptionPlansFilter } from "@subscription/app/SubscriptionPlanRepository";
 import { ItemProps } from "@subscription/domain/Item";
 import SubscriptionPlan, { SubscriptionPlanProps } from "@subscription/domain/SubscriptionPlan";
@@ -35,38 +36,38 @@ export default class DbSubscriptionPlanRepository extends DefaultRepository impl
     await this.db.query(`UPDATE subscription_plans SET ${DbUtils.setColumns(data)} WHERE id=$1`, DbUtils.sanitizeValues(values));
   }
 
-  async getSubscriptionPlansByIds(ids: string[]): Promise<SubscriptionPlanProps[]> {
+  async getSubscriptionPlansByIds(ids: string[]): Promise<Collection<SubscriptionPlanProps>> {
     const { rows } = await this.db.query(
       `${this.#select_subscription_plans} WHERE id ${DbUtils.inOperator(ids)}`,
       DbUtils.sanitizeValues(ids),
     );
 
-    return Object.values(this.mapSubscriptionPlans(rows));
+    return new Collection(Object.values(this.mapSubscriptionPlans(rows)));
   }
 
 
-  async getSubscriptionPlans(filter: SubscriptionPlansFilter): Promise<PaginatedResult<SubscriptionPlanProps>> {
+  async getSubscriptionPlans(filter: SubscriptionPlansFilter): Promise<Page<SubscriptionPlanProps>> {
     const { rows = [], page_result } = await this.selectSubscriptionPlans(filter);
 
-    const subscription_plan_objs: Record<string, SubscriptionPlanProps> = this.mapSubscriptionPlans(rows);
+    const subscription_plans: Record<string, SubscriptionPlan> = this.mapSubscriptionPlans(rows);
 
-    return { results: Object.values(subscription_plan_objs), page_result };
+    return new Page(Object.values(subscription_plans), page_result);
   }
 
   private mapSubscriptionPlans(rows: any[]) {
-    const subscription_plan_objs: Record<string, SubscriptionPlanProps> = {};
+    const subscription_plans: Record<string, SubscriptionPlan> = {};
 
     for (let idx = 0; idx < rows.length; idx++) {
       const row = rows[idx];
-      const subscription_plan_obj = subscription_plan_objs[row.id];
+      const subscription_plan = subscription_plans[row.id];
 
-      if (subscription_plan_obj && row.item_id) {
-        subscription_plan_obj.items.push({
+      if (subscription_plan && row.item_id) {
+        subscription_plan.items = subscription_plan.items.concat([{
           id: row.item_id,
           name: row.item_name,
           created_at: row.item_created_at,
           updated_at: row.item_updated_at,
-        });
+        }]);
         continue;
       }
 
@@ -77,7 +78,7 @@ export default class DbSubscriptionPlanRepository extends DefaultRepository impl
         updated_at: row.item_updated_at,
       }] : [];
 
-      subscription_plan_objs[row.id] = {
+      subscription_plans[row.id] = SubscriptionPlan.fromObject({
         id: row.id,
         amount: parseFloat(row.amount),
         recurrence_type: row.recurrence_type,
@@ -87,9 +88,9 @@ export default class DbSubscriptionPlanRepository extends DefaultRepository impl
         updated_at: row.updated_at,
         items,
         next_billing_date: row.next_billing_date,
-      };
+      });
     }
-    return subscription_plan_objs;
+    return subscription_plans;
   }
 
   private async selectSubscriptionPlans(filter: SubscriptionPlansFilter) {

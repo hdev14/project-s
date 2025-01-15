@@ -62,10 +62,10 @@ describe('DbUserRepository unit tests', () => {
         ]
       });
 
-      const { results, page_result } = await repository.getUsers();
+      const page = await repository.getUsers();
 
-      expect(results).toHaveLength(2);
-      expect(page_result).toBeUndefined();
+      expect(page.result).toHaveLength(2);
+      expect(page.page_result).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type,u.created_at,u.updated_at FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id'
       );
@@ -113,11 +113,11 @@ describe('DbUserRepository unit tests', () => {
         page: 1,
       };
 
-      const { results, page_result } = await repository.getUsers({ page_options });
+      const page = await repository.getUsers({ page_options });
 
-      expect(results).toHaveLength(1);
-      expect(page_result!.next_page).toEqual(2);
-      expect(page_result!.total_of_pages).toEqual(2);
+      expect(page.result).toHaveLength(1);
+      expect(page.page_result!.next_page).toEqual(2);
+      expect(page.page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT count(id) as total FROM users',
@@ -172,11 +172,11 @@ describe('DbUserRepository unit tests', () => {
         page: 2,
       };
 
-      const { results, page_result } = await repository.getUsers({ page_options });
+      const page = await repository.getUsers({ page_options });
 
-      expect(results).toHaveLength(1);
-      expect(page_result!.next_page).toEqual(-1);
-      expect(page_result!.total_of_pages).toEqual(2);
+      expect(page.result).toHaveLength(1);
+      expect(page.page_result!.next_page).toEqual(-1);
+      expect(page.page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT count(id) as total FROM users',
@@ -231,10 +231,10 @@ describe('DbUserRepository unit tests', () => {
       });
 
       const tenant_id = faker.string.uuid();
-      const { results, page_result } = await repository.getUsers({ tenant_id });
+      const page = await repository.getUsers({ tenant_id });
 
-      expect(results).toHaveLength(2);
-      expect(page_result).toBeUndefined();
+      expect(page.result).toHaveLength(2);
+      expect(page.page_result).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type,u.created_at,u.updated_at FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.tenant_id=$1',
         [tenant_id]
@@ -284,11 +284,11 @@ describe('DbUserRepository unit tests', () => {
         page: 2,
       };
 
-      const { results, page_result } = await repository.getUsers({ tenant_id, page_options });
+      const page = await repository.getUsers({ tenant_id, page_options });
 
-      expect(results).toHaveLength(1);
-      expect(page_result!.next_page).toEqual(-1);
-      expect(page_result!.total_of_pages).toEqual(2);
+      expect(page.result).toHaveLength(1);
+      expect(page.page_result!.next_page).toEqual(-1);
+      expect(page.page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT count(id) as total FROM users WHERE tenant_id=$1',

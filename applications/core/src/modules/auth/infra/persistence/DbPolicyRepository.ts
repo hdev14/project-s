@@ -1,13 +1,14 @@
 import PolicyRepository, { PolicyFilter } from "@auth/app/PolicyRepository";
 import Policy, { PolicyProps } from "@auth/domain/Policy";
 import DefaultRepository from "@shared/DefaultRepository";
+import Collection from "@shared/utils/Collection";
 import DbUtils from "@shared/utils/DbUtils";
 import { injectable } from "inversify";
 import 'reflect-metadata';
 
 @injectable()
 export default class DbPolicyRepository extends DefaultRepository implements PolicyRepository {
-  async getPolicies(filter?: PolicyFilter): Promise<Array<PolicyProps>> {
+  async getPolicies(filter?: PolicyFilter): Promise<Collection<PolicyProps>> {
     let query = 'SELECT * FROM policies';
     let values: unknown[] = [];
 
@@ -23,16 +24,16 @@ export default class DbPolicyRepository extends DefaultRepository implements Pol
 
     for (let idx = 0; idx < result.rows.length; idx++) {
       const row = result.rows[idx];
-      policies.push({
+      policies.push(Policy.fromObject({
         id: row.id,
         slug: row.slug,
         description: row.description,
         created_at: row.created_at,
         updated_at: row.updated_at,
-      });
+      }));
     }
 
-    return policies;
+    return new Collection(policies);
   }
 
   async getPolicyBySlug(slug: string): Promise<Policy | null> {

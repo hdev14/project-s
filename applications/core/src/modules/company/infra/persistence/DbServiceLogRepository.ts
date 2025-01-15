@@ -1,21 +1,21 @@
 import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
-import { PaginatedResult } from "@shared/utils/Pagination";
 import { injectable } from "inversify";
 import 'reflect-metadata';
 import ServiceLogRepository, { ServiceLogsFilter } from "../../app/ServiceLogRepository";
 import ServiceLog, { ServiceLogProps } from "../../domain/ServiceLog";
+import Page from "@shared/utils/Page";
 
 @injectable()
 export default class DbServiceLogRepository extends DefaultRepository implements ServiceLogRepository {
-  async getServiceLogs(filter: ServiceLogsFilter): Promise<PaginatedResult<ServiceLogProps>> {
+  async getServiceLogs(filter: ServiceLogsFilter): Promise<Page<ServiceLogProps>> {
     const { rows, page_result } = await this.selectServiceLogs(filter);
 
-    const results = [];
+    const result = [];
 
     for (let idx = 0; idx < rows.length; idx++) {
       const row = rows[idx];
-      results.push({
+      result.push(ServiceLog.fromObject({
         id: row.id,
         customer_id: row.customer_id,
         paid_amount: parseFloat(row.paid_amount),
@@ -26,10 +26,10 @@ export default class DbServiceLogRepository extends DefaultRepository implements
         service_id: row.service_id,
         created_at: row.created_at,
         updated_at: row.updated_at,
-      });
+      }));
     }
 
-    return { results, page_result };
+    return new Page(result, page_result);
   }
 
   private async selectServiceLogs(filter: ServiceLogsFilter) {

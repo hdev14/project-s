@@ -1,5 +1,6 @@
 import PaymentLog, { PaymentLogProps } from "@payment/domain/PaymentLog";
-import { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
+import Page from "@shared/utils/Page";
+import { PageOptions } from "@shared/utils/Pagination";
 
 export type PaymentLogFilter = {
   payment_id: string;
@@ -8,5 +9,5 @@ export type PaymentLogFilter = {
 
 export default interface PaymentLogRepository {
   createPaymentLog(payment_log: PaymentLog): Promise<void>;
-  getPaymentLogs(filter: PaymentLogFilter): Promise<PaginatedResult<PaymentLogProps>>;
+  getPaymentLogs(filter: PaymentLogFilter): Promise<Page<PaymentLogProps>>;
 }

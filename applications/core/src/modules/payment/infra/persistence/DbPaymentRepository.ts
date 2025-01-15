@@ -1,6 +1,7 @@
 import PaymentRepository, { PaymentsFilter } from "@payment/app/PaymentRepository";
 import Payment, { PaymentProps } from "@payment/domain/Payment";
 import DefaultRepository from "@shared/DefaultRepository";
+import Collection from "@shared/utils/Collection";
 import DbUtils from "@shared/utils/DbUtils";
 
 export default class DbPaymentRepository extends DefaultRepository implements PaymentRepository {
@@ -20,14 +21,14 @@ export default class DbPaymentRepository extends DefaultRepository implements Pa
   ];
   readonly #select_payments = `SELECT ${this.#columns.toString()} FROM payments p JOIN subscriptions s ON p.subscription_id = s.id JOIN users u ON s.subscriber_id = u.id`;
 
-  async getPayments(filter: PaymentsFilter): Promise<PaymentProps[]> {
+  async getPayments(filter: PaymentsFilter): Promise<Collection<PaymentProps>> {
     const result = await this.db.query(this.#select_payments + ' WHERE p.subscription_id=$1', [filter.subscription_id]);
 
-    const payments: PaymentProps[] = [];
+    const payments = [];
 
     for (let idx = 0; idx < result.rows.length; idx++) {
       const row = result.rows[idx];
-      payments.push({
+      payments.push(Payment.fromObject({
         id: row.id,
         amount: parseFloat(row.amount),
         status: row.status,
@@ -44,10 +45,10 @@ export default class DbPaymentRepository extends DefaultRepository implements Pa
         },
         created_at: row.created_at,
         updated_at: row.updated_at,
-      });
+      }));
     }
 
-    return payments;
+    return new Collection(payments);
   }
 
   async createPayment(payment: Payment): Promise<void> {

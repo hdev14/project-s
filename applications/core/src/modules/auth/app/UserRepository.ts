@@ -1,5 +1,6 @@
 import User, { UserProps } from "@auth/domain/User";
-import { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
+import Page from "@shared/utils/Page";
+import { PageOptions } from "@shared/utils/Pagination";
 
 export type UsersFilter = {
   tenant_id?: string;
@@ -11,5 +12,5 @@ export default interface UserRepository {
   getUserByEmail(email: string): Promise<User | null>;
   createUser(user: User): Promise<void>;
   updateUser(user: User): Promise<void>;
-  getUsers(filter?: UsersFilter): Promise<PaginatedResult<UserProps>>;
+  getUsers(filter?: UsersFilter): Promise<Page<UserProps>>;
 }

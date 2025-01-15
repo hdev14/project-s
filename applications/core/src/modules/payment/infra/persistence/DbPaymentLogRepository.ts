@@ -2,7 +2,7 @@ import PaymentLogRepository, { PaymentLogFilter } from "@payment/app/PaymentLogR
 import PaymentLog, { PaymentLogProps } from "@payment/domain/PaymentLog";
 import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
-import { PaginatedResult } from "@shared/utils/Pagination";
+import Page from "@shared/utils/Page";
 
 export default class DbPaymentLogRepository extends DefaultRepository implements PaymentLogRepository {
   async createPaymentLog(payment_log: PaymentLog): Promise<void> {
@@ -15,24 +15,24 @@ export default class DbPaymentLogRepository extends DefaultRepository implements
     );
   }
 
-  async getPaymentLogs(filter: PaymentLogFilter): Promise<PaginatedResult<PaymentLogProps>> {
+  async getPaymentLogs(filter: PaymentLogFilter): Promise<Page<PaymentLogProps>> {
     const { rows, page_result } = await this.selectPaymentLogs(filter);
 
-    const results: PaymentLogProps[] = [];
+    const result = [];
 
     for (let idx = 0; idx < rows.length; idx++) {
       const row = rows[idx];
-      results.push({
+      result.push(PaymentLog.fromObject({
         id: row.id,
         external_id: row.external_id,
         payload: row.payload,
         payment_id: row.payment_id,
         created_at: row.created_at,
         updated_at: row.updated_at,
-      });
+      }));
     }
 
-    return { results, page_result };
+    return new Page(result, page_result);
   }
 
   private async selectPaymentLogs(filter: PaymentLogFilter) {

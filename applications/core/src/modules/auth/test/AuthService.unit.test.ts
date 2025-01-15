@@ -6,6 +6,7 @@ import PolicyRepository from '@auth/app/PolicyRepository';
 import UserRepository from '@auth/app/UserRepository';
 import VerificationCodeRepository from '@auth/app/VerificationCodeRepository';
 import AccessPlan, { AccessPlanTypes } from '@auth/domain/AccessPlan';
+import Policy from '@auth/domain/Policy';
 import User from '@auth/domain/User';
 import VerificationCode from '@auth/domain/VerificationCode';
 import { faker } from '@faker-js/faker/locale/pt_BR';
@@ -15,6 +16,8 @@ import DomainError from '@shared/errors/DomainError';
 import ExpiredCodeError from '@shared/errors/ExpiredCode';
 import NotFoundError from '@shared/errors/NotFoundError';
 import UserTypes from '@shared/UserTypes';
+import Collection from '@shared/utils/Collection';
+import Page from '@shared/utils/Page';
 import { mock } from 'jest-mock-extended';
 
 describe('AuthService unit tests', () => {
@@ -286,16 +289,18 @@ describe('AuthService unit tests', () => {
 
       const attach_policy_spy = jest.spyOn(user, 'attachPolicy');
 
-      policy_repository_mock.getPolicies.mockResolvedValueOnce([
-        {
-          id: faker.string.uuid(),
-          slug: faker.word.verb(),
-        },
-        {
-          id: faker.string.uuid(),
-          slug: faker.word.verb(),
-        },
-      ]);
+      policy_repository_mock.getPolicies.mockResolvedValueOnce(
+        new Collection([
+          new Policy({
+            id: faker.string.uuid(),
+            slug: faker.word.verb(),
+          }),
+          new Policy({
+            id: faker.string.uuid(),
+            slug: faker.word.verb(),
+          }),
+        ])
+      );
       user_repository_mock.getUserById.mockResolvedValueOnce(user);
 
       const [error] = await auth_service.updatePolicies({
@@ -320,16 +325,18 @@ describe('AuthService unit tests', () => {
 
       const dettach_policy_spy = jest.spyOn(user, 'dettachPolicy');
 
-      policy_repository_mock.getPolicies.mockResolvedValueOnce([
-        {
-          id: faker.string.uuid(),
-          slug: faker.word.verb(),
-        },
-        {
-          id: faker.string.uuid(),
-          slug: faker.word.verb(),
-        },
-      ]);
+      policy_repository_mock.getPolicies.mockResolvedValueOnce(
+        new Collection([
+          new Policy({
+            id: faker.string.uuid(),
+            slug: faker.word.verb(),
+          }),
+          new Policy({
+            id: faker.string.uuid(),
+            slug: faker.word.verb(),
+          }),
+        ])
+      );
       user_repository_mock.getUserById.mockResolvedValueOnce(user);
 
       const [error] = await auth_service.updatePolicies({
@@ -346,34 +353,34 @@ describe('AuthService unit tests', () => {
 
   describe('AuthService.getUsers', () => {
     it('returns a list of users', async () => {
-      user_repository_mock.getUsers.mockResolvedValueOnce({
-        results: [
-          {
+      user_repository_mock.getUsers.mockResolvedValueOnce(
+        new Page([
+          new User({
             id: faker.string.uuid(),
             email: faker.internet.email(),
             password: faker.string.alphanumeric(),
             policies: [],
             type: faker.helpers.enumValue(UserTypes),
-          },
-          {
+          }),
+          new User({
             id: faker.string.uuid(),
             email: faker.internet.email(),
             password: faker.string.alphanumeric(),
             policies: [],
             type: faker.helpers.enumValue(UserTypes),
-          }
+          })
         ],
-        page_result: {
-          next_page: 2,
-          total_of_pages: 2,
-        }
-      });
+          {
+            next_page: 2,
+            total_of_pages: 2,
+          }
+        ));
 
       const [error, data] = await auth_service.getUsers({});
 
       expect(error).toBeUndefined();
-      expect(data!.results[0]).not.toBeInstanceOf(User);
-      expect(data!.results).toHaveLength(2);
+      expect(data!.result[0]).not.toBeInstanceOf(User);
+      expect(data!.result).toHaveLength(2);
       expect(data!.page_result).toEqual({
         next_page: 2,
         total_of_pages: 2
@@ -556,20 +563,22 @@ describe('AuthService unit tests', () => {
 
   describe('AuthService.getAccessPlans', () => {
     it("should return an array of access plan", async () => {
-      access_plan_repository_mock.getAccessPlans.mockResolvedValueOnce([
-        {
-          active: faker.datatype.boolean(),
-          amount: faker.number.float(),
-          type: faker.helpers.enumValue(AccessPlanTypes),
-          description: faker.lorem.lines(),
-        },
-        {
-          active: faker.datatype.boolean(),
-          amount: faker.number.float(),
-          type: faker.helpers.enumValue(AccessPlanTypes),
-          description: faker.lorem.lines(),
-        }
-      ]);
+      access_plan_repository_mock.getAccessPlans.mockResolvedValueOnce(
+        new Collection([
+          new AccessPlan({
+            active: faker.datatype.boolean(),
+            amount: faker.number.float(),
+            type: faker.helpers.enumValue(AccessPlanTypes),
+            description: faker.lorem.lines(),
+          }),
+          new AccessPlan({
+            active: faker.datatype.boolean(),
+            amount: faker.number.float(),
+            type: faker.helpers.enumValue(AccessPlanTypes),
+            description: faker.lorem.lines(),
+          })
+        ])
+      );
 
       const [error, data] = await auth_service.getAccessPlans();
 
@@ -580,18 +589,22 @@ describe('AuthService unit tests', () => {
 
   describe('AuthService.getPolicies', () => {
     it("should return an array of policy", async () => {
-      policy_repository_mock.getPolicies.mockResolvedValueOnce([
-        {
-          slug: faker.helpers.slugify(`${faker.word.words()} ${faker.word.words()}`),
-          description: faker.lorem.lines(),
-          is_secret: faker.datatype.boolean()
-        },
-        {
-          slug: faker.helpers.slugify(`${faker.word.words()} ${faker.word.words()}`),
-          description: faker.lorem.lines(),
-          is_secret: faker.datatype.boolean()
-        },
-      ]);
+      policy_repository_mock.getPolicies.mockResolvedValueOnce(
+        new Collection(
+          [
+            new Policy({
+              slug: faker.helpers.slugify(`${faker.word.words()} ${faker.word.words()}`),
+              description: faker.lorem.lines(),
+              is_secret: faker.datatype.boolean()
+            }),
+            new Policy({
+              slug: faker.helpers.slugify(`${faker.word.words()} ${faker.word.words()}`),
+              description: faker.lorem.lines(),
+              is_secret: faker.datatype.boolean()
+            }),
+          ]
+        )
+      );
 
       const [error, data] = await auth_service.getPolicies();
 

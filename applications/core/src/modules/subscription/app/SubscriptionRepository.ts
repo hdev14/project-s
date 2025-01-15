@@ -1,4 +1,5 @@
-import { PageOptions, PaginatedResult } from "@shared/utils/Pagination";
+import Page from "@shared/utils/Page";
+import { PageOptions } from "@shared/utils/Pagination";
 import Subscription, { SubscriptionProps, SubscriptionStatus } from "@subscription/domain/Subscription";
 
 export type SubscriptionsFilter = {
@@ -16,5 +17,5 @@ export default interface SubscriptionRepository {
   createSubscription(subscription: Subscription): Promise<void>;
   updateSubscription(subscription: Subscription): Promise<void>;
   getSubscriptionById(id: string): Promise<Subscription | null>;
-  getSubscriptions(filter: SubscriptionsFilter): Promise<PaginatedResult<SubscriptionProps>>;
+  getSubscriptions(filter: SubscriptionsFilter): Promise<Page<SubscriptionProps>>;
 }

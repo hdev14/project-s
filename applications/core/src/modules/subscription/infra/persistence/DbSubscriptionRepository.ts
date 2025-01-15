@@ -1,6 +1,6 @@
 import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
-import { PaginatedResult } from "@shared/utils/Pagination";
+import Page from "@shared/utils/Page";
 import SubscriptionRepository, { SubscriptionsFilter } from "@subscription/app/SubscriptionRepository";
 import Subscription, { SubscriptionProps } from "@subscription/domain/Subscription";
 import { injectable } from "inversify";
@@ -41,14 +41,14 @@ export default class DbSubscriptionRepository extends DefaultRepository implemen
     });
   }
 
-  async getSubscriptions(filter: SubscriptionsFilter): Promise<PaginatedResult<SubscriptionProps>> {
+  async getSubscriptions(filter: SubscriptionsFilter): Promise<Page<SubscriptionProps>> {
     const { rows, page_result } = await this.selectSubscriptions(filter);
 
-    const results: SubscriptionProps[] = [];
+    const result = [];
 
     for (let idx = 0; idx < rows.length; idx++) {
       const subscription = rows[idx];
-      results.push({
+      result.push(Subscription.fromObject({
         id: subscription.id,
         status: subscription.status,
         subscriber_id: subscription.subscriber_id,
@@ -57,10 +57,10 @@ export default class DbSubscriptionRepository extends DefaultRepository implemen
         started_at: subscription.started_at,
         created_at: subscription.created_at,
         updated_at: subscription.updated_at,
-      });
+      }));
     }
 
-    return { results, page_result };
+    return new Page(result, page_result);
   }
 
   private async selectSubscriptions(filter: SubscriptionsFilter) {

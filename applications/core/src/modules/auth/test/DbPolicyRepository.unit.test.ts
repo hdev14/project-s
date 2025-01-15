@@ -19,7 +19,7 @@ describe('DbPolicyRepository unit tests', () => {
   });
 
   describe('DbPolicyRepository.getPolicies', () => {
-    it('returns a list of policies', async () => {
+    it('returns a collection of policies', async () => {
       query_mock.mockResolvedValueOnce({
         rows: [
           {
@@ -40,9 +40,9 @@ describe('DbPolicyRepository unit tests', () => {
         ]
       });
 
-      const policies = await repository.getPolicies();
+      const collection = await repository.getPolicies();
 
-      expect(policies).toHaveLength(3);
+      expect(collection.items).toHaveLength(3);
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT * FROM policies',
         []
@@ -71,11 +71,11 @@ describe('DbPolicyRepository unit tests', () => {
       });
 
       const slugs = [faker.word.verb(), faker.word.verb(), faker.word.verb()];
-      const policies = await repository.getPolicies({
+      const collection = await repository.getPolicies({
         slugs,
       });
 
-      expect(policies).toHaveLength(3);
+      expect(collection.items).toHaveLength(3);
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT * FROM policies WHERE slug IN ($1,$2,$3)',
         slugs,

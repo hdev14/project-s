@@ -19,7 +19,7 @@ describe('DbAccessPlanRepository unit tests', () => {
   });
 
   describe('DbAccessPlanRepository.getAccessPlans', () => {
-    it('returns a list of access plans', async () => {
+    it('returns a collection of access plans', async () => {
       query_mock.mockResolvedValueOnce({
         rows: [
           {
@@ -46,9 +46,9 @@ describe('DbAccessPlanRepository unit tests', () => {
         ]
       });
 
-      const access_plans = await repository.getAccessPlans();
+      const collection = await repository.getAccessPlans();
 
-      expect(access_plans).toHaveLength(3);
+      expect(collection.items).toHaveLength(3);
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT * FROM access_plans'
       );

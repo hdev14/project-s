@@ -29,10 +29,22 @@ export default class SubscriptionPlan extends Aggregate<SubscriptionPlanProps> i
     this.#recurrence_type = props.recurrence_type;
     this.#term_url = props.term_url;
     this.#tenant_id = props.tenant_id;
-    for (let idx = 0; idx < props.items.length; idx++) {
-      this.#items.push(new Item(props.items[idx]));
-    }
+    this.items = props.items;
     this.#next_billing_date = props.next_billing_date;
+  }
+
+  set items(values: Array<ItemProps>) {
+    for (let idx = 0; idx < values.length; idx++) {
+      this.#items.push(new Item(values[idx]));
+    }
+  }
+
+  get items() {
+    const result = [];
+    for (let idx = 0; idx < this.#items.length; idx++) {
+      result.push(this.#items[idx].toObject());
+    }
+    return result;
   }
 
   updateNextBillingDate() {

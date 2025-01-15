@@ -2,7 +2,7 @@ import UserRepository, { UsersFilter } from "@auth/app/UserRepository";
 import User, { UserProps } from "@auth/domain/User";
 import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
-import { PaginatedResult } from "@shared/utils/Pagination";
+import Page from "@shared/utils/Page";
 import { injectable } from "inversify";
 import 'reflect-metadata';
 
@@ -22,23 +22,23 @@ export default class DbUserRepository extends DefaultRepository implements UserR
   readonly #select_users_query = `SELECT ${this.#columns.toString()} FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id`;
   readonly #count_select_users_query = 'SELECT count(id) as total FROM users';
 
-  async getUsers(filter?: UsersFilter): Promise<PaginatedResult<UserProps>> {
+  async getUsers(filter?: UsersFilter): Promise<Page<UserProps>> {
     const { rows, page_result } = await this.selectUsers(filter);
 
-    const user_objs: Record<string, UserProps> = {};
+    const users: Record<string, User> = {};
 
     for (let idx = 0; idx < rows.length; idx++) {
       const row = rows[idx];
-      const user_obj = user_objs[row.id];
+      const user = users[row.id];
 
-      if (user_obj && row.slug) {
-        user_obj.policies.push(row.slug);
+      if (user && row.slug) {
+        user.policies = user.policies.concat([row.slug]);
         continue;
       }
 
       const policies = row.slug ? [row.slug] : [];
 
-      user_objs[row.id] = {
+      users[row.id] = User.fromObject({
         id: row.id,
         email: row.email,
         password: row.password,
@@ -48,10 +48,10 @@ export default class DbUserRepository extends DefaultRepository implements UserR
         type: row.type,
         created_at: row.created_at,
         updated_at: row.updated_at,
-      };
+      });
     }
 
-    return { results: Object.values(user_objs), page_result };
+    return new Page(Object.values(users), page_result);
   }
 
   private async selectUsers(filter?: UsersFilter) {

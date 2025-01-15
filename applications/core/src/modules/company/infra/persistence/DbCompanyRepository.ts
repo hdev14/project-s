@@ -1,7 +1,7 @@
 import Employee from "@company/domain/Employee";
 import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
-import { PaginatedResult } from "@shared/utils/Pagination";
+import Page from "@shared/utils/Page";
 import { injectable } from "inversify";
 import 'reflect-metadata';
 import CompanyRepository, { CompaniesFilter } from "../../app/CompanyRepository";
@@ -47,7 +47,7 @@ export default class DbCompanyRepository extends DefaultRepository implements Co
     return Boolean(parseInt(result.rows[0].total));
   }
 
-  async getCompanies(filter?: CompaniesFilter): Promise<PaginatedResult<CompanyProps>> {
+  async getCompanies(filter?: CompaniesFilter): Promise<Page<CompanyProps>> {
     const { rows: company_rows, page_result } = await this.selectCompanies(filter);
 
     const company_ids = [];
@@ -61,13 +61,13 @@ export default class DbCompanyRepository extends DefaultRepository implements Co
       company_ids
     );
 
-    const results = [];
+    const result = [];
 
     for (let idx = 0; idx < company_rows.length; idx++) {
-      results.push(this.mapCompany(company_rows[idx], employee_rows));
+      result.push(Company.fromObject(this.mapCompany(company_rows[idx], employee_rows)));
     }
 
-    return { results, page_result };
+    return new Page(result, page_result);
   }
 
   private async selectCompanies(filter?: CompaniesFilter) {

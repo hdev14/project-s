@@ -8,11 +8,6 @@ export type PageResult = {
   total_of_pages: number;
 };
 
-export type PaginatedResult<T> = {
-  results: Array<T>;
-  page_result?: PageResult;
-}
-
 export default class Pagination {
   static calculateOffset(page_options: PageOptions) {
     const result = page_options.page - 1;

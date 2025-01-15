@@ -2,7 +2,7 @@ import CatalogRepository, { CatalogItemsFilter } from "@catalog/app/CatalogRepos
 import CatalogItem, { CatalogItemProps } from "@catalog/domain/CatalogItem";
 import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
-import { PaginatedResult } from "@shared/utils/Pagination";
+import Page from "@shared/utils/Page";
 import { injectable } from "inversify";
 import 'reflect-metadata';
 
@@ -24,14 +24,14 @@ export default class DbCatalogRepository extends DefaultRepository implements Ca
     });
   }
 
-  async getCatalogItems(filter?: CatalogItemsFilter): Promise<PaginatedResult<CatalogItemProps>> {
+  async getCatalogItems(filter?: CatalogItemsFilter): Promise<Page<CatalogItemProps>> {
     const { rows, page_result } = await this.selectCatalogItems(filter);
 
-    const results = [];
+    const result = [];
 
     for (let idx = 0; idx < rows.length; idx++) {
       const row = rows[idx];
-      results.push({
+      result.push(CatalogItem.fromObject({
         id: row.id,
         name: row.name,
         description: row.description,
@@ -42,10 +42,10 @@ export default class DbCatalogRepository extends DefaultRepository implements Ca
         tenant_id: row.tenant_id,
         created_at: row.created_at,
         updated_at: row.updated_at,
-      });
+      }));
     }
 
-    return { results, page_result };
+    return new Page(result, page_result);
   }
 
   private async selectCatalogItems(filter?: CatalogItemsFilter) {

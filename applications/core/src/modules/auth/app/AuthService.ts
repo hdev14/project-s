@@ -53,7 +53,7 @@ export type GetUsersParams = {
 };
 
 export type GetUsersResult = {
-  results: Array<UserProps>;
+  result: Array<UserProps>;
   page_result?: PageResult;
 };
 
@@ -189,19 +189,19 @@ export default class AuthService {
       return Either.left(new NotFoundError('notfound.user'));
     }
 
-    const policies = await this.#policy_repository.getPolicies({
+    const policy_collection = await this.#policy_repository.getPolicies({
       slugs: params.policy_slugs,
     });
 
     if (params.mode === 'attach') {
-      for (let idx = 0; idx < policies.length; idx++) {
-        user.attachPolicy(new Policy(policies[idx]));
+      for (let idx = 0; idx < policy_collection.items.length; idx++) {
+        user.attachPolicy(policy_collection.items[idx] as Policy);
       }
     }
 
     if (params.mode === 'dettach') {
-      for (let idx = 0; idx < policies.length; idx++) {
-        user.dettachPolicy(new Policy(policies[idx]));
+      for (let idx = 0; idx < policy_collection.items.length; idx++) {
+        user.dettachPolicy(policy_collection.items[idx] as Policy);
       }
     }
 
@@ -211,7 +211,8 @@ export default class AuthService {
   }
 
   async getUsers(params: GetUsersParams): Promise<Either<GetUsersResult>> {
-    return Either.right(await this.#user_repository.getUsers(params));
+    const page = await this.#user_repository.getUsers(params);
+    return Either.right(page.toRaw());
   }
 
   async changeAccessPlan(params: ChangeAccessPlanParams): Promise<Either<void>> {
@@ -291,13 +292,13 @@ export default class AuthService {
   }
 
   async getAccessPlans(): Promise<Either<Array<AccessPlanProps>>> {
-    const access_plans = await this.#access_plan_repository.getAccessPlans();
-    return Either.right(access_plans);
+    const collection = await this.#access_plan_repository.getAccessPlans();
+    return Either.right(collection.toArray());
   }
 
   async getPolicies(): Promise<Either<Array<PolicyProps>>> {
-    const policies = await this.#policy_repository.getPolicies();
-    return Either.right(policies);
+    const collection = await this.#policy_repository.getPolicies();
+    return Either.right(collection.toArray());
   }
 
   async forgotPassword(params: ForgotPasswordParams): Promise<Either<void>> {

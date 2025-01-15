@@ -44,6 +44,14 @@ export default class User extends Aggregate<UserProps> implements AggregateRoot 
     this.update();
   }
 
+  get policies() {
+    return this.#policies;
+  }
+
+  set policies(policies: string[]) {
+    this.#policies = policies;
+  }
+
   attachPolicy(policy: Policy) {
     let has_policy = false;
 

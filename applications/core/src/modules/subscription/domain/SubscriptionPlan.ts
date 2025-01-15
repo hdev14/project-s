@@ -34,9 +34,12 @@ export default class SubscriptionPlan extends Aggregate<SubscriptionPlanProps> i
   }
 
   set items(values: Array<ItemProps>) {
+    const new_items = [];
     for (let idx = 0; idx < values.length; idx++) {
-      this.#items.push(new Item(values[idx]));
+      new_items.push(new Item(values[idx]));
     }
+
+    this.#items = new_items;
   }
 
   get items() {

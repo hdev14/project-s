@@ -4,9 +4,12 @@ import PaymentLogRepository from "@payment/app/PaymentLogRepository";
 import PaymentRepository from "@payment/app/PaymentRepository";
 import PaymentService from "@payment/app/PaymentService";
 import Payment, { PaymentStatus } from "@payment/domain/Payment";
+import PaymentLog from "@payment/domain/PaymentLog";
 import UpdateSubscriptionCommand from "@shared/commands/UpdateSubscriptionCommand";
 import NotFoundError from "@shared/errors/NotFoundError";
 import Mediator from "@shared/Mediator";
+import Collection from "@shared/utils/Collection";
+import Page from "@shared/utils/Page";
 import { mock } from "jest-mock-extended";
 
 describe('PaymentService unit tests', () => {
@@ -23,42 +26,44 @@ describe('PaymentService unit tests', () => {
 
   describe('PaymentService.getSubscriptionPayments', () => {
     it("should return a list of subscription's payments", async () => {
-      payment_repository_mock.getPayments.mockResolvedValueOnce([
-        {
-          id: faker.string.uuid(),
-          amount: faker.number.float(),
-          tax: faker.number.float(),
-          status: faker.helpers.enumValue(PaymentStatus),
-          subscription_id: faker.string.uuid(),
-          tenant_id: faker.string.uuid(),
-          created_at: new Date(),
-          updated_at: new Date(),
-          customer: {
+      payment_repository_mock.getPayments.mockResolvedValueOnce(
+        new Collection([
+          new Payment({
             id: faker.string.uuid(),
-            documnt: faker.string.numeric(11),
-            email: faker.internet.email(),
+            amount: faker.number.float(),
+            tax: faker.number.float(),
+            status: faker.helpers.enumValue(PaymentStatus),
+            subscription_id: faker.string.uuid(),
+            tenant_id: faker.string.uuid(),
             created_at: new Date(),
             updated_at: new Date(),
-          }
-        },
-        {
-          id: faker.string.uuid(),
-          amount: faker.number.float(),
-          tax: faker.number.float(),
-          status: faker.helpers.enumValue(PaymentStatus),
-          subscription_id: faker.string.uuid(),
-          tenant_id: faker.string.uuid(),
-          created_at: new Date(),
-          updated_at: new Date(),
-          customer: {
+            customer: {
+              id: faker.string.uuid(),
+              documnt: faker.string.numeric(11),
+              email: faker.internet.email(),
+              created_at: new Date(),
+              updated_at: new Date(),
+            }
+          }),
+          new Payment({
             id: faker.string.uuid(),
-            documnt: faker.string.numeric(11),
-            email: faker.internet.email(),
+            amount: faker.number.float(),
+            tax: faker.number.float(),
+            status: faker.helpers.enumValue(PaymentStatus),
+            subscription_id: faker.string.uuid(),
+            tenant_id: faker.string.uuid(),
             created_at: new Date(),
             updated_at: new Date(),
-          }
-        },
-      ]);
+            customer: {
+              id: faker.string.uuid(),
+              documnt: faker.string.numeric(11),
+              email: faker.internet.email(),
+              created_at: new Date(),
+              updated_at: new Date(),
+            }
+          }),
+        ])
+      );
 
       const subscription_id = faker.string.uuid()
       const [error, data] = await payment_service.getSubscriptionPayments({ subscription_id });
@@ -70,18 +75,22 @@ describe('PaymentService unit tests', () => {
 
   describe('PaymentService.getPaymentLogs', () => {
     it('should return a result with payment logs and page result', async () => {
-      payment_log_repository_mock.getPaymentLogs.mockResolvedValueOnce({
-        results: [{
-          id: faker.string.uuid(),
-          external_id: faker.string.uuid(),
-          payment_id: faker.string.uuid(),
-          payload: JSON.stringify({}),
-        }],
-        page_result: {
-          next_page: 2,
-          total_of_pages: 2,
-        }
-      });
+      payment_log_repository_mock.getPaymentLogs.mockResolvedValueOnce(
+        new Page(
+          [
+            new PaymentLog({
+              id: faker.string.uuid(),
+              external_id: faker.string.uuid(),
+              payment_id: faker.string.uuid(),
+              payload: JSON.stringify({}),
+            })
+          ],
+          {
+            next_page: 2,
+            total_of_pages: 2,
+          }
+        )
+      );
 
       const params = {
         payment_id: faker.string.uuid(),

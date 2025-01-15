@@ -214,10 +214,10 @@ describe('DbSubscriptionRepository unit tests', () => {
 
       const params = { tenant_id: faker.string.uuid() };
 
-      const { results, page_result } = await repository.getSubscriptions(params);
+      const page = await repository.getSubscriptions(params);
 
-      expect(results).toHaveLength(2);
-      expect(page_result).toBeUndefined();
+      expect(page.result).toHaveLength(2);
+      expect(page.page_result).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith('SELECT * FROM subscriptions WHERE tenant_id=$1', [params.tenant_id]);
     });
 
@@ -250,10 +250,10 @@ describe('DbSubscriptionRepository unit tests', () => {
         status: faker.helpers.enumValue(SubscriptionStatus)
       };
 
-      const { results, page_result } = await repository.getSubscriptions(params);
+      const page = await repository.getSubscriptions(params);
 
-      expect(results).toHaveLength(2);
-      expect(page_result).toBeUndefined();
+      expect(page.result).toHaveLength(2);
+      expect(page.page_result).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT * FROM subscriptions WHERE tenant_id=$1 AND status=$2',
         [params.tenant_id, params.status]
@@ -286,11 +286,11 @@ describe('DbSubscriptionRepository unit tests', () => {
         }
       };
 
-      const { results, page_result } = await repository.getSubscriptions(params);
+      const page = await repository.getSubscriptions(params);
 
-      expect(results).toHaveLength(1);
-      expect(page_result!.next_page).toEqual(2);
-      expect(page_result!.total_of_pages).toEqual(2);
+      expect(page.result).toHaveLength(1);
+      expect(page.page_result!.next_page).toEqual(2);
+      expect(page.page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         "SELECT count(id) as total FROM subscriptions WHERE tenant_id=$1",
@@ -328,11 +328,11 @@ describe('DbSubscriptionRepository unit tests', () => {
         }
       };
 
-      const { results, page_result } = await repository.getSubscriptions(params);
+      const page = await repository.getSubscriptions(params);
 
-      expect(results).toHaveLength(1);
-      expect(page_result!.next_page).toEqual(-1);
-      expect(page_result!.total_of_pages).toEqual(2);
+      expect(page.result).toHaveLength(1);
+      expect(page.page_result!.next_page).toEqual(-1);
+      expect(page.page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         "SELECT count(id) as total FROM subscriptions WHERE tenant_id=$1",
@@ -371,11 +371,11 @@ describe('DbSubscriptionRepository unit tests', () => {
         }
       };
 
-      const { results, page_result } = await repository.getSubscriptions(params);
+      const page = await repository.getSubscriptions(params);
 
-      expect(results).toHaveLength(1);
-      expect(page_result!.next_page).toEqual(2);
-      expect(page_result!.total_of_pages).toEqual(2);
+      expect(page.result).toHaveLength(1);
+      expect(page.page_result!.next_page).toEqual(2);
+      expect(page.page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         "SELECT count(id) as total FROM subscriptions WHERE tenant_id=$1 AND status=$2",

@@ -48,7 +48,7 @@ export type GetSubscriptionPlansParams = {
 };
 
 export type GetSubscriptionPlansResult = {
-  results: Array<SubscriptionPlanProps>;
+  result: Array<SubscriptionPlanProps>;
   page_result?: PageResult;
 };
 
@@ -64,7 +64,6 @@ export type GetSubscriptionsResult = {
 
 @injectable()
 export default class SubscriptionService {
-  static SUBSCRIPTION_BATCH_NUMBER = 50;
   readonly #mediator: Mediator;
   readonly #subscription_plan_repository: SubscriptionPlanRepository;
   readonly #subscription_repository: SubscriptionRepository;
@@ -244,8 +243,8 @@ export default class SubscriptionService {
   }
 
   async getSubscriptionPlans(params: GetSubscriptionPlansParams): Promise<Either<GetSubscriptionPlansResult>> {
-    const result = await this.#subscription_plan_repository.getSubscriptionPlans(params);
-    return Either.right(result);
+    const page = await this.#subscription_plan_repository.getSubscriptionPlans(params);
+    return Either.right(page.toRaw());
   }
 
   async getSubscriptions(params: GetSubscriptionsParams): Promise<Either<GetSubscriptionsResult>> {

@@ -35,7 +35,7 @@ type ProcessPaymentParams = {
 };
 
 export type GetPaymentLogsResult = {
-  results: Array<PaymentLogProps>;
+  result: Array<PaymentLogProps>;
   page_result?: PageResult;
 };
 
@@ -58,18 +58,18 @@ export default class PaymentService {
   }
 
   async getSubscriptionPayments(params: GetSubscriptionPaymentsParams): Promise<Either<PaymentProps[]>> {
-    const payments = await this.#payment_repository.getPayments({ subscription_id: params.subscription_id });
+    const collection = await this.#payment_repository.getPayments({ subscription_id: params.subscription_id });
 
-    return Either.right(payments);
+    return Either.right(collection.toArray());
   }
 
   async getPaymentLogs(params: GetPaymentLogsParams): Promise<Either<GetPaymentLogsResult>> {
-    const { results, page_result } = await this.#payment_log_repository.getPaymentLogs({
+    const page = await this.#payment_log_repository.getPaymentLogs({
       payment_id: params.payment_id,
       page_options: params.page_options,
     });
 
-    return Either.right({ results, page_result });
+    return Either.right(page.toRaw());
   }
 
   async createPayment(params: CreatePaymentParams): Promise<Either<void>> {

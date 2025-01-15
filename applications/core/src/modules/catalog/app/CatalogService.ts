@@ -19,7 +19,7 @@ export type GetCatalogItemsParams = {
 };
 
 export type GetCatalogItemsResult = {
-  results: Array<CatalogItemProps>;
+  result: Array<CatalogItemProps>;
   page_result?: PageResult;
 };
 
@@ -54,7 +54,8 @@ export default class CatalogService {
   }
 
   async getCatalogItems(params: GetCatalogItemsParams): Promise<Either<GetCatalogItemsResult>> {
-    return Either.right(await this.#catalog_repository.getCatalogItems(params));
+    const page = await this.#catalog_repository.getCatalogItems(params)
+    return Either.right(page.toRaw());
   }
 
   async createCatalogItem(params: CreateCatalogItemParams): Promise<Either<CatalogItemProps>> {

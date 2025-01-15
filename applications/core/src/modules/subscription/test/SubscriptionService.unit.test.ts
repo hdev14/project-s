@@ -5,6 +5,7 @@ import GetUserCommand from '@shared/commands/GetUserCommand';
 import DomainError from '@shared/errors/DomainError';
 import NotFoundError from '@shared/errors/NotFoundError';
 import Mediator from '@shared/Mediator';
+import Page from '@shared/utils/Page';
 import { SubscriptionPlanRepository } from '@subscription/app/SubscriptionPlanRepository';
 import SubscriptionRepository from '@subscription/app/SubscriptionRepository';
 import SubscriptionService from "@subscription/app/SubscriptionService";
@@ -16,22 +17,23 @@ function generateFakeSubscriptionPlans(quantity: number, withProps?: Partial<Sub
   const results = [];
 
   for (let idx = 0; idx < Array.from({ length: quantity }).length; idx++) {
-    results.push(Object.assign({
-      id: faker.string.uuid(),
-      items: [{
+    results.push(SubscriptionPlan.fromObject(
+      Object.assign({
         id: faker.string.uuid(),
-        name: faker.commerce.product(),
+        items: [{
+          id: faker.string.uuid(),
+          name: faker.commerce.product(),
+          created_at: faker.date.future(),
+          updated_at: faker.date.future(),
+        }],
+        amount: faker.number.float(),
+        recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+        term_url: faker.internet.url(),
+        tenant_id: faker.string.uuid(),
         created_at: faker.date.future(),
         updated_at: faker.date.future(),
-      }],
-      amount: faker.number.float(),
-      recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
-      term_url: faker.internet.url(),
-      tenant_id: faker.string.uuid(),
-      created_at: faker.date.future(),
-      updated_at: faker.date.future(),
-      next_billing_date: faker.number.int({ max: 31 }),
-    }, withProps));
+        next_billing_date: faker.number.int({ max: 31 }),
+      }, withProps)));
   }
   return results;
 }
@@ -568,13 +570,12 @@ describe('SubscriptionService unit tests', () => {
 
   describe('SubscriptionService.getSubscriptionPlans', () => {
     it('returns a list of subscription plans', async () => {
-      subscription_plan_repository_mock.getSubscriptionPlans.mockResolvedValueOnce({
-        results: generateFakeSubscriptionPlans(2),
-        page_result: {
+      subscription_plan_repository_mock.getSubscriptionPlans.mockResolvedValueOnce(
+        new Page(generateFakeSubscriptionPlans(2), {
           next_page: 2,
           total_of_pages: 2,
-        }
-      });
+        })
+      );
 
       const params = {
         tenant_id: faker.string.uuid(),
@@ -599,32 +600,34 @@ describe('SubscriptionService unit tests', () => {
 
   describe('SubscriptionService.getSubscriptions', () => {
     it('returns a list of subscriptions', async () => {
-      subscription_repository_mock.getSubscriptions.mockResolvedValueOnce({
-        results: [
+      subscription_repository_mock.getSubscriptions.mockResolvedValueOnce(
+        new Page(
+          [
+            new Subscription({
+              id: faker.string.uuid(),
+              status: faker.helpers.enumValue(SubscriptionStatus),
+              subscriber_id: faker.string.uuid(),
+              subscription_plan_id: faker.string.uuid(),
+              tenant_id: faker.string.uuid(),
+              created_at: faker.date.future(),
+              updated_at: faker.date.future(),
+            }),
+            new Subscription({
+              id: faker.string.uuid(),
+              status: faker.helpers.enumValue(SubscriptionStatus),
+              subscriber_id: faker.string.uuid(),
+              subscription_plan_id: faker.string.uuid(),
+              tenant_id: faker.string.uuid(),
+              created_at: faker.date.future(),
+              updated_at: faker.date.future(),
+            }),
+          ],
           {
-            id: faker.string.uuid(),
-            status: faker.helpers.enumValue(SubscriptionStatus),
-            subscriber_id: faker.string.uuid(),
-            subscription_plan_id: faker.string.uuid(),
-            tenant_id: faker.string.uuid(),
-            created_at: faker.date.future(),
-            updated_at: faker.date.future(),
-          },
-          {
-            id: faker.string.uuid(),
-            status: faker.helpers.enumValue(SubscriptionStatus),
-            subscriber_id: faker.string.uuid(),
-            subscription_plan_id: faker.string.uuid(),
-            tenant_id: faker.string.uuid(),
-            created_at: faker.date.future(),
-            updated_at: faker.date.future(),
-          },
-        ],
-        page_result: {
-          next_page: 2,
-          total_of_pages: 2,
-        }
-      });
+            next_page: 2,
+            total_of_pages: 2,
+          }
+        )
+      );
 
       const params = {
         tenant_id: faker.string.uuid(),

@@ -191,9 +191,9 @@ describe('DbPaymentRepository unit tests', () => {
 
       const subscription_id = faker.string.uuid();
 
-      const payments = await repository.getPayments({ subscription_id });
+      const collection = await repository.getPayments({ subscription_id });
 
-      expect(payments).toHaveLength(2);
+      expect(collection.items).toHaveLength(2);
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT p.id,p.amount,p.status,p.subscription_id,p.tenant_id,p.created_at,p.updated_at,u.id as user_id,u.document,u.email,u.created_at as user_created_at,u.updated_at as user_updated_at FROM payments p JOIN subscriptions s ON p.subscription_id = s.id JOIN users u ON s.subscriber_id = u.id WHERE p.subscription_id=$1',
         [subscription_id]
@@ -205,9 +205,9 @@ describe('DbPaymentRepository unit tests', () => {
 
       const subscription_id = faker.string.uuid();
 
-      const payments = await repository.getPayments({ subscription_id });
+      const collection = await repository.getPayments({ subscription_id });
 
-      expect(payments).toHaveLength(0);
+      expect(collection.items).toHaveLength(0);
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT p.id,p.amount,p.status,p.subscription_id,p.tenant_id,p.created_at,p.updated_at,u.id as user_id,u.document,u.email,u.created_at as user_created_at,u.updated_at as user_updated_at FROM payments p JOIN subscriptions s ON p.subscription_id = s.id JOIN users u ON s.subscriber_id = u.id WHERE p.subscription_id=$1',
         [subscription_id]

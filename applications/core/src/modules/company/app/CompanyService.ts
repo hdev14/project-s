@@ -39,7 +39,7 @@ export type GetCompanisParams = {
 };
 
 export type GetCompaniesResult = {
-  results: Array<CompanyProps>;
+  result: Array<CompanyProps>;
   page_result?: PageResult;
 };
 

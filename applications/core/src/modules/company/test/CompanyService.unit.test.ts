@@ -15,6 +15,7 @@ import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import Mediator from "@shared/Mediator";
 import { Policies } from "@shared/Principal";
+import Page from "@shared/utils/Page";
 import { mock } from "jest-mock-extended";
 
 describe('CompanyService unit tests', () => {
@@ -256,54 +257,56 @@ describe('CompanyService unit tests', () => {
 
   describe('CompanyService.getCompanies', () => {
     it('returns a list of companies', async () => {
-      company_repository_mock.getCompanies.mockResolvedValueOnce({
-        results: [
+      company_repository_mock.getCompanies.mockResolvedValueOnce(
+        new Page(
+          [
+            new Company({
+              name: faker.company.name(),
+              document: faker.string.numeric(14),
+              access_plan_id: faker.string.uuid(),
+              address: {
+                district: faker.location.secondaryAddress(),
+                number: faker.string.numeric(),
+                state: faker.location.state(),
+                street: faker.location.street(),
+                complement: faker.string.sample(),
+              },
+              bank: {
+                account: faker.string.numeric(5),
+                account_digit: faker.string.numeric(1),
+                agency: faker.string.numeric(4),
+                agency_digit: faker.string.numeric(1),
+                bank_code: faker.string.numeric(3),
+              },
+              employees: [],
+            }),
+            new Company({
+              name: faker.company.name(),
+              document: faker.string.numeric(14),
+              access_plan_id: faker.string.uuid(),
+              address: {
+                district: faker.location.secondaryAddress(),
+                number: faker.string.numeric(),
+                state: faker.location.state(),
+                street: faker.location.street(),
+                complement: faker.string.sample(),
+              },
+              bank: {
+                account: faker.string.numeric(5),
+                account_digit: faker.string.numeric(1),
+                agency: faker.string.numeric(4),
+                agency_digit: faker.string.numeric(1),
+                bank_code: faker.string.numeric(3),
+              },
+              employees: [],
+            })
+          ],
           {
-            name: faker.company.name(),
-            document: faker.string.numeric(14),
-            access_plan_id: faker.string.uuid(),
-            address: {
-              district: faker.location.secondaryAddress(),
-              number: faker.string.numeric(),
-              state: faker.location.state(),
-              street: faker.location.street(),
-              complement: faker.string.sample(),
-            },
-            bank: {
-              account: faker.string.numeric(5),
-              account_digit: faker.string.numeric(1),
-              agency: faker.string.numeric(4),
-              agency_digit: faker.string.numeric(1),
-              bank_code: faker.string.numeric(3),
-            },
-            employees: [],
-          },
-          {
-            name: faker.company.name(),
-            document: faker.string.numeric(14),
-            access_plan_id: faker.string.uuid(),
-            address: {
-              district: faker.location.secondaryAddress(),
-              number: faker.string.numeric(),
-              state: faker.location.state(),
-              street: faker.location.street(),
-              complement: faker.string.sample(),
-            },
-            bank: {
-              account: faker.string.numeric(5),
-              account_digit: faker.string.numeric(1),
-              agency: faker.string.numeric(4),
-              agency_digit: faker.string.numeric(1),
-              bank_code: faker.string.numeric(3),
-            },
-            employees: [],
-          },
-        ],
-        page_result: {
-          next_page: 2,
-          total_of_pages: 2,
-        }
-      });
+            next_page: 2,
+            total_of_pages: 2,
+          }
+        )
+      );
 
       const [error, data] = await company_service.getCompanies({});
 
@@ -565,32 +568,34 @@ describe('CompanyService unit tests', () => {
 
   describe('CompanyService.getServiceLogs', () => {
     it('returns a list of service logs', async () => {
-      service_log_repository_mock.getServiceLogs.mockResolvedValueOnce({
-        results: [
+      service_log_repository_mock.getServiceLogs.mockResolvedValueOnce(
+        new Page(
+          [
+            new ServiceLog({
+              commission_amount: faker.number.float(),
+              customer_id: faker.string.uuid(),
+              employee_id: faker.string.uuid(),
+              paid_amount: faker.number.float(),
+              registed_at: faker.date.anytime(),
+              service_id: faker.string.uuid(),
+              tenant_id: faker.string.uuid(),
+            }),
+            new ServiceLog({
+              commission_amount: faker.number.float(),
+              customer_id: faker.string.uuid(),
+              employee_id: faker.string.uuid(),
+              paid_amount: faker.number.float(),
+              registed_at: faker.date.anytime(),
+              service_id: faker.string.uuid(),
+              tenant_id: faker.string.uuid(),
+            }),
+          ],
           {
-            commission_amount: faker.number.float(),
-            customer_id: faker.string.uuid(),
-            employee_id: faker.string.uuid(),
-            paid_amount: faker.number.float(),
-            registed_at: faker.date.anytime(),
-            service_id: faker.string.uuid(),
-            tenant_id: faker.string.uuid(),
-          },
-          {
-            commission_amount: faker.number.float(),
-            customer_id: faker.string.uuid(),
-            employee_id: faker.string.uuid(),
-            paid_amount: faker.number.float(),
-            registed_at: faker.date.anytime(),
-            service_id: faker.string.uuid(),
-            tenant_id: faker.string.uuid(),
-          },
-        ],
-        page_result: {
-          next_page: 2,
-          total_of_pages: 2,
-        }
-      });
+            next_page: 2,
+            total_of_pages: 2,
+          }
+        )
+      );
 
       const [error, data] = await company_service.getServiceLogs({
         tenant_id: faker.string.uuid(),

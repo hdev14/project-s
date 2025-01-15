@@ -58,10 +58,10 @@ describe('DbServiceLogRepository unit tests', () => {
 
       const tenant_id = faker.string.uuid();
 
-      const { results, page_result } = await repository.getServiceLogs({ tenant_id });
+      const page = await repository.getServiceLogs({ tenant_id });
 
-      expect(results).toHaveLength(2);
-      expect(page_result).toBeUndefined();
+      expect(page.result).toHaveLength(2);
+      expect(page.page_result).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT * FROM service_logs WHERE tenant_id = $1',
         [tenant_id]
@@ -96,11 +96,11 @@ describe('DbServiceLogRepository unit tests', () => {
         page: 1,
       };
 
-      const { results, page_result } = await repository.getServiceLogs({ tenant_id, page_options });
+      const page = await repository.getServiceLogs({ tenant_id, page_options });
 
-      expect(results).toHaveLength(1);
-      expect(page_result!.next_page).toEqual(2);
-      expect(page_result!.total_of_pages).toEqual(2);
+      expect(page.result).toHaveLength(1);
+      expect(page.page_result!.next_page).toEqual(2);
+      expect(page.page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT count(id) as total FROM service_logs WHERE tenant_id = $1',
@@ -141,11 +141,11 @@ describe('DbServiceLogRepository unit tests', () => {
         page: 2,
       };
 
-      const { results, page_result } = await repository.getServiceLogs({ tenant_id, page_options });
+      const page = await repository.getServiceLogs({ tenant_id, page_options });
 
-      expect(results).toHaveLength(1);
-      expect(page_result!.next_page).toEqual(-1);
-      expect(page_result!.total_of_pages).toEqual(2);
+      expect(page.result).toHaveLength(1);
+      expect(page.page_result!.next_page).toEqual(-1);
+      expect(page.page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT count(id) as total FROM service_logs WHERE tenant_id = $1',

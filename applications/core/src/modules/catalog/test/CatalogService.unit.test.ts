@@ -7,6 +7,7 @@ import GetUserCommand from '@shared/commands/GetUserCommand';
 import DomainError from '@shared/errors/DomainError';
 import NotFoundError from '@shared/errors/NotFoundError';
 import Mediator from '@shared/Mediator';
+import Page from '@shared/utils/Page';
 import { mock } from 'jest-mock-extended';
 
 describe('CatalogService unit tests', () => {
@@ -17,40 +18,42 @@ describe('CatalogService unit tests', () => {
 
   describe('CatalogService.getCatalogItems', () => {
     it('returns a list of catalog items', async () => {
-      catalog_repository_mock.getCatalogItems.mockResolvedValueOnce({
-        results: [
+      catalog_repository_mock.getCatalogItems.mockResolvedValueOnce(
+        new Page(
+          [
+            new CatalogItem({
+              id: faker.string.uuid(),
+              name: faker.commerce.productName(),
+              description: faker.commerce.productDescription(),
+              amount: faker.number.float(),
+              attributes: [{ name: faker.word.adjective(), description: faker.lorem.lines() }],
+              is_service: faker.datatype.boolean(),
+              picture_url: faker.internet.url(),
+              tenant_id: faker.string.uuid()
+            }),
+            new CatalogItem({
+              id: faker.string.uuid(),
+              name: faker.commerce.productName(),
+              description: faker.commerce.productDescription(),
+              amount: faker.number.float(),
+              attributes: [{ name: faker.word.adjective(), description: faker.lorem.lines() }],
+              is_service: faker.datatype.boolean(),
+              picture_url: faker.internet.url(),
+              tenant_id: faker.string.uuid(),
+            }),
+          ],
           {
-            id: faker.string.uuid(),
-            name: faker.commerce.productName(),
-            description: faker.commerce.productDescription(),
-            amount: faker.number.float(),
-            attributes: [{ name: faker.word.adjective(), description: faker.lorem.lines() }],
-            is_service: faker.datatype.boolean(),
-            picture_url: faker.internet.url(),
-            tenant_id: faker.string.uuid()
-          },
-          {
-            id: faker.string.uuid(),
-            name: faker.commerce.productName(),
-            description: faker.commerce.productDescription(),
-            amount: faker.number.float(),
-            attributes: [{ name: faker.word.adjective(), description: faker.lorem.lines() }],
-            is_service: faker.datatype.boolean(),
-            picture_url: faker.internet.url(),
-            tenant_id: faker.string.uuid(),
-          },
-        ],
-        page_result: {
-          next_page: 2,
-          total_of_pages: 2,
-        }
-      });
+            next_page: 2,
+            total_of_pages: 2,
+          }
+        )
+      );
 
       const [error, data] = await catalog_service.getCatalogItems({});
 
       expect(error).toBeUndefined();
-      expect(data!.results[0]).not.toBeInstanceOf(CatalogItem);
-      expect(data!.results).toHaveLength(2);
+      expect(data!.result[0]).not.toBeInstanceOf(CatalogItem);
+      expect(data!.result).toHaveLength(2);
       expect(data!.page_result).toEqual({
         next_page: 2,
         total_of_pages: 2

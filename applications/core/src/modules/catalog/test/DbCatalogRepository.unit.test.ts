@@ -65,9 +65,9 @@ describe('DbCatalogRepository unit tests', () => {
         ]
       });
 
-      const { results } = await repository.getCatalogItems();
+      const page = await repository.getCatalogItems();
 
-      expect(results).toHaveLength(3);
+      expect(page.result).toHaveLength(3);
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT * FROM catalog_items WHERE deleted_at IS NULL',
       );
@@ -99,11 +99,11 @@ describe('DbCatalogRepository unit tests', () => {
         page: 1,
       };
 
-      const { results, page_result } = await repository.getCatalogItems({ page_options });
+      const page = await repository.getCatalogItems({ page_options });
 
-      expect(results).toHaveLength(1);
-      expect(page_result!.next_page).toEqual(2);
-      expect(page_result!.total_of_pages).toEqual(2);
+      expect(page.result).toHaveLength(1);
+      expect(page.page_result!.next_page).toEqual(2);
+      expect(page.page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT count(id) as total FROM catalog_items WHERE deleted_at IS NULL',
@@ -142,11 +142,11 @@ describe('DbCatalogRepository unit tests', () => {
         page: 2,
       };
 
-      const { results, page_result } = await repository.getCatalogItems({ page_options });
+      const page = await repository.getCatalogItems({ page_options });
 
-      expect(results).toHaveLength(1);
-      expect(page_result!.next_page).toEqual(-1);
-      expect(page_result!.total_of_pages).toEqual(2);
+      expect(page.result).toHaveLength(1);
+      expect(page.page_result!.next_page).toEqual(-1);
+      expect(page.page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT count(id) as total FROM catalog_items WHERE deleted_at IS NULL',
@@ -208,11 +208,11 @@ describe('DbCatalogRepository unit tests', () => {
 
       const tenant_id = faker.string.uuid();
 
-      const { results } = await repository.getCatalogItems({
+      const page = await repository.getCatalogItems({
         tenant_id
       });
 
-      expect(results).toHaveLength(3);
+      expect(page.result).toHaveLength(3);
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT * FROM catalog_items WHERE deleted_at IS NULL AND tenant_id=$1',
         [tenant_id]
@@ -246,14 +246,14 @@ describe('DbCatalogRepository unit tests', () => {
       };
       const tenant_id = faker.string.uuid();
 
-      const { results, page_result } = await repository.getCatalogItems({
+      const page = await repository.getCatalogItems({
         page_options,
         tenant_id,
       });
 
-      expect(results).toHaveLength(1);
-      expect(page_result!.next_page).toEqual(-1);
-      expect(page_result!.total_of_pages).toEqual(2);
+      expect(page.result).toHaveLength(1);
+      expect(page.page_result!.next_page).toEqual(-1);
+      expect(page.page_result!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT count(id) as total FROM catalog_items WHERE deleted_at IS NULL AND tenant_id=$1',

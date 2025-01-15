@@ -23,33 +23,33 @@ export default class ChargeSubscriptionJob implements CronJob {
     const payment_queue = new this.queue_constructor({ queue: process.env.PAYMENT_QUEUE, attempts: 3 });
 
     do {
-      const { results, page_result } = await this.subscription_repository.getSubscriptions({
+      const page = (await this.subscription_repository.getSubscriptions({
         status: SubscriptionStatus.ACTIVE,
         page_options: {
           limit: 50,
           page: next_page,
         }
-      });
+      })).toRaw();
 
       const subscription_plan_ids: string[] = [];
 
-      for (let idx = 0; idx < results.length; idx++) {
-        subscription_plan_ids.push(results[idx].subscription_plan_id);
+      for (let idx = 0; idx < page.result.length; idx++) {
+        subscription_plan_ids.push(page.result[idx].subscription_plan_id);
       }
 
-      const subscription_plans = await this.subscription_plan_repository.getSubscriptionPlansByIds(subscription_plan_ids);
+      const collection = await this.subscription_plan_repository.getSubscriptionPlansByIds(subscription_plan_ids);
 
       const subscription_plans_map = new Map<string, SubscriptionPlanProps>();
 
-      for (let idx = 0; idx < subscription_plans.length; idx++) {
-        const sp = subscription_plans[idx];
-        subscription_plans_map.set(sp.id!, sp);
+      for (let idx = 0; idx < collection.items.length; idx++) {
+        const sp = collection.items[idx];
+        subscription_plans_map.set(sp.id!, sp.toObject());
       }
 
       const messages: Message[] = [];
 
-      for (let idx = 0; idx < results.length; idx++) {
-        const subscription = results[idx];
+      for (let idx = 0; idx < page.result.length; idx++) {
+        const subscription = page.result[idx];
 
         const subscription_plan = subscription_plans_map.get(subscription.subscription_plan_id);
 
@@ -76,7 +76,7 @@ export default class ChargeSubscriptionJob implements CronJob {
 
       await payment_queue.addMessages(messages);
 
-      next_page = page_result!.next_page;
+      next_page = page.page_result!.next_page;
     } while (next_page !== -1);
 
     await payment_queue.close();

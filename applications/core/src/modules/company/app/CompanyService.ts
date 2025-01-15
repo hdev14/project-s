@@ -86,7 +86,7 @@ export type GetServiceLogsParams = {
 };
 
 export type GetServiceLogsResult = {
-  results: Array<ServiceLogProps>;
+  result: Array<ServiceLogProps>;
   page_result?: PageResult;
 };
 
@@ -188,7 +188,8 @@ export default class CompanyService {
   }
 
   async getCompanies(params: GetCompanisParams): Promise<Either<GetCompaniesResult>> {
-    return Either.right(await this.#company_repository.getCompanies(params));
+    const page = await this.#company_repository.getCompanies(params);
+    return Either.right(page.toRaw());
   }
 
   async getCompany(params: GetCompanyParams): Promise<Either<CompanyProps>> {
@@ -350,7 +351,8 @@ export default class CompanyService {
   }
 
   async getServiceLogs(params: GetServiceLogsParams): Promise<Either<GetServiceLogsResult>> {
-    return Either.right(await this.#service_log_repository.getServiceLogs(params));
+    const page = await this.#service_log_repository.getServiceLogs(params);
+    return Either.right(page.toRaw());
   }
 
   async createCommission(params: CreateCommissionParams): Promise<Either<CommissionProps>> {

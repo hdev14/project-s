@@ -189,7 +189,7 @@ describe('Catalog E2E tests', () => {
         .send({});
 
       expect(response.status).toEqual(200);
-      expect(response.body.results).toHaveLength(3);
+      expect(response.body.result).toHaveLength(3);
     });
 
     it("should return all tenant's catalog items", async () => {
@@ -231,7 +231,7 @@ describe('Catalog E2E tests', () => {
         .send({});
 
       expect(response.status).toEqual(200);
-      expect(response.body.results).toHaveLength(2);
+      expect(response.body.result).toHaveLength(2);
     });
 
     it('should return users with pagination', async () => {
@@ -283,7 +283,7 @@ describe('Catalog E2E tests', () => {
         .send();
 
       expect(response.status).toEqual(200);
-      expect(response.body.results).toHaveLength(1);
+      expect(response.body.result).toHaveLength(1);
       expect(response.body.page_result.next_page).toEqual(2);
       expect(response.body.page_result.total_of_pages).toEqual(3);
 
@@ -295,7 +295,7 @@ describe('Catalog E2E tests', () => {
         .send();
 
       expect(response.status).toEqual(200);
-      expect(response.body.results).toHaveLength(2);
+      expect(response.body.result).toHaveLength(2);
       expect(response.body.page_result.next_page).toEqual(2);
       expect(response.body.page_result.total_of_pages).toEqual(2);
 
@@ -307,7 +307,7 @@ describe('Catalog E2E tests', () => {
         .send();
 
       expect(response.status).toEqual(200);
-      expect(response.body.results).toHaveLength(1);
+      expect(response.body.result).toHaveLength(1);
       expect(response.body.page_result.next_page).toEqual(-1);
       expect(response.body.page_result.total_of_pages).toEqual(2);
     });

@@ -103,7 +103,7 @@ describe('PaymentService unit tests', () => {
       const [error, data] = await payment_service.getPaymentLogs(params);
 
       expect(error).toBeUndefined();
-      expect(data!.results).toHaveLength(1);
+      expect(data!.result).toHaveLength(1);
       expect(data!.page_result).toEqual({
         next_page: 2,
         total_of_pages: 2,

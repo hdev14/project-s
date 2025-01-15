@@ -58,7 +58,7 @@ export type GetSubscriptionsParams = {
 };
 
 export type GetSubscriptionsResult = {
-  results: Array<SubscriptionProps>;
+  result: Array<SubscriptionProps>;
   page_result?: PageResult;
 };
 
@@ -248,7 +248,7 @@ export default class SubscriptionService {
   }
 
   async getSubscriptions(params: GetSubscriptionsParams): Promise<Either<GetSubscriptionsResult>> {
-    const result = await this.#subscription_repository.getSubscriptions(params);
-    return Either.right(result);
+    const page = await this.#subscription_repository.getSubscriptions(params);
+    return Either.right(page.toRaw());
   }
 }

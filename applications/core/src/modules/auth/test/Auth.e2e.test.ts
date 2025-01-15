@@ -396,7 +396,7 @@ describe('Auth E2E tests', () => {
         .send();
 
       expect(response.status).toEqual(200);
-      expect(response.body.results).toHaveLength(4);
+      expect(response.body.result).toHaveLength(4);
       expect(response.body).not.toHaveProperty('page_result');
     });
 
@@ -440,7 +440,7 @@ describe('Auth E2E tests', () => {
         .send();
 
       expect(response.status).toEqual(200);
-      expect(response.body.results).toHaveLength(1);
+      expect(response.body.result).toHaveLength(1);
       expect(response.body.page_result.next_page).toEqual(2);
       expect(response.body.page_result.total_of_pages).toEqual(4);
 
@@ -452,7 +452,7 @@ describe('Auth E2E tests', () => {
         .send();
 
       expect(response.status).toEqual(200);
-      expect(response.body.results).toHaveLength(2);
+      expect(response.body.result).toHaveLength(2);
       expect(response.body.page_result.next_page).toEqual(2);
       expect(response.body.page_result.total_of_pages).toEqual(2);
 
@@ -464,7 +464,7 @@ describe('Auth E2E tests', () => {
         .send();
 
       expect(response.status).toEqual(200);
-      expect(response.body.results).toHaveLength(2);
+      expect(response.body.result).toHaveLength(2);
       expect(response.body.page_result.next_page).toEqual(-1);
       expect(response.body.page_result.total_of_pages).toEqual(2);
     });
@@ -509,7 +509,7 @@ describe('Auth E2E tests', () => {
         .send();
 
       expect(response.status).toEqual(200);
-      expect(response.body.results).toHaveLength(2);
+      expect(response.body.result).toHaveLength(2);
     });
   });
 

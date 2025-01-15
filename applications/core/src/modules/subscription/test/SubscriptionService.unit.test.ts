@@ -14,10 +14,10 @@ import SubscriptionPlan, { RecurrenceTypes, SubscriptionPlanProps } from '@subsc
 import { mock } from 'jest-mock-extended';
 
 function generateFakeSubscriptionPlans(quantity: number, withProps?: Partial<SubscriptionPlanProps>) {
-  const results = [];
+  const result = [];
 
   for (let idx = 0; idx < Array.from({ length: quantity }).length; idx++) {
-    results.push(SubscriptionPlan.fromObject(
+    result.push(SubscriptionPlan.fromObject(
       Object.assign({
         id: faker.string.uuid(),
         items: [{
@@ -35,7 +35,7 @@ function generateFakeSubscriptionPlans(quantity: number, withProps?: Partial<Sub
         next_billing_date: faker.number.int({ max: 31 }),
       }, withProps)));
   }
-  return results;
+  return result;
 }
 
 describe('SubscriptionService unit tests', () => {
@@ -588,8 +588,8 @@ describe('SubscriptionService unit tests', () => {
       const [error, data] = await subscription_service.getSubscriptionPlans(params);
 
       expect(error).toBeUndefined();
-      expect(data!.results[0]).not.toBeInstanceOf(SubscriptionPlan);
-      expect(data!.results).toHaveLength(2);
+      expect(data!.result[0]).not.toBeInstanceOf(SubscriptionPlan);
+      expect(data!.result).toHaveLength(2);
       expect(data!.page_result).toEqual({
         next_page: 2,
         total_of_pages: 2
@@ -640,8 +640,8 @@ describe('SubscriptionService unit tests', () => {
       const [error, data] = await subscription_service.getSubscriptions(params);
 
       expect(error).toBeUndefined();
-      expect(data!.results[0]).not.toBeInstanceOf(Subscription);
-      expect(data!.results).toHaveLength(2);
+      expect(data!.result[0]).not.toBeInstanceOf(Subscription);
+      expect(data!.result).toHaveLength(2);
       expect(data!.page_result).toEqual({
         next_page: 2,
         total_of_pages: 2

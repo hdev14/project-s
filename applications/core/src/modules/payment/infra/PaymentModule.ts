@@ -10,6 +10,7 @@ import { Job, Processor } from "bullmq";
 import { ContainerModule, interfaces } from "inversify";
 import FakePaymentGateway from "./external/FakePaymentGateway";
 import MercadoPago from "./external/MercadoPago";
+import './http/PaymentController';
 
 export default class PaymentModule implements Module {
   init(): ContainerModule {

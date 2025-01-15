@@ -16,7 +16,9 @@ export enum Policies {
   UPDATE_CATALOG_ITEM = 'update_catalog_item',
   CREATE_CATALOG_ITEM = 'create_catalog_item',
   LIST_CATALOG_ITEMS = 'list_catalog_items',
-  /* TODO payment */
+  /* payment */
+  LIST_SUBSCRIPTION_PAYMENTS = 'list_subscription_payments',
+  LIST_PAYMENT_LOGS = 'list_payment_logs',
   /* subscriber */
   CREATE_SUBSCRIBER = 'create_subscriber',
   GET_SUBSCRIBER = 'get_subscriber',

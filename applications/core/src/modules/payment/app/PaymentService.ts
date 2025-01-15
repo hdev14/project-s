@@ -137,7 +137,7 @@ export default class PaymentService {
         customer_email: payment_obj.customer.email,
         subscription_id: payment_obj.subscription_id,
         pause_subscription: payment_obj.status !== PaymentStatus.PAID,
-        reason: payment_obj.reason,
+        reason: payment_obj.refusal_reason,
       })
     );
 

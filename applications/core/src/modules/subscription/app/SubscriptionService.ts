@@ -5,15 +5,14 @@ import GetUserCommand from "@shared/commands/GetUserCommand";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import Mediator from "@shared/Mediator";
-import Queue, { Message } from "@shared/Queue";
 import types from "@shared/types";
 import Either from "@shared/utils/Either";
 import { PageOptions, PageResult } from "@shared/utils/Pagination";
 import { ItemProps } from "@subscription/domain/Item";
-import Subscription, { SubscriptionProps, SubscriptionStatus } from "@subscription/domain/Subscription";
+import Subscription, { SubscriptionProps } from "@subscription/domain/Subscription";
 import SubscriptionPlan, { RecurrenceTypes, SubscriptionPlanProps } from "@subscription/domain/SubscriptionPlan";
 import { randomUUID } from "crypto";
-import { inject, injectable, interfaces } from "inversify";
+import { inject, injectable } from "inversify";
 import 'reflect-metadata';
 import { SubscriptionPlanRepository } from "./SubscriptionPlanRepository";
 import SubscriptionRepository from "./SubscriptionRepository";
@@ -70,20 +69,17 @@ export default class SubscriptionService {
   readonly #subscription_plan_repository: SubscriptionPlanRepository;
   readonly #subscription_repository: SubscriptionRepository;
   readonly #file_storage: FileStorage;
-  readonly #queue_constructor: interfaces.Newable<Queue>;
 
   constructor(
     @inject(types.Mediator) mediator: Mediator,
     @inject(types.SubscriptionPlanRepository) subscription_plan_repository: SubscriptionPlanRepository,
     @inject(types.SubscriptionRepository) subscription_repository: SubscriptionRepository,
     @inject(types.FileStorage) file_storage: FileStorage,
-    @inject(types.NewableQueue) queue_constructor: interfaces.Newable<Queue>,
   ) {
     this.#mediator = mediator;
     this.#subscription_plan_repository = subscription_plan_repository;
     this.#subscription_repository = subscription_repository;
     this.#file_storage = file_storage;
-    this.#queue_constructor = queue_constructor;
   }
 
   async createSubscription(params: CreateSubscriptionParams): Promise<Either<SubscriptionProps>> {
@@ -255,75 +251,5 @@ export default class SubscriptionService {
   async getSubscriptions(params: GetSubscriptionsParams): Promise<Either<GetSubscriptionsResult>> {
     const result = await this.#subscription_repository.getSubscriptions(params);
     return Either.right(result);
-  }
-
-  // TODO: move logic into the job
-  async chargeActiveSubscriptions(): Promise<Either<void>> {
-    const current_date = new Date();
-
-    let next_page = 1;
-
-    const payment_queue = new this.#queue_constructor({ queue: process.env.PAYMENT_QUEUE, attempts: 3 });
-
-    do {
-      const { results, page_result } = await this.#subscription_repository.getSubscriptions({
-        status: SubscriptionStatus.ACTIVE,
-        page_options: {
-          limit: SubscriptionService.SUBSCRIPTION_BATCH_NUMBER,
-          page: next_page,
-        }
-      });
-
-      const subscription_plan_ids: string[] = [];
-
-      for (let idx = 0; idx < results.length; idx++) {
-        subscription_plan_ids.push(results[idx].subscription_plan_id);
-      }
-
-      const subscription_plans = await this.#subscription_plan_repository.getSubscriptionPlansByIds(subscription_plan_ids);
-
-      const subscription_plans_map = new Map<string, SubscriptionPlanProps>();
-
-      for (let idx = 0; idx < subscription_plans.length; idx++) {
-        const sp = subscription_plans[idx];
-        subscription_plans_map.set(sp.id!, sp);
-      }
-
-      const messages: Message[] = [];
-
-      for (let idx = 0; idx < results.length; idx++) {
-        const subscription = results[idx];
-
-        const subscription_plan = subscription_plans_map.get(subscription.subscription_plan_id);
-
-        const hasSameDate = (
-          subscription_plan!.next_billing_date &&
-          subscription_plan!.next_billing_date.getDate() === current_date.getDate() &&
-          subscription_plan!.next_billing_date.getMonth() === current_date.getMonth() &&
-          subscription_plan!.next_billing_date.getFullYear() === current_date.getFullYear()
-        );
-
-        if (hasSameDate) {
-          messages.push({
-            id: randomUUID(),
-            name: 'ChargeActiveSubscription',
-            payload: {
-              subscription_id: subscription.id,
-              subscriber_id: subscription.subscriber_id,
-              tenant_id: subscription!.tenant_id,
-              amount: subscription_plan!.amount,
-            }
-          });
-        }
-      }
-
-      await payment_queue.addMessages(messages);
-
-      next_page = page_result!.next_page;
-    } while (next_page !== -1);
-
-    // TODO: close queue connection;
-
-    return Either.right();
   }
 }

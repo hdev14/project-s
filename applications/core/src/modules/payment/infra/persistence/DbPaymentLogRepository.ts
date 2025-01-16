@@ -3,7 +3,10 @@ import PaymentLog, { PaymentLogProps } from "@payment/domain/PaymentLog";
 import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
 import Page from "@shared/utils/Page";
+import { injectable } from "inversify";
+import 'reflect-metadata';
 
+@injectable()
 export default class DbPaymentLogRepository extends DefaultRepository implements PaymentLogRepository {
   async createPaymentLog(payment_log: PaymentLog): Promise<void> {
     const data = payment_log.toObject();

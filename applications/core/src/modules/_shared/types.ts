@@ -27,4 +27,6 @@ export default {
   NewableQueue: Symbol.for('Newable<Queue>'),
   NewableConsumer: Symbol.for('Newable<Consumer>'),
   PaymentService: Symbol.for('PaymentService'),
+  PaymentRepository: Symbol.for('PaymentRepository'),
+  PaymentLogRepository: Symbol.for('PaymentLogRepository'),
 };

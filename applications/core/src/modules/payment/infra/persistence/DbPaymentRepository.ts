@@ -3,7 +3,9 @@ import Payment, { PaymentProps } from "@payment/domain/Payment";
 import DefaultRepository from "@shared/DefaultRepository";
 import Collection from "@shared/utils/Collection";
 import DbUtils from "@shared/utils/DbUtils";
-
+import { injectable } from "inversify";
+import 'reflect-metadata';
+@injectable()
 export default class DbPaymentRepository extends DefaultRepository implements PaymentRepository {
   readonly #columns = [
     "p.id",

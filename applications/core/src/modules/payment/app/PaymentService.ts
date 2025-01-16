@@ -4,8 +4,11 @@ import GetSubscriberCommand from "@shared/commands/GetSubscriberCommand";
 import UpdateSubscriptionCommand from "@shared/commands/UpdateSubscriptionCommand";
 import NotFoundError from "@shared/errors/NotFoundError";
 import Mediator from "@shared/Mediator";
+import types from "@shared/types";
 import Either from "@shared/utils/Either";
 import { PageOptions, PageResult } from "@shared/utils/Pagination";
+import { inject, injectable } from "inversify";
+import 'reflect-metadata';
 import PaymentGateway from "./PaymentGateway";
 import PaymentLogRepository from "./PaymentLogRepository";
 import PaymentRepository from "./PaymentRepository";
@@ -39,6 +42,7 @@ export type GetPaymentLogsResult = {
   page_result?: PageResult;
 };
 
+@injectable()
 export default class PaymentService {
   readonly #payment_repository: PaymentRepository;
   readonly #payment_log_repository: PaymentLogRepository;
@@ -46,10 +50,10 @@ export default class PaymentService {
   readonly #payment_gateway: PaymentGateway;
 
   constructor(
-    payment_repository: PaymentRepository,
-    payment_log_repository: PaymentLogRepository,
-    mediator: Mediator,
-    payment_gateway: PaymentGateway,
+    @inject(types.PaymentRepository) payment_repository: PaymentRepository,
+    @inject(types.PaymentLogRepository) payment_log_repository: PaymentLogRepository,
+    @inject(types.Mediator) mediator: Mediator,
+    @inject(types.PaymentGateway) payment_gateway: PaymentGateway,
   ) {
     this.#payment_repository = payment_repository;
     this.#payment_log_repository = payment_log_repository;

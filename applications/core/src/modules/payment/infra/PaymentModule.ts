@@ -11,6 +11,10 @@ import { ContainerModule, interfaces } from "inversify";
 import FakePaymentGateway from "./external/FakePaymentGateway";
 import MercadoPago from "./external/MercadoPago";
 import './http/PaymentController';
+import DbPaymentRepository from "./persistence/DbPaymentRepository";
+import PaymentLogRepository from "@payment/app/PaymentLogRepository";
+import PaymentRepository from "@payment/app/PaymentRepository";
+import DbPaymentLogRepository from "./persistence/DbPaymentLogRepository";
 
 export default class PaymentModule implements Module {
   init(): ContainerModule {
@@ -19,13 +23,8 @@ export default class PaymentModule implements Module {
         ? new MercadoPago()
         : new FakePaymentGateway();
       bind<PaymentGateway>(types.PaymentGateway).toConstantValue(payment_gateway);
-      onActivation<Mediator>(types.Mediator, (_context, mediator) => {
-        mediator.register(
-          SaveCreditCardCommand.name,
-          new SaveCreditCardCommandHandler(payment_gateway),
-        );
-        return mediator;
-      });
+      bind<PaymentRepository>(types.PaymentRepository).to(DbPaymentRepository).inSingletonScope();
+      bind<PaymentLogRepository>(types.PaymentLogRepository).to(DbPaymentLogRepository).inSingletonScope();
       bind<PaymentService>(types.PaymentService)
         .to(PaymentService)
         .onActivation((context, payment_service) => {
@@ -47,6 +46,14 @@ export default class PaymentModule implements Module {
 
           return payment_service;
         });
+
+      onActivation<Mediator>(types.Mediator, (_context, mediator) => {
+        mediator.register(
+          SaveCreditCardCommand.name,
+          new SaveCreditCardCommandHandler(payment_gateway),
+        );
+        return mediator;
+      });
     });
 
     return module;

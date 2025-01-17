@@ -8,6 +8,7 @@ import { Policies } from '@shared/Principal';
 import cleanUpDatabase from '@shared/test_utils/cleanUpDatabase';
 import CatalogItemFactory from '@shared/test_utils/factories/CatalogItemFactory';
 import PaymentFactory from '@shared/test_utils/factories/PaymentFactory';
+import PaymentLogFactory from '@shared/test_utils/factories/PaymentLogFactory';
 import SubscriptionFactory from '@shared/test_utils/factories/SubscriptionFactory';
 import SubscriptionPlanFactory from '@shared/test_utils/factories/SubscriptionPlanFactory';
 import UserFactory from '@shared/test_utils/factories/UserFactory';
@@ -37,6 +38,7 @@ describe('Payment E2E tests', () => {
   const subscription_plan_factory = new SubscriptionPlanFactory();
   const payment_factory = new PaymentFactory();
   const catalog_item_factory = new CatalogItemFactory();
+  const payment_log_factory = new PaymentLogFactory();
 
   afterEach(cleanUpDatabase);
 
@@ -130,8 +132,116 @@ describe('Payment E2E tests', () => {
     });
   });
 
-  describe('GET: /api/payments/logs', () => {
-    it.todo('should return an array of payment logs paginated');
+  describe('GET: /api/payments/:payment_id/logs', () => {
+    const { token } = auth_token_manager.generateToken({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.string.alphanumeric(10),
+      policies: [Policies.LIST_PAYMENT_LOGS],
+    });
+
+    it('should return an array of payment logs paginated', async () => {
+      const company = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
+      });
+
+      const subscriber = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        type: UserTypes.CUSTOMER,
+      });
+
+      const catalog_item = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        attributes: [{ name: faker.commerce.productAdjective(), description: faker.commerce.productDescription() }],
+        description: faker.commerce.productDescription(),
+        is_service: true,
+        name: faker.commerce.productName(),
+        tenant_id: company.id!,
+      });
+
+      const subscription_plan = await subscription_plan_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        items: [{
+          id: catalog_item.id,
+          name: catalog_item.name,
+        }],
+        recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+        tenant_id: company.id!,
+      });
+
+      const subscription = await subscription_factory.createOne({
+        id: faker.string.uuid(),
+        status: faker.helpers.enumValue(SubscriptionStatus),
+        subscriber_id: subscriber.id!,
+        subscription_plan_id: subscription_plan.id!,
+        tenant_id: company.id!,
+      });
+
+      const payment = await payment_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        status: faker.helpers.enumValue(PaymentStatus),
+        subscription_id: subscription.id!,
+        tax: faker.number.float(),
+        tenant_id: company.id!,
+      });
+
+      await payment_log_factory.createMany([
+        {
+          id: faker.string.uuid(),
+          external_id: faker.string.uuid(),
+          payload: JSON.stringify({}),
+          payment_id: payment.id!,
+        },
+        {
+          id: faker.string.uuid(),
+          external_id: faker.string.uuid(),
+          payload: JSON.stringify({}),
+          payment_id: payment.id!,
+        },
+        {
+          id: faker.string.uuid(),
+          external_id: faker.string.uuid(),
+          payload: JSON.stringify({}),
+          payment_id: payment.id!,
+        },
+        {
+          id: faker.string.uuid(),
+          external_id: faker.string.uuid(),
+          payload: JSON.stringify({}),
+          payment_id: payment.id!,
+        }
+      ]);
+
+      let response = await request
+        .get(`/api/payments/${payment.id}/logs`)
+        .auth(token, { type: 'bearer' })
+        .set('Content-Type', 'application/json')
+        .query({ page: 1, limit: 2 })
+        .send({});
+
+      expect(response.status).toEqual(200);
+      expect(response.body.result).toHaveLength(2);
+      expect(response.body.page_result).toEqual({ next_page: 2, total_of_pages: 2 });
+
+      response = await request
+        .get(`/api/payments/${payment.id}/logs`)
+        .auth(token, { type: 'bearer' })
+        .set('Content-Type', 'application/json')
+        .query({ page: 2, limit: 2 })
+        .send({});
+
+      expect(response.status).toEqual(200);
+      expect(response.body.result).toHaveLength(2);
+      expect(response.body.page_result).toEqual({ next_page: -1, total_of_pages: 2 });
+    });
   });
 
   describe('POST: /api/payments/webhooks', () => {

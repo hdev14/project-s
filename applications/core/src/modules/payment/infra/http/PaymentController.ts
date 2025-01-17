@@ -29,9 +29,20 @@ export default class PaymentController extends BaseHttpController {
     return this.json(data, HttpStatusCodes.OK);
   }
 
-  @httpGet('/logs')
+  @httpGet('/:payment_id/logs')
   async getPaymentLogs(@request() req: Request) {
-    return this.ok();
+    const { payment_id } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+
+    const [, data] = await this.payment_service.getPaymentLogs({
+      payment_id,
+      page_options: {
+        limit: parseInt(limit!.toString(), 10),
+        page: parseInt(page!.toString(), 10),
+      }
+    });
+
+    return this.json(data, HttpStatusCodes.OK);
   }
 
   @httpPost('/webhooks')

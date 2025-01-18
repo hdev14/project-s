@@ -1246,7 +1246,7 @@ describe('Subscription E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(4);
-      expect(response.body).not.toHaveProperty('page_result');
+      expect(response.body).not.toHaveProperty('page_info');
     });
 
     it('should return subscription plans with pagination', async () => {
@@ -1309,8 +1309,8 @@ describe('Subscription E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(1);
-      expect(response.body.page_result.next_page).toEqual(2);
-      expect(response.body.page_result.total_of_pages).toEqual(4);
+      expect(response.body.page_info.next_page).toEqual(2);
+      expect(response.body.page_info.total_of_pages).toEqual(4);
 
       response = await request
         .get('/api/subscriptions/plans')
@@ -1321,8 +1321,8 @@ describe('Subscription E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(2);
-      expect(response.body.page_result.next_page).toEqual(2);
-      expect(response.body.page_result.total_of_pages).toEqual(2);
+      expect(response.body.page_info.next_page).toEqual(2);
+      expect(response.body.page_info.total_of_pages).toEqual(2);
 
       response = await request
         .get('/api/subscriptions/plans')
@@ -1333,8 +1333,8 @@ describe('Subscription E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(2);
-      expect(response.body.page_result.next_page).toEqual(-1);
-      expect(response.body.page_result.total_of_pages).toEqual(2);
+      expect(response.body.page_info.next_page).toEqual(-1);
+      expect(response.body.page_info.total_of_pages).toEqual(2);
     });
   });
 
@@ -1422,7 +1422,7 @@ describe('Subscription E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(4);
-      expect(response.body).not.toHaveProperty('page_result');
+      expect(response.body).not.toHaveProperty('page_info');
     });
 
     it('should return subscriptions with pagination', async () => {
@@ -1501,8 +1501,8 @@ describe('Subscription E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(1);
-      expect(response.body.page_result.next_page).toEqual(2);
-      expect(response.body.page_result.total_of_pages).toEqual(4);
+      expect(response.body.page_info.next_page).toEqual(2);
+      expect(response.body.page_info.total_of_pages).toEqual(4);
 
       response = await request
         .get('/api/subscriptions')
@@ -1513,8 +1513,8 @@ describe('Subscription E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(2);
-      expect(response.body.page_result.next_page).toEqual(2);
-      expect(response.body.page_result.total_of_pages).toEqual(2);
+      expect(response.body.page_info.next_page).toEqual(2);
+      expect(response.body.page_info.total_of_pages).toEqual(2);
 
       response = await request
         .get('/api/subscriptions')
@@ -1525,8 +1525,8 @@ describe('Subscription E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(2);
-      expect(response.body.page_result.next_page).toEqual(-1);
-      expect(response.body.page_result.total_of_pages).toEqual(2);
+      expect(response.body.page_info.next_page).toEqual(-1);
+      expect(response.body.page_info.total_of_pages).toEqual(2);
     });
   });
 });

@@ -25,7 +25,7 @@ export default class DbCatalogRepository extends DefaultRepository implements Ca
   }
 
   async getCatalogItems(filter?: CatalogItemsFilter): Promise<Page<CatalogItemProps>> {
-    const { rows, page_result } = await this.selectCatalogItems(filter);
+    const { rows, page_info } = await this.selectCatalogItems(filter);
 
     const result = [];
 
@@ -45,7 +45,7 @@ export default class DbCatalogRepository extends DefaultRepository implements Ca
       }));
     }
 
-    return new Page(result, page_result);
+    return new Page(result, page_info);
   }
 
   private async selectCatalogItems(filter?: CatalogItemsFilter) {
@@ -67,11 +67,11 @@ export default class DbCatalogRepository extends DefaultRepository implements Ca
       }
 
       const { rows } = await this.db.query(query, DbUtils.sanitizeValues(values));
-      return { rows, page_result: undefined };
+      return { rows, page_info: undefined };
     }
 
     const { rows } = await this.db.query(select_catalog_items);
-    return { rows, page_result: undefined };
+    return { rows, page_info: undefined };
   }
 
   async createCatalogItem(catalog_item: CatalogItem): Promise<void> {

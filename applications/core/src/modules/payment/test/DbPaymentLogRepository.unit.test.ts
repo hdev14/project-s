@@ -85,7 +85,7 @@ describe('DbPaymentLogRepository unit tests', () => {
       const page = await repository.getPaymentLogs(filter);
 
       expect(page.result).toHaveLength(3);
-      expect(page.page_result).toBeUndefined();
+      expect(page.page_info).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT * FROM payment_logs WHERE payment_id=$1',
         [filter.payment_id],
@@ -119,8 +119,8 @@ describe('DbPaymentLogRepository unit tests', () => {
       const page = await repository.getPaymentLogs(filter);
 
       expect(page.result).toHaveLength(1);
-      expect(page.page_result!.next_page).toEqual(2);
-      expect(page.page_result!.total_of_pages).toEqual(2);
+      expect(page.page_info!.next_page).toEqual(2);
+      expect(page.page_info!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT COUNT(id) as total FROM payment_logs WHERE payment_id=$1',

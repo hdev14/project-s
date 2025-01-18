@@ -82,7 +82,7 @@ describe('DbSubscriberRepository unit tests', () => {
       const second_subscriber = page.result[1];
       expect(first_subscriber.toObject().subscriptions).toHaveLength(2);
       expect(second_subscriber.toObject().subscriptions).toHaveLength(1);
-      expect(page.page_result).toBeUndefined();
+      expect(page.page_info).toBeUndefined();
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         "SELECT id,email,document,phone_number,street,district,state,number,complement,payment_type,credit_card_external_id,created_at,updated_at FROM users WHERE type='customer'",
@@ -139,8 +139,8 @@ describe('DbSubscriberRepository unit tests', () => {
       const page = await repository.getSubscribers({ page_options });
 
       expect(page.result).toHaveLength(1);
-      expect(page.page_result!.next_page).toEqual(2);
-      expect(page.page_result!.total_of_pages).toEqual(2);
+      expect(page.page_info!.next_page).toEqual(2);
+      expect(page.page_info!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         "SELECT count(id) as total FROM users WHERE type='customer'",
@@ -203,8 +203,8 @@ describe('DbSubscriberRepository unit tests', () => {
       const page = await repository.getSubscribers({ page_options });
 
       expect(page.result).toHaveLength(1);
-      expect(page.page_result!.next_page).toEqual(-1);
-      expect(page.page_result!.total_of_pages).toEqual(2);
+      expect(page.page_info!.next_page).toEqual(-1);
+      expect(page.page_info!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         "SELECT count(id) as total FROM users WHERE type='customer'",

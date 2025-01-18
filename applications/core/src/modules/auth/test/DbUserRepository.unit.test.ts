@@ -65,7 +65,7 @@ describe('DbUserRepository unit tests', () => {
       const page = await repository.getUsers();
 
       expect(page.result).toHaveLength(2);
-      expect(page.page_result).toBeUndefined();
+      expect(page.page_info).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type,u.created_at,u.updated_at FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id'
       );
@@ -116,8 +116,8 @@ describe('DbUserRepository unit tests', () => {
       const page = await repository.getUsers({ page_options });
 
       expect(page.result).toHaveLength(1);
-      expect(page.page_result!.next_page).toEqual(2);
-      expect(page.page_result!.total_of_pages).toEqual(2);
+      expect(page.page_info!.next_page).toEqual(2);
+      expect(page.page_info!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT count(id) as total FROM users',
@@ -175,8 +175,8 @@ describe('DbUserRepository unit tests', () => {
       const page = await repository.getUsers({ page_options });
 
       expect(page.result).toHaveLength(1);
-      expect(page.page_result!.next_page).toEqual(-1);
-      expect(page.page_result!.total_of_pages).toEqual(2);
+      expect(page.page_info!.next_page).toEqual(-1);
+      expect(page.page_info!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT count(id) as total FROM users',
@@ -234,7 +234,7 @@ describe('DbUserRepository unit tests', () => {
       const page = await repository.getUsers({ tenant_id });
 
       expect(page.result).toHaveLength(2);
-      expect(page.page_result).toBeUndefined();
+      expect(page.page_info).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT u.id,u.email,u.password,u.access_plan_id,p.slug,u.tenant_id,u.type,u.created_at,u.updated_at FROM users u LEFT JOIN user_policies up ON u.id = up.user_id LEFT JOIN policies p ON up.policy_id = p.id WHERE u.tenant_id=$1',
         [tenant_id]
@@ -287,8 +287,8 @@ describe('DbUserRepository unit tests', () => {
       const page = await repository.getUsers({ tenant_id, page_options });
 
       expect(page.result).toHaveLength(1);
-      expect(page.page_result!.next_page).toEqual(-1);
-      expect(page.page_result!.total_of_pages).toEqual(2);
+      expect(page.page_info!.next_page).toEqual(-1);
+      expect(page.page_info!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT count(id) as total FROM users WHERE tenant_id=$1',

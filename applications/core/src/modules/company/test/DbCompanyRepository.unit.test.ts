@@ -94,7 +94,7 @@ describe('DbCompanyRepository unit tests', () => {
       expect(page.result).toHaveLength(2);
       expect(page.result[0].toObject().employees).toHaveLength(2);
       expect(page.result[1].toObject().employees).toHaveLength(1);
-      expect(page.page_result).toBeUndefined();
+      expect(page.page_info).toBeUndefined();
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         "SELECT * FROM users WHERE type='company'"
@@ -159,8 +159,8 @@ describe('DbCompanyRepository unit tests', () => {
 
       expect(page.result).toHaveLength(1);
       expect(page.result[0].toObject().employees).toHaveLength(2);
-      expect(page.page_result!.next_page).toEqual(2);
-      expect(page.page_result!.total_of_pages).toEqual(2);
+      expect(page.page_info!.next_page).toEqual(2);
+      expect(page.page_info!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         "SELECT count(id) as total FROM users WHERE type='company'",
@@ -231,8 +231,8 @@ describe('DbCompanyRepository unit tests', () => {
 
       expect(page.result).toHaveLength(1);
       expect(page.result[0].toObject().employees).toHaveLength(2);
-      expect(page.page_result!.next_page).toEqual(-1);
-      expect(page.page_result!.total_of_pages).toEqual(2);
+      expect(page.page_info!.next_page).toEqual(-1);
+      expect(page.page_info!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         "SELECT count(id) as total FROM users WHERE type='company'",

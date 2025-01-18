@@ -6,7 +6,7 @@ import NotFoundError from "@shared/errors/NotFoundError";
 import Mediator from "@shared/Mediator";
 import types from "@shared/types";
 import Either from "@shared/utils/Either";
-import { PageOptions, PageResult } from "@shared/utils/Pagination";
+import { PageInfo, PageOptions } from "@shared/utils/Pagination";
 import { inject, injectable } from "inversify";
 import 'reflect-metadata';
 import PaymentGateway from "./PaymentGateway";
@@ -39,7 +39,7 @@ type ProcessPaymentParams = {
 
 export type GetPaymentLogsResult = {
   result: Array<PaymentLogProps>;
-  page_result?: PageResult;
+  page_info?: PageInfo;
 };
 
 @injectable()

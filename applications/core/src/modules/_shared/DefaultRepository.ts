@@ -42,8 +42,8 @@ export default abstract class DefaultRepository {
       sanitized_values.concat([options.page_options.limit, offset])
     );
 
-    const page_result = Pagination.calculatePageResult(count_result.rows[0].total, options.page_options);
+    const page_info = Pagination.calculatePageResult(count_result.rows[0].total, options.page_options);
 
-    return { rows, page_result };
+    return { rows, page_info };
   }
 }

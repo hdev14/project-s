@@ -61,7 +61,7 @@ describe('DbServiceLogRepository unit tests', () => {
       const page = await repository.getServiceLogs({ tenant_id });
 
       expect(page.result).toHaveLength(2);
-      expect(page.page_result).toBeUndefined();
+      expect(page.page_info).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT * FROM service_logs WHERE tenant_id = $1',
         [tenant_id]
@@ -99,8 +99,8 @@ describe('DbServiceLogRepository unit tests', () => {
       const page = await repository.getServiceLogs({ tenant_id, page_options });
 
       expect(page.result).toHaveLength(1);
-      expect(page.page_result!.next_page).toEqual(2);
-      expect(page.page_result!.total_of_pages).toEqual(2);
+      expect(page.page_info!.next_page).toEqual(2);
+      expect(page.page_info!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT count(id) as total FROM service_logs WHERE tenant_id = $1',
@@ -144,8 +144,8 @@ describe('DbServiceLogRepository unit tests', () => {
       const page = await repository.getServiceLogs({ tenant_id, page_options });
 
       expect(page.result).toHaveLength(1);
-      expect(page.page_result!.next_page).toEqual(-1);
-      expect(page.page_result!.total_of_pages).toEqual(2);
+      expect(page.page_info!.next_page).toEqual(-1);
+      expect(page.page_info!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT count(id) as total FROM service_logs WHERE tenant_id = $1',

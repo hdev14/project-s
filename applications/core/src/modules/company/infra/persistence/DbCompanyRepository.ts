@@ -48,7 +48,7 @@ export default class DbCompanyRepository extends DefaultRepository implements Co
   }
 
   async getCompanies(filter?: CompaniesFilter): Promise<Page<CompanyProps>> {
-    const { rows: company_rows, page_result } = await this.selectCompanies(filter);
+    const { rows: company_rows, page_info } = await this.selectCompanies(filter);
 
     const company_ids = [];
 
@@ -67,7 +67,7 @@ export default class DbCompanyRepository extends DefaultRepository implements Co
       result.push(Company.fromObject(this.mapCompany(company_rows[idx], employee_rows)));
     }
 
-    return new Page(result, page_result);
+    return new Page(result, page_info);
   }
 
   private async selectCompanies(filter?: CompaniesFilter) {
@@ -81,7 +81,7 @@ export default class DbCompanyRepository extends DefaultRepository implements Co
 
     const { rows } = await this.db.query(this.#select_companies_query);
 
-    return { rows, page_result: undefined };
+    return { rows, page_info: undefined };
   }
 
   async updateCompany(company: Company): Promise<void> {

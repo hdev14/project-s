@@ -76,7 +76,7 @@ export default class ChargeSubscriptionJob implements CronJob {
 
       await payment_queue.addMessages(messages);
 
-      next_page = page.page_result!.next_page;
+      next_page = page.page_info!.next_page;
     } while (next_page !== -1);
 
     await payment_queue.close();

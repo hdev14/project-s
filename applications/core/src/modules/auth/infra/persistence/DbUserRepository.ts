@@ -23,7 +23,7 @@ export default class DbUserRepository extends DefaultRepository implements UserR
   readonly #count_select_users_query = 'SELECT count(id) as total FROM users';
 
   async getUsers(filter?: UsersFilter): Promise<Page<UserProps>> {
-    const { rows, page_result } = await this.selectUsers(filter);
+    const { rows, page_info } = await this.selectUsers(filter);
 
     const users: Record<string, User> = {};
 
@@ -51,7 +51,7 @@ export default class DbUserRepository extends DefaultRepository implements UserR
       });
     }
 
-    return new Page(Object.values(users), page_result);
+    return new Page(Object.values(users), page_info);
   }
 
   private async selectUsers(filter?: UsersFilter) {
@@ -71,12 +71,12 @@ export default class DbUserRepository extends DefaultRepository implements UserR
 
       const { rows } = await this.db.query(query, DbUtils.sanitizeValues(values));
 
-      return { rows, page_result: undefined };
+      return { rows, page_info: undefined };
     }
 
     const { rows } = await this.db.query(this.#select_users_query)
 
-    return { rows, page_result: undefined };
+    return { rows, page_info: undefined };
   }
 
   async getUserById(id: string): Promise<User | null> {

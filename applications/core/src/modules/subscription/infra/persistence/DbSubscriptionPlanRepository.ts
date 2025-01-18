@@ -47,11 +47,11 @@ export default class DbSubscriptionPlanRepository extends DefaultRepository impl
 
 
   async getSubscriptionPlans(filter: SubscriptionPlansFilter): Promise<Page<SubscriptionPlanProps>> {
-    const { rows = [], page_result } = await this.selectSubscriptionPlans(filter);
+    const { rows = [], page_info } = await this.selectSubscriptionPlans(filter);
 
     const subscription_plans: Record<string, SubscriptionPlan> = this.mapSubscriptionPlans(rows);
 
-    return new Page(Object.values(subscription_plans), page_result);
+    return new Page(Object.values(subscription_plans), page_info);
   }
 
   private mapSubscriptionPlans(rows: any[]) {
@@ -108,7 +108,7 @@ export default class DbSubscriptionPlanRepository extends DefaultRepository impl
 
     const { rows } = await this.db.query(query, DbUtils.sanitizeValues(values));
 
-    return { rows, page_result: undefined };
+    return { rows, page_info: undefined };
   }
 
   async getSubscriptionPlanById(id: string): Promise<SubscriptionPlan | null> {

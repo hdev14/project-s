@@ -313,7 +313,7 @@ describe('CompanyService unit tests', () => {
       expect(error).toBeUndefined();
       expect(data!.result[0]).not.toBeInstanceOf(Company);
       expect(data!.result).toHaveLength(2);
-      expect(data!.page_result).toEqual({
+      expect(data!.page_info).toEqual({
         next_page: 2,
         total_of_pages: 2
       });
@@ -604,7 +604,7 @@ describe('CompanyService unit tests', () => {
       expect(error).toBeUndefined();
       expect(data!.result[0]).not.toBeInstanceOf(ServiceLog);
       expect(data!.result).toHaveLength(2);
-      expect(data!.page_result).toEqual({
+      expect(data!.page_info).toEqual({
         next_page: 2,
         total_of_pages: 2
       });

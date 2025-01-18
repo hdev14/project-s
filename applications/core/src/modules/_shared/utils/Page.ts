@@ -1,18 +1,18 @@
 import Aggregate, { AggregateProps, RequiredProps } from "@shared/ddd/Aggregate";
-import { PageResult } from "./Pagination";
+import { PageInfo } from "./Pagination";
 
 export type PaginatedResult<P extends AggregateProps> = {
   result: Array<RequiredProps<P>>;
-  page_result?: PageResult;
+  page_info?: PageInfo;
 }
 
 export default class Page<P extends AggregateProps> {
   readonly result: Array<Aggregate<P>>;
-  readonly page_result?: PageResult;
+  readonly page_info?: PageInfo;
 
-  constructor(result: Array<Aggregate<P>>, page_result?: PageResult) {
+  constructor(result: Array<Aggregate<P>>, page_info?: PageInfo) {
     this.result = result;
-    this.page_result = page_result;
+    this.page_info = page_info;
   }
 
   toRaw(): PaginatedResult<P> {
@@ -24,7 +24,7 @@ export default class Page<P extends AggregateProps> {
 
     return {
       result,
-      page_result: this.page_result,
+      page_info: this.page_info,
     }
   }
 }

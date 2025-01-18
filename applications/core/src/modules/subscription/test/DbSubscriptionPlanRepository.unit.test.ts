@@ -106,8 +106,8 @@ describe('DbSubscriptionPlanRepository unit tests', () => {
       const page = await repository.getSubscriptionPlans(filter);
 
       expect(page.result).toHaveLength(1);
-      expect(page.page_result!.next_page).toEqual(2);
-      expect(page.page_result!.total_of_pages).toEqual(2);
+      expect(page.page_info!.next_page).toEqual(2);
+      expect(page.page_info!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT COUNT(id) as total FROM subscription_plans WHERE tenant_id=$1',
@@ -157,8 +157,8 @@ describe('DbSubscriptionPlanRepository unit tests', () => {
       const page = await repository.getSubscriptionPlans(filter);
 
       expect(page.result).toHaveLength(1);
-      expect(page.page_result!.next_page).toEqual(-1);
-      expect(page.page_result!.total_of_pages).toEqual(2);
+      expect(page.page_info!.next_page).toEqual(-1);
+      expect(page.page_info!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         'SELECT COUNT(id) as total FROM subscription_plans WHERE tenant_id=$1',

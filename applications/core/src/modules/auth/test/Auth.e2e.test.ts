@@ -397,7 +397,7 @@ describe('Auth E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(4);
-      expect(response.body).not.toHaveProperty('page_result');
+      expect(response.body).not.toHaveProperty('page_info');
     });
 
     it('should return users with pagination', async () => {
@@ -441,8 +441,8 @@ describe('Auth E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(1);
-      expect(response.body.page_result.next_page).toEqual(2);
-      expect(response.body.page_result.total_of_pages).toEqual(4);
+      expect(response.body.page_info.next_page).toEqual(2);
+      expect(response.body.page_info.total_of_pages).toEqual(4);
 
       response = await request
         .get('/api/auth/users')
@@ -453,8 +453,8 @@ describe('Auth E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(2);
-      expect(response.body.page_result.next_page).toEqual(2);
-      expect(response.body.page_result.total_of_pages).toEqual(2);
+      expect(response.body.page_info.next_page).toEqual(2);
+      expect(response.body.page_info.total_of_pages).toEqual(2);
 
       response = await request
         .get('/api/auth/users')
@@ -465,8 +465,8 @@ describe('Auth E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(2);
-      expect(response.body.page_result.next_page).toEqual(-1);
-      expect(response.body.page_result.total_of_pages).toEqual(2);
+      expect(response.body.page_info.next_page).toEqual(-1);
+      expect(response.body.page_info.total_of_pages).toEqual(2);
     });
 
     it('should return users filtered by tenant_id', async () => {

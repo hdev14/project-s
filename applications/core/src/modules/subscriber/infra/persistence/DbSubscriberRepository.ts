@@ -65,7 +65,7 @@ export default class DbSubscriberRepository extends DefaultRepository implements
   }
 
   async getSubscribers(filter?: SubscribersFilter): Promise<Page<SubscriberProps>> {
-    const { rows, page_result } = await this.selectSubscribers(filter);
+    const { rows, page_info } = await this.selectSubscribers(filter);
 
     const subscriber_ids = [];
 
@@ -105,7 +105,7 @@ export default class DbSubscriberRepository extends DefaultRepository implements
       }));
     }
 
-    return new Page(result, page_result);
+    return new Page(result, page_info);
   }
 
   private mapSubscriptions(subscription_rows: any[], subscriber_id: string) {
@@ -139,7 +139,7 @@ export default class DbSubscriberRepository extends DefaultRepository implements
 
     const { rows } = await this.db.query(query);
 
-    return { rows, page_result: undefined };
+    return { rows, page_info: undefined };
   }
 
   async updateSubscriber(subscriber: Subscriber): Promise<void> {

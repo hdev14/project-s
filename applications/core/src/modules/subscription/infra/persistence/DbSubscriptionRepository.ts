@@ -42,7 +42,7 @@ export default class DbSubscriptionRepository extends DefaultRepository implemen
   }
 
   async getSubscriptions(filter: SubscriptionsFilter): Promise<Page<SubscriptionProps>> {
-    const { rows, page_result } = await this.selectSubscriptions(filter);
+    const { rows, page_info } = await this.selectSubscriptions(filter);
 
     const result = [];
 
@@ -60,7 +60,7 @@ export default class DbSubscriptionRepository extends DefaultRepository implemen
       }));
     }
 
-    return new Page(result, page_result);
+    return new Page(result, page_info);
   }
 
   private async selectSubscriptions(filter: SubscriptionsFilter) {
@@ -80,6 +80,6 @@ export default class DbSubscriptionRepository extends DefaultRepository implemen
 
     const { rows } = await this.db.query(query, DbUtils.sanitizeValues(values));
 
-    return { rows, page_result: undefined };
+    return { rows, page_info: undefined };
   }
 }

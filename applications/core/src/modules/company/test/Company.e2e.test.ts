@@ -273,7 +273,7 @@ describe('Company E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(4);
-      expect(response.body).not.toHaveProperty('page_result');
+      expect(response.body).not.toHaveProperty('page_info');
     });
 
     it('should return companies with pagination', async () => {
@@ -313,8 +313,8 @@ describe('Company E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(1);
-      expect(response.body.page_result.next_page).toEqual(2);
-      expect(response.body.page_result.total_of_pages).toEqual(4);
+      expect(response.body.page_info.next_page).toEqual(2);
+      expect(response.body.page_info.total_of_pages).toEqual(4);
 
       response = await request
         .get('/api/companies/')
@@ -325,8 +325,8 @@ describe('Company E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(2);
-      expect(response.body.page_result.next_page).toEqual(2);
-      expect(response.body.page_result.total_of_pages).toEqual(2);
+      expect(response.body.page_info.next_page).toEqual(2);
+      expect(response.body.page_info.total_of_pages).toEqual(2);
 
       response = await request
         .get('/api/companies/')
@@ -337,8 +337,8 @@ describe('Company E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(2);
-      expect(response.body.page_result.next_page).toEqual(-1);
-      expect(response.body.page_result.total_of_pages).toEqual(2);
+      expect(response.body.page_info.next_page).toEqual(-1);
+      expect(response.body.page_info.total_of_pages).toEqual(2);
     });
   });
 
@@ -1007,7 +1007,7 @@ describe('Company E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(3);
-      expect(response.body).not.toHaveProperty('page_result');
+      expect(response.body).not.toHaveProperty('page_info');
     });
 
     it('should return service logs with pagination', async () => {
@@ -1086,8 +1086,8 @@ describe('Company E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(1);
-      expect(response.body.page_result.next_page).toEqual(2);
-      expect(response.body.page_result.total_of_pages).toEqual(3);
+      expect(response.body.page_info.next_page).toEqual(2);
+      expect(response.body.page_info.total_of_pages).toEqual(3);
 
       response = await request
         .get(`/api/companies/${company.id}/service-logs`)
@@ -1098,8 +1098,8 @@ describe('Company E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(2);
-      expect(response.body.page_result.next_page).toEqual(2);
-      expect(response.body.page_result.total_of_pages).toEqual(2);
+      expect(response.body.page_info.next_page).toEqual(2);
+      expect(response.body.page_info.total_of_pages).toEqual(2);
 
       response = await request
         .get(`/api/companies/${company.id}/service-logs`)
@@ -1110,8 +1110,8 @@ describe('Company E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(1);
-      expect(response.body.page_result.next_page).toEqual(-1);
-      expect(response.body.page_result.total_of_pages).toEqual(2);
+      expect(response.body.page_info.next_page).toEqual(-1);
+      expect(response.body.page_info.total_of_pages).toEqual(2);
     });
   });
 

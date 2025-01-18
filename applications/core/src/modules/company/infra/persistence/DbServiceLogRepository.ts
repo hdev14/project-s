@@ -1,15 +1,15 @@
 import DefaultRepository from "@shared/DefaultRepository";
 import DbUtils from "@shared/utils/DbUtils";
+import Page from "@shared/utils/Page";
 import { injectable } from "inversify";
 import 'reflect-metadata';
 import ServiceLogRepository, { ServiceLogsFilter } from "../../app/ServiceLogRepository";
 import ServiceLog, { ServiceLogProps } from "../../domain/ServiceLog";
-import Page from "@shared/utils/Page";
 
 @injectable()
 export default class DbServiceLogRepository extends DefaultRepository implements ServiceLogRepository {
   async getServiceLogs(filter: ServiceLogsFilter): Promise<Page<ServiceLogProps>> {
-    const { rows, page_result } = await this.selectServiceLogs(filter);
+    const { rows, page_info } = await this.selectServiceLogs(filter);
 
     const result = [];
 
@@ -29,7 +29,7 @@ export default class DbServiceLogRepository extends DefaultRepository implements
       }));
     }
 
-    return new Page(result, page_result);
+    return new Page(result, page_info);
   }
 
   private async selectServiceLogs(filter: ServiceLogsFilter) {
@@ -47,7 +47,7 @@ export default class DbServiceLogRepository extends DefaultRepository implements
 
     const { rows } = await this.db.query(query, values);
 
-    return { rows, page_result: undefined };
+    return { rows, page_info: undefined };
   }
 
   async createServiceLog(service_log: ServiceLog): Promise<void> {

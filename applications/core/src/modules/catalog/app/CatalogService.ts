@@ -7,7 +7,7 @@ import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import types from "@shared/types";
 import Either from "@shared/utils/Either";
-import { PageOptions, PageResult } from "@shared/utils/Pagination";
+import { PageInfo, PageOptions } from "@shared/utils/Pagination";
 import { randomUUID } from "crypto";
 import { inject, injectable } from "inversify";
 import 'reflect-metadata';
@@ -20,7 +20,7 @@ export type GetCatalogItemsParams = {
 
 export type GetCatalogItemsResult = {
   result: Array<CatalogItemProps>;
-  page_result?: PageResult;
+  page_info?: PageInfo;
 };
 
 export type CreateCatalogItemParams = {

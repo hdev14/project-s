@@ -217,7 +217,7 @@ describe('DbSubscriptionRepository unit tests', () => {
       const page = await repository.getSubscriptions(params);
 
       expect(page.result).toHaveLength(2);
-      expect(page.page_result).toBeUndefined();
+      expect(page.page_info).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith('SELECT * FROM subscriptions WHERE tenant_id=$1', [params.tenant_id]);
     });
 
@@ -253,7 +253,7 @@ describe('DbSubscriptionRepository unit tests', () => {
       const page = await repository.getSubscriptions(params);
 
       expect(page.result).toHaveLength(2);
-      expect(page.page_result).toBeUndefined();
+      expect(page.page_info).toBeUndefined();
       expect(query_mock).toHaveBeenCalledWith(
         'SELECT * FROM subscriptions WHERE tenant_id=$1 AND status=$2',
         [params.tenant_id, params.status]
@@ -289,8 +289,8 @@ describe('DbSubscriptionRepository unit tests', () => {
       const page = await repository.getSubscriptions(params);
 
       expect(page.result).toHaveLength(1);
-      expect(page.page_result!.next_page).toEqual(2);
-      expect(page.page_result!.total_of_pages).toEqual(2);
+      expect(page.page_info!.next_page).toEqual(2);
+      expect(page.page_info!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         "SELECT count(id) as total FROM subscriptions WHERE tenant_id=$1",
@@ -331,8 +331,8 @@ describe('DbSubscriptionRepository unit tests', () => {
       const page = await repository.getSubscriptions(params);
 
       expect(page.result).toHaveLength(1);
-      expect(page.page_result!.next_page).toEqual(-1);
-      expect(page.page_result!.total_of_pages).toEqual(2);
+      expect(page.page_info!.next_page).toEqual(-1);
+      expect(page.page_info!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         "SELECT count(id) as total FROM subscriptions WHERE tenant_id=$1",
@@ -374,8 +374,8 @@ describe('DbSubscriptionRepository unit tests', () => {
       const page = await repository.getSubscriptions(params);
 
       expect(page.result).toHaveLength(1);
-      expect(page.page_result!.next_page).toEqual(2);
-      expect(page.page_result!.total_of_pages).toEqual(2);
+      expect(page.page_info!.next_page).toEqual(2);
+      expect(page.page_info!.total_of_pages).toEqual(2);
       expect(query_mock).toHaveBeenNthCalledWith(
         1,
         "SELECT count(id) as total FROM subscriptions WHERE tenant_id=$1 AND status=$2",

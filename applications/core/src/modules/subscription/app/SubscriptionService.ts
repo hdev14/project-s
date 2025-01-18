@@ -7,7 +7,7 @@ import NotFoundError from "@shared/errors/NotFoundError";
 import Mediator from "@shared/Mediator";
 import types from "@shared/types";
 import Either from "@shared/utils/Either";
-import { PageOptions, PageResult } from "@shared/utils/Pagination";
+import { PageInfo, PageOptions } from "@shared/utils/Pagination";
 import { ItemProps } from "@subscription/domain/Item";
 import Subscription, { SubscriptionProps } from "@subscription/domain/Subscription";
 import SubscriptionPlan, { RecurrenceTypes, SubscriptionPlanProps } from "@subscription/domain/SubscriptionPlan";
@@ -49,7 +49,7 @@ export type GetSubscriptionPlansParams = {
 
 export type GetSubscriptionPlansResult = {
   result: Array<SubscriptionPlanProps>;
-  page_result?: PageResult;
+  page_info?: PageInfo;
 };
 
 export type GetSubscriptionsParams = {
@@ -59,7 +59,7 @@ export type GetSubscriptionsParams = {
 
 export type GetSubscriptionsResult = {
   result: Array<SubscriptionProps>;
-  page_result?: PageResult;
+  page_info?: PageInfo;
 };
 
 @injectable()

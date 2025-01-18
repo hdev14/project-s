@@ -9,7 +9,7 @@ import NotFoundError from "@shared/errors/NotFoundError";
 import types from "@shared/types";
 import UserTypes from "@shared/UserTypes";
 import Either from "@shared/utils/Either";
-import { PageOptions, PageResult } from "@shared/utils/Pagination";
+import { PageInfo, PageOptions } from "@shared/utils/Pagination";
 import { randomInt } from "crypto";
 import { inject, injectable } from "inversify";
 import 'reflect-metadata';
@@ -54,7 +54,7 @@ export type GetUsersParams = {
 
 export type GetUsersResult = {
   result: Array<UserProps>;
-  page_result?: PageResult;
+  page_info?: PageInfo;
 };
 
 export type ChangeAccessPlanParams = {

@@ -17,7 +17,7 @@ import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import types from "@shared/types";
 import Either from "@shared/utils/Either";
-import { PageOptions, PageResult } from "@shared/utils/Pagination";
+import { PageInfo, PageOptions } from "@shared/utils/Pagination";
 import { inject, injectable } from "inversify";
 import 'reflect-metadata';
 import Company, { CompanyProps } from "../domain/Company";
@@ -40,7 +40,7 @@ export type GetCompanisParams = {
 
 export type GetCompaniesResult = {
   result: Array<CompanyProps>;
-  page_result?: PageResult;
+  page_info?: PageInfo;
 };
 
 export type GetCompanyParams = {
@@ -87,7 +87,7 @@ export type GetServiceLogsParams = {
 
 export type GetServiceLogsResult = {
   result: Array<ServiceLogProps>;
-  page_result?: PageResult;
+  page_info?: PageInfo;
 };
 
 export type CreateCommissionParams = {

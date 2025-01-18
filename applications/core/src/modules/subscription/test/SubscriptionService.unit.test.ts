@@ -590,7 +590,7 @@ describe('SubscriptionService unit tests', () => {
       expect(error).toBeUndefined();
       expect(data!.result[0]).not.toBeInstanceOf(SubscriptionPlan);
       expect(data!.result).toHaveLength(2);
-      expect(data!.page_result).toEqual({
+      expect(data!.page_info).toEqual({
         next_page: 2,
         total_of_pages: 2
       });
@@ -642,7 +642,7 @@ describe('SubscriptionService unit tests', () => {
       expect(error).toBeUndefined();
       expect(data!.result[0]).not.toBeInstanceOf(Subscription);
       expect(data!.result).toHaveLength(2);
-      expect(data!.page_result).toEqual({
+      expect(data!.page_info).toEqual({
         next_page: 2,
         total_of_pages: 2
       });

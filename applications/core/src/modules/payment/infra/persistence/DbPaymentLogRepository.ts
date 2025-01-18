@@ -19,7 +19,7 @@ export default class DbPaymentLogRepository extends DefaultRepository implements
   }
 
   async getPaymentLogs(filter: PaymentLogFilter): Promise<Page<PaymentLogProps>> {
-    const { rows, page_result } = await this.selectPaymentLogs(filter);
+    const { rows, page_info } = await this.selectPaymentLogs(filter);
 
     const result = [];
 
@@ -35,7 +35,7 @@ export default class DbPaymentLogRepository extends DefaultRepository implements
       }));
     }
 
-    return new Page(result, page_result);
+    return new Page(result, page_info);
   }
 
   private async selectPaymentLogs(filter: PaymentLogFilter) {
@@ -53,6 +53,6 @@ export default class DbPaymentLogRepository extends DefaultRepository implements
 
     const { rows } = await this.db.query(query, DbUtils.sanitizeValues(values));
 
-    return { rows, page_result: undefined };
+    return { rows, page_info: undefined };
   }
 }

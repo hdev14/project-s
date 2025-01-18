@@ -229,7 +229,7 @@ describe('Payment E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(2);
-      expect(response.body.page_result).toEqual({ next_page: 2, total_of_pages: 2 });
+      expect(response.body.page_info).toEqual({ next_page: 2, total_of_pages: 2 });
 
       response = await request
         .get(`/api/payments/${payment.id}/logs`)
@@ -240,7 +240,7 @@ describe('Payment E2E tests', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body.result).toHaveLength(2);
-      expect(response.body.page_result).toEqual({ next_page: -1, total_of_pages: 2 });
+      expect(response.body.page_info).toEqual({ next_page: -1, total_of_pages: 2 });
     });
   });
 

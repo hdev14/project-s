@@ -104,7 +104,7 @@ describe('PaymentService unit tests', () => {
 
       expect(error).toBeUndefined();
       expect(data!.result).toHaveLength(1);
-      expect(data!.page_result).toEqual({
+      expect(data!.page_info).toEqual({
         next_page: 2,
         total_of_pages: 2,
       });

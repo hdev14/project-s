@@ -19,8 +19,12 @@ import UserTypes from '@shared/UserTypes';
 import { SubscriptionStatus } from '@subscription/domain/Subscription';
 import { RecurrenceTypes } from '@subscription/domain/SubscriptionPlan';
 import SubscriptionModule from '@subscription/infra/SubscriptionModule';
+import { mock } from 'jest-mock-extended';
 import Application from 'src/Application';
 import supertest from 'supertest';
+import { payment_response, webhook_payment_notification } from './fixtures/mercado_pago.json';
+
+const fetch_spy = jest.spyOn(global, 'fetch');
 
 describe('Payment E2E tests', () => {
   const application = new Application({
@@ -245,10 +249,156 @@ describe('Payment E2E tests', () => {
   });
 
   describe('POST: /api/payments/webhooks', () => {
-    it.todo("should return 404 if payment doesn't exist");
-    it.todo('should proccess the payment when the payment was paid');
-    it.todo('should proccess the payment when the payment was canceled');
-    it.todo('should proccess the payment when the payment was rejected');
-    it.todo('should auth the webhook notification');
+    const subscription_id = faker.string.uuid();
+    const tenant_id = faker.string.uuid();
+
+    beforeAll(async () => {
+      const company = await user_factory.createOne({
+        id: tenant_id,
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        type: UserTypes.COMPANY,
+      });
+
+      const subscriber = await user_factory.createOne({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.string.alphanumeric(10),
+        type: UserTypes.CUSTOMER,
+      });
+
+      const catalog_item = await catalog_item_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        attributes: [{ name: faker.commerce.productAdjective(), description: faker.commerce.productDescription() }],
+        description: faker.commerce.productDescription(),
+        is_service: true,
+        name: faker.commerce.productName(),
+        tenant_id: company.id!,
+      });
+
+      const subscription_plan = await subscription_plan_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        items: [{
+          id: catalog_item.id,
+          name: catalog_item.name,
+        }],
+        recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+        tenant_id: company.id!,
+      });
+
+      await subscription_factory.createOne({
+        id: subscription_id,
+        status: faker.helpers.enumValue(SubscriptionStatus),
+        subscriber_id: subscriber.id!,
+        subscription_plan_id: subscription_plan.id!,
+        tenant_id: company.id!,
+      });
+    });
+
+    it("should return 404 if payment doesn't exist", async () => {
+      fetch_spy.mockResolvedValueOnce(mock<Response>({
+        status: 200,
+        json: jest.fn(() => Promise.resolve(payment_response))
+      }));
+
+      const response = await request
+        .post('/api/webhooks/mp')
+        .set('Content-Type', 'application/json')
+        .set('HTTP_X_SIGNATURE', 'test')
+        .set('HTTP_X_REQUEST_ID', 'test')
+        .send(webhook_payment_notification);
+
+      expect(response.status).toEqual(404);
+      expect(response.body.message).toEqual('Pagamento não encontrado');
+    });
+
+    it('should proccess the payment when the payment was paid', async () => {
+      const payment = await payment_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        status: PaymentStatus.PENDING,
+        subscription_id,
+        tax: faker.number.float(),
+        tenant_id,
+      });
+
+      fetch_spy.mockResolvedValueOnce(mock<Response>({
+        status: 200,
+        json: jest.fn(() => Promise.resolve(
+          Object.assign({}, payment_response, { external_reference: payment.id, status: 'approved' }))
+        )
+      }));
+
+      const response = await request
+        .post('/api/webhooks/mp')
+        .set('Content-Type', 'application/json')
+        .set('HTTP_X_SIGNATURE', 'test')
+        .set('HTTP_X_REQUEST_ID', 'test')
+        .send(webhook_payment_notification);
+
+      expect(response.status).toEqual(204);
+      await expect({ status: PaymentStatus.PAID }).toEqualInDatabase('payments', payment.id!);
+      await expect({ payment_id: payment.id }).toExistsInTable('payment_logs');
+    });
+
+    it('should proccess the payment when the payment was canceled', async () => {
+      const payment = await payment_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        status: PaymentStatus.PENDING,
+        subscription_id,
+        tax: faker.number.float(),
+        tenant_id,
+      });
+
+      fetch_spy.mockResolvedValueOnce(mock<Response>({
+        status: 200,
+        json: jest.fn(() => Promise.resolve(
+          Object.assign({}, payment_response, { external_reference: payment.id, status: 'cancelled' }))
+        )
+      }));
+
+      const response = await request
+        .post('/api/webhooks/mp')
+        .set('Content-Type', 'application/json')
+        .set('HTTP_X_SIGNATURE', 'test')
+        .set('HTTP_X_REQUEST_ID', 'test')
+        .send(webhook_payment_notification);
+
+      expect(response.status).toEqual(204);
+      await expect({ status: PaymentStatus.CANCELED }).toEqualInDatabase('payments', payment.id!);
+      await expect({ payment_id: payment.id }).toExistsInTable('payment_logs');
+    });
+
+    it('should proccess the payment when the payment was rejected', async () => {
+      const payment = await payment_factory.createOne({
+        id: faker.string.uuid(),
+        amount: faker.number.float(),
+        status: PaymentStatus.PENDING,
+        subscription_id,
+        tax: faker.number.float(),
+        tenant_id,
+      });
+
+      fetch_spy.mockResolvedValueOnce(mock<Response>({
+        status: 200,
+        json: jest.fn(() => Promise.resolve(
+          Object.assign({}, payment_response, { external_reference: payment.id, status: 'rejected' }))
+        )
+      }));
+
+      const response = await request
+        .post('/api/webhooks/mp')
+        .set('Content-Type', 'application/json')
+        .set('HTTP_X_SIGNATURE', 'test')
+        .set('HTTP_X_REQUEST_ID', 'test')
+        .send(webhook_payment_notification);
+
+      expect(response.status).toEqual(204);
+      await expect({ status: PaymentStatus.REJECTED }).toEqualInDatabase('payments', payment.id!);
+      await expect({ payment_id: payment.id }).toExistsInTable('payment_logs');
+    });
   });
 });

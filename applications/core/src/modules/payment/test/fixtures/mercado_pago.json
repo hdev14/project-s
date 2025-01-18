@@ -185,5 +185,17 @@
         "ticket_url": "https://www.mercadopago.com.br/payments/123456789/ticket?caller_id=123456&hash=123e4567-e89b-12d3-a456-426655440000"
       }
     }
+  },
+  "webhook_payment_notification": {
+    "id": 12345,
+    "live_mode": true,
+    "type": "payment",
+    "date_created": "2015-03-25T10:04:58.396-04:00",
+    "user_id": 44444,
+    "api_version": "v1",
+    "action": "payment.created",
+    "data": {
+      "id": "999999999"
+    }
   }
 }

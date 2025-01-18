@@ -102,6 +102,7 @@ export default class MercadoPago implements PaymentGateway {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${access_token}`,
+        'X-Idempotency-Key': payment.id,
       },
       body: JSON.stringify({
         external_reference: payment_obj.id,

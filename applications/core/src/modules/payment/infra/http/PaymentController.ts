@@ -1,5 +1,6 @@
 import Logger from "@global/app/Logger";
 import PaymentService from "@payment/app/PaymentService";
+import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/HttpStatusCodes";
 import types from "@shared/types";
 import { Request } from 'express';
@@ -47,7 +48,17 @@ export default class PaymentController extends BaseHttpController {
 
   @httpPost('/webhooks/mp')
   async processPayment(@request() req: Request) {
-    // TODO: add logic to retrieve the payment information
+    // TODO: add mercado pago auth logic to check webhook notifications
+    const { data } = req.body;
+
+    const [error] = await this.payment_service.processPayment({
+      external_id: data.id,
+    });
+
+    if (error instanceof NotFoundError) {
+      return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);
+    }
+
     return this.ok();
   }
 }

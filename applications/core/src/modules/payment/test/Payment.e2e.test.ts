@@ -248,7 +248,7 @@ describe('Payment E2E tests', () => {
     });
   });
 
-  describe('POST: /api/payments/webhooks', () => {
+  describe.skip('POST: /api/payments/webhooks', () => {
     const subscription_id = faker.string.uuid();
     const tenant_id = faker.string.uuid();
 

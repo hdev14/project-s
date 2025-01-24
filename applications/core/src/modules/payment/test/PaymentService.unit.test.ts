@@ -148,7 +148,7 @@ describe('PaymentService unit tests', () => {
       expect(data).toBeUndefined();
       expect(error).toBeUndefined();
       expect(mediator_mock.send).toHaveBeenCalledTimes(1);
-      expect(payment_gateway_mock.makeTransaction).toHaveBeenCalledTimes(1);
+      expect(payment_gateway_mock.makePayment).toHaveBeenCalledTimes(1);
       expect(payment_repository_mock.createPayment).toHaveBeenCalledTimes(1);
       expect(payment_log_repository_mock.createPaymentLog).toHaveBeenCalledTimes(1);
     });

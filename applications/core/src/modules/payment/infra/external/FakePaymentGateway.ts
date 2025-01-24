@@ -10,7 +10,7 @@ export default class FakePaymentGateway implements PaymentGateway {
   readonly #customer_results: RegisterCustomerResult[] = [];
   readonly #credit_card_datas: { id: string, customer_id: string, card_token: string }[] = [];
 
-  makeTransaction(payment: Payment): Promise<PaymentLog> {
+  makePayment(payment: Payment): Promise<PaymentLog> {
     console.log('Making faker transaction', payment);
 
     return Promise.resolve(

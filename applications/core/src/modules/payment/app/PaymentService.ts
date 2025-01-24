@@ -97,7 +97,7 @@ export default class PaymentService {
       tenant_id: params.tenant_id,
     });
 
-    const payment_log = await this.#payment_gateway.makeTransaction(payment);
+    const payment_log = await this.#payment_gateway.makePayment(payment);
 
     await this.#payment_repository.createPayment(payment);
 
@@ -107,6 +107,7 @@ export default class PaymentService {
   }
 
   async processPayment(params: ProcessPaymentParams): Promise<Either<void>> {
+    // TODO: get transaction from payment gateway
     const payment = await this.#payment_repository.getPaymentById(params.payment_id);
 
     if (!payment) {

@@ -139,7 +139,7 @@ describe('MercadoPago unit tests', () => {
     });
   });
 
-  describe('MercadoPago.makeTransaction', () => {
+  describe('MercadoPago.makePayment', () => {
     it("should call the correct endpoint to create new payment", async () => {
       const payment_response_mock = mock<Response>({
         status: 200,
@@ -163,7 +163,7 @@ describe('MercadoPago unit tests', () => {
         }
       });
 
-      const payment_log = await mercado_pago.makeTransaction(payment);
+      const payment_log = await mercado_pago.makePayment(payment);
 
       const payment_obj = payment.toObject();
 
@@ -177,7 +177,8 @@ describe('MercadoPago unit tests', () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${mercado_pago_fixtures.auth_response.access_token}`
+            'Authorization': `Bearer ${mercado_pago_fixtures.auth_response.access_token}`,
+            'X-Idempotency-Key': payment.id,
           },
           body: JSON.stringify({
             external_reference: payment.id,
@@ -212,7 +213,7 @@ describe('MercadoPago unit tests', () => {
       fetch_spy.mockResolvedValueOnce(payment_response_mock);
 
       try {
-        await mercado_pago.makeTransaction(
+        await mercado_pago.makePayment(
           new Payment({
             id: faker.string.uuid(),
             amount: faker.number.float(),
@@ -228,6 +229,78 @@ describe('MercadoPago unit tests', () => {
             }
           })
         );
+      } catch (e: any) {
+        expect(e).toBeInstanceOf(PaymentError);
+        expect(e.payload).toEqual(mercado_pago_fixtures.bad_request_response);
+      }
+    });
+  });
+
+  describe('MercadoPago.getPayment', () => {
+    it('should return NULL if mercado pago returns 404', async () => {
+      const payment_response_mock = mock<Response>({
+        status: 404,
+        json: jest.fn(() => Promise.resolve({}))
+      });
+
+      fetch_spy.mockResolvedValueOnce(payment_response_mock);
+
+      const external_id = faker.string.uuid();
+      const transaction = await mercado_pago.getPayment(external_id);
+
+      expect(transaction).toBeNull();
+      expect(fetch_spy).toHaveBeenLastCalledWith(
+        `${mercado_pago_base_url}/v1/payments/${external_id}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${mercado_pago_fixtures.auth_response.access_token}`
+          },
+        }
+      );
+    });
+
+    it('returns the transaction information after retrieve the data', async () => {
+      const payment_response_mock = mock<Response>({
+        status: 200,
+        json: jest.fn(() => Promise.resolve(mercado_pago_fixtures.payment_response))
+      });
+
+      fetch_spy.mockResolvedValueOnce(payment_response_mock);
+
+      const external_id = faker.string.uuid();
+      const transaction = await mercado_pago.getPayment(external_id);
+
+      expect(transaction).toEqual({
+        status: PaymentStatus.PAID,
+        reason: expect.any(String),
+        payload: JSON.stringify(mercado_pago_fixtures.payment_response),
+      });
+      expect(fetch_spy).toHaveBeenLastCalledWith(
+        `${mercado_pago_base_url}/v1/payments/${external_id}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${mercado_pago_fixtures.auth_response.access_token}`
+          },
+        }
+      );
+    });
+
+    it('throws a PaymentError if something goes wrong', async () => {
+      expect.assertions(2);
+
+      const payment_response_mock = mock<Response>({
+        status: 400,
+        json: jest.fn(() => Promise.resolve(mercado_pago_fixtures.bad_request_response))
+      });
+
+      fetch_spy.mockResolvedValueOnce(payment_response_mock);
+
+      try {
+        await mercado_pago.getPayment(faker.string.uuid());
       } catch (e: any) {
         expect(e).toBeInstanceOf(PaymentError);
         expect(e.payload).toEqual(mercado_pago_fixtures.bad_request_response);

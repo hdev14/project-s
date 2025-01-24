@@ -47,6 +47,7 @@ export default class PaymentController extends BaseHttpController {
 
   @httpPost('/webhooks/mp')
   async processPayment(@request() req: Request) {
+    // TODO: add logic to retrieve the payment information
     return this.ok();
   }
 }

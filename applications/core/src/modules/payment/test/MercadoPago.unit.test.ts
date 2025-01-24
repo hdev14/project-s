@@ -273,6 +273,7 @@ describe('MercadoPago unit tests', () => {
       const transaction = await mercado_pago.getPayment(external_id);
 
       expect(transaction).toEqual({
+        payment_id: mercado_pago_fixtures.payment_response.external_reference,
         status: PaymentStatus.PAID,
         reason: expect.any(String),
         payload: JSON.stringify(mercado_pago_fixtures.payment_response),

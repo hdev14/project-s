@@ -1,4 +1,4 @@
-import PaymentGateway, { Customer, RegisterCreditCardResult, RegisterCustomerResult, TransactionResult } from "@payment/app/PaymentGateway";
+import PaymentGateway, { Customer, PaymentResult, RegisterCreditCardResult, RegisterCustomerResult } from "@payment/app/PaymentGateway";
 import Payment, { PaymentStatus } from "@payment/domain/Payment";
 import PaymentLog from "@payment/domain/PaymentLog";
 import PaymentError from "@shared/errors/PaymentError";
@@ -150,7 +150,7 @@ export default class MercadoPago implements PaymentGateway {
     this.#webhook_url = `${process.env.WEBHOOK_PAYMENT_BASE_URL}/mp`;
   }
 
-  async getPayment(external_id: string): Promise<TransactionResult | null> {
+  async getPayment(external_id: string): Promise<PaymentResult | null> {
     const access_token = await this.auth();
     const response = await fetch(`${this.#base_url}/v1/payments/${external_id}`, {
       method: 'GET',
@@ -171,6 +171,7 @@ export default class MercadoPago implements PaymentGateway {
     const data = await response.json() as PaymentResponseData;
 
     return {
+      payment_id: data.external_reference,
       status: this.#status[data.status],
       reason: this.#reasons[data.status_detail],
       payload: JSON.stringify(data),

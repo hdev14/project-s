@@ -30,11 +30,7 @@ type CreatePaymentParams = {
 };
 
 type ProcessPaymentParams = {
-  payment_id: string;
   external_id: string;
-  status: PaymentStatus;
-  reason?: string;
-  payload: Record<string, any>;
 };
 
 export type GetPaymentLogsResult = {
@@ -107,28 +103,34 @@ export default class PaymentService {
   }
 
   async processPayment(params: ProcessPaymentParams): Promise<Either<void>> {
-    // TODO: get transaction from payment gateway
-    const payment = await this.#payment_repository.getPaymentById(params.payment_id);
+
+    const payment_result = await this.#payment_gateway.getPayment(params.external_id);
+
+    if (!payment_result) {
+      return Either.left(new NotFoundError('notfound.payment'));
+    }
+
+    const payment = await this.#payment_repository.getPaymentById(payment_result.payment_id);
 
     if (!payment) {
       return Either.left(new NotFoundError('notfound.payment'));
     }
 
-    if (params.status === PaymentStatus.PAID) {
+    if (payment_result.status === PaymentStatus.PAID) {
       payment.pay();
     }
 
-    if (params.status === PaymentStatus.REJECTED) {
-      payment.reject(params.reason!);
+    if (payment_result.status === PaymentStatus.REJECTED) {
+      payment.reject(payment_result.reason!);
     }
 
-    if (params.status === PaymentStatus.CANCELED) {
-      payment.cancel(params.reason!);
+    if (payment_result.status === PaymentStatus.CANCELED) {
+      payment.cancel(payment_result.reason!);
     }
 
     const payment_log = new PaymentLog({
       external_id: params.external_id,
-      payload: JSON.stringify(params.payload),
+      payload: payment_result.payload,
       payment_id: payment.id,
     });
 

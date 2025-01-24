@@ -155,15 +155,28 @@ describe('PaymentService unit tests', () => {
   });
 
   describe('PaymentService.processPayment', () => {
+    it("throws a not found error if external payment doesn't exist", async () => {
+      payment_gateway_mock.getPayment.mockResolvedValueOnce(null);
+
+      const [error] = await payment_service.processPayment({
+        external_id: faker.string.uuid(),
+      });
+
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error!.message).toEqual('notfound.payment');
+    });
+
     it("throws a not found error if payment doesn't exist", async () => {
+      payment_gateway_mock.getPayment.mockResolvedValueOnce({
+        payment_id: faker.string.uuid(),
+        status: faker.helpers.enumValue(PaymentStatus),
+        reason: faker.string.sample(),
+        payload: JSON.stringify({}),
+      });
       payment_repository_mock.getPaymentById.mockResolvedValueOnce(null);
 
       const [error] = await payment_service.processPayment({
-        payload: {},
         external_id: faker.string.uuid(),
-        payment_id: faker.string.uuid(),
-        status: faker.helpers.enumValue(PaymentStatus),
-        reason: faker.lorem.paragraph(),
       });
 
       expect(error).toBeInstanceOf(NotFoundError);
@@ -185,14 +198,16 @@ describe('PaymentService unit tests', () => {
 
       const pay_spy = jest.spyOn(payment, 'pay');
 
+      payment_gateway_mock.getPayment.mockResolvedValueOnce({
+        payment_id: faker.string.uuid(),
+        status: PaymentStatus.PAID,
+        reason: faker.string.sample(),
+        payload: JSON.stringify({})
+      });
       payment_repository_mock.getPaymentById.mockResolvedValueOnce(payment);
 
       const [error] = await payment_service.processPayment({
-        payload: {},
         external_id: faker.string.uuid(),
-        payment_id: faker.string.uuid(),
-        status: PaymentStatus.PAID,
-        reason: faker.lorem.paragraph(),
       });
 
       expect(error).toBeUndefined();
@@ -218,20 +233,22 @@ describe('PaymentService unit tests', () => {
 
       const reject_spy = jest.spyOn(payment, 'reject');
 
-      payment_repository_mock.getPaymentById.mockResolvedValueOnce(payment);
-
-      const params = {
-        payload: {},
-        external_id: faker.string.uuid(),
+      const payment_result = {
         payment_id: faker.string.uuid(),
         status: PaymentStatus.REJECTED,
-        reason: faker.lorem.paragraph(),
+        reason: faker.string.sample(),
+        payload: JSON.stringify({}),
       };
 
-      const [error] = await payment_service.processPayment(params);
+      payment_gateway_mock.getPayment.mockResolvedValueOnce(payment_result);
+      payment_repository_mock.getPaymentById.mockResolvedValueOnce(payment);
+
+      const [error] = await payment_service.processPayment({
+        external_id: faker.string.uuid(),
+      });
 
       expect(error).toBeUndefined();
-      expect(reject_spy).toHaveBeenCalledWith(params.reason);
+      expect(reject_spy).toHaveBeenCalledWith(payment_result.reason);
       expect(payment_repository_mock.updatePayment).toHaveBeenCalled();
       expect(payment_log_repository_mock.createPaymentLog).toHaveBeenCalled();
       expect(mediator_mock.send).toHaveBeenCalled();
@@ -253,20 +270,22 @@ describe('PaymentService unit tests', () => {
 
       const cancel_spy = jest.spyOn(payment, 'cancel');
 
-      payment_repository_mock.getPaymentById.mockResolvedValueOnce(payment);
-
-      const params = {
-        payload: {},
-        external_id: faker.string.uuid(),
+      const payment_result = {
         payment_id: faker.string.uuid(),
         status: PaymentStatus.CANCELED,
-        reason: faker.lorem.paragraph(),
+        reason: faker.string.sample(),
+        payload: JSON.stringify({}),
       };
 
-      const [error] = await payment_service.processPayment(params);
+      payment_gateway_mock.getPayment.mockResolvedValueOnce(payment_result);
+      payment_repository_mock.getPaymentById.mockResolvedValueOnce(payment);
+
+      const [error] = await payment_service.processPayment({
+        external_id: faker.string.uuid(),
+      });
 
       expect(error).toBeUndefined();
-      expect(cancel_spy).toHaveBeenCalledWith(params.reason);
+      expect(cancel_spy).toHaveBeenCalledWith(payment_result.reason);
       expect(payment_repository_mock.updatePayment).toHaveBeenCalled();
       expect(payment_log_repository_mock.createPaymentLog).toHaveBeenCalled();
       expect(mediator_mock.send).toHaveBeenCalled();

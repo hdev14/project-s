@@ -14,7 +14,7 @@ import {
   requestParam
 } from "inversify-express-utils";
 
-@controller('/api/payments', types.AuthMiddleware)
+@controller('/api/payments')
 export default class PaymentController extends BaseHttpController {
   constructor(
     @inject(types.PaymentService) readonly payment_service: PaymentService,
@@ -24,13 +24,13 @@ export default class PaymentController extends BaseHttpController {
     this.logger.info("Payment's APIs enabled");
   }
 
-  @httpGet('/subscriptions/:subscription_id')
+  @httpGet('/subscriptions/:subscription_id', types.AuthMiddleware)
   async getSubscriptionPayments(@requestParam('subscription_id') subscription_id: string) {
     const [, data] = await this.payment_service.getSubscriptionPayments({ subscription_id });
     return this.json(data, HttpStatusCodes.OK);
   }
 
-  @httpGet('/:payment_id/logs')
+  @httpGet('/:payment_id/logs', types.AuthMiddleware)
   async getPaymentLogs(@request() req: Request) {
     const { payment_id } = req.params;
     const { page = 1, limit = 10 } = req.query;

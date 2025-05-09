@@ -1,4 +1,4 @@
-import PaymentGateway, { Customer, RegisterCreditCardResult, RegisterCustomerResult } from "@payment/app/PaymentGateway";
+import PaymentGateway, { Customer, PaymentResult, RegisterCreditCardResult, RegisterCustomerResult } from "@payment/app/PaymentGateway";
 import Payment from "@payment/domain/Payment";
 import PaymentLog from "@payment/domain/PaymentLog";
 import { randomUUID } from "crypto";
@@ -9,6 +9,10 @@ import 'reflect-metadata';
 export default class FakePaymentGateway implements PaymentGateway {
   readonly #customer_results: RegisterCustomerResult[] = [];
   readonly #credit_card_datas: { id: string, customer_id: string, card_token: string }[] = [];
+
+  getPayment(external_id: string): Promise<PaymentResult | null> {
+    throw new Error("Method not implemented.");
+  }
 
   makePayment(payment: Payment): Promise<PaymentLog> {
     console.log('Making faker transaction', payment);

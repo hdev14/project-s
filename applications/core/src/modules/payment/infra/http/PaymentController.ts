@@ -49,7 +49,6 @@ export default class PaymentController extends BaseHttpController {
 
   @httpPost('/webhooks/mp')
   async processPayment(@request() req: Request) {
-    // TODO: add mercado pago auth logic to check webhook notifications
     const { data } = req.body;
 
     if (process.env.NODE_ENV !== 'test') {

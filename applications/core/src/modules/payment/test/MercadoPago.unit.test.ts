@@ -16,8 +16,8 @@ describe('MercadoPago unit tests', () => {
 
   beforeAll(() => {
     process.env = Object.assign({}, OLD_ENV, {
-      MP_BASE_URL: mercado_pago_base_url,
-      MP_CLIENT_ID: 'client_id_test',
+      MERCADO_PAGO_BASE_URL: mercado_pago_base_url,
+      MERCADO_PAGO_CLIENT_ID: 'client_id_test',
       WEBHOOK_PAYMENT_BASE_URL: 'http://test.com/webhooks'
     });
 

@@ -145,8 +145,8 @@ export default class MercadoPago implements PaymentGateway {
   };
 
   constructor() {
-    this.#base_url = process.env.MP_BASE_URL!;
-    this.#client_id = process.env.MP_CLIENT_ID!;
+    this.#base_url = process.env.MERCADO_PAGO_BASE_URL!;
+    this.#client_id = process.env.MERCADO_PAGO_CLIENT_ID!;
     this.#webhook_url = `${process.env.WEBHOOK_PAYMENT_BASE_URL}/mp`;
   }
 

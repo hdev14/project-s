@@ -3,6 +3,7 @@ import PaymentService from "@payment/app/PaymentService";
 import NotFoundError from "@shared/errors/NotFoundError";
 import HttpStatusCodes from "@shared/HttpStatusCodes";
 import types from "@shared/types";
+import crypto from 'crypto';
 import { Request } from 'express';
 import { inject } from "inversify";
 import {
@@ -51,9 +52,29 @@ export default class PaymentController extends BaseHttpController {
     // TODO: add mercado pago auth logic to check webhook notifications
     const { data } = req.body;
 
-    const [error] = await this.payment_service.processPayment({
-      external_id: data.id,
-    });
+    if (process.env.NODE_ENV !== 'test') {
+      const x_signature = req.headers['x-signature'] as string;
+      const request_id = req.headers['x-request-id'] as string;
+
+      if (!x_signature || !request_id) {
+        return this.badRequest();
+      }
+
+      const [part_timestamp, part_v1] = x_signature.split(',');
+      const timestamp = part_timestamp.split('=')[1];
+      const hash = part_v1.split('=')[1];
+
+      const sha = crypto
+        .createHmac('sha256', process.env.MERCADO_PAGO_WEBHOOK_SECRET!)
+        .update(`id:${data.id};request-id:${request_id};ts:${timestamp};`)
+        .digest('hex');
+
+      if (sha !== hash) {
+        return this.json({ message: 'unathorized' }, HttpStatusCodes.UNAUTHORIZED);
+      }
+    }
+
+    const [error] = await this.payment_service.processPayment({ external_id: data.id });
 
     if (error instanceof NotFoundError) {
       return this.json({ message: req.__(error.message) }, HttpStatusCodes.NOT_FOUND);

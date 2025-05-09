@@ -44,7 +44,6 @@ export default class Application {
       app.use(i18n.init);
       // TODO: https://redis.io/docs/latest/develop/connect/clients/nodejs/
       // TODO: https://expressjs.com/en/advanced/best-practice-security.html
-      // TODO: https://opentelemetry.io/docs/languages/js/getting-started/nodejs/
       // TODO: https://expressjs.com/en/advanced/best-practice-performance.html
       // TODO: https://www.npmjs.com/package/pm2
     });

@@ -5,6 +5,7 @@ import GetUserCommand from '@shared/commands/GetUserCommand';
 import DomainError from '@shared/errors/DomainError';
 import NotFoundError from '@shared/errors/NotFoundError';
 import Mediator from '@shared/Mediator';
+import Queue from '@shared/Queue';
 import Page from '@shared/utils/Page';
 import { SubscriptionPlanRepository } from '@subscription/app/SubscriptionPlanRepository';
 import SubscriptionRepository from '@subscription/app/SubscriptionRepository';
@@ -43,11 +44,14 @@ describe('SubscriptionService unit tests', () => {
   const subscription_plan_repository_mock = mock<SubscriptionPlanRepository>();
   const subscription_repository_mock = mock<SubscriptionRepository>();
   const file_storage_mock = mock<FileStorage>();
+  const payment_queue_mock = mock<Queue>();
+  const queue_constructor = jest.fn().mockImplementation(() => payment_queue_mock);
   const subscription_service = new SubscriptionService(
     mediator_mock,
     subscription_plan_repository_mock,
     subscription_repository_mock,
     file_storage_mock,
+    queue_constructor,
   );
 
   describe('SubscriptionService.createSubscription', () => {
@@ -141,6 +145,48 @@ describe('SubscriptionService unit tests', () => {
       expect(data!.subscription_plan_id).toEqual(subscription_plan_id);
       expect(data!.tenant_id).toEqual(tenant_id);
       expect(subscription_repository_mock.createSubscription).toHaveBeenCalled();
+    });
+
+    it('should add a new message on the payment queue', async () => {
+      const subscriber_id = faker.string.uuid();
+      const subscription_plan_id = faker.string.uuid();
+      const tenant_id = faker.string.uuid();
+
+      mediator_mock.send
+        .mockResolvedValueOnce({ id: subscriber_id })
+        .mockResolvedValueOnce({ id: tenant_id });
+
+      const subscription_plan = new SubscriptionPlan({
+        id: subscription_plan_id,
+        items: [{ id: faker.string.uuid(), name: faker.commerce.product() }],
+        amount: faker.number.float(),
+        recurrence_type: faker.helpers.enumValue(RecurrenceTypes),
+        tenant_id: faker.string.uuid(),
+      });
+
+      subscription_plan_repository_mock
+        .getSubscriptionPlanById
+        .mockResolvedValueOnce(subscription_plan);
+
+      const params = {
+        subscriber_id,
+        subscription_plan_id,
+        tenant_id: faker.string.uuid(),
+        billing_day: faker.number.int({ max: 31 })
+      };
+
+      await subscription_service.createSubscription(params);
+
+      expect(payment_queue_mock.addMessage).toHaveBeenCalledWith({
+        id: expect.any(String),
+        name: 'ChargePendingSubscription',
+        payload: {
+          subscription_id: expect.any(String),
+          subscriber_id,
+          tenant_id,
+          amount: subscription_plan.toObject().amount,
+        }
+      });
     });
   });
 

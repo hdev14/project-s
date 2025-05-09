@@ -5,6 +5,7 @@ import GetUserCommand from "@shared/commands/GetUserCommand";
 import DomainError from "@shared/errors/DomainError";
 import NotFoundError from "@shared/errors/NotFoundError";
 import Mediator from "@shared/Mediator";
+import Queue from "@shared/Queue";
 import types from "@shared/types";
 import Either from "@shared/utils/Either";
 import { PageInfo, PageOptions } from "@shared/utils/Pagination";
@@ -12,7 +13,7 @@ import { ItemProps } from "@subscription/domain/Item";
 import Subscription, { SubscriptionProps } from "@subscription/domain/Subscription";
 import SubscriptionPlan, { RecurrenceTypes, SubscriptionPlanProps } from "@subscription/domain/SubscriptionPlan";
 import { randomUUID } from "crypto";
-import { inject, injectable } from "inversify";
+import { inject, injectable, interfaces } from "inversify";
 import 'reflect-metadata';
 import { SubscriptionPlanRepository } from "./SubscriptionPlanRepository";
 import SubscriptionRepository from "./SubscriptionRepository";
@@ -68,17 +69,20 @@ export default class SubscriptionService {
   readonly #subscription_plan_repository: SubscriptionPlanRepository;
   readonly #subscription_repository: SubscriptionRepository;
   readonly #file_storage: FileStorage;
+  readonly #payment_queue: Queue;
 
   constructor(
     @inject(types.Mediator) mediator: Mediator,
     @inject(types.SubscriptionPlanRepository) subscription_plan_repository: SubscriptionPlanRepository,
     @inject(types.SubscriptionRepository) subscription_repository: SubscriptionRepository,
     @inject(types.FileStorage) file_storage: FileStorage,
+    @inject(types.NewableQueue) queue_constructor: interfaces.Newable<Queue>,
   ) {
     this.#mediator = mediator;
     this.#subscription_plan_repository = subscription_plan_repository;
     this.#subscription_repository = subscription_repository;
     this.#file_storage = file_storage;
+    this.#payment_queue = new queue_constructor({ queue: process.env.PAYMENT_QUEUE });
   }
 
   async createSubscription(params: CreateSubscriptionParams): Promise<Either<SubscriptionProps>> {
@@ -108,7 +112,16 @@ export default class SubscriptionService {
 
     await this.#subscription_repository.createSubscription(subscription);
 
-    // TODO: send it to payment subscription queue
+    await this.#payment_queue.addMessage({
+      id: randomUUID(),
+      name: 'ChargePendingSubscription',
+      payload: {
+        subscription_id: subscription.id,
+        subscriber_id: subscriber.id,
+        tenant_id: company.id,
+        amount: subscription_plan.toObject().amount,
+      }
+    });
 
     return Either.right(subscription.toObject());
   }
